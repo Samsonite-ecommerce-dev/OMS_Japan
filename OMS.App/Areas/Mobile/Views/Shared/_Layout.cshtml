@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="icon" type="image/png" href="" />
+    <link rel="icon" sizes="192x192" href="" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="apple-mobile-web-app-title" content="" />
+    <link rel="apple-touch-icon-precomposed" href="" />
+    <title>eBusiness Order Management System</title>
+    <!--bootstrap-->
+    @Styles.Render("~/Content/js-library/bootstrap/3.3.5/css/bootstrap.min.css")
+    <!-- web -->
+    @Styles.Render("~/Areas/Mobile/Content/css/bootstrap.extend.css?v=20161024")
+    @Styles.Render("~/Areas/Mobile/Content/css/default.css?v=20161104")
+    @Styles.Render("~/Content/css/common.css?v=20161024")
+    <!--font-->
+    @Styles.Render("~/Content/font/glyphicon/css/font-glyphicon.css")
+    @RenderSection("style", required: false)
+</head>
+<body>
+    @RenderBody()
+    <!--jquery-->
+    @Scripts.Render("~/Content/js-library/jquery/1.11.1/jquery.min.js")
+    <!--bootstrap-->
+    @Scripts.Render("~/Content/js-library/bootstrap/3.3.5/js/bootstrap.min.js")
+    <!--web-->
+    @Scripts.Render("~/Content/js-library/js/common.js?v=20161025")
+    @Scripts.Render("~/Areas/Mobile/Content/js/bootstrap-extend.js?v=20161024")
+    @Scripts.Render("~/Areas/Mobile/Content/js/mobile.js?v=20161024")
+    @Scripts.Render("~/Areas/Mobile/Content/js/initial.js?v=20161024")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

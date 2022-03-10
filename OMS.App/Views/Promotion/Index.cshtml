@@ -1,0 +1,256 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _QuickTimeList = (List<object[]>)ViewData["quicktime_list"];
+    List<string> _AppConfig = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().PromotionApproval;
+}
+
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                @ViewBag.LanguagePack["promotion_index_search_title"]:
+                <input id="Title" type="text" class="easyui-textbox input-xlarge" prompt="@ViewBag.LanguagePack["common_search_key"]" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["packagegoods_index_search_store"]:
+                <input id="StoreName" name="StoreName" class="input-xlarge" value="">
+            </li>
+            <li>
+                @ViewBag.LanguagePack["promotion_index_search_operation_time"]:
+                <select id="quick_time" class="easyui-combobox">
+                    <option value="0" selected="selected">@ViewBag.LanguagePack["common_select"]</option>
+                    @foreach (var _o in _QuickTimeList)
+                    {
+                        <option value="@_o[0]">@_o[1]</option>
+                    }
+                </select>
+                <input id="Time1" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+                -
+                <input id="Time2" type="text" class="input-medium Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" />
+            </li>
+            <li style="display:none">
+                @ViewBag.LanguagePack["promotion_index_search_state"]:
+                <select id="State" class="easyui-combobox">
+                    <option value="0" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                    <option value="2">@ViewBag.LanguagePack["common_audits_pass"]</option>
+                    <option value="1">@ViewBag.LanguagePack["common_audits_no_pass"]</option>
+                </select>
+            </li>
+            <li>
+                @ViewBag.LanguagePack["promotion_index_search_canceled"]:
+                <input id="Deleted" type="checkbox" />
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="add" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-plus color_success"></i>@ViewBag.LanguagePack["common_add"]</a>
+            <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>@ViewBag.LanguagePack["common_edit"]</a>
+            <a id="inventory" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-university color_warning"></i>@ViewBag.LanguagePack["promotion_index_edit_inventory"]</a>
+            <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>@ViewBag.LanguagePack["common_delete"]</a>
+            <a id="restore" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-eraser color_primary"></i>@ViewBag.LanguagePack["common_recover"]</a>
+            <a id="detail" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-window-restore color_success"></i>@ViewBag.LanguagePack["common_detail"]</a>
+            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
+            {
+                <a id="saleapproval" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-gavel color_primary"></i>@ViewBag.LanguagePack["common_sale_approval"]</a>
+            }
+            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
+            {
+                <a id="whapproval" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-university color_primary"></i>@ViewBag.LanguagePack["common_wh_approval"]</a>
+            }
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',align:'left'">
+                        @ViewBag.LanguagePack["promotion_index_name"]
+                    </th>
+                    <th data-options="field:'s2',align:'left'">
+                        @ViewBag.LanguagePack["promotion_index_effect_time"]
+                    </th>
+                    <th data-options="field:'s3',align:'left'">
+                        @ViewBag.LanguagePack["promotion_index_rule_describe"]
+                    </th>
+                    <th data-options="field:'s4',align:'left'">
+                        @ViewBag.LanguagePack["promotion_index_gift_rule_describe"]
+                    </th>
+                    <th data-options="field:'s5',align:'left'">
+                        @ViewBag.LanguagePack["promotion_index_apply_message"]
+                    </th>
+                    @*<th data-options="field:'s6',align:'left'">
+                        @ViewBag.LanguagePack["promotion_index_state"]
+                    </th>*@
+                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
+                    {
+                        <th data-options="field:'s7',align:'left'">
+                            @ViewBag.LanguagePack["promotion_index_sale_approval_message"]
+                        </th>
+                    }
+                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
+                    {
+                        <th data-options="field:'s8',align:'left'">
+                            @ViewBag.LanguagePack["promotion_index_wh_approval_message"]
+                        </th>
+                    }
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //初始化店铺列表
+            $('#StoreName').combobox({
+                url: '@Url.Action("Mall_Message", "Common")',
+                valueField: 'value',
+                textField: 'text',
+                groupField: 'group',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'comboBox',
+                    selectOption: 1
+                }
+            });
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(','),
+                hideTools: getHideToolBar()
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "Promotion")'
+            });
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    title: $('#Title').val(),
+                    store: $('#StoreName').combobox('getValue'),
+                    time1: $('#Time1').val(),
+                    time2: $('#Time2').val(),
+                    state: $('#State').combobox('getValue'),
+                    isdelete: $('#Deleted').prop("checked") ? 1 : 0
+                });
+                //操作限制
+                easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                    powerTools: ('@ViewBag.FunctionPower').split(','),
+                    hideTools: getHideToolBar()
+                });
+            });
+            //操作
+            $('#toolbar').find('#add').bind('click', function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("Add", "Promotion")',
+                    title: '@ViewBag.LanguagePack["common_add"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Add_Message", "Promotion")'
+                });
+            });
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "Promotion")?id=$',
+                    title: '@ViewBag.LanguagePack["common_edit"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "Promotion")'
+                });
+            });
+            $('#toolbar').find('#inventory').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Inventory", "Promotion")?id=$',
+                    title: '@ViewBag.LanguagePack["promotion_index_edit_inventory"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Inventory_Message", "Promotion")'
+                });
+            });
+            $('#toolbar').find('#detail').bind('click', function () {
+                easyUIExtend.Grid.SingleOper($('#dg'), {
+                    url: '@Url.Action("Detail", "Promotion")?id=$',
+                    title: '@ViewBag.LanguagePack["common_detail"]',
+                    width: '100%',
+                    height: '100%'
+                });
+            });
+            $('#toolbar').find('#delete').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Delete_Message", "Promotion")');
+            });
+            $('#toolbar').find('#restore').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Restore_Message", "Promotion")');
+            });
+            $('#toolbar').find('#saleapproval').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("SaleApproval", "Promotion")?id=$',
+                    title: '@ViewBag.LanguagePack["common_sale_approval"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("SaleApproval_Message", "Promotion")'
+                });
+            });
+            $('#toolbar').find('#whapproval').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("WHApproval", "Promotion")?id=$',
+                    title: '@ViewBag.LanguagePack["common_wh_approval"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("WHApproval_Message", "Promotion")'
+                });
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+            $('#quick_time').combobox({
+                onChange: function (value) {
+                    if (value > 0) {
+                        commonJs.sysAjaxFunction({
+                            url: '@Url.Action("QuickTime_Message", "Common")',
+                            para: { id: value, format: 'yyyy-MM-dd' },
+                            isload: false,
+                            func: function (data) {
+                                data = eval('(' + data + ')');
+                                $('#Time1').val(data.t1);
+                                $('#Time2').val(data.t2);
+                            }
+                        });
+                    }
+                    else {
+                        $('#Time1').val('');
+                        $('#Time2').val('');
+                    }
+                }
+            });
+        });
+
+        //获取工具栏
+        function getHideToolBar() {
+            var _result;
+            if ($('#Deleted').prop("checked")) {
+                if (parseInt($('#State').combobox('getValue')) == 2) {
+                    _result = new Array('edit', 'delete', 'saleapproval', 'whapproval');
+                }
+                else {
+                    _result = new Array('delete');
+                }
+            }
+            else {
+                if (parseInt($('#State').combobox('getValue')) == 2) {
+                    _result = new Array('edit', 'restore', 'saleapproval', 'whapproval');
+                }
+                else {
+                    _result = new Array('restore');
+                }
+            }
+            return _result;
+        }
+    </script>
+}

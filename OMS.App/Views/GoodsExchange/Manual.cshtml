@@ -1,0 +1,31 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@ViewBag.IDs" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_manual_result"]：
+                        </th>
+                        <td>
+                            <input id="r1" name="Result" value="1" type="radio" checked="checked" /><label for="r1">@ViewBag.LanguagePack["common_confirmed"]</label>
+                            <input id="r2" name="Result" value="0" type="radio" /><label for="r2">@ViewBag.LanguagePack["common_delete"]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_manual_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

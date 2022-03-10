@@ -1,0 +1,132 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _RoleList = (List<Samsonite.OMS.Database.SysRole>)ViewData["role_list"];
+    var _UserRole = (List<int>)ViewData["user_role"];
+    var _MallList = (System.Text.StringBuilder)ViewData["mall_list"];
+    var _LanguageList = (List<Samsonite.OMS.DTO.AppLanguagePack>)ViewData["language_list"];
+    var _UserTypeList = (List<object[]>)ViewData["usertype_list"];
+    var _m = (Samsonite.OMS.Database.UserInfo)Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.UserID" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["users_edit_username"]：
+                        </th>
+                        <td>
+                            @_m.UserName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["users_edit_realname"]：
+                        </th>
+                        <td>
+                            <input name="RealName" type="text" class="easyui-textbox input-large" value="@_m.RealName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_roles"]：
+                        </th>
+                        <td>
+                            <div class="common-list_25">
+                                <input id="SelectAll_Role" type="checkbox" /><span>@ViewBag.LanguagePack["common_select_all"]</span>
+                                <ul>
+                                    @{
+                                        foreach (var _o in _RoleList)
+                                        {
+                                            if (_UserRole.Contains(_o.Roleid))
+                                            {
+                                                <li><input id="role_@_o.Roleid" name="RoleID" type="checkbox" value="@_o.Roleid" checked="checked"><label for="role_@_o.Roleid">@_o.RoleName</label></li>
+                                            }
+                                            else
+                                            {
+                                                <li><input id="role_@_o.Roleid" name="RoleID" type="checkbox" value="@_o.Roleid"><label for="role_@_o.Roleid">@_o.RoleName</label></li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_stores"]：
+                        </th>
+                        <td colspan="3">
+                            <div class="common-list_25">
+                                <input id="SelectAll_Mall" type="checkbox" /><span>@ViewBag.LanguagePack["common_select_all"]</span>
+                                @Html.Raw(_MallList.ToString())
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_default_language"]：
+                        </th>
+                        <td>
+                            @foreach (var _O in _LanguageList)
+                            {
+                                <input id="lg_@_O.ID" name="DefaultLanguage" type="radio" value="@_O.ID" @((_m.DefaultLanguage == _O.ID) ? "checked=\"checked\"" : "") /><label for="lg_@_O.ID">@_O.Name</label>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_type"]：
+                        </th>
+                        <td>
+                            @foreach (var _o in _UserTypeList)
+                            {
+                                if ((int)(_o[0]) == @_m.Type)
+                                {
+                                    <input id="type_@_o[0]" name="UserType" type="radio" value="@_o[0]" checked="checked"><label for="type_@_o[0]">@_o[1]</label>
+                                }
+                                else
+                                {
+                                    <input id="type_@_o[0]" name="UserType" type="radio" value="@_o[0]"><label for="type_@_o[0]">@_o[1]</label>
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_status"]：
+                        </th>
+                        <td>
+                            <input id="Status_1" name="Status" type="radio" value="1" @((_m.Status == (int)Samsonite.OMS.DTO.UserStatus.Normal || _m.Status == (int)Samsonite.OMS.DTO.UserStatus.ExpiredPwd) ? "checked=\"checked\"" : "")><label for="Status_1">@ViewBag.LanguagePack["common_active"]</label>
+                            <input id="Status_2" name="Status" type="radio" value="0" @((_m.Status == (int)Samsonite.OMS.DTO.UserStatus.Locked) ? "checked=\"checked\"" : "")><label for="Status_2">@ViewBag.LanguagePack["common_lock"]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["users_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Memo" class="easyui-textarea  input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //绑定全选
+            $('#SelectAll_Role').bind('click', function () {
+                commonJs.sysCheckBox($(this), 'RoleID');
+            });
+
+            $('#SelectAll_Mall').bind('click', function () {
+                commonJs.sysCheckBox($(this), 'Mall');
+            });
+        });
+    </script>
+}

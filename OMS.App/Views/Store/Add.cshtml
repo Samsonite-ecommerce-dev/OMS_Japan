@@ -1,0 +1,214 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _PlatformList = (List<Samsonite.OMS.Database.ECommercePlatform>)ViewData["platform_list"];
+    var _StorageList = (List<Samsonite.OMS.Database.StorageInfo>)ViewData["storage_list"];
+    var _MallInterfaceTypeList = (List<object[]>)ViewData["interface_list"];
+    var _RetailMallList = (List<Samsonite.OMS.Database.Mall>)ViewData["retail_mall_list"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_storename"]：
+                        </th>
+                        <td>
+                            <input id="StoreName" name="StoreName" type="text" class="easyui-textbox input-large" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_sapcode"]：
+                        </th>
+                        <td>
+                            <input id="SapCode" name="SapCode" type="text" class="easyui-textbox input-large" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_prefix"]：
+                        </th>
+                        <td>
+                            <input id="OrderPrefix" name="OrderPrefix" type="text" class="easyui-textbox input-medium" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_virtual_wms"]：
+                        </th>
+                        <td>
+                            <select id="VirtualWMSCode" name="VirtualWMSCode" class="easyui-combobox input-xlarge">
+                                @foreach (var _o in _StorageList)
+                                {
+                                    <option value="@_o.VirtualSAPCode">@_o.PlantName (@_o.VirtualSAPCode)</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_platform"]：
+                        </th>
+                        <td>
+                            <select id="PlatformCode" name="PlatformCode" class="easyui-combobox">
+                                @foreach (var _o in _PlatformList)
+                                {
+                                    <option value="@_o.PlatformCode">@_o.Name</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr id="tr_retail_mall">
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_select_retail_mall"]：
+                        </th>
+                        <td>
+                            <select id="RetailStore" name="RetailStore" class="easyui-combobox">
+                                @foreach (var _o in _RetailMallList)
+                                {
+                                    <option value="@_o.Id">@_o.Name</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr id="tr_interfacetype">
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_interface_type"]：
+                        </th>
+                        <td>
+                            @for (int t = 0; t < _MallInterfaceTypeList.Count; t++)
+                            {
+                                <input id="MallInterfaceType_@t" name="MallInterfaceType" type="radio" value="@_MallInterfaceTypeList[t][0]" @((t == 0) ? "checked=\"checked\"" : "")><label for="MallInterfaceType_@t">@_MallInterfaceTypeList[t][1]</label>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_isused"]：
+                        </th>
+                        <td>
+                            <input id="Status_1" name="Status" type="radio" value="1" checked="checked"><label for="Status_1">@ViewBag.LanguagePack["common_yes"]</label>
+                            <input id="Status_2" name="Status" type="radio" value="0"><label for="Status_2">@ViewBag.LanguagePack["common_no"]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_isopenservice"]：
+                        </th>
+                        <td>
+                            <input id="OpenService_1" name="OpenService" type="radio" value="1"><label for="OpenService_1">@ViewBag.LanguagePack["common_yes"]</label>
+                            <input id="OpenService_2" name="OpenService" type="radio" value="0" checked="checked"><label for="OpenService_2">@ViewBag.LanguagePack["common_no"]</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            $('#PlatformCode').combobox({
+                onChange: function (value) {
+                    SelectStore();
+                }
+            });
+
+            $('input[type=radio][name=MallInterfaceType]').bind("click", function () {
+                SelectStore();
+            });
+
+            $('#RetailStore').combobox({
+                onChange: function (value) {
+                   //读取该线下店铺信息
+                    commonJs.sysAjaxFunction({
+                        url: '@Url.Action("GetMall_Message","Store")',
+                        para: {
+                            id:value
+                        },
+                        dataType: 'json',
+                        isload:false,
+                        func: function (data) {
+                            if (data.result) {
+                                $('#StoreName').textbox("setValue", data.data.name);
+                                $('#SapCode').textbox("setValue", data.data.sapCode);
+                                $('#OrderPrefix').textbox("setValue", data.data.prefix);
+                                $('#VirtualWMSCode').textbox("setValue", data.data.virtualCode);
+                                $('textarea[name=Remark]').val(data.data.remark);
+                            }
+                        }
+                    });
+                }
+            });
+
+            SelectStore();
+        });
+
+        function SelectStore() {
+            var _platformID = parseInt($('#PlatformCode').combobox("getValue"));
+            if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.LAZADA_Singapore)') {
+                SelectInterfaceType(0);
+                $('#tr_retail_mall').hide();
+            }
+            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.DEMANDWARE_Singapore)') {
+                SelectInterfaceType(1);
+                $('#tr_retail_mall').hide();
+            }
+            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.ZALORA_Singapore)') {
+                SelectInterfaceType(0);
+                $('#tr_retail_mall').hide();
+            }
+            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.TUMI_Singapore)') {
+                SelectInterfaceType(1);
+                $('#tr_retail_mall').hide();
+            }
+            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.SHOPEE_Singapore)') {
+                SelectInterfaceType(0);
+                $('#tr_retail_mall').hide();
+            }
+            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.Micros_Singapore)') {
+                SelectInterfaceType(1);
+                $('#StoreName').textbox("readonly", true);
+                $('#SapCode').textbox("readonly", true);
+                $('#tr_retail_mall').show();
+            }
+            else {
+                SelectInterfaceType(-1);
+                $('#tr_retail_mall').hide();
+            }
+        }
+
+        function SelectInterfaceType(index) {
+            var $obj = $('input[type=radio][name=MallInterfaceType]');
+            if (index == 0) {
+                $obj.eq(0).prop("checked", true);
+                $obj.eq(0).prop("disabled", false);
+                $obj.eq(1).prop("checked", false);
+                $obj.eq(1).prop("disabled", true);
+            }
+            else if (index == 1) {
+                $obj.eq(0).prop("checked", false);
+                $obj.eq(0).prop("disabled", true);
+                $obj.eq(1).prop("checked", true);
+                $obj.eq(1).prop("disabled", false);
+            }
+            else {
+                $obj.eq(0).prop("checked", false);
+                $obj.eq(0).prop("disabled", true);
+                $obj.eq(1).prop("checked", false);
+                $obj.eq(1).prop("disabled", true);
+            }
+        }
+    </script>
+}

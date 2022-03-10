@@ -1,0 +1,137 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _GroupList = (List<Samsonite.OMS.Database.SysFunctionGroup>)ViewData["group_list"];
+    var _PowerList = (List<Samsonite.OMS.DTO.DefineUserPower>)ViewData["power_list"];
+    var _m = Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Funcid" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>功能名称：
+                        </th>
+                        <td>
+                            <input name="FuncName" type="text" class="easyui-textbox input-xlarge" value="@_m.FuncName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>所属菜单组：
+                        </th>
+                        <td>
+                            <select name="GroupID" class="easyui-combobox">
+                                @{
+                                    foreach (var _o in _GroupList)
+                                    {
+                                        if (_o.Groupid == _m.Groupid)
+                                        {
+                                            <option value="@_o.Groupid" selected="selected">@_o.GroupName</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@_o.Groupid">@_o.GroupName</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            类型：
+                        </th>
+                        <td>
+                            <input id="FuncType_1" name="FuncType" type="radio" value="1" @((_m.FuncType == 1) ? "checked=\"checked\"" : "")><label for="FuncType_1">菜单</label>
+                            <input id="FuncType_2" name="FuncType" type="radio" value="2" @((_m.FuncType == 2) ? "checked=\"checked\"" : "")><label for="FuncType_2">功能</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>功能标识：
+                        </th>
+                        <td>
+                            <input name="FuncSign" type="text" class="easyui-textbox input-large" value="@_m.FuncSign" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>默认地址：
+                        </th>
+                        <td>
+                            <input name="FuncUrl" type="text" class="easyui-textbox input-xlarge" value="@_m.FuncUrl" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>权限：
+                        </th>
+                        <td>
+                            <div class="common-list">
+                                <ul>
+                                    @{
+                                        foreach (var _o in _PowerList)
+                                        {
+                                            <li>
+                                                <i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><span>名称：</span><input name="PowerName" type="text" value="@_o.Name" class="easyui-text input-medium" /><span>值：</span><input name="PowerValue" type="text" value="@_o.Value" class="easyui-text input-medium" />
+                                            </li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                            <input id="add-button" type="button" value="添加权限" class="btn btn-warning" />
+                        </td>
+                    </tr>
+                    <tr class="display_none">
+                        <th>
+                            <span class="color_danger">*</span>链接方式：
+                        </th>
+                        <td>
+                            <select name="FuncTarget" class="easyui-combobox">
+                                <option value="iframe">iframe</option>
+                                <option value="blank">blank</option>
+                                <option value="self">self</option>
+                                <option value="parent">parent</option>
+                                <option value="top">top</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>状态：
+                        </th>
+                        <td>
+                            <input id="IsShow_1" name="IsShow" type="radio" value="1" @((_m.IsShow) ? "checked=\"checked\"" : "")><label for="IsShow_1">显示</label>
+                            <input id="IsShow_2" name="IsShow" type="radio" value="0" @((!_m.IsShow) ? "checked=\"checked\"" : "")><label for="IsShow_2">隐藏</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            简要描述：
+                        </th>
+                        <td>
+                            <textarea name="FuncMemo" class="easyui-textarea  input-xlarge" style="height:100px;">@_m.FuncMemo</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#add-button').bind('click', function () {
+                $('.common-list ul').append('<li><i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><span>名称：</span><input name="PowerName" type="text" class="easyui-text input-medium" /><span>值：</span><input name="PowerValue" type="text" class="easyui-text input-medium" /></li>');
+            });
+        });
+
+        function del_power(object) {
+            $o = object.parent().remove();
+        }
+    </script>
+}
+

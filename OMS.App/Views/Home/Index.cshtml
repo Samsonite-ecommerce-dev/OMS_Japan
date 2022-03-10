@@ -1,0 +1,103 @@
+﻿@{
+    Layout = null;
+    var objDefineMenu_List = (List<Samsonite.OMS.DTO.DefineMenu>)Model;
+    string _SkinStyle = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().SkinStyle;
+    var _LoginUserInfo = Samsonite.OMS.Service.UserLoginService.GetCurrentLoginUser();
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eBusiness Order Management System V3.0.5.1</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="Description" content="Samsonite eBusiness order management system" />
+    <meta name="Keywords" content="Samsonite eBusiness order management system" />
+    <link rel="bookmark" type="image/x-icon" href="/Content/css/favicon.ico" />
+    <link rel="shortcut icon" href="/Content/css/favicon.ico">
+    <!--easyui-->
+    @Styles.Render("~/Content/js-library/jquery-easyui/1.5.1/themes/bootstrap/easyui.css")
+    @Styles.Render("~/Content/js-library/jquery-easyui/1.5.1/themes/icon.css")
+    <!-- web -->
+    @Styles.Render("~/Content/css/style/" + _SkinStyle + "/iframe.css?v=20170627")
+    @Styles.Render("~/Content/css/common.css")
+    <!--font-->
+    @Styles.Render("~/Content/font/awesome/css/font-awesome.css")
+</head>
+<body class="easyui-layout">
+    <div class="frame_top" region="north" border="false">
+        <div class="top_left">
+            <a href="@Url.Action("Index","Home")" target="_parent">@ViewBag.LanguagePack["home_index_title"]</a>
+        </div>
+        <div class="top_right">
+            <ul>
+                <li><i class="fa fa-home color_success"></i><a href="@Url.Action("Index","Home")">@ViewBag.LanguagePack["home_index_index"]</a></li>
+                <li><i class="fa fa-retweet color_warning"></i><a href="javascript:void(0);" onclick="OpenTab('@ViewBag.LanguagePack["home_index_select_language"]','@Url.Action("LanguageConfig","Home")')">@ViewBag.LanguagePack["home_index_select_language"]</a></li>
+                <li><i class="fa fa-cog color_danger"></i><a href="javascript:void(0);" onclick="OpenTab('@ViewBag.LanguagePack["home_index_editpassword"]','@Url.Action("EditPassword","Home")')">@ViewBag.LanguagePack["home_index_editpassword"]</a></li>
+                <li><i class="fa fa-hand-paper-o color_info"></i><a href="#">@ViewBag.LanguagePack["home_index_help"]</a></li>
+                <li><i class="fa fa-sign-out"></i><a href="~/Login/LoginOut">@ViewBag.LanguagePack["home_index_logout"]</a></li>
+            </ul>
+            <div class="user">
+                <span><i class="fa fa-user-circle color_info"></i>@_LoginUserInfo.UserName</span>
+            </div>
+        </div>
+    </div>
+    <div class="frame_left" region="west" split="false" title="@ViewBag.LanguagePack["home_index_bar"]" style="width:182px;" id="west">
+        <ul class="menu_list">
+            @foreach (Samsonite.OMS.DTO.DefineMenu _m in objDefineMenu_List)
+            {
+                <li>
+                    <div class="title">
+                        <i class="fa @_m.Icon"></i>@_m.Name
+                    </div>
+                    <dl>
+                        @foreach (Samsonite.OMS.DTO.DefineMenu.MenuChild _c in @_m.Children)
+                        {
+                            <dd>
+                                <cite></cite>
+                                <a rel="/@_c.Url">@_c.Name</a>
+                                <i></i>
+                            </dd>
+                        }
+                    </dl>
+                </li>
+            }
+        </ul>
+    </div>
+    <div id="mainPanle" region="center">
+        <div id="tabs" class="easyui-tabs" fit="true" border="false" plain="true"></div>
+    </div>
+    <!-- script -->
+    @Scripts.Render("~/Content/js-library/jquery/1.11.1/jquery.min.js")
+    <!--easyui-->
+    @Scripts.Render("~/Content/js-library/jquery-easyui/1.5.1/jquery.easyui.min.js")
+    @Scripts.Render(string.Format("~/Content/js-library/jquery-easyui/1.5.1/locale/easyui-lang-{0}.js", @Samsonite.OMS.Service.AppLanguage.LanguageService.CurrentLanguageFile))
+    @Scripts.Render("~/Content/js-library/js/easyui-extend.js")
+    @Scripts.Render("~/Content/js-library/js/easyui-iframe.js")
+    @Scripts.Render(string.Format("~/Content/js-library/js/locale/lang-{0}.js", @Samsonite.OMS.Service.AppLanguage.LanguageService.CurrentLanguageFile))
+    <script type="text/javascript">
+        $(function () {
+            var _user_type = '@_LoginUserInfo.UserType';
+            var _user_status = '@_LoginUserInfo.UserStatus';
+            //设置menu
+            InitMenu();
+            //初始页
+            if (_user_status == '@((int)Samsonite.OMS.DTO.UserStatus.ExpiredPwd)') {
+                OpenTab('Edit Password', '@Url.Action("EditPassword", "Home")', false);
+            }
+            else {
+                if (_user_type == 1) {
+                    //仓库人员首页
+                    OpenTab('Home', '@Url.Action("Main", "Home",new { area="WareHouse"})', false);
+                }
+                else {
+                    OpenTab('Home', '@Url.Action("Main", "Home")', false);
+                }
+            }
+        });
+
+        //解决子页面新开窗口问题
+        function OpenTab(objTitle, objUrl, objReload) {
+            easyUIExtend.AddMenuTab(objTitle, objUrl, objReload);
+        }
+    </script>
+</body>
+</html>

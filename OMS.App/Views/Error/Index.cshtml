@@ -1,0 +1,36 @@
+﻿@{
+    Layout = null;
+    string _SkinStyle = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().SkinStyle;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>404 Error</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="Description" content="" />
+    <meta name="Keywords" content="" />
+    @Styles.Render("~/Content/css/style/" + _SkinStyle + "/default.css")
+    <style type="text/css">
+        body {
+            background: #edf6fa;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="error">
+        <h2>@ViewBag.ErrorMessage</h2>
+        <p>&nbsp;</p>
+        <p>&nbsp;</p>
+    </div>
+    @Scripts.Render("~/Content/js-library/jquery/1.11.1/jquery.min.js")
+    <script language="javascript">
+        $(function () {
+            $('.error').css({ 'position': 'absolute', 'left': ($(document).width() - 490) / 2 });
+            $(window).resize(function () {
+                $('.error').css({ 'position': 'absolute', 'left': ($(document).width() - 490) / 2 });
+            })
+        });
+    </script>
+</body>
+</html>

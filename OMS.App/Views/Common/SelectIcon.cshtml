@@ -1,0 +1,23 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _IconList = (List<Samsonite.OMS.DTO.IconDto>)ViewData["icon_list"];
+    var _IconGroupList = _IconList.GroupBy(p => p.Type).ToList();
+}
+<div class="main">
+    <div class="infor_file">
+        <div class="select_icon">
+            @{
+                foreach (var _g in _IconGroupList)
+                {
+                    <dl>
+                        <dt>@_g.Key.ToUpper() ICONS</dt>
+                        @foreach (var _o in _IconList.Where(p => p.Type == _g.Key))
+                        {
+                            <dd><a href="javascript:void(0);" onclick="artDialog.open.origin.DoIconMessage('@_o.Css');" title="@_o.Value"><i class="fa @_o.Css"></i></a></dd>
+                        }
+                    </dl>
+                }
+            }
+        </div>
+    </div>
+</div>

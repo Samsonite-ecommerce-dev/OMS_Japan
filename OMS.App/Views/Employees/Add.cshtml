@@ -1,0 +1,94 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Samsonite.OMS.Database.UserEmployeeLevel> _LevelGroup = (List<Samsonite.OMS.Database.UserEmployeeLevel>)ViewData["level_group"];
+    List<Samsonite.OMS.Database.UserEmployeeGroup> _GroupList = (List<Samsonite.OMS.Database.UserEmployeeGroup>)ViewData["group_list"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["employees_edit_name"]：
+                        </th>
+                        <td>
+                            <input name="Name" type="text" class="easyui-textbox input-large" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["employees_edit_email"]：
+                        </th>
+                        <td>
+                            <input name="Email" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["employees_edit_limit"]：
+                        </th>
+                        <td>
+                            <select id="LevelID" name="LevelID" class="easyui-combobox">
+                                @{
+                                    foreach (var _o in _LevelGroup)
+                                    {
+                                        <option value="@_o.LevelID">@_o.LevelName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["employees_edit_status"]：
+                        </th>
+                        <td>
+                            <input id="Status_1" name="Status" type="radio" value="0" checked="checked"><label for="Status_1">@ViewBag.LanguagePack["employees_status_1"]</label>
+                            <input id="Status_2" name="Status" type="radio" value="1"><label for="Status_2">@ViewBag.LanguagePack["employees_status_2"]</label>
+                        </td>
+                    </tr>
+                    <tr id="leavetime" class="display_none">
+                        <th>
+                            @ViewBag.LanguagePack["employees_edit_leavetime"]：
+                        </th>
+                        <td colspan="5">
+                            <input name="LeaveTime" type="text" class="input-medium Wdate" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["employees_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Memo" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //绑定全选
+            $('input[type=radio][name=Status]').bind('click', function () {
+                SelectStatus();
+            });
+        });
+
+        function SelectStatus() {
+            var $o = $('input[type=radio][name=Status]');
+            if($o.eq(0).prop('checked'))
+            {
+                $('#leavetime').hide();
+            }
+            else
+            {
+                $('#leavetime').show();
+            }
+        }
+    </script>
+}

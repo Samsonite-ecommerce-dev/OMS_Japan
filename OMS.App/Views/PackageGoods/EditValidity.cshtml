@@ -1,0 +1,44 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = (Samsonite.OMS.Database.ProductSet)Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_editvalidity_package"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.SetName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_editvalidity_code"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.SetCode
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["packagegoods_editvalidity_effect"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="BeginTime" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="@_m.StartDate" />
+                            -
+                            <input name="EndTime" type="text" class="input-medium Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" value="@_m.EndDate" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+}

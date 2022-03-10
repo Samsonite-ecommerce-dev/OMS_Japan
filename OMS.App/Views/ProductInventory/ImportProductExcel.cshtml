@@ -1,0 +1,78 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="main">
+    <div class="main_operate">
+        <ul>
+            <li><i class="fa fa-cloud-upload color_warning"></i><input id="input_upload" type="text" class="easyui-choosebox input-xxlarge" prompt="@ViewBag.LanguagePack["common_uploadfile_prompt"]" onClickButton="commonJs.openFileView({model:'M002',catalog: 'Product',object: $(this)});" /></li>
+            <li><i class="fa fa-download color_success"></i><a href="~/Document/Template/Product/ProductInventory_Update_Template.xlsx">@ViewBag.LanguagePack["product_inventory_importexcel_model"]</a></li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <table id="dg" class="easyui-datagrid">
+            <thead>
+                <tr>
+                    <th data-options="field:'MallSapCode',align:'left'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_store"]
+                    </th>
+                    <th data-options="field:'MallProductName',align:'left'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_local_productname"]
+                    </th>
+                    <th data-options="field:'ProductType',align:'center'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_type"]
+                    </th>
+                    <th data-options="field:'SKU',align:'left'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_sku"]
+                    </th>
+                    <th data-options="field:'OuterProduct',align:'left'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_outer_product"]
+                    </th>
+                    <th data-options="field:'OuterSku',align:'left'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_outer_sku"]
+                    </th>
+                    <th data-options="field:'IsOnSale',align:'center'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_isonsale"]
+                    </th>
+                    <th data-options="field:'IsUsed',align:'center'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_isused"]
+                    </th>
+                    <th data-options="field:'ResultMsg',align:'left'">
+                        @ViewBag.LanguagePack["product_inventory_importexcel_result"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                url: '@Url.Action("ImportProductExcel_Message", "ProductInventory")',
+                width: '100%',
+                pageSize: 15,
+                height: 500
+            });
+        });
+
+        function gl_SelectUploadFile(objPath) {
+            var _o = $('input[type="hidden"][title="value"]');
+            if (_o.length > 0) {
+                _o.eq(0).val(objPath);
+                _o.eq(0).attr("title", "");
+            }
+            var _s = $('input[type="text"][title="url"]');
+            if (_s.length > 0) {
+                _s.eq(0).val(objPath);
+                _s.eq(0).attr("title", "");
+            }
+
+            //列表中显示数据
+            easyUIExtend.Grid.Search($('#dg'), {
+                filepath: objPath
+            });
+        }
+    </script>
+}

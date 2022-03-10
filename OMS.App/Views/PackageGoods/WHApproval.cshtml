@@ -1,0 +1,113 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = (Samsonite.OMS.Database.View_ProductSet)Model;
+    var _detail_list = (List<dynamic>)ViewData["detail_list"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <div class="space_tiny"></div>
+            <table id="sku_list" class="common_table1">
+                <tbody>
+                    <tr>
+                        <th>@ViewBag.LanguagePack["packagegoods_audit_sku"]</th>
+                        <th>@ViewBag.LanguagePack["packagegoods_audit_quantity"]</th>
+                        <th>@ViewBag.LanguagePack["packagegoods_audit_price"]</th>
+                        <th>@ViewBag.LanguagePack["packagegoods_audit_stock"]</th>
+                    </tr>
+                    @foreach (var _o in _detail_list)
+                    {
+                        <tr>
+                            <td>@_o.SKU</td>
+                            <td>@_o.Quantity</td>
+                            <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_o.Price)</td>
+                            <td>@_o.Inventory</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="space_tiny"></div>
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_package"]：
+                        </th>
+                        <td>
+                            @_m.SetName
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_code"]：
+                        </th>
+                        <td>
+                            @_m.SetCode
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_storename"]：
+                        </th>
+                        <td colspan="3">
+                            @ViewBag.Stores
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_discrib"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.Description
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_need_stock_quantity"]：
+                        </th>
+                        <td>
+                            @_m.Inventory
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_effect"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.StartDate.ToString("yyyy-MM-dd HH:mm:ss")
+                            -
+                            @_m.EndDate.ToString("yyyy-MM-dd HH:mm:ss")
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_apply_person"]：
+                        </th>
+                        <td>
+                            @_m.AddUserName
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_apply_time"]：
+                        </th>
+                        <td>
+                            @_m.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_apply_remark"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.Remark
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["packagegoods_audit_remark"]：
+                        </th>
+                        <td colspan="3">
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

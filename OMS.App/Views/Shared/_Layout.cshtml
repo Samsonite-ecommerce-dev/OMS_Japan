@@ -1,0 +1,46 @@
+﻿@{
+    string _SkinStyle = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().SkinStyle;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eBusiness Order Management System_@ViewBag.Title</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="Description" content="" />
+    <meta name="Keywords" content="" />
+    <!--easyui-->
+    @Styles.Render("~/Content/js-library/jquery-easyui/1.5.1/themes/bootstrap/easyui.css")
+    @Styles.Render("~/Content/js-library/jquery-easyui/1.5.1/themes/icon.css")
+    <!--artdialog-->
+    @Styles.Render("~/Content/js-library/artdialog/4.1.7/skins/default.css")
+    <!-- web -->
+    @Styles.Render("~/Content/css/style/" + _SkinStyle + "/default.css?v=20190822")
+    @Styles.Render("~/Content/css/common.css?v=20210526")
+    @Styles.Render("~/Content/css/easyui-extend.css?v=20181122")
+    <!--font-->
+    @Styles.Render("~/Content/font/awesome/css/font-awesome.css")
+    @RenderSection("style", required: false)
+</head>
+<body>
+    @RenderBody()
+    <div>@Html.AntiForgeryToken()</div>
+    <!--jquery-->
+    @Scripts.Render("~/Content/js-library/jquery/1.11.1/jquery.min.js")
+    <!--jquery.extend-->
+    @Scripts.Render("~/Content/js-library/js/jquery-extend.js?v=20171019")
+    <!--easyui-->
+    @Scripts.Render("~/Content/js-library/jquery-easyui/1.5.1/jquery.easyui.min.js")
+    @Scripts.Render(string.Format("~/Content/js-library/jquery-easyui/1.5.1/locale/easyui-lang-{0}.js", @Samsonite.OMS.Service.AppLanguage.LanguageService.CurrentLanguageFile))
+    <!--artdialog-->
+    @Scripts.Render("~/Content/js-library/artdialog/4.1.7/artDialog.js")
+    @Scripts.Render("~/Content/js-library/artdialog/4.1.7/plugins/iframeTools.js")
+    <!--web-->
+    @Scripts.Render("~/Content/js-library/js/artdialog-extend.js?v=20190502")
+    @Scripts.Render("~/Content/js-library/js/easyui-extend.js?v=20190702")
+    @Scripts.Render("~/Content/js-library/js/common.js?v=20170428")
+    @Scripts.Render(string.Format("~/Content/js-library/js/locale/lang-{0}.js?v=20160331", @Samsonite.OMS.Service.AppLanguage.LanguageService.CurrentLanguageFile))
+    @Scripts.Render("~/Content/js-library/js/validateCSRFToken.js?v=20190502")
+    @Scripts.Render("~/Content/js-library/js/initial.js?v=20190625")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,229 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _RelatedStores = (List<Samsonite.OMS.Database.Mall>)ViewData["related_store_list"];
+    var _m = (Samsonite.OMS.Database.View_MallDetail)Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_storename"]：
+                        </th>
+                        <td>
+                            <input name="StoreName" type="text" class="easyui-textbox input-large" value="@_m.Name" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_sapcode"]：
+                        </th>
+                        <td>
+                            <input name="SapCode" type="text" class="easyui-textbox input-large" value="@_m.SapCode" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_mallname"]：
+                        </th>
+                        <td>
+                            <input name="MallName" type="text" class="easyui-textbox input-xlarge" value="@_m.MallName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_city"]：
+                        </th>
+                        <td>
+                            <input name="City" type="text" class="easyui-textbox input-medium" value="@_m.City" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_district"]：
+                        </th>
+                        <td>
+                            <input name="District" type="text" class="easyui-textbox input-medium" value="@_m.District" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_address"]：
+                        </th>
+                        <td>
+                            <input name="Address" type="text" class="easyui-textbox input-xxlarge" value="@_m.Address" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_zipcode"]：
+                        </th>
+                        <td>
+                            <input name="ZipCode" type="text" class="easyui-textbox input-medium" value="@_m.ZipCode" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_receiver"]：
+                        </th>
+                        <td>
+                            <input name="Receiver" type="text" class="easyui-textbox input-medium" value="@_m.ContactReceiver" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_phone"]：
+                        </th>
+                        <td>
+                            <input name="Phone" type="text" class="easyui-textbox input-medium" value="@_m.ContactPhone" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_latitude"]：
+                        </th>
+                        <td>
+                            <input name="Latitude" type="text" class="easyui-textbox input-medium" value="@_m.Latitude" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_longitude"]：
+                        </th>
+                        <td>
+                            <input name="Longitude" type="text" class="easyui-textbox input-medium" value="@_m.Longitude" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_store_type"]：
+                        </th>
+                        <td>
+                            <input name="StoreType" type="text" class="easyui-textbox input-medium" value="@_m.StoreType" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_related_store"]：
+                        </th>
+                        <td>
+                            <input id="selectMall" type="text" value="" class="input-large" prompt="@ViewBag.LanguagePack["stores_edit_select_mall_message"]" />
+                            <input id="AddButton" type="button" value="@ViewBag.LanguagePack["common_add"]" class="btn btn-info" />
+                            <div class="common-list-table" style="width:50%;">
+                                <ul id="mall_list">
+                                    <li class="common-list-table-tr">
+                                        <span class="avg-2">&nbsp;</span>
+                                        <span class="avg-6">@ViewBag.LanguagePack["stores_edit_storename"]</span>
+                                        <span class="avg-4">@ViewBag.LanguagePack["stores_edit_sapcode"]</span>
+                                    </li>
+                                    @foreach (var o in _RelatedStores)
+                                    {
+                                        <li class="common-list-table-td"><span class="avg-2"><i class="fa fa-close color_danger pointer" onclick="del_mall($(this))"></i></span><span class="avg-6">@o.Name<input name="RelatedBrandStore" type="hidden" value="@o.SapCode" /></span><span class="avg-4">@o.SapCode</span></li>
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_sort"]：
+                        </th>
+                        <td>
+                            <input name="Sort" type="text" class="easyui-numberbox input-mini" value="@_m.SortID" data-options="min:0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["stores_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["stores_edit_isused"]：
+                        </th>
+                        <td>
+                            <input id="Status_1" name="Status" type="radio" value="1" @((_m.IsUsed) ? "checked=\"checked\"" : "")><label for="Status_1">@ViewBag.LanguagePack["common_yes"]</label>
+                            <input id="Status_2" name="Status" type="radio" value="0" @((!_m.IsUsed) ? "checked=\"checked\"" : "")><label for="Status_2">@ViewBag.LanguagePack["common_no"]</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //绑定关联店铺搜索框
+            easyUIExtend.ComboGrid($('#selectMall'), {
+                panelWidth: 300,
+                url: '@Url.Action("MallByCondition_Message", "Common")',
+                idField: 's2',
+                textField: 's1',
+                queryParams: {
+                     platformID: '@((int)Samsonite.OMS.DTO.PlatformType.DEMANDWARE_Singapore)'
+                },
+                multiple: false,
+                columns: [[
+                    { field: 's1', title: '@ViewBag.LanguagePack["stores_index_storename"]', align: 'left' },
+                    { field: 's2', title: '@ViewBag.LanguagePack["stores_index_sapcode"]', align: 'left' }
+                ]]
+            });
+
+            //选择关联店铺
+            $('#AddButton').bind('click', function () {
+                SelectRelatedStore();
+            });
+
+            SelectStore();
+        });
+
+        function SelectRelatedStore() {
+            var _array = new Array();
+            var _mall = $.trim($('#selectMall').combobox('getText'));
+            var _mallSapCode = $.trim($('#selectMall').combobox('getValue'));
+            if (_mall == '') {
+                artDialogExtend.Message.Alert('@ViewBag.LanguagePack["stores_edit_message_select_one"]');
+                return false;
+            }
+            else {
+                _array.push({
+                    mall: _mall,
+                    sapCode:_mallSapCode
+                });
+            }
+
+            //插入
+            for (var t = 0; t < _array.length; t++) {
+                if (_array[t].sapCode != '') {
+                    var _isAdd = true;
+                    var $list = $('#mall_list');
+                    //查看是否已经存在该店铺
+                    $mall_list = $list.find('li');
+                    for (var i = 0; i < $mall_list.length; i++) {
+                        if ($.trim($mall_list.eq(i).find("input[name=RelatedStore]").val()) == _array[t].sapCode) {
+                            _isAdd = false;
+                        }
+                    }
+                    if (_isAdd) {
+                        //添加店铺
+                        $list.append('<li class="common-list-table-td"><span class="avg-2"><i class="fa fa-close color_danger pointer" onclick="del_mall($(this))"></i></span><span class="avg-6">' + _array[t].mall + '<input name="RelatedBrandStore" type="hidden" value="' + _array[t].sapCode + '" /></span><span class="avg-4">' + _array[t].sapCode + '</span></li>');
+                    }
+                }
+            }
+            //清空数据栏
+            $('#selectMall').combogrid('clear');
+        }
+
+         function del_mall(object) {
+            $o = object.parent().parent().remove();
+         }
+    </script>
+}

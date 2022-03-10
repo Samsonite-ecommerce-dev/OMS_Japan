@@ -1,0 +1,214 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _OrderDetail = (Samsonite.OMS.Database.View_OrderDetail)ViewData["order_detail"];
+    bool _IsCOD = (_OrderDetail.PaymentType == (int)Samsonite.OMS.DTO.PayType.CashOnDelivery);
+    int _AmountAccuracy = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().AmountAccuracy;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_order_number"]：
+                        </th>
+                        <td>
+                            @_m.OrderNo
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_sub_order_number"]：
+                        </th>
+                        <td>
+                            @_m.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_paytype"]：
+                        </th>
+                        <td colspan="3">
+                            @OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(_OrderDetail.PaymentType)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_sku"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.SKU
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_productname"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.ProductName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_price"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.SellingPrice)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_cancel_quantity"]：
+                        </th>
+                        <td>
+                            @_m.Quantity/<label class="color_primary">@_OrderDetail.Quantity</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.ProductPaymentAmount)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_actual_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_OrderDetail.ActualPaymentAmount))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_deliveryfee"]：
+                        </th>
+                        <td colspan="3">
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.DeliveryFee)
+                        </td>
+                    </tr>
+                    <tr>
+                        @*<th>
+                                <span class="color_danger">*</span>@ViewBag.LanguagePack["ordercancel_sure_refund_point"]：
+                            </th>
+                            <td>
+                                <input id="RefundPoint" name="RefundPoint" type="text" class="easyui-numberbox input-medium" value="@_m.RefundPoint" data-options="min:0,precision:@_AmountAccuracy" />
+                            </td>*@
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["ordercancel_sure_refund_payment"]：
+                        </th>
+                        <td>
+                            <input id="RefundAmount" name="RefundAmount" type="text" class="easyui-numberbox input-medium" value="@_m.RefundAmount" data-options="min:0,precision:@_AmountAccuracy" />
+                        </td>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["ordercancel_sure_refund_delivery"]：
+                        </th>
+                        <td>
+                            <input id="RefundExpress" name="RefundExpress" type="text" class="easyui-numberbox input-medium" value="@_m.RefundExpress" data-options="min:0,precision:@_AmountAccuracy,readonly:true" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_refund_total_refund"]：
+                        </th>
+                        <td colspan="3">
+                            @*@ViewBag.LanguagePack["ordercancel_sure_refund_total_refund_point"]
+                                (<span class="color_primary" id="total_point">0</span>)
+                                <br />*@
+                            @ViewBag.LanguagePack["ordercancel_sure_refund_total_refund_amount"]
+                            (<span id="total_amount">0</span>)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_reason"]：
+                        </th>
+                        <td colspan="3">
+                            @Samsonite.OMS.Service.OrderCancelProcessService.GetReason(_m.Reason)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_state"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(OMS.App.Helper.OrderHelper.GetProcessStatusDisplay(_m.Status, true))
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_oper_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_stock_reply"]：
+                        </th>
+                        <td colspan="3">
+                            @if (!_m.IsSystemCancel)
+                            {
+                                @Html.Raw(OMS.App.Helper.OrderHelper.GetWarehouseStatusDisplay(_m.ApiIsRead, _m.ApiStatus, true) + ((_m.ApiReplyDate != null) ? "<br />" + _m.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((_m.ApiReplyMsg != null) ? "<br />" + _m.ApiReplyMsg : ""));
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_confirm_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}", ((_m.AcceptUserDate != null) ? _m.AcceptUserName + "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.AcceptRemark)) ? "<br/>" + _m.AcceptRemark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_sure_remark"]：
+                        </th>
+                        <td colspan="3">
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //如果是COD订单限制退款金额只能为0
+            if ('@_IsCOD' == 'True') {
+                $('#RefundExpress').numberbox({ max: 0 });
+            }
+
+            //初始化计算总退款金额
+            ResetTotalReturn();
+
+            //$('#RefundPoint').numberbox({
+            //    onChange: function () {
+            //        ResetTotalReturn();
+            //    }
+            //});
+
+            $('#RefundAmount').numberbox({
+                onChange: function () {
+                    ResetTotalReturn();
+                }
+            });
+
+            $('#RefundExpress').numberbox({
+                onChange: function () {
+                    ResetTotalReturn();
+                }
+            });
+        });
+
+        function ResetTotalReturn() {
+            //var _refund_point = parseFloat($('#RefundPoint').numberbox('getValue'));
+            var _refund_amount = parseFloat($('#RefundAmount').numberbox('getValue'));
+            var _refund_express = parseFloat($('#RefundExpress').numberbox('getValue'));
+            var _total_refund = _refund_amount + _refund_express;
+            //$('#total_point').html(commonJs.formatCurrency(_refund_point));
+            $('#total_amount').html("<label class=\"color_primary\">" + commonJs.formatCurrency(_refund_amount) + "</label>" + "+<label class=\"color_warning\">" + commonJs.formatCurrency(_refund_express) + "</label>=<label class=\"color_success\">" + commonJs.formatCurrency(_total_refund) + "</label>");
+        }
+    </script>
+}

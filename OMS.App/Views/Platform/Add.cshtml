@@ -1,0 +1,74 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _PlatformPowerList = (List<string[]>)ViewData["platform_powers"];
+    int t = 0;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["platform_edit_name"]：
+                        </th>
+                        <td>
+                            <input name="Name" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["platform_edit_code"]：
+                        </th>
+                        <td>
+                            <input name="PlatformCode" type="text" class="easyui-numberbox input-small" value="" data-options="min:0,precision:0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["platform_edit_url"]：
+                        </th>
+                        <td>
+                            <input name="Url" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["platform_edit_appkey"]：
+                        </th>
+                        <td>
+                            <input name="AppKey" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["platform_edit_appsecret"]：
+                        </th>
+                        <td>
+                            <input name="AppSecret" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["platform_edit_power"]：
+                        </th>
+                        <td>
+                            <div class="common-list">
+                                <ul>
+                                    @foreach (var _o in _PlatformPowerList)
+                                    {
+                                    <li>
+                                        <input id="m_@t" name="PowerValue" type="checkbox" value="@_o[0]" />
+                                        <label for="m_@t">@_o[1]</label>
+                                    </li>
+                                        t++;
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

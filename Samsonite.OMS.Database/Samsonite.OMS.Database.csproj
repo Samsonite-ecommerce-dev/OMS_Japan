@@ -1,0 +1,467 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{9C8B3E3D-F34C-4303-B630-347A4A1D1191}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Samsonite.OMS.Database</RootNamespace>
+    <AssemblyName>Samsonite.OMS.Database</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.6.0.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="PetaPoco">
+      <HintPath>..\packages\PetaPoco\PetaPoco.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AnalysisDailyOrder.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AnalysisDailyProduct.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AnalysisEmployeeOrder.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="appModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>appModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="appModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="appModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>appModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="ApprovalInfo.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ApprovalRecord.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BaseRepository.cs" />
+    <Compile Include="Brand.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="BSArea.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Customer.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Deliverys.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DeliverysDocument.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DeliverysNote.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DeliverysNoteDetail.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DynamicRepository.cs" />
+    <Compile Include="ECommercePlatform.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ECommercePlatformApiLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ECommercePushInventoryRecord.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ECommercePushPriceRecord.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ECommercePushRecord.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ExpressCompany.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ExternalInterfaceLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="FTPInfo.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="InventoryWarnSend.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="LanguagePack.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="logModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>logModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="logModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="logModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>logModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Mall.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MallDetail.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MallProduct.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MallProductPriceRange.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Order.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderBilling.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderCancel.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderChangeRecord.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderClaimCache.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderDetail.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderDetailAdjustment.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderExchange.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderGift.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderLog.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderModify.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderPayment.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderPaymentDetail.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderPaymentGift.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderReceive.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderReject.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderReturn.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderReturnDeliverysDocument.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderShippingAdjustment.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderValueAddedService.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="OrderWMSReply.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Product.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductSet.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductSetDetail.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ProductSetMall.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Promotion.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PromotionGift.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PromotionMall.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PromotionProduct.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PromotionProductInventory.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SapUploadLog.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SapUploadLogDetail.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SapUploadLogWait.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SendMailGroup.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceModuleInfo.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ServiceModuleJob.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SMMailSend.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SMMailSended.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SMSSend.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SMSSended.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="StorageInfo.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SysConfig.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SysFunction.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SysFunctionGroup.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SysRole.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SysRoleFunction.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="SysUploadModel.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserEmployee.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserEmployeeGroup.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserEmployeeLevel.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserInfo.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserMalls.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="UserRoles.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_ApprovalRecord.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_DeliverysNote.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_MallDetail.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_MallProductInventory.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_Mall_Platform.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_OrderCancel.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_OrderDetail.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_OrderDetail_Deliverys.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_OrderDetail_Receive.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_OrderExchange.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_OrderModify.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_OrderReject.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_OrderReturn.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_ProductSet.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_Promotion.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_SysFunction.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_UserEmployee.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WarehouseInfo.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebApiAccessLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebApiAccount.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebApiLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebApiRoles.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebAppErrorLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebAppLoginLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebAppOperationLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebAppPasswordLog.cs">
+      <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EntityDeploy Include="appModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>appModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.Config" />
+    <None Include="appModel.edmx.diagram">
+      <DependentUpon>appModel.edmx</DependentUpon>
+    </None>
+    <EntityDeploy Include="logModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>logModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="logModel.edmx.diagram">
+      <DependentUpon>logModel.edmx</DependentUpon>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="appModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>appModel.edmx</DependentUpon>
+      <LastGenOutput>appModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="appModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>appModel.edmx</DependentUpon>
+      <LastGenOutput>appModel.cs</LastGenOutput>
+    </Content>
+    <Content Include="logModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>logModel.edmx</DependentUpon>
+      <LastGenOutput>logModel.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="logModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>logModel.edmx</DependentUpon>
+      <LastGenOutput>logModel.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

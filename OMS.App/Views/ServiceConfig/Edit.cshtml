@@ -1,0 +1,115 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = (Samsonite.OMS.Database.ServiceModuleInfo)Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.ModuleID" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>服务名称：
+                        </th>
+                        <td>
+                            <input name="ModuleTitle" type="text" class="easyui-textbox input-xlarge" value="@_m.ModuleTitle" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>服务工作流ID：
+                        </th>
+                        <td>
+                            <input name="ModuleWorkflowID" type="text" class="easyui-textbox input-xlarge" value="@_m.ModuleWorkflowID" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>服务标识：
+                        </th>
+                        <td>
+                            <input name="ModuleMark" type="text" class="easyui-textbox input-xlarge" value="@_m.ModuleMark" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>Assembly：
+                        </th>
+                        <td>
+                            <input name="ModuleAssembly" type="text" class="easyui-textbox input-xlarge" value="@_m.ModuleAssembly" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>Class：
+                        </th>
+                        <td>
+                            <input name="ModuleType" type="text" class="easyui-textbox input-xlarge" value="@_m.ModuleType" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>BLL：
+                        </th>
+                        <td>
+                            <input name="ModuleBLL" type="text" class="easyui-textbox input-xlarge" value="@_m.ModuleBLL" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            定时类型：
+                        </th>
+                        <td>
+                            <input id="f1" name="FixType" type="radio" value="1" @((_m.FixType == 1) ? "checked=\"checked\"" : "")><label for="f1">间隔执行</label>
+                            <input id="f2" name="FixType" type="radio" value="2" @((_m.FixType == 2) ? "checked=\"checked\"" : "")><label for="f2">定时执行</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            时间：
+                        </th>
+                        <td>
+                            <input name="FixTime" type="text" class="easyui-textbox input-large" value="@_m.FixTime" />
+                            <span class="label-info">*24小时制</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>是否有效：
+                        </th>
+                        <td>
+                            <input id="r_1" name="IsRun" type="radio" value="1" @((_m.IsRun) ? "checked=\"checked\"" : "")><label for="r_1">是</label>
+                            <input id="r_2" name="IsRun" type="radio" value="0" @((!_m.IsRun) ? "checked=\"checked\"" : "")><label for="r_2">否</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>是否错误通知：
+                        </th>
+                        <td>
+                            <input id="n_1" name="IsNotify" type="radio" value="1" @((_m.IsNotify) ? "checked=\"checked\"" : "")><label for="n_1">是</label>
+                            <input id="n_2" name="IsNotify" type="radio" value="0" @((!_m.IsNotify) ? "checked=\"checked\"" : "")><label for="n_2">否</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            排序：
+                        </th>
+                        <td>
+                            <input name="Sort" type="text" class="easyui-numberbox input-mini" value="@_m.SortID" data-options="min:0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            简要描述：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

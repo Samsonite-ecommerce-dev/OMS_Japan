@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                <input id="SearchKey" type="text" class="easyui-textbox input-large" prompt="搜索关键字" />
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="查询" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="add" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-plus color_success"></i>添加</a>
+            <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>编辑</a>
+            <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>删除</a>
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>刷新</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',width:50,align:'left'">
+                        分组名称
+                    </th>
+                    <th data-options="field:'s2',align:'center'">
+                        分组图标
+                    </th>
+                    <th data-options="field:'s3',align:'center'">
+                        排序
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message","FunctionGroup")'
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    keyword: $('#SearchKey').val()
+                });
+            });
+            //操作
+            $('#toolbar').find('#add').bind('click', function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("Add", "FunctionGroup")',
+                    title: '添加信息',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Add_Message", "FunctionGroup")'
+                });
+            });
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "FunctionGroup")?id=$',
+                    title: '编辑信息',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "FunctionGroup")'
+                });
+            });
+            $('#toolbar').find('#delete').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Delete_Message", "FunctionGroup")');
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+    </script>
+}
+

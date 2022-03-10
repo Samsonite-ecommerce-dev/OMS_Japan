@@ -1,0 +1,96 @@
+﻿@{
+    Layout = null;
+    string _SkinStyle = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().SkinStyle;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>eBusiness Order Management System</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="Description" content="Samsonite eBusiness order management system" />
+    <meta name="Keywords" content="Samsonite eBusiness order management system" />
+    <link rel="bookmark" type="image/x-icon" href="/Content/css/favicon.ico" />
+    <link rel="shortcut icon" href="/Content/css/favicon.ico">
+    <!-- web -->
+    @Styles.Render("~/Content/css/style/" + _SkinStyle + "/login.css?v=20170627")
+    @Styles.Render("~/Content/css/common.css")
+    @Styles.Render("~/Content/font/awesome/css/font-awesome.css")
+</head>
+<body>
+    <div id="mainBody">
+        <div id="cloud1" class="cloud"></div>
+        <div id="cloud2" class="cloud"></div>
+    </div>
+    <div class="logintop">
+        <span>@ViewBag.LanguagePack["login_index_welcome"]</span>
+    </div>
+    <div class="loginbody">
+        <div class="systemlogo"></div>
+        <div class="loginbox">
+            <ul>
+                <li class="error"></li>
+                <li><input id="username" name="username" type="text" class="loginuser" placeholder="@ViewBag.LanguagePack["login_index_username"]" autocomplete="off" /></li>
+                <li><input id="password" name="password" type="password" class="loginpwd" placeholder="@ViewBag.LanguagePack["login_index_password"]" autocomplete="new-password" /></li>
+                <li><button id="login_button" class="loginbtn" type="button">@ViewBag.LanguagePack["login_index_login"]</button><label><input id="isremember" name="isremember" type="checkbox" value="" checked="checked" />@ViewBag.LanguagePack["login_index_remember_password"]</label></li>
+            </ul>
+        </div>
+    </div>
+    <div class="loginbm">
+        <div class="line">
+            Copyright©2017&nbsp;Samsonite
+        </div>
+    </div>
+    <!-- script -->
+    @Scripts.Render("~/Content/js-library/jquery/1.11.1/jquery.min.js")
+    @Scripts.Render("~/Content/js-library/js/cloud.js")
+    <script language="javascript">
+        $(function () {
+            //注册回车事件
+            $(document).keypress(function (e) {
+                // 回车键事件
+                if (e.which == 13) {
+                    LoginMethod();
+                }
+            });
+            //提交
+            $('#login_button').bind('click', function () {
+                LoginMethod();
+            });
+        });
+
+        function LoginMethod() {
+            var _username = $('#username').val();
+            var _password = $('#password').val();
+            var _isremember = $('#isremember').prop('checked') ? 1 : 0;
+            $button = $('#login_button');
+            $.ajax(
+            {
+                url: '@Url.Action("Index_Message", "Login")',
+                type: 'post',
+                data: { username: _username,
+                        password: _password,
+                        isremember: _isremember
+                },
+                dataType: 'json',
+                beforeSend: function (XMLHttpRequest) {
+                    $button.html('<i class="fa fa-refresh btn-icon-spin"></i>@ViewBag.LanguagePack["login_index_login"]');
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $button.html('@ViewBag.LanguagePack["login_index_login"]');
+                },
+                success: function (data, textStatus) {
+                    $button.html('@ViewBag.LanguagePack["login_index_login"]');
+                    if (data.result) {
+                        $('.error').hide();
+                        window.location.href = '@Url.Action("Index", "Home")';
+                    }
+                    else {
+                        $('.error').html(data.msg);
+                        $('.error').show();
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_operate">
+        <ul>
+            <li>
+                <i class="fa fa-cloud-upload color_warning"></i>
+                <input id="input_upload" type="text" class="easyui-choosebox input-xxlarge" prompt="@ViewBag.LanguagePack["common_uploadfile_prompt"]" onClickButton="commonJs.openFileView({ model: 'M002', catalog: 'Employee', object: $(this) });" />
+            </li>
+            <li><i class="fa fa-download color_success"></i><a href="~/Document/Template/Employee/Employee_Update_Template.xlsx">@ViewBag.LanguagePack["employees_importexcel_model"]</a></li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <table id="dg" class="easyui-datagrid">
+            <thead>
+                <tr>
+                    <th data-options="field:'Name',align:'left'">
+                        @ViewBag.LanguagePack["employees_importexcel_name"]
+                    </th>
+                    <th data-options="field:'Email',align:'left'">
+                        @ViewBag.LanguagePack["employees_importexcel_email"]
+                    </th>
+                    <th data-options="field:'LevelKey',align:'center'">
+                        @ViewBag.LanguagePack["employees_importexcel_limit"]
+                    </th>
+                    <th data-options="field:'Effect',align:'left'">
+                        @ViewBag.LanguagePack["employees_importexcel_effect"]
+                    </th>
+                    <th data-options="field:'ResultMsg',align:'left'">
+                        @ViewBag.LanguagePack["employees_importexcel_result"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                url: '@Url.Action("ImportExcel_Message", "Employees")',
+                width: '100%',
+                pageSize: 15,
+                height: 500
+            });
+        });
+
+        function gl_SelectUploadFile(objPath) {
+            var _o = $('input[type="hidden"][title="value"]');
+            if (_o.length > 0) {
+                _o.eq(0).val(objPath);
+                _o.eq(0).attr("title", "");
+            }
+            var _s = $('input[type="text"][title="url"]');
+            if (_s.length > 0) {
+                _s.eq(0).val(objPath);
+                _s.eq(0).attr("title", "");
+            }
+
+            //列表中显示数据
+            easyUIExtend.Grid.Search($('#dg'), {
+                filepath: objPath
+            });
+        }
+    </script>
+}

@@ -1,0 +1,98 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _OrderDetail = (Samsonite.OMS.Database.View_OrderDetail)ViewData["order_detail"];
+    var _m = Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["deliveryrequireerror_reapply_order_no"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.OrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["deliveryrequireerror_reapply_sub_order_no"]:
+                        </th>
+                        <td>
+                            @_OrderDetail.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["deliveryrequireerror_reapply_store"]:
+                        </th>
+                        <td>
+                            @_OrderDetail.MallName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["deliveryrequireerror_reapply_sku"]:
+                        </th>
+                        <td>
+                            @_OrderDetail.SKU
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["deliveryrequireerror_reapply_product_status"]:
+                        </th>
+                        <td>
+                            @Html.Raw(OMS.App.Helper.OrderHelper.GetProductStatusDisplay(_OrderDetail.ProductStatus, true))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["deliveryrequireerror_reapply_ordertime"]:
+                        </th>
+                        <td>
+                            @_OrderDetail.OrderTime.ToString("yyyy-MM-dd HH:mm:ss")
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+
+                        </th>
+                        <td>
+                            <input id="submit_button" type="button" class="btn btn-info" value="@ViewBag.LanguagePack["deliveryrequireerror_reapply_button_reapply"]" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#submit_button').bind('click', function () {
+                commonJs.sysAjaxFunction({
+                    url: '@Url.Action("ReApply_Message", "DeliveryRequireError")',
+                    para: { id: '@_m.Id' },
+                    isload: true,
+                    func: function (data) {
+                        data = eval('(' + data + ')');
+                        if (data.result) {
+                            artDialogExtend.Tips.Success(data.msg, 3, function () {
+                                var _win = art.dialog.open.origin;
+                                if (_win) {
+                                    _win.artDialogExtend.Dialog.Close();
+                                }
+                            })
+
+                        } else {
+                            artDialogExtend.Tips.Error(data.msg);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

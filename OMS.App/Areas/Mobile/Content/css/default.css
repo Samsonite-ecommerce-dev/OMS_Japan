@@ -1,0 +1,906 @@
+﻿@charset "utf-8";
+
+html,
+body {
+    min-height: 100%;
+}
+
+html {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    background: #f6f6f6;
+}
+
+session {
+    display: block;
+}
+
+ul {
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    list-style-type: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+table th{
+     text-align:center;
+}
+
+/**登录**/
+.login {
+    width: 100%;
+}
+
+.login .login-top {
+    width: 100%;
+    height: 150px;
+    background: url('../images/login_top.png') no-repeat center center;
+    background-size: 128px 128px;
+}
+
+.login .login-enter {
+    border-top: 1px #d5d5d5 solid;
+    border-bottom: 1px #d5d5d5 solid;
+    background-color: #fff;
+}
+
+.login .login-enter .form-control {
+    -webkit-box-shadow: none;
+    border-radius: 0px;
+}
+
+.login .login-enter input {
+    padding-left: 40px;
+    height: 50px;
+    line-height: 50px;
+    border: none;
+}
+
+.login .login-enter .split {
+    width: 92%;
+    height: 1px;
+    border-top: 1px #dedede solid;
+    margin: auto;
+}
+
+.login label {
+    position: absolute;
+    padding: 13px 0 0 10px;
+    font-size: 1.8rem;
+}
+
+.login .login-bottom {
+    padding: 20px 15px 0 15px;
+}
+
+.login .select {
+    height: 45px;
+    text-align: center;
+}
+
+.login .select label {
+    position: relative;
+    padding: 0 25px;
+    font-size: 1.4rem;
+}
+
+.login-link {
+    width: 100%;
+    line-height: 36px;
+    font-size: 1.4rem;
+    text-align: center;
+    padding-top: 15%;
+}
+
+.login-link a {
+    color: #00b589;
+    font-weight: normal;
+    padding: 0 10px;
+}
+
+.login-link a:hover {
+    color: #5bc0de;
+}
+
+/**登录失败**/
+.login-error {
+    width: 100%;
+}
+
+.login-error .error-img {
+    background: url('../images/login_error.jpg') no-repeat center 10px #f6f6f6;
+    height: 290px;
+}
+
+.login-error .error-message {
+    font-size: 2rem;
+    padding: 20px 0 0 30px;
+    text-align: left;
+}
+
+.login-error .error-message i {
+    color: #5bc0de;
+    font-size: 2.4rem;
+    vertical-align: middle;
+    margin-top: -8px;
+}
+
+/*main-menu*/
+.main-menu {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+    background-color: #399fe1;
+    /*border-bottom: 1px #d5d5d5 solid;*/
+}
+
+.main-menu .left {
+    position: absolute;
+    left: 0px;
+    width: 20%;
+    text-align: center;
+}
+
+.main-menu .left i{
+    color: #fff;
+    border: 2px #fff solid;
+    border-radius: 50%;
+    padding: 3px;
+}
+
+.main-menu .left a {
+    width: 100%;
+    height: 50px;
+    display: block;
+    color: #20b992;
+    font-size: 1.8rem;
+}
+
+.main-menu .left a:hover, .head-menu .left a:focus {
+    background-color: #59c8f9;
+}
+
+.main-menu .middle {
+    position: absolute;
+    width: 60%;
+    left: 20%;
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: bold;
+    overflow: hidden;
+    color: #fff;
+}
+
+.main-menu .middle i {
+    color: #5cb85c;
+}
+
+.main-menu .face {
+    position: absolute;
+    width: 60%;
+    left: 20%;
+    text-align: center;
+    font-size: 1.4rem;
+    overflow: hidden;
+    color: #fff;
+}
+
+.main-menu .face i{
+    margin:10px 10px 0 10px;
+    width:60px;
+    height:60px;
+    color:#5cb85c;
+    font-size:4.2rem;
+    border:2px #fff solid;
+    border-radius:50%;
+}
+
+.main-menu .face span{
+    display:block;
+    line-height:28px;
+}
+
+.main-menu .right {
+    position: absolute;
+    width: 20%;
+    right: 0px;
+    text-align: center;
+    font-size: 1.8rem;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.main-menu .right button{
+    background-color:#399fe1;
+    font-size:2rem;
+}
+
+.main-menu .right button i{
+    color:#fff;
+}
+
+.main-group{
+    background-color:#fff;
+}
+
+/**main-group**/
+.main-group .circle{
+    height:15px;
+    background-color: #399fe1;
+    border-radius:0 0 50% 50%;
+}
+
+.main-group .group-menu{
+    height:80px;
+    border-bottom: 1px #d5d5d5 solid;
+}
+
+.main-group .group-menu a i{
+    font-size:1.8rem;
+    color:#428bca;
+}
+
+.main-group .group-menu a{
+    text-align:center;
+    width:25%;
+    display:block;
+    float:left;
+    font-size:1.4rem;
+    color:#3a3a3a;
+    padding:10px 0;
+}
+
+.main-group a:hover, .main-group a:focus {
+    background: #eee;
+}
+
+.main-group .group-menu a span{
+    display:block;
+}
+
+/*main-search*/
+.main-search {
+    border-top: 1px #d5d5d5 solid;
+    border-bottom: 1px #d5d5d5 solid;
+    height: 60px;
+    background-color: #fff;
+    padding-top: 10px;
+    margin-bottom: 10px;
+}
+
+.main-search a {
+    display: block;
+    height: 40px;
+    float: left;
+    width: 50%;
+    line-height: 40px;
+    padding-left: 18px;
+    color: #3a3a3a;
+    font-size: 18px;
+}
+
+.main-search a:hover, .main-search a:focus {
+    background: #eee;
+}
+
+.main-search a.menu_split {
+    border-left: 1px #d5d5d5 solid;
+}
+
+/*搜索栏*/
+.search-bar {
+    width: 100%;
+    padding: 10px 0;
+}
+
+.search-bar .search-input {
+    height: 38px;
+    padding: 0 18px;
+}
+
+.search-bar input {
+    float: left;
+    width: 82%;
+    height: 38px;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+    font-size: 1.2rem;
+    background-color: #fff;
+}
+
+.search-bar button {
+    float: left;
+    width: 18%;
+    background-color: #fff;
+    height: 38px;
+    border: 1px #ccc solid;
+}
+
+.search-infor {
+    font-size: 1.2rem;
+    line-height: 20px;
+    padding: 3px 15px 0 15px;
+    color: #666;
+}
+
+.search-infor i {
+    font-size: 1.6rem;
+    margin-top: -3px;
+    vertical-align: middle;
+}
+
+/*操作栏*/
+.action-bar {
+}
+
+.action-bar .local {
+    height: 50px;
+}
+
+.action-bar .action {
+    width: 100%;
+    background-color: #666;
+    height: 50px;
+    line-height: 50px;
+    text-align: right;
+    padding-right: 10px;
+    position: fixed;
+    bottom: 0;
+    filter: alpha(opacity=70);
+    -moz-opacity: 0.7;
+    opacity: 0.7;
+}
+
+.action-bar .action button {
+    margin: 0 5px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.action-bar .action #add {
+    border: 1px #337ab7 solid;
+    background-color: #337ab7;
+}
+
+.action-bar .action #edit {
+    border: 1px #f0ad4e solid;
+    background-color: #f0ad4e;
+}
+
+.action-bar .action #del {
+    border: 1px #d9534f solid;
+    background-color: #d9534f;
+}
+
+/*main-list*/
+.main-list {
+    width: 100%;
+    background-color: #fff;
+}
+
+.main-list li {
+    line-height: 50px;
+    height: 50px;
+    border-bottom: 1px #ebebeb solid;
+    font-weight: normal;
+    color: #3a3a3a;
+}
+
+.main-list li a {
+    width: 100%;
+    height: 50px;
+    display: inline-block;
+    color: #3a3a3a;
+    padding-left: 18px;
+}
+
+.main-list li a:hover, .common-list li a:focus {
+    background: #eee;
+}
+
+.main-list li span {
+    float: right;
+    color: #999;
+    line-height: 50px;
+    padding-right: 15px;
+    font-weight: normal;
+}
+
+/*main-grid*/
+.main-grid {
+    width: 100%;
+    background-color: #fff;
+    border-top: 1px #ccc solid;
+}
+
+.main-grid li {
+    border-bottom: 1px #e5e5e5 solid;
+    padding: 10px 10px;
+    clear: left;
+}
+
+.main-grid li:hover, .user-course li:focus {
+    background-color: #eee;
+}
+
+.main-grid li .photo {
+    position: relative;
+    border: 1px #ccc solid;
+    border-radius: 3px;
+    float: left;
+    width: 120px;
+    height: 90px;
+    overflow: hidden;
+    margin-right: 10px;
+}
+
+.main-grid li .photo img {
+    width: 120px;
+}
+
+.main-grid li dl {
+}
+
+.main-grid li dl dt {
+    color: #666;
+}
+
+.main-grid li dl dt i {
+    font-size: 1.6rem;
+    display: none;
+}
+
+.main-grid li dl dd {
+    font-size: 1.2rem;
+    font-weight: normal;
+    color: #999;
+    line-height: 20px;
+    overflow: hidden;
+    word-break: break-all;
+}
+
+.main-grid .seemore {
+    text-align: center;
+    font-size: 1.2rem;
+    height: 40px;
+    line-height: 40px;
+    display: none;
+}
+
+.main-grid .seemore a {
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    display: block;
+    font-size: 1.2rem;
+}
+
+.main-grid .seemore a:hover, .user-course .seemore a:focus {
+    background-color: #f1f1f1;
+}
+
+/*main-edit*/
+.main-edit {
+    width: 100%;
+    padding: 20px 15px 0 15px;
+    background: #fff;
+}
+
+/*学生查询*/
+.search-classmate {
+}
+
+/*基础设置*/
+.user-config {
+    width: 100%;
+    background-color: #fff;
+}
+
+.user-config li {
+    line-height: 50px;
+    height: 50px;
+    border-bottom: 1px #ebebeb solid;
+    font-weight: normal;
+}
+
+.user-config li a {
+    width: 100%;
+    display: inline-block;
+    color: #666;
+    padding-left: 20px;
+}
+
+.user-config li a:hover, .common-list li a:focus {
+    background: #eee;
+}
+
+.user-config li i {
+    font-size: 1.4rem;
+    vertical-align: middle;
+    margin-top: -1px;
+}
+
+.user-config li span {
+    height: 50px;
+}
+
+.user-config li span.left {
+    width: 25%;
+    float: left;
+    display: block;
+}
+
+.user-config li span.right {
+    width: 75%;
+    float: left;
+    display: block;
+    color: #999;
+    padding-right: 15px;
+    font-weight: normal;
+    overflow: hidden;
+    text-align: right;
+    font-size: 1.2rem;
+}
+
+.user-config-edit {
+    width: 100%;
+    padding: 20px 15px 0 15px;
+    background: #fff;
+}
+
+/*上传文件*/
+.upfile {
+    padding: 10px 0;
+}
+
+.upfile .input-file {
+    height: 50px;
+}
+
+.upfile .input-file input {
+    float: left;
+    width: 70%;
+    border-radius: 5px 0 0 5px;
+}
+
+.upfile .input-file button {
+    float: left;
+    width: 30%;
+    border-radius: 0 5px 5px 0;
+    border-left: none;
+}
+
+.upfile .message {
+    clear: left;
+    padding-bottom: 10px;
+    margin-top: -15px;
+}
+
+.upfile .message i {
+    font-size: 1.8rem;
+    vertical-align: middle;
+    margin-top: -5px;
+}
+
+.upfile .image_show {
+    text-align: center;
+}
+
+.upfile .image_show img {
+    width: 80%;
+}
+
+.upfile input[type=file] {
+    width: 100%;
+    height: 32px;
+    font-size: 1.6rem;
+    border-radius: 5px;
+    filter: alpha(opacity:0);
+    opacity: 0;
+    position: absolute;
+    top: 0;
+}
+
+/*common_table*/
+.common_table {
+    width: 100%;
+    background-color: #d4d4d4;
+    border-collapse: separate;
+    border-spacing: 1px;
+    font-size: 12px;
+}
+
+.common_table th {
+    width: 30%;
+    background-color: #f2f2f2;
+    text-align: center;
+    padding: 3px 0;
+    font-weight: normal;
+    line-height: 24px;
+}
+
+.common_table td {
+    text-align: left;
+    padding: 0 3px;
+    background-color: #fff;
+    vertical-align: middle;
+    line-height: 22px;
+}
+
+/*通用下拉菜单*/
+.common-dropdown {
+    height: 135px;
+    overflow-y: auto;
+}
+
+/*通用表单*/
+.commom-form {
+}
+
+.commom-form .form-group {
+    width: 100%;
+    border-bottom: 1px #e5e5e5 solid;
+    display: inline-block;
+    padding: 3px 0 5px 0;
+    margin-bottom: 5px;
+}
+
+.commom-form .form-group .avg-2 {
+    width: 16.7%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-3 {
+    width: 25%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-4 {
+    width: 33.3%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-5 {
+    width: 41.6%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-6 {
+    width: 50%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-7 {
+    width: 58.3%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-9 {
+    width: 75%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-10 {
+    width: 83.3%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-11 {
+    width: 91.6%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group .avg-12 {
+    width: 100%;
+    display: block;
+    float: left;
+}
+
+.commom-form .form-group label {
+    font-weight: normal;
+    padding-right: 5px;
+    text-align: right;
+    height: 30px;
+    line-height: 30px;
+}
+
+.commom-form .form-group span.text {
+    padding-left: 10px;
+    text-align: left;
+    line-height: 30px;
+    color: #666;
+}
+
+.commom-form .form-group input[type=text], .commom-form .form-group input[type=password], .commom-form .form-group input[type=tel] {
+    padding-left: 10px;
+    border: none;
+    height: 30px;
+    line-height: 30px;
+    color: #666;
+    background-color: #fff;
+}
+
+.commom-form .form-group textarea {
+    height: 100px;
+    border: 1px #e5e5e5 solid;
+}
+
+.commom-form .form-message i {
+    color: #419bd0;
+    font-size: 1.4rem;
+    vertical-align: middle;
+    margin-top: -3px;
+}
+
+.commom-form .form-message {
+    font-size: 1.2rem;
+    line-height: 18px;
+    text-align: left;
+    padding: 5px 0 0 8px;
+    color: #888;
+    clear: left;
+}
+
+.commom-form .form-button button {
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+/**error-msg**/
+.error-msg {
+}
+
+.error-msg .msg {
+    background: #fff;
+    margin: 10px;
+    padding: 15px;
+    overflow: hidden;
+    text-align: center;
+    color: #ff7d00;
+    font-size: 1.6rem;
+}
+
+.error-msg .msg p {
+    line-height: 2rem;
+    padding: 0.5rem 0;
+}
+
+.error-msg .msg p a {
+    margin: 0 5px;
+}
+
+.error-msg .goback a {
+    width: 200px;
+    text-align: center;
+    margin: 30px auto;
+    background: #31bd80;
+    height: 28px;
+    line-height: 28px;
+    color: #fff;
+    font-size: 14px;
+    display: block;
+    border-radius: 5px;
+}
+
+.error-msg .kid {
+    background: url(../images/login_error.jpg) no-repeat center center;
+    width: 200px;
+    height: 283px;
+    margin: 0px auto;
+}
+
+/*通用modal*/
+.commom-modal {
+    width: 100%;
+}
+
+.commom-modal a {
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    color: #03b288;
+    font-weight: bold;
+    font-size: 1.6rem;
+    border-bottom: 1px #e5e5e5 solid;
+}
+
+.commom-modal a:hover, .commom-modal a:focus {
+    background: #e5e5e5;
+}
+
+.commom-modal .border-no {
+    border: none;
+}
+
+/*通用底部按钮*/
+.common-bottom-button {
+}
+
+.common-bottom-button .local {
+    height: 50px;
+}
+
+.common-bottom-button .button {
+    text-align: center;
+    position: fixed;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    width: 100%;
+    z-index: 1010;
+}
+
+.common-bottom-button .button a {
+    display: block;
+    color: #fff;
+    font-size: 20px;
+    width: 100%;
+    line-height: 50px;
+    background: #ff7d00;
+    filter: alpha(opacity=90);
+    -moz-opacity: 0.9;
+    opacity: 0.9;
+}
+
+.common-bottom-button .button a.disable {
+    background: #999;
+}
+
+/*回到顶部*/
+.gotop-toolbar {
+    right: 10px;
+    bottom: 75px;
+    position: fixed;
+    z-index: 999;
+}
+
+.gotop-toolbar a {
+    background-color: #5cb85c;
+    color: #fff;
+    box-sizing: border-box;
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+    line-height: 48px;
+    border-radius: 50%;
+    text-align: center;
+    filter: alpha(opacity=90);
+    -moz-opacity: 0.9;
+    opacity: 0.9;
+}
+
+/*通用*/
+.border-radius-none {
+    border-radius: 0 !important;
+}
+
+.border-none {
+    border: none !important;
+}

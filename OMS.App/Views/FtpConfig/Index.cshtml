@@ -1,0 +1,103 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                <input id="SearchKey" type="text" class="easyui-textbox input-large" prompt="搜索关键字" />
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="查询" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="add" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-plus color_success"></i>添加</a>
+            <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>编辑</a>
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>刷新</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',align:'left'">
+                        名称
+                    </th>
+                    <th data-options="field:'s2',align:'left'">
+                        FTP主机
+                    </th>
+                    <th data-options="field:'s3',align:'center'">
+                        FTP端口
+                    </th>
+                    <th data-options="field:'s4',align:'left'">
+                        FTP用户
+                    </th>
+                    <th data-options="field:'s5',align:'left'">
+                        FTP密码
+                    </th>
+                    <th data-options="field:'s6',align:'left'">
+                        远程路径
+                    </th>
+                    <th data-options="field:'s7',align:'center'">
+                        排序
+                    </th>
+                    <th data-options="field:'s8',align:'left'">
+                        备注
+                    </th>
+                    <th data-options="field:'s9',align:'left'">
+                        创建时间
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message","FtpConfig")'
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    keyword: $('#SearchKey').val()
+                });
+            });
+            //操作
+            $('#toolbar').find('#add').bind('click', function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("Add", "FtpConfig")',
+                    title: '添加信息',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Add_Message", "FtpConfig")'
+                });
+            });
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "FtpConfig")?id=$',
+                    title: '编辑信息',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "FtpConfig")'
+                });
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+    </script>
+}
+

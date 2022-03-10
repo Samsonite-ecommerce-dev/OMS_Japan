@@ -1,0 +1,33 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@ViewBag.IDs" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderbooking_edit_product_sendtime"]：
+                        </th>
+                        <td>
+                            <input name="ReservationDate" type="text" class="input-medium Wdate" value="@Samsonite.Utility.Common.VariableHelper.FormateTime(ViewBag.ReservationDate, "yyyy-MM-dd")" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+                        </td>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderbooking_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+}

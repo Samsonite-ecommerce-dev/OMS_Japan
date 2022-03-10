@@ -1,0 +1,77 @@
+/* CSS Document @charset "utf-8"; */
+body {
+    font-size: 12px;
+    
+}
+
+li {
+	list-style-type: none;
+}
+
+.main{
+    padding:5px;
+}
+
+p{
+    line-height:18px;
+}
+
+.main .title{
+    line-height:32px;
+    font-size:12px;
+    padding-bottom:5px;
+}
+
+.main .list{
+    padding-top:10px;
+}
+
+.main .list table{
+    background-color:#ccc;
+    border-collapse: separate;
+    border-spacing: 1px;
+}
+
+.main .list table th{
+    padding:2px 5px;
+    background-color:#5bc0de;
+    color:#fff;
+}
+
+.main .list table td{
+    padding:2px 5px;
+    background-color:#fff;
+}
+
+.main .message{
+    padding-top:10px;
+}
+
+/*color*/
+.color_success {
+    color: #5cb85c !important;
+}
+
+.color_info {
+    color: #5bc0de !important;
+}
+
+.color_primary {
+    color: #337ab7 !important;
+}
+
+.color_warning {
+    color: #f0ad4e !important;
+}
+
+.color_danger {
+    color: #d9534f !important;
+}
+
+.color_default {
+    color: #333 !important;
+}
+
+.color_fail {
+    color: #999 !important;
+}

@@ -1,0 +1,19 @@
+﻿
+@{
+    Layout = "~/Areas/Mobile/Views/Shared/_Layout.cshtml";
+}
+<header class="main-menu">
+    <div class="left"></div>
+    <div class="middle">温馨提示</div>
+    <div class="right"></div>
+</header>
+<div class="error-msg">
+    <div class="msg">
+        <p>@ViewBag.ErrorMessage</p>
+    </div>
+    <div class="goback">
+        <a href="@Url.Action("Index","Home")">返回首页</a>
+    </div>
+    <div class="kid"></div>
+</div>
+

@@ -1,0 +1,231 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _OrderDetail = (Samsonite.OMS.Database.View_OrderDetail)ViewData["order_detail"];
+    var _CollectTypeList = (List<object[]>)ViewData["collecttype_list"];
+    var _ReasonList = (List<object[]>)ViewData["reason_list"];
+    var _ExpressList = (List<Samsonite.OMS.Database.ExpressCompany>)ViewData["express_list"];
+    int _Effect_Quantity = Samsonite.Utility.Common.VariableHelper.SaferequestPositiveInt(_OrderDetail.Quantity - _OrderDetail.CancelQuantity - _OrderDetail.ReturnQuantity - _OrderDetail.ExchangeQuantity - _OrderDetail.RejectQuantity);
+    int _AmountAccuracy = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().AmountAccuracy;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_order_number"]：
+                        </th>
+                        <td>
+                            @_m.OrderNo
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_sub_order_number"]：
+                        </th>
+                        <td>
+                            @_m.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_paytype"]：
+                        </th>
+                        <td colspan="3">@OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(_OrderDetail.PaymentType)</td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_sku"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.SKU
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_productname"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.ProductName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_price"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.SellingPrice)
+                        </td>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_edit_return_quantity"]：
+                        </th>
+                        <td>
+                            <select id="Quantity" name="Quantity" class="easyui-combobox">
+                                @for (int i = (_Effect_Quantity + _m.Quantity); i > 0; i--)
+                                {
+                                    if (_m.Quantity == i)
+                                    {
+                                        <option value="@i" selected="selected">@i</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                }
+                            </select>
+                            <input id="hidden_perPaymentAmount" type="hidden" value="@(_OrderDetail.ProductPaymentAmount/_OrderDetail.Quantity)" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.ProductPaymentAmount)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_actual_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_OrderDetail.ActualPaymentAmount))
+                        </td>
+                    </tr>
+                    <tr>
+                        @*<th>
+                                <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_edit_return_point"]：
+                            </th>
+                            <td>
+                                <input id="RefundPoint" name="RefundPoint" type="text" class="easyui-numberbox input-medium" value="@_m.RefundPoint" data-options="min:0,max:@_m.RefundPoint,precision:@_AmountAccuracy" />
+                            </td>*@
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_edit_return_amount"]：
+                        </th>
+                        <td colspan="3">
+                            <input id="RefundAmount" name="RefundAmount" type="text" class="easyui-numberbox input-medium" value="@_m.RefundAmount" data-options="min:0,max:@_m.RefundAmount,precision:@_AmountAccuracy,readonly:true" />
+                        </td>
+                        
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_edit_return_express_fee"]：
+                        </th>
+                        <td>
+                            <input name="ExpressFee" type="text" class="easyui-numberbox input-medium" value="@_m.RefundExpress" data-options="min:0,precision:@_AmountAccuracy,readonly:true" />
+                        </td>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_edit_return_express_subcharge"]：
+                        </th>
+                        <td>
+                            <input name="ReduceExpressFee" type="text" class="easyui-numberbox input-medium" value="@_m.RefundSurcharge" data-options="precision:@_AmountAccuracy" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_logistics"]：
+                        </th>
+                        <td>
+                            <select name="ShippingCompany" class="easyui-combobox input-large">
+                                @foreach (var _o in _ExpressList)
+                                {
+                                    if (_o.ExpressName == _m.ShippingCompany)
+                                    {
+                                        <option value="@_o.ExpressName" selected="selected">@_o.ExpressName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@_o.ExpressName">@_o.ExpressName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <th>
+                            <span class="color_danger">*</span>
+                            @ViewBag.LanguagePack["goodsreturn_edit_logistics_number"]：
+                        </th>
+                        <td>
+                            <input name="ShippingNo" type="text" class="easyui-textbox input-large" value="@_m.ShippingNo" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_receiver"]：
+                        </th>
+                        <td>
+                            <input id="Receiver" name="Receiver" type="text" class="easyui-textbox input-large" value="@_m.CustomerName" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_tel"]：
+                        </th>
+                        <td>
+                            <input id="Tel" name="Tel" type="text" class="easyui-textbox input-large" value="@_m.Tel" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_mobile"]：
+                        </th>
+                        <td>
+                            <input id="Mobile" name="Mobile" type="text" class="easyui-textbox input-large" value="@_m.Mobile" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_zipcode"]：
+                        </th>
+                        <td>
+                            <input id="Zipcode" name="Zipcode" type="text" class="easyui-textbox input-large" value="@_m.Zipcode" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_address"]：
+                        </th>
+                        <td colspan="3">
+                            <input id="Addr" name="Addr" type="text" class="easyui-textbox input-xxlarge" value="@_m.Addr" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_reason"]：
+                        </th>
+                        <td colspan="3">
+                            <select name="Reason" class="easyui-combobox">
+                                @{
+                                    foreach (var _o in _ReasonList)
+                                    {
+                                        if (Samsonite.Utility.Common.VariableHelper.SaferequestInt(_o[0]) == _m.Reason)
+                                        {
+                                            <option value="@_o[0]" selected="selected">@_o[1]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@_o[0]">@_o[1]</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_return_remark"]：
+                        </th>
+                        <td colspan="3">
+                            <textarea name="Remark" class="easyui-textarea input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            $('#Quantity').combobox({
+                onChange: function (value) {
+                    var _perpay = parseFloat($('#hidden_perPaymentAmount').val());
+                    $('#RefundAmount').numberbox('setValue', (parseInt(value) * _perpay));
+                }
+            });
+        });
+    </script>
+}

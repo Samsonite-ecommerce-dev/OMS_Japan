@@ -1,0 +1,311 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _ApplicationConfig = (Samsonite.OMS.DTO.ApplicationConfigDto)Model;
+    var _LanguageList = (List<Samsonite.OMS.DTO.AppLanguagePack>)ViewData["language_list"];
+    var _PayTypeList = (List<object[]>)ViewData["paytype_list"];
+    var _ApproalList = (List<Samsonite.OMS.Database.ApprovalInfo>)ViewData["approal_list"];
+
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <div class="easyui-tabs" style="width:99%;">
+                <div title="语言配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">语言配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>选择语言：
+                                </th>
+                                <td>
+                                    @foreach (var _o in _LanguageList)
+                                    {
+                                        if (_ApplicationConfig.LanguagePacks.Contains(_o.ID))
+                                        {
+                                            <input id="lp_@_o.ID" name="LanguagePack" type="checkbox" value="@_o.Key" checked="checked" /><label for="lp_@_o.ID">@_o.Name</label>
+                                        }
+                                        else
+                                        {
+                                            <input id="lp_@_o.ID" name="LanguagePack" type="checkbox" value="@_o.Key" /><label for="lp_@_o.ID">@_o.Name</label>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div title="产品配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">产品配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>Material和Grid格式：
+                                </th>
+                                <td>
+                                    <input name="ProductIDConfig" type="text" value="@_ApplicationConfig.ProductIDConfig" class="easyui-textbox input-medium" />
+                                    <label class="label-info">{0}表示Material,{1}表示Grid</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div title="订单配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">订单配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>选择支付方式：
+                                </th>
+                                <td>
+                                    @foreach (var _o in _PayTypeList)
+                                    {
+                                        if (_ApplicationConfig.PaymentTypeConfig.Contains((int)(_o[0])))
+                                        {
+                                            <input id="pt_@_o[0]" name="PaymentTypeConfig" type="checkbox" value="@_o[0]" checked="checked" /><label for="pt_@_o[0]">@_o[1]</label>
+                                        }
+                                        else
+                                        {
+                                            <input id="pt_@_o[0]" name="PaymentTypeConfig" type="checkbox" value="@_o[0]" /><label for="pt_@_o[0]">@_o[1]</label>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div title="库存警告配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">库存警告配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>库存警告数量：
+                                </th>
+                                <td>
+                                    <input id="win" name="WarningInventoryNum" type="text" class="easyui-numberspinner input-small" value="@_ApplicationConfig.WarningInventoryNumConfig" data-options="min:0" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>Tumi库存警告数量：
+                                </th>
+                                <td>
+                                    <input id="win" name="WarningInventoryNumTumi" type="text" class="easyui-numberspinner input-small" value="@_ApplicationConfig.WarningInventoryNumTumiConfig" data-options="min:0" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div title="金额配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">金额配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>设置金额小数点精确位数：
+                                </th>
+                                <td>
+                                    @for (int t = 0; t <= 2; t = t + 2)
+                                    {
+                                        if (_ApplicationConfig.AmountAccuracy == t)
+                                        {
+                                            <input id="aa_@t" name="AmountAccuracy" type="radio" value="@t" checked="checked" /><label for="aa_@t">@t</label>
+                                        }
+                                        else
+                                        {
+                                            <input id="aa_@t" name="AmountAccuracy" type="radio" value="@t" /><label for="aa_@t">@t</label>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div title="审核流程配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">审核流程配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>套装审核流程选择：
+
+                                </th>
+                                <td>
+                                    @foreach (var _o in _ApproalList.Where(p => p.ApprovalProjectID == (int)Samsonite.OMS.DTO.ApprovalType.Bunlde))
+                                    {
+                                        if (_ApplicationConfig.BundleApproval.Contains(_o.ApprovalIdentify))
+                                        {
+                                            <input id="ba_@_o.ID" name="BundleApproval" type="checkbox" value="@_o.ApprovalIdentify" checked="checked" /><label for="ba_@_o.ID">@_o.ApprovalName</label>
+                                        }
+                                        else
+                                        {
+                                            <input id="ba_@_o.ID" name="BundleApproval" type="checkbox" value="@_o.ApprovalIdentify" /><label for="ba_@_o.ID">@_o.ApprovalName</label>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>促销审核流程选择：
+
+                                </th>
+                                <td>
+                                    @foreach (var _o in _ApproalList.Where(p => p.ApprovalProjectID == (int)Samsonite.OMS.DTO.ApprovalType.Promotion))
+                                    {
+                                        if (_ApplicationConfig.PromotionApproval.Contains(_o.ApprovalIdentify))
+                                        {
+                                            <input id="pa_@_o.ID" name="PromotionApproval" type="checkbox" value="@_o.ApprovalIdentify" checked="checked" /><label for="pa_@_o.ID">@_o.ApprovalName</label>
+                                        }
+                                        else
+                                        {
+                                            <input id="pa_@_o.ID" name="PromotionApproval" type="checkbox" value="@_o.ApprovalIdentify" /><label for="pa_@_o.ID">@_o.ApprovalName</label>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div title="邮件配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">邮件配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>Stmp服务器：
+                                </th>
+                                <td>
+                                    <input name="MailStmp" type="text" value="@_ApplicationConfig.EmailConfig.ServerHost" class="easyui-textbox input-large" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>端口号：
+                                </th>
+                                <td>
+                                    <input name="MailPort" type="text" value="@_ApplicationConfig.EmailConfig.Port" class="easyui-numberbox input-small" data-options="min:0,max:9999" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>邮件服务器用户名：
+                                </th>
+                                <td>
+                                    <input name="MailUserName" type="text" value="@_ApplicationConfig.EmailConfig.MailUsername" class="easyui-textbox input-large" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>邮件服务器密码：
+                                </th>
+                                <td>
+                                    <input name="MailPassword" type="text" value="@_ApplicationConfig.EmailConfig.MailPassword" class="easyui-textbox input-large" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div title="API配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">API配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>是否启用API：
+                                </th>
+                                <td>
+                                    <input id="iu_1" name="IsUseAPI" type="radio" value="1" @((_ApplicationConfig.IsUseAPI) ? "checked=\"checked\"" : "") /><label for="iu_1">是</label>
+                                    <input id="iu_2" name="IsUseAPI" type="radio" value="0" @((!_ApplicationConfig.IsUseAPI) ? "checked=\"checked\"" : "") /><label for="iu_2">否</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div title="皮肤配置" style="padding:3px">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th colspan="2" class="textalign_center font-bold fontSize-14">皮肤配置</th>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <span class="color_danger">*</span>选择皮肤：
+                                </th>
+                                <td>
+                                    <input id="ss_1" name="SkinStyle" type="radio" value="blue" @((_ApplicationConfig.SkinStyle.ToUpper() == "BLUE") ? "checked=\"checked\"" : "")><label for="ss_1">Blue</label>
+                                    <input id="ss_2" name="SkinStyle" type="radio" value="orange" @((_ApplicationConfig.SkinStyle.ToUpper() == "ORANGE") ? "checked=\"checked\"" : "")><label for="ss_2">Orange</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td style="padding:5px 0;text-align:center;">
+                                <input id="submit_button" type="button" class="btn btn-info" value="保存" />
+                                <input id="reset_button" type="reset" class="btn btn-default" value="重置" />
+                                <input id="update_button" type="button" class="btn btn-success" value="更新系统配置" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //保存配置信息
+            $('#submit_button').bind('click', function () {
+                $button = $(this);
+                easyUIExtend.SubForm({
+                    form: $('#subform'),
+                    url: '@Url.Action("Index_Message", "Config")',
+                    button: $button
+                });
+            });
+
+            //重置语言包
+            $('#update_button').bind('click', function () {
+                commonJs.sysAjaxFunction({
+                    url: '@Url.Action("Reset_Message", "Config")',
+                    dataType: 'json',
+                    func: function (data) {
+                        if (data.result) {
+                            artDialogExtend.Tips.Success(data.msg, 3, function () {
+                                window.parent.location.href = window.parent.location.href;
+                            });
+                        }
+                        else {
+                            artDialogExtend.Tips.Alert(data.msg, 2);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

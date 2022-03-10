@@ -1,0 +1,91 @@
+﻿
+@{
+    Layout = "~/Areas/Mobile/Views/Shared/_Layout.cshtml";
+    var _MallList = (List<Samsonite.OMS.Database.Mall>)ViewData["store_list"];
+}
+@section style {
+    @Styles.Render("~/Content/js-library/bootstrap/datetimepicker/css/bootstrap-datetimepicker.min.css")
+}
+<header class="main-menu">
+    <div class="left"><a href="@Url.Action("Index","Home")"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+    <div class="middle">@ViewBag.MenuName</div>
+    <div class="right">@Html.Raw(ViewBag.MenuBar)</div>
+</header>
+<section class="main-edit commom-form">
+    <form id="search_form" action="@Url.Action("Report","BrandReport")" method="post">
+        <div class="form-group">
+            <label class="avg-3" for="time1">开始时间</label>
+            <input class="avg-9" type="text" id="time1" name="Time1" readonly="readonly" value="@DateTime.Now.ToString("yyyy-MM-dd")" placeholder="请输入开始时间">
+        </div>
+        <div class="form-group">
+            <label class="avg-3" for="time2">结束时间</label>
+            <input class="avg-9" type="text" id="time2" name="Time2" readonly="readonly" value="@DateTime.Now.ToString("yyyy-MM-dd")" placeholder="请输入结束时间">
+        </div>
+        <div class="form-group border-none" style="height:15px;">
+            <label class="avg-3">店铺名称</label>
+            <label class="avg-9"></label>
+        </div>
+        <div class="form-group">
+            <label class="avg-2"></label>
+            <div class="avg-10">
+                <div class="checkbox">
+                    <label>
+                        <input id="check_all" type="checkbox" value="0">
+                        <span class="font-bold">全选</span>
+                    </label>
+                </div>
+                @foreach (var _o in _MallList)
+            {
+                    <div class="checkbox">
+                        <label>
+                            <input name="Store" type="checkbox" value="@_o.SapCode">
+                            @_o.Name
+                        </label>
+                    </div>
+                }
+            </div>
+        </div>
+    </form>
+</section>
+<!-- 浮动按钮 -->
+<div class="common-bottom-button">
+    <div class="local">&nbsp;</div>
+    <div class="button"><button id="search_button" type="button" class="btn btn-warning btn-lg btn-block border-radius-none" data-text="{buttonText:'查询',loadingText:''}">查询</button></div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/bootstrap/datetimepicker/js/bootstrap-datetimepicker.min.js")
+    @Scripts.Render("~/Content/js-library/bootstrap/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js")
+    <script type="text/javascript">
+        $('#time1').datetimepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            startView: 'month',
+            minView: 'month',
+            language: 'zh-CN'
+        });
+
+        $('#time2').datetimepicker({
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            startView: 'month',
+            minView: 'month',
+            language: 'zh-CN'
+        });
+
+        $('#check_all').bind('click', function () {
+            commonJs.sysCheckBox($(this), 'Store');
+        })
+
+        $('#search_button').bind('click', function () {
+            var _ispass = true;
+            var _stores = commonJs.getCheckBoxValue('Store');
+            if (_stores.length == 0) {
+                _ispass = false;
+                mobile.Message.Warn('请至少选择一个店铺');
+            }
+            if (_ispass) {
+                $('#search_form').submit();
+            }
+        });
+    </script>
+}

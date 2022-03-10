@@ -1,0 +1,227 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _DetailList = (List<Samsonite.OMS.Database.OrderDetail>)Model;
+    var _ReveiveList = (List<Samsonite.OMS.DTO.ReceiveDto>)ViewData["receive_list"];
+    var _ReasonList = (List<object[]>)ViewData["reason_list"];
+    var _ExpressList = (List<Samsonite.OMS.Database.ExpressCompany>)ViewData["express_list"];
+    int _Effect_Quantity = 0;
+    int t = 0;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="OrderNo" type="hidden" value="@ViewBag.OrderNo" />
+            <table class="common_table1">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>@ViewBag.LanguagePack["goodsexchange_edit_sub_order_number"]</th>
+                        <th>@ViewBag.LanguagePack["goodsexchange_edit_sku"]</th>
+                        <th>@ViewBag.LanguagePack["goodsexchange_edit_productname"]</th>
+                        <th>@ViewBag.LanguagePack["goodsexchange_edit_price"]</th>
+                        <th>@ViewBag.LanguagePack["goodsexchange_edit_quantity"]</th>
+                        <th>@ViewBag.LanguagePack["goodsexchange_edit_actual_payment"]</th>
+                        <th>@ViewBag.LanguagePack["goodsexchange_edit_state"]</th>
+                        <th>@ViewBag.LanguagePack["goodsexchange_edit_shipping_state"]</th>
+                    </tr>
+                    @foreach (var _O in _DetailList)
+                    {
+                        var _Receive = _ReveiveList.Where(p => p.SubOrderNo == _O.SubOrderNo).SingleOrDefault();
+                        _Effect_Quantity = Samsonite.Utility.Common.VariableHelper.SaferequestPositiveInt(_O.Quantity - _O.CancelQuantity - _O.ReturnQuantity - _O.ExchangeQuantity - _O.RejectQuantity);
+                        <tr id="@t">
+                            <td>
+                                <input id="SelectID" name="SelectID" type="checkbox" value="@_O.Id" @((_Effect_Quantity == 0) ? "disabled=\"disabled\"" : "") />
+                                <input id="hidden_price_@t" type="hidden" value="@(_O.SellingPrice)" />
+                            </td>
+                            <td width="150">
+                                @_O.SubOrderNo
+                                <input id="Receive_@t" type="hidden" value="@_Receive.Receiver" />
+                                <input id="Tel_@t" type="hidden" value="@_Receive.Tel" />
+                                <input id="Cel_@t" type="hidden" value="@_Receive.Mobile" />
+                                <input id="ZipCode_@t" type="hidden" value="@_Receive.ZipCode" />
+                                <input id="Addr_@t" type="hidden" value="@_Receive.Address" />
+                            </td>
+                            <td>
+                                @_O.SKU
+                                <i class="fa fa-exchange color_primary"></i>
+                                <input id="SelectSku_@t" class="select_sku" name="NewSku" type="text" value="@_O.SKU" prompt="@ViewBag.LanguagePack["goodsexchange_edit_select_message"]" data-options="disabled:true" />
+                            </td>
+                            <td width="325" class="textalign_left">
+                                @_O.ProductName
+                            </td>
+                            <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_O.SellingPrice)</td>
+                            <td>
+                                @if (_Effect_Quantity > 0)
+                                {
+                                    <select id="Quantity_@t" name="Quantity" class="easyui-combobox input-mini" data-options="disabled:true">
+                                        @for (int i = _Effect_Quantity; i > 0; i--)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    @_Effect_Quantity
+                                }
+                            </td>
+                            <td>
+                                @Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_O.ActualPaymentAmount))
+                            </td>
+                            <td>
+                                @Html.Raw(OMS.App.Helper.OrderHelper.GetProductStatusDisplay(_O.Status, true))
+                            </td>
+                            <td>
+                                @Html.Raw(OMS.App.Helper.OrderHelper.GetWarehouseProcessStatusDisplay(_O.ShippingStatus, true))
+                            </td>
+                        </tr>
+                        t++;
+                    }
+                </tbody>
+            </table>
+            <div class="space_tiny space_spilt"></div>
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsexchange_edit_exchangetime"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="ExchangeTime" type="text" class="input-medium Wdate" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_logistics"]：
+                        </th>
+                        <td>
+                            <select name="ShippingCompany" class="easyui-combobox input-large">
+                                @foreach (var _o in _ExpressList)
+                                {
+                                    <option value="@_o.ExpressName">@_o.ExpressName</option>
+                                }
+                            </select>
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_logistics_number"]：
+                        </th>
+                        <td>
+                            <input name="ShippingNo" type="text" class="easyui-textbox input-large" value="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_receiver"]：
+                        </th>
+                        <td>
+                            <input id="Receiver" name="Receiver" type="text" class="easyui-textbox input-large" value="" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_tel"]：
+                        </th>
+                        <td>
+                            <input id="Tel" name="Tel" type="text" class="easyui-textbox input-large" value="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_mobile"]：
+                        </th>
+                        <td>
+                            <input id="Mobile" name="Mobile" type="text" class="easyui-textbox input-large" value="" />
+                        </td>
+
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_zipcode"]：
+                        </th>
+                        <td>
+                            <input id="Zipcode" name="Zipcode" type="text" class="easyui-textbox input-large" value="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_address"]：
+                        </th>
+                        <td colspan="3">
+                            <input id="Addr" name="Addr" type="text" class="easyui-textbox input-xxlarge" value="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_reason"]：
+                        </th>
+                        <td colspan="3">
+                            <select name="Reason" class="easyui-combobox">
+                                @{
+                                    foreach (var _o in _ReasonList)
+                                    {
+                                        <option value="@_o[0]">@_o[1]</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_exchange_remark"]：
+                        </th>
+                        <td colspan="3">
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            $('.common_table1').find('input[name=SelectID]').bind('click', function () {
+                var _t = $(this).parent().parent().attr("id");
+                if ($(this).prop("checked")) {
+                    //设置控件有效
+                    $('#SelectSku_' + _t).combogrid({ disabled: false });
+                    $('#Quantity_' + _t).combobox({ disabled: false });
+                    //设置收货地址
+                    $('#Receiver').textbox("setValue", $.trim($('#Receive_' + _t).val()));
+                    $('#Tel').textbox("setValue", $.trim($('#Tel_' + _t).val()));
+                    $('#Mobile').textbox("setValue", $.trim($('#Cel_' + _t).val()));
+                    $('#Zipcode').textbox("setValue", $.trim($('#ZipCode_' + _t).val()));
+                    $('#Addr').textbox("setValue", $.trim($('#Addr_' + _t).val()));
+                }
+                else {
+                    $('#SelectSku_' + _t).combogrid({ disabled: true });
+                    $('#Quantity_' + _t).combobox({ disabled: true });
+                }
+            });
+
+            //绑定SKU搜索框
+            for (var _t = 0; _t < $('.common_table1').find('input[name=SelectID]').length; _t++) {
+                easyUIExtend.ComboGrid($('#SelectSku_' + _t), {
+                    panelWidth: 650,
+                    url: '@Url.Action("ProductSku_Message", "Common")',
+                    idField: 's1',
+                    textField: 's1',
+                    queryParams: {
+                        //price: parseFloat($('#hidden_price_' + _t).val()),
+                        sku: $('#SelectSku_' + _t).val()
+                    },
+                    pagination:false,
+                    multiple: false,
+                    columns: [[
+                       { field: 's1', title: '@ViewBag.LanguagePack["product_index_sku"]', align: 'left' },
+                       { field: 's2', title: '@ViewBag.LanguagePack["product_index_brand"]', align: 'left' },
+                       { field: 's3', title: '@ViewBag.LanguagePack["product_index_groupdesc"]', align: 'left' },
+                       { field: 's4', title: '@ViewBag.LanguagePack["product_index_material"]', align: 'left' },
+                       { field: 's5', title: '@ViewBag.LanguagePack["product_index_gdval"]', align: 'left' },
+                       { field: 's6', title: '@ViewBag.LanguagePack["product_index_productname"]', align: 'left' },
+                       { field: 's8', title: '@ViewBag.LanguagePack["product_index_marketprice"]', align: 'center' },
+                       { field: 's10', title: '@ViewBag.LanguagePack["product_index_inventory"]', align: 'center' }
+                    ]]
+                });
+            }
+        });
+    </script>
+}

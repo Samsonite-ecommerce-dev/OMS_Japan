@@ -1,0 +1,446 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _OrderTypeList = (List<object[]>)ViewData["order_type"];
+    var _BrandList = (List<string>)ViewData["brand_list"];
+    var _OrderStateList = (List<object[]>)ViewData["orderstate_list"];
+    var _ProductStateList = (List<object[]>)ViewData["productstate_list"];
+    var _WMSProcessStateList = (List<object[]>)ViewData["wmsprocessstate_list"];
+    var _ExpressStateList = (List<object[]>)ViewData["expressstate_list"];
+    var _ShippingMethodList = (List<object[]>)ViewData["shippingmethod_list"];
+    var _QuickTimeList = (List<object[]>)ViewData["quicktime_list"];
+    var _PaymentList = (List<object[]>)ViewData["payment_list"];
+    int _AmountAccuracy = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().AmountAccuracy;
+}
+
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_complex_search">
+        <form id="SearchForm" action="@Url.Action("ExportExcel", "EmployeeOrder")" method="post">
+            <div class="title">@ViewBag.LanguagePack["employeeorder_index_search"]<i id="search_oper" class="fa fa-chevron-down color_success"></i></div>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_order_number"]
+                        </th>
+                        <td>
+                            <input id="OrderNumber" name="OrderNumber" type="text" value="@ViewBag.OrderNo" class="easyui-textbox input-xlarge" prompt="@ViewBag.LanguagePack["employeeorder_index_search_order_number_key"]" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_order_type"]
+                        </th>
+                        <td>
+                            <select id="OrderType" name="OrderType" class="easyui-combobox">
+                                <option value="" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                                @for (int t = 0; t < _OrderTypeList.Count; t++)
+                                {
+                                    <option value="@_OrderTypeList[t][0]">@_OrderTypeList[t][1]</option>
+                                }
+                            </select>
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_storename"]
+                        </th>
+                        <td>
+                            <input id="StoreName" name="StoreName" style="width:275px;" value="" prompt="@ViewBag.LanguagePack["common_prompt_all_mall"]">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_time_search"]</th>
+                        <td colspan="3">
+                            <select id="quick_time" class="easyui-combobox">
+                                <option value="0" selected="selected">@ViewBag.LanguagePack["common_select"]</option>
+                                @foreach (var _o in _QuickTimeList)
+                                {
+                                    <option value="@_o[0]">@_o[1]</option>
+                                }
+                            </select>
+                            <input id="Time1" name="Time1" type="text" class="input-medium Wdate" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
+                            -
+                            <input id="Time2" name="Time2" type="text" class="input-medium Wdate" value="" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' })" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_payment_amount"]
+                        </th>
+                        <td>
+                            <input id="ProductPriceMin" name="ProductPriceMin" type="text" class="easyui-numberbox input-small" data-options="min:0,precision:@_AmountAccuracy">
+                            -
+                            <input id="ProductPriceMax" name="ProductPriceMax" type="text" class="easyui-numberbox input-small" data-options="min:0,precision:@_AmountAccuracy">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_orderstatus"]</th>
+                        <td>
+                            @for (int t = 0; t < _OrderStateList.Count; t++)
+                            {
+                                <input id="os_@t" name="OrderStatus" type="checkbox" value="@_OrderStateList[t][0]" /><label for="os_@t">@_OrderStateList[t][1]</label>
+                            }
+                        </td>
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_productstatus"]</th>
+                        <td colspan="3">
+                            @for (int t = 0; t < _ProductStateList.Count; t++)
+                            {
+                                <input id="pss_@t" name="ProductStatus" type="checkbox" value="@_ProductStateList[t][0]" /><label for="pss_@t">@_ProductStateList[t][1]</label>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_customer"]</th>
+                        <td>
+                            <input id="Customer" name="Customer" type="text" class="easyui-textbox input-medium" value="" />
+                        </td>
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_email"]</th>
+                        <td>
+                            <input id="Email" name="Email" type="text" class="easyui-textbox input-medium" value="@ViewBag.CustomerEmail" />
+                        </td>
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_receiver"]</th>
+                        <td>
+                            <input id="Receiver" name="Receiver" type="text" class="easyui-textbox input-medium" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_tel"]</th>
+                        <td>
+                            <input id="Contact" name="Contact" type="text" class="easyui-textbox input-medium" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_express"]
+                        </th>
+                        <td>
+                            <input id="Express" name="Express" type="text" class="easyui-textbox input-large" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_search_deliveryfee"]
+                        </th>
+                        <td>
+                            <input id="DeliveryFeeMin" name="DeliveryFeeMin" type="text" class="easyui-numberbox input-small" data-options="min:0,precision:@_AmountAccuracy">
+                            -
+                            <input id="DeliveryFeeMax" name="DeliveryFeeMax" type="text" class="easyui-numberbox input-small" data-options="min:0,precision:@_AmountAccuracy">
+                        </td>
+                    </tr>
+                    <tr class="display_none">
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_order_wms_status"]</th>
+                        <td>
+                            <select id="ShippingStatus" name="ShippingStatus" class="easyui-combobox">
+                                <option value="" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                                @for (int t = 0; t < _WMSProcessStateList.Count; t++)
+                                {
+                                    <option value="@_WMSProcessStateList[t][0]">@_WMSProcessStateList[t][1]</option>
+                                }
+                            </select>
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_shipping_method"]
+                        </th>
+                        <td>
+                            <select id="ShippingMethod" name="ShippingMethod" class="easyui-combobox">
+                                <option value="0" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                                @for (int t = 0; t < _ShippingMethodList.Count; t++)
+                                {
+                                    <option value="@_ShippingMethodList[t][0]">@_ShippingMethodList[t][1]</option>
+                                }
+                            </select>
+                        </td>
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_expressstatus"]</th>
+                        <td>
+                            <select id="ExpressStatus" name="ExpressStatus" class="easyui-combobox">
+                                <option value="" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                                @for (int t = 0; t < _ExpressStateList.Count; t++)
+                                {
+                                    <option value="@_ExpressStateList[t][0]">@_ExpressStateList[t][1]</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="display_none">
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_productbrand"]
+                        </th>
+                        <td>
+                            <select id="ProductBrand" name="ProductBrand" class="easyui-combobox">
+                                <option value="" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                                @foreach (var _o in _BrandList)
+                                {
+                                    <option value="@_o">@_o</option>
+                                }
+                            </select>
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_sku"]
+                        </th>
+                        <td colspan="3">
+                            <input id="SkuID" name="SkuID" type="text" value="" class="easyui-textbox input-large" />
+                        </td>
+                    </tr>
+                    <tr class="display_none">
+                        <th>@ViewBag.LanguagePack["employeeorder_index_search_payment_type"]</th>
+                        <td colspan="5">
+                            @for (int t = 0; t < _PaymentList.Count; t++)
+                            {
+                                <input id="ps_@t" name="PaymentStatus" type="checkbox" value="@_PaymentList[t][0]" /><label for="ps_@t">@_PaymentList[t][1]</label>
+                            }
+                        </td>
+                    </tr>
+                    <tr class="display_none">
+                        <th>
+                            Order Nature
+                        </th>
+                        <td>
+                            <input id="IsBundle" name="IsBundle" type="checkbox" value="1" />
+                            <label for="IsBundle">@ViewBag.LanguagePack["employeeorder_index_search_order_set"]</label>
+                            <input id="IsGift" name="IsGift" type="checkbox" value="1" />
+                            <label for="IsGift">@ViewBag.LanguagePack["employeeorder_index_search_order_gift"]</label>
+                            <input id="IsMonogram" name="IsMonogram" type="checkbox" value="1" />
+                            <label for="IsMonogram">@ViewBag.LanguagePack["employeeorder_index_search_order_monogram"]</label>
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_promotion_name"]
+                        </th>
+                        <td>
+                            <input id="PromotionName" name="PromotionName" type="text" class="easyui-textbox input-large" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["employeeorder_index_search_coupon_code"]
+                        </th>
+                        <td>
+                            <input id="CouponCode" name="CouponCode" type="text" class="easyui-textbox input-large" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="bottom"><input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" /></div>
+        </form>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="exportexcel" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-upload color_primary"></i>@ViewBag.LanguagePack["common_export"]</a>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+            <span class="toolbar-separator"></span>
+            <a href="javascript:void(0)" id="field" class="easyui-menubutton" data-options="menu:'#field_list'" power="false"><i class="fa fa-list color_warning"></i>@ViewBag.LanguagePack["employeeorder_index_select_field"]</a>
+            <div id="field_list" style="width:130px;"></div>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',align:'left'">
+                        @ViewBag.LanguagePack["employeeorder_index_order_number"]
+                    </th>
+                    <th data-options="field:'s2',align:'left'">
+                        @ViewBag.LanguagePack["employeeorder_index_storename"]
+                    </th>
+                    <th data-options="field:'s3',align:'left'">
+                        @ViewBag.LanguagePack["employeeorder_index_ordertype"]
+                    </th>
+                    <th data-options="field:'s4',align:'left'">
+                        @ViewBag.LanguagePack["employeeorder_index_shippingmethod"]
+                    </th>
+                    <th data-options="field:'s5',align:'center',sortable:true">
+                        @ViewBag.LanguagePack["employeeorder_index_order_amount"]
+                    </th>
+                    <th data-options="field:'s6',align:'center',sortable:true">
+                        @ViewBag.LanguagePack["employeeorder_index_order_payment_amount"]
+                    </th>
+                    <th data-options="field:'s7',align:'left'">
+                        @ViewBag.LanguagePack["employeeorder_index_customer_name"]
+                    </th>
+                    <th data-options="field:'s8',align:'left'">
+                        @ViewBag.LanguagePack["employeeorder_index_customer_email"]
+                    </th>
+                    <th data-options="field:'s9',align:'center'">
+                        @ViewBag.LanguagePack["employeeorder_index_receiver"]
+                    </th>
+                    <th data-options="field:'s10',align:'left'">
+                        @ViewBag.LanguagePack["employeeorder_index_customer_tel"]
+                    </th>
+                    <th data-options="field:'s11',align:'left',hidden:true">
+                        @ViewBag.LanguagePack["employeeorder_index_customer_addr"]
+                    </th>
+                    <th data-options="field:'s12',align:'center'">
+                        @ViewBag.LanguagePack["employeeorder_index_orderstatus"]
+                    </th>
+                    <th data-options="field:'s13',align:'center'">
+                        @ViewBag.LanguagePack["employeeorder_index_payment_type"]
+                    </th>
+                    <th data-options="field:'s14',align:'left',hidden:true">
+                        @ViewBag.LanguagePack["employeeorder_index_paytime"]
+                    </th>
+                    <th data-options="field:'s15',align:'left'">
+                        @ViewBag.LanguagePack["employeeorder_index_ordertime"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/jquery-easyui/1.5.1/extension/datagrid-detailview.js")
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    @Scripts.Render("~/Content/js-library/jquery.extend/jquery.cookie/jquery.cookie.js")
+    <script type="text/javascript">
+        $(function () {
+            //初始化店铺列表
+            $('#StoreName').combotree({
+                url: '@Url.Action("Mall_Message", "Common")',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'comboTree'
+                },
+                multiple: true
+            });
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.GridExtension.DetailView($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "EmployeeOrder")',
+                queryParams: {
+                    email: $('#Email').val()
+                },
+                multiSort: true,
+                remoteSort: true,
+                detail_url: '@Url.Action("Index_Message_Detail", "OrderQuery")'
+            });
+            //搜索
+            $('#search_oper').bind('click', function () {
+                var $this = $(this);
+                var $searchT = $('.main_complex_search').find('tr[class=display_none]');
+                for (var t = 0; t < $searchT.length; t++) {
+                    if ($searchT.eq(t).css("display") == 'none') {
+                        $this.attr("class", "fa fa-chevron-up color_success");
+                        $searchT.eq(t).show();
+                    }
+                    else {
+                        $this.attr("class", "fa fa-chevron-down color_success");
+                        $searchT.eq(t).fadeOut(300);
+                    }
+                }
+            });
+            $('#SearchButton').bind('click', function () {
+                GridSearch();
+            });
+            //操作
+            //导出数据
+            $('#exportexcel').bind('click', function () {
+                $('#SearchForm').submit();
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+            //初始化时间选项
+            $('#quick_time').combobox({
+                onChange: function (value) {
+                    if (value > 0) {
+                        commonJs.sysAjaxFunction({
+                            url: '@Url.Action("QuickTime_Message", "Common")',
+                            para: { id: value },
+                            isload: false,
+                            func: function (data) {
+                                data = eval('(' + data + ')');
+                                $('#Time1').val(data.t1);
+                                $('#Time2').val(data.t2);
+                            }
+                        });
+                    }
+                    else {
+                        $('#Time1').val('');
+                        $('#Time2').val('');
+                    }
+                }
+            });
+            //初始化字段选项列表
+            var _content = '';
+            var _select_fields = $.cookie('employee_query_field');
+            var opts = $('#dg').datagrid('getColumnFields');
+            for (i = 1; i < opts.length; i++) {
+                var _col = $('#dg').datagrid("getColumnOption", opts[i]);
+                _content += '<div><input id="f_' + i + '" type="checkbox" value="' + _col.field + '" onclick="SelectField($(this))"';
+                //如果没有选择过，则以默认为准
+                if (_select_fields == undefined) {
+                    if (!_col.hidden) {
+                        _content += ' checked="checked" ';
+                    }
+                }
+                else {
+                    if ((',' + _select_fields + ',').indexOf(',' + _col.field + ',') > -1) {
+                        _content += ' checked="checked" ';
+                        //列表设置
+                        $("#dg").datagrid('showColumn', _col.field);
+                    }
+                    else {
+                        //列表设置
+                        $("#dg").datagrid('hideColumn', _col.field);
+                    }
+                }
+                _content += '/><label for="f_' + i + '">' + _col.title + '</label></div>';
+            }
+            $('#field_list').html(_content);
+            //注册回车事件
+            $(document).keypress(function (e) {
+                // 回车键事件
+                if (e.which == 13) {
+                    GridSearch();
+                }
+            });
+        });
+
+        function GridSearch() {
+            easyUIExtend.Grid.Search($('#dg'), {
+                orderid: $('#OrderNumber').val(),
+                order_type: $('#OrderType').combobox('getValue'),
+                store: $("#StoreName").combotree("getValues").join(','),
+                product_brand: $('#ProductBrand').combobox('getValue'),
+                sku_id: $('#SkuID').val(),
+                price_min: $('#ProductPriceMin').val(),
+                price_max: $('#ProductPriceMax').val(),
+                time1: $('#Time1').val(),
+                time2: $('#Time2').val(),
+                order_status: commonJs.getCheckBoxValue('OrderStatus').join(','),
+                product_status: commonJs.getCheckBoxValue('ProductStatus').join(','),
+                email: $('#Email').val(),
+                customer: $('#Customer').val(),
+                receiver: $('#Receiver').val(),
+                contact: $('#Contact').val(),
+                shipping_status: $('#ShippingStatus').combobox('getValue'),
+                express: $('#Express').val(),
+                express_status: $('#ExpressStatus').combobox('getValue'),
+                shippping_method:$('#ShippingMethod').combobox('getValue'),
+                deliveryfee_min: $('#DeliveryFeeMin').val(),
+                deliveryfee_max: $('#DeliveryFeeMax').val(),
+                payment_status: commonJs.getCheckBoxValue('PaymentStatus').join(','),
+                is_bundle: ($('#IsBundle').prop("checked")) ? 1 : 0,
+                is_gift: ($('#IsGift').prop("checked")) ? 1 : 0,
+                is_monogram: ($('#IsMonogram').prop("checked")) ? 1 : 0,
+                promotion_name: $('#PromotionName').val(),
+                coupon_code: $('#CouponCode').val()
+            });
+        }
+
+        function SelectField(object) {
+            var _field = $.trim(object.val());
+            if (object.prop("checked")) {
+                $("#dg").datagrid('showColumn', _field);
+            }
+            else {
+                $("#dg").datagrid('hideColumn', _field);
+            }
+            var _fields = '';
+            var _O = $('#field_list').find('input[type=checkbox]');
+            for (var t = 0; t < _O.length; t++) {
+                if (_O.eq(t).prop("checked")) {
+                    if (_fields == '') {
+                        _fields = _O.eq(t).val();
+                    }
+                    else {
+                        _fields += "," + _O.eq(t).val();
+                    }
+                }
+            }
+            //写入cookie
+            $.cookie('employee_query_field', _fields, { expires: 30 });
+        }
+    </script>
+}

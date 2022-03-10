@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>名称：
+                        </th>
+                        <td>
+                            <input name="UploadName" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>标识：
+                        </th>
+                        <td>
+                            <input name="ModelMark" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>类型：
+                        </th>
+                        <td>
+                            <input id="f_1" name="FileType" type="radio" value="1" checked="checked"><label for="f_1">图片</label>
+                            <input id="f_2" name="FileType" type="radio" value="0"><label for="f_2">文件</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>文件上传数限制：
+                        </th>
+                        <td>
+                            <input name="MaxFileCount" type="text" class="easyui-numberspinner input-small" value="1" data-options="min:0,precision:0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>文件大小限制：
+                        </th>
+                        <td>
+                            <input name="MaxFileSize" type="text" class="easyui-numberbox input-small" value="0" data-options="min:0,precision:0" />KB
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>文件后缀名限制：
+                        </th>
+                        <td>
+                            <input name="AllowFile" type="text" class="easyui-textbox input-xlarge" />
+                            <span class="label-info">格式如:jpg,gif,png</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>保存文件夹方式：
+                        </th>
+                        <td>
+                            <input id="s_1" name="SaveStyle" type="radio" value="dateorder" checked="checked"><label for="s_1">按时间</label>
+                            <input id="s_2" name="SaveStyle" type="radio" value="fileorder"><label for="s_2">按文件夹</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>保存文件夹名称：
+                        </th>
+                        <td>
+                            <input name="SaveCatalog" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>是否重命名：
+                        </th>
+                        <td>
+                            <input id="r_1" name="IsRename" type="radio" value="1"><label for="r_1">是</label>
+                            <input id="r_2" name="IsRename" type="radio" value="0" checked="checked"><label for="r_2">否</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

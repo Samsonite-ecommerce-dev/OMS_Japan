@@ -1,0 +1,97 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_operate">
+        <ul>
+            <li><i class="fa fa-cloud-upload color_warning"></i><input id="input_upload" type="text" class="easyui-choosebox input-xxlarge" prompt="@ViewBag.LanguagePack["common_uploadfile_prompt"]" onClickButton="commonJs.openFileView({model:'M002',catalog: 'Delivery',object: $(this)});" /></li>
+            <li><i class="fa fa-download color_success"></i><a href="~/Document/Template/Delivery/Warehouse_Invoices_Template.xlsx">@ViewBag.LanguagePack["delivery_index_model"]</a></li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="save" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-save color_success"></i>@ViewBag.LanguagePack["common_save"]</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'OrderNo',align:'center'">
+                        @ViewBag.LanguagePack["delivery_index_orderNo"]
+                    </th>
+                    <th data-options="field:'SubOrderNo',align:'center'">
+                        @ViewBag.LanguagePack["delivery_index_suborderNo"]
+                    </th>
+                    <th data-options="field:'MallSapCode',align:'center'">
+                        @ViewBag.LanguagePack["delivery_index_mallid"]
+                    </th>
+                    <th data-options="field:'DeliveryInvoice',align:'center'">
+                        @ViewBag.LanguagePack["delivery_index_invoiceNo"]
+                    </th>
+                    <th data-options="field:'DeliveryName',align:'center'">
+                        @ViewBag.LanguagePack["delivery_index_deliveryName"]
+                    </th>
+                    <th data-options="field:'DeliveryCode',align:'center'">
+                        @ViewBag.LanguagePack["delivery_index_deliveryCode"]
+                    </th>
+                    <th data-options="field:'DeliveryDate',align:'center'">
+                        @ViewBag.LanguagePack["delivery_index_deliveryDate"]
+                    </th>
+                    <th data-options="field:'ResultMsg',align:'left'">
+                        @ViewBag.LanguagePack["delivery_index_result"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "Delivery")',
+                pageSize: 30
+            });
+
+            $('#save').click(function () {
+                commonJs.sysAjaxFunction({
+                    url: '@Url.Action("Save", "Delivery")',
+                    dataType: 'json',
+                    para: { filePath: $('#input_upload').choosebox('getValue') },
+                    func: function (data) {
+                        if (data.result) {
+                            artDialogExtend.Tips.Success(data.msg, 2, function () {
+                                //显示错误信息
+                                $('#dg').datagrid('loadData', data.rows);
+                            });
+                        } else {
+                            artDialogExtend.Tips.Error(data.msg, 5);
+                        }
+                    }
+                });
+            });
+        });
+
+        function gl_SelectUploadFile(objPath) {
+            var _o = $('input[type="hidden"][title="value"]');
+            if (_o.length > 0) {
+                _o.eq(0).val(objPath);
+                _o.eq(0).attr("title", "");
+            }
+            var _s = $('input[type="text"][title="url"]');
+            if (_s.length > 0) {
+                _s.eq(0).val(objPath);
+                _s.eq(0).attr("title", "");
+            }
+
+            //列表中显示数据
+            easyUIExtend.Grid.Search($('#dg'), {
+                filepath: objPath
+            });
+        }
+    </script>
+}

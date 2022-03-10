@@ -1,0 +1,202 @@
+/* CSS Document @charset "utf-8"; */
+.warehouse_index{
+
+}
+
+.warehouse_delivery_note{
+    border:1px #d4d4d4 solid;
+}
+
+.warehouse_delivery_note .delivery_note_title{
+    padding-left:10px;
+    height:36px;
+    line-height:36px;
+    background-color:#f2f2f2;
+    border-bottom:1px #d4d4d4 solid;
+}
+
+.warehouse_delivery_note .delivery_note_title span{
+    padding:0 5px;
+}
+
+.warehouse_delivery_note .delivery_note_title input#SaveButtom{
+    float:right;
+    margin:3px 5px 0 0;
+}
+
+.warehouse_delivery_note .delivery_note_list{
+    width:40%;
+    float:left;
+    padding:0 3px;
+}
+
+.warehouse_delivery_note .delivery_note_scan{
+    width:60%;
+    float:left;
+    border:1px #d4d4d4 solid;
+    margin-top: 5px;
+    padding-right:3px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_title{
+    border-bottom:1px #d4d4d4 solid;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_title .scan_search{
+    padding:3px 0 0 10px;
+    height:36px;
+    font-size:1.2em;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_title .scan_search .tracking_no_button{
+    border:1px #5cb85c solid;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_title .scan_print{
+    display:none;
+    padding-left:10px;
+    line-height:36px;
+    font-size:1.6em;
+    color:#337ab7;
+    font-weight:bold;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_title .scan_msg{
+    display:none;
+    line-height:32px;
+    padding-left:10px;
+    font-size:14px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_contect{
+    padding:10px;
+    overflow-y:scroll;
+}
+.warehouse_delivery_note .delivery_note_scan .scan_contect ul li{
+    padding:5px 0;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info{
+    margin:0 auto;
+    width:99%;
+    border:2px #d4d4d4 solid;
+    font-size:14px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .bg_normal{
+    background-color:#269abc;
+}
+
+.warehouse_delivery_note .delivery_note_scan .bg_successful{
+    background-color:#5cb85c;
+}
+
+.warehouse_delivery_note .delivery_note_scan .bg_error{
+    background-color:#d9534f;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info{
+    padding-bottom:5px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-1{
+    width:8.3%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-2{
+    width:16.6%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-3{
+    width:25%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-4{
+    width:33.3%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-5{
+    width:41.6%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-6{
+    width:50%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-7{
+    width:58.3%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-8{
+    width:66.6%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-9{
+    width:75%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .avg-10{
+    width:83.3%;display:inline-block;float:left;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info .bg-size{
+    font-size:1.2em;
+    font-weight:bold;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info a#scan_icon{
+    display:none;
+    margin-right:5px;
+    height:20px;
+    line-height:20px;
+    font-size:16px;
+    color:#fff;
+    cursor:pointer;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info a#scan_icon:hover{
+    color:#f0ad4e;
+    font-weight:bold;
+    font-size:18px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info li {
+   
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info li:first-child {
+    height:32px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info li span{
+    padding-top:8px;
+    text-align:left;
+    color:#fff;
+    line-height:18px;
+    overflow:hidden;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info li span:nth-child(1){
+    padding-left:20px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info li span:nth-child(2){
+    padding-left:5px;
+    font-size:16px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info li span:nth-child(3){
+    text-align:right;
+    padding-right:10px;
+}
+
+.warehouse_delivery_note .delivery_note_scan .scan_info li span .num{
+    width:18px;
+    height:18px;
+    line-height:18px;
+    display:block;
+    border-radius:50%;
+    border:1px #fff solid;
+    text-align:center;
+}
+

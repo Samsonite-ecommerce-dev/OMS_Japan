@@ -1,0 +1,98 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _Promotion_StoreList = (List<Samsonite.OMS.Database.Mall>)ViewData["promotion_store_list"];
+    var _Promotion_GiftList = (List<Samsonite.OMS.Database.PromotionGift>)ViewData["promotion_gift_list"];
+    var _Promotion_InventoryList = (List<Samsonite.OMS.Database.PromotionProductInventory>)ViewData["promotion_inventory_list"];
+    var _ProductInventory = new Samsonite.OMS.Database.PromotionProductInventory();
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_inventory_name"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.PromotionName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["promotion_inventory_quantity"]：
+                        </th>
+                        <td>
+                            @foreach (var _g in _Promotion_GiftList)
+                            {
+                                <div class="common-list-table" style="width:50%;">
+                                    <ul id="gift_list">
+                                        <li class="common-list-table-tr">
+                                            <span class="avg-3"><label class="font-bold fontSize-14">@_g.SKU</label></span>
+                                            <span class="avg-5">@ViewBag.LanguagePack["promotion_inventory_mallname"]</span>
+                                            <span class="avg-4">@ViewBag.LanguagePack["promotion_inventory_quantity"]</span>
+                                        </li>
+                                        @foreach (var _o in _Promotion_StoreList)
+                                        {
+                                            _ProductInventory = _Promotion_InventoryList.Where(p => p.MallSapCode == _o.SapCode && p.SKU == _g.SKU).FirstOrDefault();
+                                            if (_ProductInventory != null)
+                                            {
+                                                <li class="common-list-table-td">
+                                                    <span class="avg-3">
+                                                        &nbsp;
+                                                    </span>
+                                                    <span class="avg-5">
+                                                        <input name="SelectGift" type="hidden" value="@_g.SKU" />
+                                                        <input id="sm_@_g.Id@_o.Id" name="SelectMall" type="checkbox" checked="checked" value="@_o.SapCode" onclick="checkMall($(this));" />
+                                                        <label for="sm_@_g.Id@_o.Id">@_o.Name</label>
+                                                    </span>
+                                                    <span class="avg-4">
+                                                        <input name="CurrentInventory" type="text" class="easyui-text input-mini" value="@_ProductInventory.CurrentInventory" />
+                                                        <label class="color_primary">/@_ProductInventory.InventoryQuantity</label>
+                                                    </span>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li class="common-list-table-td">
+                                                    <span class="avg-3">
+                                                        &nbsp;
+                                                    </span>
+                                                    <span class="avg-5">
+                                                        <input name="SelectGift" type="hidden" value="@_g.SKU" disabled="disabled" />
+                                                        <input id="sm_@_g.Id@_o.Id" name="SelectMall" type="checkbox" value="@_o.SapCode" onclick="checkMall($(this));" />
+                                                        <label for="sm_@_g.Id@_o.Id">@_o.Name</label>
+                                                    </span>
+                                                    <span class="avg-4">
+                                                        <input name="CurrentInventory" type="text" class="easyui-text input-mini" value="0" disabled="disabled" />
+                                                    </span>
+                                                </li>
+                                            }
+                                        }
+                                    </ul>
+                                </div>
+                                <br />
+                            }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        function checkMall(obj) {
+            if (obj.prop("checked")) {
+                obj.parent().find('input[name=SelectGift]').attr("disabled", false);
+                obj.parent().parent().find('input[name=CurrentInventory]').attr("disabled", false);
+            }
+            else {
+                obj.parent().find('input[name=SelectGift]').attr("disabled", true);
+                obj.parent().parent().find('input[name=CurrentInventory]').attr("disabled", true);
+            }
+        }
+    </script>
+}

@@ -1,0 +1,54 @@
+﻿
+@{
+    Layout = "~/Areas/Mobile/Views/Shared/_Layout.cshtml";
+}
+<header class="main-menu">
+    <div class="left"></div>
+    <div class="middle">电商订单管理系统</div>
+    <div class="right"></div>
+</header>
+<section class="login">
+    <div class="login-top"></div>
+    <div class="login-enter">
+        <div>
+            <label for="input1"><i class="glyphicon glyphicon-phone"></i></label>
+            <input id="input1" name="account" class="bootstrap-control-text form-control" placeholder="请输入用户名" />
+        </div>
+        <div class="split"></div>
+        <div>
+            <label for="input2"><i class="glyphicon glyphicon-lock"></i></label>
+            <input id="input2" name="pwd" type="password" class="bootstrap-control-text form-control" placeholder="请输入密码" />
+        </div>
+    </div>
+    <div class="login-bottom">
+        <button id="login_button" type="button" class="btn btn-success btn-lg btn-block" data-text="{buttonText:'登录',loadingText:'登录中'}">登录</button>
+    </div>
+</section>
+@section scripts {
+    <script type="text/javascript">
+        $('#login_button').on('click', function () {
+            var _username = $('.login').find('input[name=account]').val();
+            var _password = $('.login').find('input[name=pwd]').val();
+            var $click_obj = $(this);
+            var _url = '@Url.Action("Index_message","Login")';
+            mobile.ajax({
+                url: _url,
+                type: 'post',
+                data: { username: _username, password: _password },
+                dataType: 'json',
+                button: $click_obj,
+                successFunc: function (data) {
+                    //返回数据
+                    if (data.result) {
+                        window.location.href = '@Url.Action("Index","Home")';
+                    }
+                    else {
+                        //提示错误
+                        mobile.Message.Warn(data.msg);
+                    }
+                }
+            });
+        });
+
+    </script>
+}

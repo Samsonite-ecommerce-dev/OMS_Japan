@@ -1,0 +1,154 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _OrderDetail = (Samsonite.OMS.Database.OrderDetail)ViewData["order_detail"];
+    var _OrderReturn = (Samsonite.OMS.Database.OrderReturn)ViewData["order_return"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_order_number"]：
+                        </th>
+                        <td>
+                            @_m.OrderNo
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_sub_order_number"]：
+                        </th>
+                        <td>
+                            @_m.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_sku"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.SKU
+
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_productname"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.ProductName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_new_sku"]：
+                        </th>
+                        <td>
+                            @ViewBag.NewSku
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_new_productname"]：
+                        </th>
+                        <td>
+                            @ViewBag.NewProductName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_price"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.SellingPrice)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_return_quantity"]：
+                        </th>
+                        <td>
+                            @_m.Quantity/<label class="color_primary">@_OrderDetail.Quantity</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.PaymentAmount)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_actual_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_OrderDetail.ActualPaymentAmount))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_receive_logistics"]：
+                        </th>
+                        <td colspan="3">
+                            <i class="fa fa-archive color_info"></i>@Samsonite.OMS.Service.ExpressCompanyService.GetExpressMessage(_OrderReturn.ShippingCompany, _OrderReturn.ShippingNo)
+                            <br />
+                            <i class="fa fa-truck color_success"></i>@Samsonite.OMS.Service.OrderReceiveService.GetReceiveMessage(new Samsonite.OMS.DTO.ReceiveDto() { Receiver = _OrderReturn.CustomerName, Tel = _OrderReturn.Tel, Mobile = _OrderReturn.Mobile, ZipCode = _OrderReturn.Zipcode, Address = _OrderReturn.Addr })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_send_logistics"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(ViewBag.NewOrderDelivery)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_reason"]：
+                        </th>
+                        <td colspan="3">
+                            @Samsonite.OMS.Service.OrderExchangeProcessService.GetReason(_m.Reason)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_state"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(OMS.App.Helper.OrderHelper.GetProcessStatusDisplay(_m.Status, true))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_oper_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_stock_reply"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(OMS.App.Helper.OrderHelper.GetWarehouseStatusDisplay(_m.ApiIsRead, _m.ApiStatus, true) + ((_m.ApiReplyDate != null) ? "<br />" + _m.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((_m.ApiReplyMsg != null) ? "<br />" + _m.ApiReplyMsg : ""))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_accept_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}", ((_m.AcceptUserDate != null) ? _m.AcceptUserName + "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.AcceptRemark)) ? "<br/>" + _m.AcceptRemark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_detail_manual_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}", ((_m.ManualUserDate != null) ? _m.ManualUserName + "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.ManualUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.ManualRemark)) ? "<br/>" + _m.ManualRemark : "")))
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

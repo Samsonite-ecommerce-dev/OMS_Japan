@@ -1,0 +1,102 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _AreaMessage = (Samsonite.OMS.DTO.AreaDto)ViewData["AreaCodes"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.ID" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_customer_number"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.CustomerNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_platform_userno"]：
+                        </th>
+                        <td>
+                            <input name="PlatformUserNo" type="text" class="easyui-textbox input-large" value="@_m.PlatformUserNo" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_platform_username"]：
+                        </th>
+                        <td>
+                            <input name="PlatformUserName" type="text" class="easyui-textbox input-large" value="@_m.PlatformUserName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["customer_edit_customer_name"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="CustomerName" type="text" class="easyui-textbox input-large" value="@_m.Name" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_tel"]：
+                        </th>
+                        <td>
+                            <input name="Tel" type="text" class="easyui-textbox input-large" value="@_m.Tel" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_mobile"]：
+                        </th>
+                        <td>
+                            <input name="Mobile" type="text" class="easyui-textbox input-large" value="@_m.Mobile" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_email"]：
+                        </th>
+                        <td>
+                            <input name="Email" type="text" class="easyui-textbox input-large" value="@_m.Email" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_zipode"]：
+                        </th>
+                        <td>
+                            <input name="Zipcode" type="text" class="easyui-textbox input-medium" value="@_m.Zipcode" />
+                        </td>
+                    </tr>
+                    @*<tr>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_area"]：
+                        </th>
+                        <td colspan="3">
+                            <div id="area1" class="easyui-area">
+                                <input name="Province" value="@_AreaMessage.Province" />
+                                <input name="City" value="@_AreaMessage.City" />
+                                <input name="District" value="@_AreaMessage.District" />
+                            </div>
+                        </td>
+                    </tr>*@
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["customer_edit_address"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="Address" type="text" class="easyui-textbox input-xxlarge" value="@_m.Addr" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/js/easyui-area.js")
+    <script type="text/javascript">
+        $(function () {
+            //AreaInit($('#area1'));
+        });
+    </script>
+}

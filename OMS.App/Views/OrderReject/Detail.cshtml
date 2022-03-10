@@ -1,0 +1,103 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _OrderDetail = (Samsonite.OMS.Database.View_OrderDetail)ViewData["order_detail"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_order_number"]：
+                        </th>
+                        <td>
+                            @_m.OrderNo
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_sub_order_number"]：
+                        </th>
+                        <td>
+                            @_m.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_paytype"]：
+                        </th>
+                        <td colspan="3">
+                            @OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(_OrderDetail.PaymentType)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_sku"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.SKU
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_productname"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.ProductName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_price"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.SellingPrice)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_reject_quantity"]：
+                        </th>
+                        <td>
+                            @_m.Quantity/<label class="color_primary">@_OrderDetail.Quantity</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.ProductPaymentAmount)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_actual_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_OrderDetail.ActualPaymentAmount))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_state"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(OMS.App.Helper.OrderHelper.GetProcessStatusDisplay(_m.Status, true))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_oper_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.AddDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_detail_confirm_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}", ((_m.AcceptUserDate != null) ? _m.AcceptUserName + "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.AcceptRemark)) ? "<br/>" + _m.AcceptRemark : "")))
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

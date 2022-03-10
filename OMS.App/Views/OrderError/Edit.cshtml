@@ -1,0 +1,145 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _OrderDetail = (Samsonite.OMS.Database.OrderDetail)Model;
+    var _OrderReceive = (Samsonite.OMS.Database.OrderReceive)ViewData["order_receive"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_OrderDetail.Id" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordererror_edit_order_no"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.OrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordererror_edit_sub_order_no"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordererror_edit_store"]：
+                        </th>
+                        <td>
+                            <input id="MallSapCode" name="MallSapCode" class="input-xlarge" value="@ViewBag.MallSapCode">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordererror_edit_tel"]：
+                        </th>
+                        <td>
+                            <input id="Tel" name="Tel" type="text" class="easyui-textbox input-large" value="@_OrderReceive.ReceiveTel" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordererror_edit_mobile"]：
+                        </th>
+                        <td>
+                            <input id="Mobile" name="Mobile" type="text" class="easyui-textbox input-large" value="@_OrderReceive.ReceiveCel" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordererror_edit_order_type"]：
+                        </th>
+                        <td>
+                            <input id="Otype_1" name="Otype" type="radio" value="0" checked="checked" /><label for="Otype_1">@ViewBag.LanguagePack["ordererror_edit_order_type_1"]</label>
+                            <input id="Otype_2" name="Otype" type="radio" value="1" /><label for="Otype_2">@ViewBag.LanguagePack["ordererror_edit_order_type_2"]</label>
+                            <div id="type_1">
+                                @ViewBag.LanguagePack["ordererror_edit_sku"]
+                                <i class="fa fa-chevron-circle-right color_info"></i>
+                                <input id="SKU" name="SKU" type="text" class="easyui-textbox input-large" value="@_OrderDetail.SKU" />
+                            </div>
+                            <div id="type_2" class="display_none">
+                                @ViewBag.LanguagePack["ordererror_edit_order_type_2"]
+                                <i class="fa fa-chevron-circle-right color_info"></i>
+                                <input id="ProductSet" name="ProductSet" type="text" style="width:185px;" value="@_OrderDetail.SKU" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordererror_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //初始化店铺列表
+            $('#MallSapCode').combobox({
+                url: '@Url.Action("Mall_Message", "Common")',
+                valueField: 'value',
+                textField: 'text',
+                groupField: 'group',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'comboBox',
+                    existAll: 0
+                }
+            });
+            //绑定SKU搜索框
+            easyUIExtend.ComboGrid($('#SKU'), {
+                panelWidth: 650,
+                url: '@Url.Action("ProductSku_Message", "Common")',
+                idField: 's1',
+                textField: 's1',
+                multiple: false,
+                columns: [[
+                   { field: 's1', title: '@ViewBag.LanguagePack["product_index_sku"]', align: 'left' },
+                   { field: 's2', title: '@ViewBag.LanguagePack["product_index_brand"]', align: 'left' },
+                   { field: 's3', title: '@ViewBag.LanguagePack["product_index_groupdesc"]', align: 'left' },
+                   { field: 's4', title: '@ViewBag.LanguagePack["product_index_material"]', align: 'left' },
+                   { field: 's5', title: '@ViewBag.LanguagePack["product_index_gdval"]', align: 'left' },
+                   { field: 's6', title: '@ViewBag.LanguagePack["product_index_productname"]', align: 'left' },
+                   { field: 's8', title: '@ViewBag.LanguagePack["product_index_marketprice"]', align: 'center' },
+                   { field: 's10', title: '@ViewBag.LanguagePack["product_index_inventory"]', align: 'center' }
+                ]]
+            });
+            //绑定套装搜索框
+            easyUIExtend.ComboGrid($('#ProductSet'), {
+                panelWidth: 500,
+                url: '@Url.Action("PackageGoods_Message", "Common")',
+                idField: 's2',
+                textField: 's2',
+                multiple: false,
+                columns: [[
+                   { field: 's1', title: '@ViewBag.LanguagePack["packagegoods_index_name"]', align: 'left' },
+                   { field: 's2', title: '@ViewBag.LanguagePack["packagegoods_index_code"]', align: 'left' },
+                   { field: 's3', title: '@ViewBag.LanguagePack["packagegoods_index_quantity"]', align: 'center' }
+                ]]
+            });
+            //订单类型
+            $('input[name=Otype]').bind('click', function () {
+                if ($(this).prop("checked")) {
+                    if (parseInt($(this).val()) == 1) {
+                        $('#type_1').hide();
+                        $('#type_2').show();
+                    }
+                    else {
+                        $('#type_1').show();
+                        $('#type_2').hide();
+                    }
+                }
+            });
+        });
+    </script>
+}

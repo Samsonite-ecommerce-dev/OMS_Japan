@@ -1,0 +1,79 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = (Samsonite.OMS.Database.FTPInfo)Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.ID" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>名称：
+                        </th>
+                        <td>
+                            <input name="FTPName" type="text" class="easyui-textbox input-xlarge" value="@_m.FTPName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>FTP主机：
+                        </th>
+                        <td>
+                            <input name="IP" type="text" class="easyui-textbox input-xlarge" value="@_m.IP" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            FTP端口：
+                        </th>
+                        <td>
+                            <input name="Port" type="text" class="easyui-numberbox input-mini" value="@_m.Port" data-options="min:0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>FTP用户：
+                        </th>
+                        <td>
+                            <input name="UserName" type="text" class="easyui-textbox input-xlarge" value="@_m.UserName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>FTP密码：
+                        </th>
+                        <td>
+                            <input name="Password" type="text" class="easyui-textbox input-xlarge" value="@_m.Password" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            远程路径：
+                        </th>
+                        <td>
+                            <input name="FilePath" type="text" class="easyui-textbox input-xlarge" value="@_m.FilePath" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            排序：
+                        </th>
+                        <td>
+                            <input name="Sort" type="text" class="easyui-numberbox input-mini" value="@_m.SortID" data-options="min:0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            简要描述：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

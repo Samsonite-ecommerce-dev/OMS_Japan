@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["employeelevel_edit_name"]：
+                        </th>
+                        <td>
+                            <input name="LevelName" type="text" class="easyui-textbox input-large" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["employeelevel_edit_key"]：
+                        </th>
+                        <td>
+                            <input name="LevelKey" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["employeelevel_edit_limit"]：
+                        </th>
+                        <td>
+                            <div>
+                                <input id="IsLimit_1" name="IsAmount" type="checkbox" value="1" />
+                                <label class="label-info">@ViewBag.LanguagePack["employeelevel_edit_limit_is_amount"]</label>
+                                <input id="CLimit_1" name="CAmount" type="text" class="easyui-numberbox input-small" value="0" data-options="min:0,precision:0,disabled:true" />
+                            </div>
+                            <div style="padding-top:5px;">
+                                <input id="IsLimit_2" name="IsQuantity" type="checkbox" value="1" />
+                                <label class="label-info">@ViewBag.LanguagePack["employeelevel_edit_limit_is_quantity"]</label>
+                                <input id="CLimit_2" name="CQuantity" type="text" class="easyui-numberbox input-small" value="0" data-options="min:0,precision:0,disabled:true" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["employeelevel_edit_default"]：
+                        </th>
+                        <td>
+                            <input name="IsDefault" type="checkbox" value="1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["employeelevel_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Memo" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //绑定全选
+            $('#IsLimit_1').bind('click', function () {
+                SelectLimit(1)
+            });
+
+            $('#IsLimit_2').bind('click', function () {
+                SelectLimit(2)
+            });
+        });
+
+        function SelectLimit(id) {
+            var ck = $('#IsLimit_' + id);
+            var nb = $('#CLimit_' + id);
+            if (ck.prop("checked")) {
+                nb.numberbox({ disabled: false });
+            }
+            else {
+                nb.numberbox("setValue", 0);
+                nb.numberbox({ disabled: true });
+            }
+        }
+    </script>
+}

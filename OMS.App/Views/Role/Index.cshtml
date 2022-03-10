@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                <input id="SearchKey" type="text" class="easyui-textbox input-large" prompt="@ViewBag.LanguagePack["common_search_key"]" />
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="add" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-plus color_success"></i>@ViewBag.LanguagePack["common_add"]</a>
+            <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>@ViewBag.LanguagePack["common_edit"]</a>
+            <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>@ViewBag.LanguagePack["common_delete"]</a>
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',width:25,align:'left'">
+                        @ViewBag.LanguagePack["role_index_rolename"]
+                    </th>
+                    <th data-options="field:'s2',width:10,align:'center'">
+                        @ViewBag.LanguagePack["role_index_order"]
+                    </th>
+                    <th data-options="field:'s3',width:65,align:'left'">
+                        @ViewBag.LanguagePack["role_index_remark"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message","Role")'
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    keyword: $('#SearchKey').val()
+                });
+            });
+            //操作
+            $('#toolbar').find('#add').bind('click', function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("Add", "Role")',
+                    title: '@ViewBag.LanguagePack["common_add"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Add_Message", "Role")'
+                });
+            });
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "Role")?id=$',
+                    title: '@ViewBag.LanguagePack["common_edit"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "Role")'
+                });
+            });
+            $('#toolbar').find('#delete').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Delete_Message", "Role")');
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+    </script>
+}
+

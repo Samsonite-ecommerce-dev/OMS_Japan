@@ -1,0 +1,128 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _Order = (Samsonite.OMS.Database.Order)ViewData["order"];
+    var _DetailList = (List<Samsonite.OMS.Database.OrderDetail>)Model;
+    var _ReveiveList = (List<Samsonite.OMS.DTO.ReceiveDto>)ViewData["receive_list"];
+    int t = 0;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="OrderID" type="hidden" value="@_Order.OrderNo" />
+           
+            <table class="common_table1">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>@ViewBag.LanguagePack["ordercancel_edit_sub_order_number"]</th>
+                        <th>@ViewBag.LanguagePack["ordercancel_edit_sku"]</th>
+                        <th>@ViewBag.LanguagePack["ordermodify_edit_receiver"]</th>
+                        <th>@ViewBag.LanguagePack["ordermodify_edit_tel"]</th>
+                        <th>@ViewBag.LanguagePack["ordermodify_edit_mobile"]</th>
+                        <th>@ViewBag.LanguagePack["ordermodify_edit_zipcode"]</th>
+                        <th>@ViewBag.LanguagePack["ordermodify_edit_address"]</th>
+                    </tr>
+                    @foreach (var _O in _DetailList)
+                    {
+                        var _Receive = _ReveiveList.Where(p => p.SubOrderNo == _O.SubOrderNo).SingleOrDefault();
+                        <tr id="@t">
+                            <td>
+                                <input id="SelectID_@t" name="SelectID" type="checkbox" value="@_O.Id" />
+                                <input id="Sort_@t" name="Sort" type="hidden" class="easyui-textbox" data-options="disabled:true" value="@t" />
+                            </td>
+                            <td>
+                                @_O.SubOrderNo
+                            </td>
+                            <td>
+                                @_O.SKU
+                            </td>
+                            <td>
+                                <input id="Receiver_@t" name="Receiver_@t" type="text" class="easyui-textbox input-medium" data-options="disabled:true" value="@_Receive.Receiver" />
+                            </td>
+                            <td>
+                                <input id="Tel_@t" name="Tel_@t" type="text" class="easyui-textbox input-medium" data-options="disabled:true" value="@_Receive.Tel" />
+                            </td>
+                            <td>
+                                <input id="Cel_@t" name="Mobile_@t" type="text" class="easyui-textbox input-medium" data-options="disabled:true" value="@_Receive.Mobile" />
+                            </td>
+                            <td>
+                                <input id="ZipCode_@t" name="ZipCode_@t" type="text" class="easyui-textbox input-medium" data-options="disabled:true" value="@_Receive.ZipCode" />
+                            </td>
+                            <td class="textalign_left">
+                                <input id="Addr_@t" name="Address_@t" type="text" class="easyui-textbox input-xxlarge" data-options="disabled:true" value="@_Receive.Address" />
+                            </td>
+                        </tr>
+                        t++;
+                    }
+                    <tr>
+                        <td></td>
+                        <td class="textalign_left" colspan="7">
+                            <input id="CopyButton" type="button" value="@ViewBag.LanguagePack["ordermodify_edit_copy_button"]" class="btn btn-warning" />
+                            <label class="label-info">@ViewBag.LanguagePack["ordermodify_edit_copy_button_label"]</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="space_tiny space_spilt"></div>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('.common_table1').find('input[name=SelectID]').bind('click', function () {
+                var _t = $(this).parent().parent().attr("id");
+                if ($(this).prop("checked")) {
+                    $('#Sort_' + _t).textbox({ disabled: false });
+                    $('#Receiver_' + _t).textbox({ disabled: false });
+                    $('#Tel_' + _t).textbox({ disabled: false });
+                    $('#Cel_' + _t).textbox({ disabled: false });
+                    $('#ZipCode_' + _t).textbox({ disabled: false });
+                    $('#Addr_' + _t).textbox({ disabled: false });
+                }
+                else {
+                    $('#Sort_' + _t).textbox({ disabled: true });
+                    $('#Receiver_' + _t).textbox({ disabled: true });
+                    $('#Tel_' + _t).textbox({ disabled: true });
+                    $('#Cel_' + _t).textbox({ disabled: true });
+                    $('#ZipCode_' + _t).textbox({ disabled: true });
+                    $('#Addr_' + _t).textbox({ disabled: true });
+                }
+            });
+
+            $('#CopyButton').bind('click', function () {
+                var _selectIDs = $('.common_table1').find('input[name=SelectID]:checked');
+                if (_selectIDs.length > 0) {
+                    var _t = _selectIDs.eq(0).parent().parent().attr("id");
+                    var _receiver = $('#Receiver_' + _t).textbox('getValue');
+                    var _tel = $('#Tel_' + _t).textbox('getValue');
+                    var _cel = $('#Cel_' + _t).textbox('getValue');
+                    var _zipCode = $('#ZipCode_' + _t).textbox('getValue');
+                    var _address = $('#Addr_' + _t).textbox('getValue');
+
+                    //复制数据
+                    for (var t = 1; t < _selectIDs.length; t++) {
+                        _t = _selectIDs.eq(t).parent().parent().attr("id");
+                        $('#Receiver_' + _t).textbox('setValue', _receiver);
+                        $('#Tel_' + _t).textbox('setValue', _tel);
+                        $('#Cel_' + _t).textbox('setValue', _cel);
+                        $('#ZipCode_' + _t).textbox('setValue', _zipCode);
+                        $('#Addr_' + _t).textbox('setValue', _address);
+                    }
+                }
+            });
+        });
+    </script>
+}

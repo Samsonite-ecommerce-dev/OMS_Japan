@@ -1,0 +1,48 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    body {
+        background: #edf6fa;
+        margin: auto;
+    }
+
+    .show_code {
+        width: 90%;
+        height: 60px;
+        line-height: 60px;
+        border: 5px #ff6a00 solid;
+        margin: 50px auto 0 auto;
+        border-radius: 5px;
+        font-size: 16px;
+        padding-left: 10px;
+        font-weight: bold;
+        color: black;
+    }
+
+    .show_code #code {
+        cursor: pointer;
+        color: cornflowerblue;
+    }
+</style>
+
+<div class="main">
+    <div class="show_code">
+        Authorization Code:<span id="code">@ViewBag.AuthorizationCode</span>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#code').bind('click', function () {
+                var _code = $(this).html();
+                //返回参数
+                var _win = art.dialog.open.origin;
+                if (_win) {
+                    _win.SetCode(_code);
+                    _win.artDialogExtend.Dialog.Close();
+                }
+            });
+        });
+    </script>
+}

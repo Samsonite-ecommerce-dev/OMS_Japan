@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _GroupList = Model;
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                <select id="ClassID" class="easyui-combobox">
+                    <option value="0">--全部栏目--</option>
+                    @{
+                        foreach (var _o in _GroupList)
+                        {
+                            <option value="@_o.Groupid">@_o.GroupName</option>
+                        }
+                    }
+                </select>
+            </li>
+            <li>
+                <input id="SearchKey" type="text" class="easyui-textbox input-large" prompt="搜索关键字" />
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="查询" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="add" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-plus color_success"></i>添加</a>
+            <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>编辑</a>
+            <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>删除</a>
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>刷新</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',width:50,align:'left'">
+                        功能名称
+                    </th>
+                    <th data-options="field:'s2',align:'center'">
+                        所属栏目组
+                    </th>
+                    <th data-options="field:'s3',align:'center'">
+                        类型
+                    </th>
+                    <th data-options="field:'s4',align:'left'">
+                        功能标识
+                    </th>
+                    <th data-options="field:'s5',align:'left'">
+                        默认地址
+                    </th>
+                    <th data-options="field:'s6',align:'center'">
+                        状态
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "Function")'
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    keyword: $('#SearchKey').val(),
+                    classid: $('#ClassID').combobox('getValue')
+                });
+            });
+            //操作
+            $('#toolbar').find('#add').bind('click', function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("Add", "Function")',
+                    title: '添加',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Add_Message", "Function")'
+                });
+            });
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "Function")?id=$',
+                    title: '编辑',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "Function")'
+                });
+            });
+            $('#toolbar').find('#delete').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Delete_Message", "Function")');
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+    </script>
+}
+

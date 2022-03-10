@@ -1,0 +1,472 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _Order = Model;
+    var _DetailList = (List<Samsonite.OMS.Database.OrderDetail>)ViewData["detail_list"];
+    var _ProuctList = (List<Samsonite.OMS.Database.Product>)ViewData["product_list"];
+    var _OrderReceiveList = (List<Samsonite.OMS.Database.OrderReceive>)ViewData["order_receive"];
+    var _DeliverysList = (List<Samsonite.OMS.Database.Deliverys>)ViewData["delivery_list"];
+    var _GiftList = (List<Samsonite.OMS.Database.OrderGift>)ViewData["gift_list"];
+    var _AdjustmentList = (List<Samsonite.OMS.Database.OrderDetailAdjustment>)ViewData["adjustment_list"];
+    var _ShippingAdjustmentList = (List<Samsonite.OMS.Database.OrderShippingAdjustment>)ViewData["shippingAdjustment_list"];
+    var _DocumentList = (List<Samsonite.OMS.Database.DeliverysDocument>)ViewData["document_list"];
+    var _VASList = (List<Samsonite.OMS.Database.OrderValueAddedService>)ViewData["vas_list"];
+    var _PayList = (List<Samsonite.OMS.Database.OrderPaymentDetail>)ViewData["payment_detail_list"];
+    var _FunctionPowers = (string)ViewBag.FunctionPower;
+}
+@section style {
+    @Styles.Render("~/Content/font/iconfont/css/iconfont.css")
+}
+<div class="main">
+    <div class="easyui-tabs" style="width:99%;">
+        <div title="@ViewBag.Languagepack["orderquery_detail_order_message"]" style="padding:3px">
+            <div class="main_list">
+                <div class="title">@ViewBag.LanguagePack["orderquery_detail_order_message"]</div>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_number"]</th>
+                            <td>@_Order.OrderNo
+                            <th>@ViewBag.LanguagePack["orderquery_detail_store"]</th>
+                            <td>@_Order.MallName</td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_ordertype"]</th>
+                            <td>@Html.Raw(OMS.App.Helper.OrderHelper.GetOrderTypeDisplay(_Order.OrderType))</td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_shipping_method"]</th>
+                            <td>@OMS.App.Helper.OrderHelper.GetShippingMethodDisplay(_Order.ShippingMethod)</td>
+                        </tr>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_createtime"]</th>
+                            <td>@Samsonite.Utility.Common.VariableHelper.SaferequestTime(_Order.CreateDate).ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_pay"]</th>
+                            <td>
+                                @OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(_Order.PaymentType)
+                                @((_PayList.Count > 0) ? "(" + string.Join(",", _PayList.Select(p => OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(p.PaymentType))) + ")" : "")
+                            </td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_paytime"]</th>
+                            <td colspan="3">@((_Order.PaymentDate != null) ? _Order.PaymentDate.ToString("yyyy-MM-dd HH:mm:ss") : "")</td>
+                        </tr>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_customer"]</th>
+                            <td>@_Order.PlatformUserName</td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_platformstatus"]</th>
+                            <td>@Html.Raw(OMS.App.Helper.OrderHelper.GetECommerceStatusDisplay(_Order.PlatformType, _Order.EBStatus))</td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_status"]</th>
+                            <td colspan="3">@Html.Raw(OMS.App.Helper.OrderHelper.GetOrderStatusDisplay(_Order.Status, true))</td>
+                            @*<th>@ViewBag.LanguagePack["orderquery_detail_point_amount"]</th>
+                                <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.PointAmount)</td>*@
+                            @*<th>@ViewBag.LanguagePack["orderquery_detail_promotional_point"]</th>
+                                <td>@_Order.Point</td>*@
+                        </tr>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_remark"]</th>
+                            <td colspan="7">@_Order.Remark</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="space_small"></div>
+                <div class="title">@ViewBag.LanguagePack["orderquery_detail_product_message"]</div>
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_outerID"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_productname"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_status"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_price"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_quantity"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_paymoney"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_payamount"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_promotion"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_vas"]</th>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_plan_send"]</th>
+                        </tr>
+                        @foreach (var _o in _DetailList.OrderBy(p => p.Id).OrderBy(p => p.SetCode))
+                        {
+                            var _product = _ProuctList.Where(p => p.SKU == _o.SKU).SingleOrDefault();
+                            var _adjustments = _AdjustmentList.Where(p => p.SubOrderNo == _o.SubOrderNo).ToList();
+                            var _VASInfo = Samsonite.OMS.Service.ValueAddedService.ParseInfo(_VASList.Where(p => p.SubOrderNo == _o.SubOrderNo).ToList());
+                            <tr>
+                                <td>
+                                    @Html.Raw(!string.IsNullOrEmpty(_o.ParentSubOrderNo) ? "<i class=\"fa fa-minus color_info\"></i>" + _o.SubOrderNo : _o.SubOrderNo)
+                                    @Html.Raw(OMS.App.Helper.OrderHelper.GetOrderNatureLabel(new OMS.App.Helper.OrderHelper.OrderNature() { IsReservation = _o.IsReservation, IsPre = _o.IsPre, IsUrgent = _o.IsUrgent, IsSet = _o.IsSet, IsSetOrigin = _o.IsSetOrigin, IsExchangeNew = _o.IsExchangeNew, IsMonogram = (_VASList.Where(p => p.SubOrderNo == _o.SubOrderNo && p.Type == (int)Samsonite.OMS.DTO.ValueAddedServicesType.Monogram).Count() > 0), IsError = _o.IsError }))
+                                </td>
+                                <td>
+                                    <div class="product_info">
+                                        <div class="text">
+                                            <ul>
+                                                @if (_product != null)
+                                                {
+                                                    <li><label class="font-bold">@_product.GroupDesc</label></li>
+                                                }
+                                                <li>@_o.ProductName</li>
+                                                <li><label class="color_primary">@_o.SKU</label></li>
+                                            </ul>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(_o.ProductPic))
+                                        {
+                                            <img class="preview_img" src="#" attr-src="@_o.ProductPic" />
+                                        }
+                                    </div>
+                                </td>
+                                @if (_o.IsSet && _o.IsSetOrigin)
+                                {
+                                    <td class="textalign_center">--</td>
+                                }
+                                else
+                                {
+                                    <td class="textalign_center">
+                                        @Html.Raw(OMS.App.Helper.OrderHelper.GetProductStatusDisplay(_o.Status, true))
+                                    </td>
+                                }
+                                <td class="textalign_center">
+                                    @Samsonite.Utility.Common.VariableHelper.FormateMoney(_o.RRPPrice) / @Samsonite.Utility.Common.VariableHelper.FormateMoney(_o.SellingPrice)
+                                </td>
+                                <td class="textalign_center">@_o.Quantity</td>
+                                <td class="textalign_center">@Samsonite.Utility.Common.VariableHelper.FormateMoney(_o.PaymentAmount)</td>
+                                <td class="textalign_center">@Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_o.ActualPaymentAmount))</td>
+                                @if (_o.IsSet && _o.IsSetOrigin)
+                                {
+                                    <td colspan="3" class="textalign_center">--</td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <div class="text">
+                                            <ul>
+                                                @foreach (var aj in _adjustments)
+                                                {
+                                                    <li><i class="fa fa-caret-right"></i>@aj.LineitemText:@Samsonite.Utility.Common.VariableHelper.FormateMoney(0 - aj.GrossPrice)</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="text">
+                                            <ul>
+                                                @foreach (var _m in _VASInfo.Monograms)
+                                                {
+                                                    <li><i class="fa fa-caret-right"></i>@_m.Location:&nbsp;@Html.Raw(OMS.App.Helper.OrderHelper.GetMonogramFont(_m)) @Html.Raw(OMS.App.Helper.OrderHelper.GetMonogramPatch(_m))</li>
+                                                }
+                                                @if (_VASInfo.GiftBoxInfo != null)
+                                                {
+                                                    <li><i class="fa fa-caret-right"></i>@Html.Raw(OMS.App.Helper.OrderHelper.GetGiftBox(_VASInfo.GiftBoxInfo))</li>
+                                                }
+                                                @if (_VASInfo.GiftCardInfo != null)
+                                                {
+                                                    <li><i class="fa fa-caret-right"></i>@Samsonite.OMS.Service.ValueAddedService.GIFT_CARD:&nbsp;@Html.Raw(OMS.App.Helper.OrderHelper.GetGiftCard(_VASInfo.GiftCardInfo))</li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td class="textalign_center">
+                                        @Samsonite.Utility.Common.VariableHelper.FormateTime(_o.ReservationDate, "yyyy-MM-dd")
+                                    </td>
+                                }
+                            </tr>
+                            //赠品
+                            foreach (var _og in _GiftList.Where(p => p.SubOrderNo == _o.SubOrderNo))
+                            {
+                                <tr>
+                                    <td>
+                                        @_og.GiftNo
+                                        @Html.Raw(OMS.App.Helper.OrderHelper.GetOrderNatureLabel(new OMS.App.Helper.OrderHelper.OrderNature() { IsGift = true }))
+                                    </td>
+                                    <td>
+                                        <div class="product_info">
+                                            <div class="text">
+                                                @_og.ProductName
+                                                <br />
+                                                <label class="color_primary">@_og.Sku</label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="textalign_center">--</td>
+                                    <td class="textalign_center">@Samsonite.Utility.Common.VariableHelper.FormateMoney(_og.Price)</td>
+                                    <td class="textalign_center">@_og.Quantity</td>
+                                    <td class="textalign_center">0</td>
+                                    <td class="textalign_center">0</td>
+                                    <td colspan="3" class="textalign_center">--</td>
+                                </tr>
+                            }
+                        }
+                        @*合计*@
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_amount"]</th>
+                            <td colspan="5"></td>
+                            <td class="textalign_center">@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.OrderAmount)</td>
+                            <td colspan="3">
+                                <div class="text">
+                                    <ul>
+                                        @foreach (var aj in _AdjustmentList.Where(p => string.IsNullOrEmpty(p.SubOrderNo)))
+                                        {
+                                            <li><i class="fa fa-caret-right"></i>@aj.LineitemText:@Samsonite.Utility.Common.VariableHelper.FormateMoney(0 - aj.GrossPrice)</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_discount_amount"]</th>
+                            <td colspan="5"></td>
+                            <td class="textalign_center"><label class="color_danger">(@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.DiscountAmount))</label></td>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_total_amount"]</th>
+                            <td colspan="5"></td>
+                            <td class="textalign_center">@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.PaymentAmount)</td>
+                            <td colspan="3"></td>
+                        </tr>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_expenses"]</th>
+                            <td colspan="5"></td>
+                            <td class="textalign_center">@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.DeliveryFee)</td>
+                            <td colspan="3">
+                                <div class="text">
+                                    <ul>
+                                        @foreach (var sa in _ShippingAdjustmentList)
+                                        {
+                                            <li><i class="fa fa-caret-right"></i>@sa.AdjustmentLineitemText:@Samsonite.Utility.Common.VariableHelper.FormateMoney(Math.Abs(sa.AdjustmentGrossPrice))</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_inisis_amount"]</th>
+                            <td colspan="5"></td>
+                            <td class="textalign_center">@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.BalanceAmount)</td>
+                            <td colspan="3">
+                                @Html.Raw(OMS.App.Helper.OrderHelper.MixedPaymentMessage(_PayList))
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!--Delivery Info-->
+        <div title="@ViewBag.Languagepack["orderquery_detail_reviever_message"]" style="padding:3px">
+            <div class="main_list">
+                <div class="easyui-tabs" style="width:99%;">
+                    @foreach (var _o in _DetailList.Where(p => !p.IsSetOrigin))
+                    {
+                        var _OrderReceive = _OrderReceiveList.Where(p => p.SubOrderNo == _o.SubOrderNo).SingleOrDefault();
+                        var _Delivery = _DeliverysList.Where(p => p.SubOrderNo == _o.SubOrderNo).SingleOrDefault();
+                        <div title="@_o.SubOrderNo" style="padding:3px">
+                            <!--收货信息-->
+                            @if (_OrderReceive != null)
+                            {
+                                <div class="title">@ViewBag.LanguagePack["orderquery_detail_reviever_message"]</div>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_customername"]</th>
+                                            <td>@_Order.CustomerName</td>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_reviever"]</th>
+                                            <td>
+                                                @Html.Raw(_OrderReceive.Receive)
+                                            </td>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_tel"]</th>
+                                            <td>@Html.Raw(_OrderReceive.ReceiveTel)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_mobile"]</th>
+                                            <td>@Html.Raw(_OrderReceive.ReceiveCel)</td>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_zipcode"]</th>
+                                            <td>@Html.Raw(_OrderReceive.ReceiveZipcode)</td>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_address"]</th>
+                                            <td>@Html.Raw(_OrderReceive.ReceiveAddr)</td>
+                                        </tr>
+                                        <tr>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_shipping_method"]</th>
+                                            <td colspan="5">@OMS.App.Helper.OrderHelper.GetShippingMethodDisplay(_Order.ShippingMethod)</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="space_small"></div>
+                            }
+                            <!--物流信息-->
+                            @if (_Delivery != null)
+                            {
+                                <div class="title">@ViewBag.LanguagePack["orderquery_detail_delivery_message"]</div>
+                                <table class="table">
+                                    <tbody>
+                                        <tr>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_delivery_company"]</th>
+                                            <td>
+                                                @_Delivery.ExpressName
+                                            </td>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_delivery_number"]</th>
+                                            <td>
+                                                @_Delivery.InvoiceNo
+                                                @if (_DocumentList.Where(p => p.SubOrderNo == _Delivery.SubOrderNo).SingleOrDefault() != null)
+                                                {
+                                                    <a href="@Url.Action("DocumentDetail","OrderQuery")?id=@_o.Id" target="_blank"><i class="fa fa-print color_success"></i></a>
+                                                }
+                                            </td>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_delivery_pickup_time"]</th>
+                                            <td>@_Delivery.ClearUpTime</td>
+                                        </tr>
+                                        <tr>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_shipping_status"]</th>
+                                            <td colspan="5">@Html.Raw(OMS.App.Helper.OrderHelper.GetWarehouseProcessStatusDisplay(_o.ShippingStatus, true))</td>
+                                        </tr>
+                                        <tr>
+                                            <th>
+                                                @ViewBag.LanguagePack["orderquery_detail_delivery_state"]
+                                            </th>
+                                            <td colspan="5">
+                                                @OMS.App.Helper.OrderHelper.GetExpressStatusDisplay(_Delivery.ExpressStatus)
+                                                @if (_o.Status == (int)Samsonite.OMS.DTO.ProductStatus.InDelivery)
+                                                {
+                                                    //查看是否有操作权限
+                                                    if (("," + _FunctionPowers + ",").IndexOf(",delivered,") > -1)
+                                                    {
+                                                        <input type="button" class="btn btn-info" value="@ViewBag.LanguagePack["orderquery_detail_btn_delivered"]" onclick="javascript:ToDelivered(@_o.Id);" />
+                                                    }
+                                                }
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_delivery"]</th>
+                                            <td colspan="5">
+                                                @if (!string.IsNullOrEmpty(_Delivery.ExpressMsg))
+                                                {
+                                                    @Html.Raw(_Delivery.ExpressMsg.Replace("|", "<br/>"));
+                                                }
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <!--Active Log-->
+        <div title="@ViewBag.Languagepack["orderquery_detail_operlog"]" style="padding:3px">
+            <div class="space_tiny"></div>
+            <div class="main_search">
+                <ul>
+                    <li>
+                        @ViewBag.LanguagePack["orderquery_statuslog_search_sub_ourder_number"]:
+                        <select id="SubOrderNo" class="easyui-combobox input-large">
+                            @{
+                                //排除套装原始订单
+                                foreach (var _o in _DetailList.Where(p => !p.IsSetOrigin))
+                                {
+                                    <option value="@_o.SubOrderNo">@_o.SubOrderNo</option>
+                                }
+                            }
+                        </select>
+                    </li>
+                </ul>
+            </div>
+            <div class="main_list">
+                <div id="toolbar">
+                    <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+                </div>
+                <table id="dg">
+                    <thead>
+                        <tr>
+                            <th data-options="field:'s1',width:25,align:'left'">
+                                @ViewBag.LanguagePack["orderquery_statuslog_sub_ourder_number"]
+                            </th>
+                            <th data-options="field:'s2',width:10,align:'center'">
+                                @ViewBag.LanguagePack["orderquery_statuslog_status"]
+                            </th>
+                            <th data-options="field:'s3',width:10,align:'center'">
+                                @ViewBag.LanguagePack["orderquery_statuslog_oper"]
+                            </th>
+                            <th data-options="field:'s4',width:20,align:'left'">
+                                @ViewBag.LanguagePack["orderquery_statuslog_oper_time"]
+                            </th>
+                            <th data-options="field:'s5',width:35,align:'left'">
+                                @ViewBag.LanguagePack["orderquery_statuslog_remark"]
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            @*//图片预览
+            if ($('img[id=preview_img]').length > 0) {
+                $('img[id=preview_img]').each(function (i) {
+                    $(this).bind('click', function () {
+                        var _src = $(this).attr("src");
+                        artDialogExtend.Content.Open({
+                            title: '@ViewBag.LanguagePack["common_img_preview"]',
+                            content: '<img src="' + _src + '" style="width:99%;" />',
+                            width: 375
+                        });
+                    });
+                });
+            }*@
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Log_Message", "OrderQuery")',
+                queryParams: {
+                    orderid: '@_Order.OrderNo'
+                }
+            });
+            //搜索
+            $('#SubOrderNo').combobox({
+                onChange: function (value) {
+                    easyUIExtend.Grid.Search($('#dg'), {
+                        subOrderid: $('#SubOrderNo').combobox('getValue')
+                    });
+                }
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+
+            //延迟加载图片
+            $('.preview_img').each(function() {
+                var _src = $(this).attr('attr-src');
+                $(this).attr('src', _src);
+                $(this).bind('click', function () {
+                        artDialogExtend.Content.Open({
+                            title: '@ViewBag.LanguagePack["common_img_preview"]',
+                            content: '<img src="' + _src + '" style="width:99%;" />',
+                            width: 375
+                        });
+                    });
+            });
+        });
+
+        //manual deliveryed
+        function ToDelivered(id) {
+            artDialogExtend.Confirm('Do you wish to proceed?', function () {
+                commonJs.sysAjaxFunction({
+                    url: '@Url.Action("Delivered_Message", "OrderQuery")',
+                    dataType: 'json',
+                    para: {
+                        detailid: id
+                    },
+                    func: function (data) {
+                        if (data.result) {
+                            artDialogExtend.Tips.Success(data.msg, 3, function () {
+                                window.location.href = window.location.href;
+                            });
+                        }
+                        else {
+                            artDialogExtend.Tips.Alert(data.msg, 5);
+                        }
+                    }
+                });
+            }, function () { return true });
+        }
+    </script>
+}
+
+

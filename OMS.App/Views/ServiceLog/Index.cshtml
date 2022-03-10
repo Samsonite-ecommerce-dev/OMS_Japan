@@ -1,0 +1,96 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<Samsonite.OMS.Database.ServiceModuleInfo> _ModuleList = (List<Samsonite.OMS.Database.ServiceModuleInfo>)ViewData["module_list"];
+    List<object[]> _LogLevelList = (List<object[]>)ViewData["loglevel_list"];
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                <select id="Type" class="easyui-combobox">
+                    <option value="0">--全部服务--</option>
+                    @{
+                        foreach (var _o in _ModuleList)
+                        {
+                            <option value="@_o.ModuleID">@_o.ModuleTitle</option>
+                        }
+                    }
+                </select>
+            </li>
+            <li>
+                <select id="Level" class="easyui-combobox">
+                    <option value="0">--全部等级--</option>
+                    @{
+                        foreach (var _o in _LogLevelList)
+                        {
+                            <option value="@_o[0]">@_o[1]</option>
+                        }
+                    }
+                </select>
+            </li>
+            <li>
+                <input id="SearchKey" type="text" class="easyui-textbox input-xlarge" prompt="搜索关键字" />
+            </li>
+            <li>
+                日期:
+                <input id="SearchTime" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="查询" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>刷新</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'s1',align:'left'">
+                        服务类别
+                    </th>
+                    <th data-options="field:'s2',align:'center'">
+                        日志等级
+                    </th>
+                    <th data-options="field:'s3',align:'left'">
+                        信息
+                    </th>
+                    <th data-options="field:'s4',align:'left'">
+                        创建时间
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message","ServiceLog")'
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    type: $('#Type').combobox("getValue"),
+                    level: $('#Level').combobox("getValue"),
+                    keyword: $('#SearchKey').val(),
+                    time: $('#SearchTime').val(),
+                });
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+    </script>
+}
+

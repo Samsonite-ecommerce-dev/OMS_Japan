@@ -1,0 +1,267 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var _ServiceStatusList = (List<object[]>)ViewData["service_status_list"];
+    var _ServiceList = (List<Samsonite.OMS.Database.ServiceModuleInfo>)ViewData["service_list"];
+    var _JobTypeList = (List<object[]>)ViewData["job_type_list"];
+    var _JobStatusList = (List<object[]>)ViewData["job_status_list"];
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div id="tt" class="easyui-tabs">
+        <div class="main_tab" title="服务设置">
+            <div class="main_search">
+                <ul>
+                    <li>
+                        <input id="SearchKey" type="text" class="easyui-textbox input-large" prompt="搜索关键字" />
+                    </li>
+                    <li>
+                        运行状态:
+                        <select id="Status" class="easyui-combobox">
+                            <option value="0">--全部--</option>
+                            @foreach (var _o in _ServiceStatusList)
+                            {
+                                <option value="@(Convert.ToInt32(_o[0])+1)">@_o[1]</option>
+                            }
+                        </select>
+                    </li>
+                    <li>
+                        是否有效:
+                        <input id="IsRun" type="checkbox" value="1" />
+                    </li>
+                    <li>
+                        <input id="SearchButton" type="button" value="查询" class="btn btn-info" />
+                    </li>
+                    <li>
+                        <span class="label-danger">*创建新服务或者完全关闭服务线程需要重启服务才能有效</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="main_list">
+                <div id="toolbar">
+                    <a id="add" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-plus color_success"></i>添加</a>
+                    <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>编辑</a>
+                    <span class="toolbar-separator"></span>
+                    <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>刷新</a>
+                </div>
+                <table id="dg">
+                    <thead>
+                        <tr>
+                            <th data-options="field:'ck',checkbox:true">
+                            </th>
+                            <th data-options="field:'s1',align:'left'">
+                                服务名称
+                            </th>
+                            <th data-options="field:'s2',align:'left'">
+                                服务标识
+                            </th>
+                            <th data-options="field:'s3',align:'left'">
+                                Class
+                            </th>
+                            <th data-options="field:'s4',align:'left'">
+                                执行方式
+                            </th>
+                            <th data-options="field:'s5',align:'center'">
+                                排序
+                            </th>
+                            <th data-options="field:'s6',align:'center'">
+                                开启状态
+                            </th>
+                            <th data-options="field:'s7',align:'center'">
+                                操作
+                            </th>
+                            <th data-options="field:'s8',align:'left'">
+                                下次执行时间
+                            </th>
+                            <th data-options="field:'s9',align:'center'">
+                                有效
+                            </th>
+                            <th data-options="field:'s10',align:'center'">
+                                是否错误通知
+                            </th>
+                            <th data-options="field:'s11',align:'left'">
+                                备注
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div class="main_tab" title="操作日志">
+            <div class="main_search">
+                <ul>
+                    <li>
+                        服务列表:
+                        <select id="ModuleID" class="easyui-combobox">
+                            <option value="0">--全部--</option>
+                            @{
+    foreach (var _o in _ServiceList)
+    {
+                            <option value="@_o.ModuleID">@_o.ModuleTitle</option>
+                                }
+                            }
+                        </select>
+                    </li>
+                    <li>
+                        操作类型:
+                        <select id="JobType" class="easyui-combobox">
+                            <option value="0">--全部--</option>
+                            @foreach (var _o in _JobTypeList)
+                            {
+                                <option value="@_o[0]">@_o[1]</option>
+                            }
+                        </select>
+                    </li>
+                    <li>
+                        操作状态:
+                        <select id="JobStatus" class="easyui-combobox">
+                            <option value="0">--全部--</option>
+                            @foreach (var _o in _JobStatusList)
+                            {
+                                <option value="@_o[0]">@_o[1]</option>
+                            }
+                        </select>
+                    </li>
+                    <li>
+                        日期:
+                        <input id="SearchTime" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+                    </li>
+                    <li>
+                        <input id="SearchButton1" type="button" value="查询" class="btn btn-info" />
+                    </li>
+                </ul>
+            </div>
+            <div class="main_list">
+                <div id="toolbar1">
+                    <a id="refresh1" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>刷新</a>
+                </div>
+                <table id="dg1">
+                    <thead>
+                        <tr>
+                            <th data-options="field:'s1',align:'left'">
+                                服务名称
+                            </th>
+                            <th data-options="field:'s2',align:'left'">
+                                操作类型
+                            </th>
+                            <th data-options="field:'s3',align:'left'">
+                                状态
+                            </th>
+                            <th data-options="field:'s4',align:'left'">
+                                状态信息
+                            </th>
+                            <th data-options="field:'s5',align:'left'">
+                                添加时间
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+@Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //----------------------服务设置---------------------------------
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message","ServiceConfig")',
+                pageSize: 20
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    keyword: $('#SearchKey').val(),
+                    status: $('#Status').combobox('getValue'),
+                    isrun: $('#IsRun').prop("checked") ? 1 : 0
+                });
+            });
+            //操作
+            $('#toolbar').find('#add').bind('click', function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("Add", "ServiceConfig")',
+                    title: '添加信息',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Add_Message", "ServiceConfig")'
+                });
+            });
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "ServiceConfig")?id=$',
+                    title: '编辑信息',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "ServiceConfig")'
+                });
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+
+            //----------------------操作日志---------------------------------
+            //列表
+            easyUIExtend.Grid.List($('#dg1'), {
+                toolbar: '#toolbar1',
+                url: '@Url.Action("Index_OperLog_Message","ServiceConfig")',
+                pageSize: 20
+            });
+            //搜索
+            $('#SearchButton1').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg1'), {
+                    moduleid: $('#ModuleID').combobox('getValue'),
+                    job_type: $('#JobType').combobox('getValue'),
+                    job_status: $('#JobStatus').combobox('getValue'),
+                    time: $('#SearchTime').val(),
+                });
+            });
+            //操作
+            $('#toolbar1').find('#refresh1').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg1'));
+            });
+        });
+
+        function startService(id) {
+            operService(id, @Convert.ToInt32(Samsonite.OMS.DTO.JobType.Start));
+        }
+
+        function pauseService(id) {
+            operService(id, @Convert.ToInt32(Samsonite.OMS.DTO.JobType.Pause));
+        }
+
+        function continueService(id) {
+            operService(id, @Convert.ToInt32(Samsonite.OMS.DTO.JobType.Continue));
+        }
+
+        function operService(id, type) {
+            artDialogExtend.Confirm('确实进行该操作?', function () {
+                commonJs.sysAjaxFunction({
+                    url: '@Url.Action("Oper_Message", "ServiceConfig")',
+                    dataType: 'json',
+                    para: {
+                        id: id,
+                        type:type
+                    },
+                    func: function (data) {
+                        if (data.result) {
+                            artDialogExtend.Tips.Success(data.msg, 3, function () {
+                                easyUIExtend.Grid.Refresh($('#dg'));
+                            });
+                        }
+                        else {
+                            artDialogExtend.Tips.Alert(data.msg, 5);
+                        }
+                    }
+                });
+            }, function () { return true });
+        }
+    </script>
+}
+

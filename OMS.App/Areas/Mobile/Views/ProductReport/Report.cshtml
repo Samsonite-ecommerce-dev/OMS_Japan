@@ -1,0 +1,186 @@
+﻿
+@{
+    Layout = "~/Areas/Mobile/Views/Shared/_Layout.cshtml";
+}
+@section style {
+    @Styles.Render("~/Content/js-library/bootstrap/datetimepicker/css/bootstrap-datetimepicker.min.css")
+}
+<header class="main-menu">
+    <div class="left"><a href="@Url.Action("Index","ProductReport")"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+    <div class="middle">报表详情</div>
+    <div class="right"></div>
+</header>
+<section class="main-edit">
+    <ul id="navTab" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#data" role="tab" data-toggle="tab">@ViewBag.LanguagePack["common_statistics"]</a></li>
+        <li role="presentation"><a href="#charts" role="tab" data-toggle="tab">@ViewBag.LanguagePack["common_chart"]</a></li>
+    </ul>
+    <div class="space_small"></div>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active text-center" id="data">
+            <!--加载数据-->
+            <div class="table-responsive display_none"></div>
+            <!--加载报表记录-->
+            <div id="loading"><i class="glyphicon glyphicon-refresh btn-icon-spin"></i>数据加载中...</div>
+            <div id="error" class="color_danger display_none"><i class="glyphicon glyphicon-warning-sign"></i>信息不存在</div>
+            <div class="space_small"></div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="charts" style="width:100%;">
+            <div>
+                <label class="radio-inline">
+                    <input type="radio" name="ChartType" id="ir1" value="1" checked="checked">@ViewBag.LanguagePack["productreport_index_order_quantity"]
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="ChartType" id="ir2" value="2">@ViewBag.LanguagePack["productreport_index_item_quantity"]
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="ChartType" id="ir3" value="3">@ViewBag.LanguagePack["productreport_index_cancel_quantity"]
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="ChartType" id="ir4" value="4">@ViewBag.LanguagePack["productreport_index_return_quantity"]
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="ChartType" id="ir5" value="5">@ViewBag.LanguagePack["productreport_index_exchange_quantity"]
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="ChartType" id="ir6" value="6">@ViewBag.LanguagePack["productreport_index_sales_amount"]
+                </label>
+            </div>
+            <div class="space_small"></div>
+            <div id="chart_canvas" style="width:98%;height:300px;margin:auto"></div>
+        </div>
+    </div>
+</section>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/echarts.min.js")
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/theme/shine.js")
+    @Scripts.Render("~/Content/js-library/js/echart-extend.js")
+    <script type="text/javascript">
+        $(function () {
+            //设置图表div宽度(如果不设置,则图表默认取到的宽度是0,所以无法正常显示)
+            $('#chart_canvas').css('width', $(window).width() - 30);
+            //加载报表
+            mobile.ajax({
+                url: '@Url.Action("Report_Message", "ProductReport")',
+                data: {
+                    store: '@ViewBag.Stores',
+                    brand: '@ViewBag.Brand',
+                    time1: '@ViewBag.Time1',
+                    time2: '@ViewBag.Time2',
+                    sku: '@ViewBag.Sku',
+                    show_type: 'record'
+                },
+                successFunc: function (data) {
+                    var _str = '';
+                    if (data.rows.length > 0) {
+                        _str += '<table class="table table-striped table-bordered"><thead>';
+                        _str += '<tr class="active">';
+                        _str += '<th>@ViewBag.LanguagePack["productreport_index_sku"]</th>';
+                        //_str +='<th>@ViewBag.LanguagePack["productreport_index_product"]</th>';
+                        //_str +='<th>@ViewBag.LanguagePack["productreport_index_brand"]</th>';
+                        _str += '<th>@ViewBag.LanguagePack["productreport_index_order_quantity"]</th>';
+                        _str += '<th>@ViewBag.LanguagePack["productreport_index_item_quantity"]</th>';
+                        //_str +='<th>@ViewBag.LanguagePack["productreport_index_cancel_quantity"]</th>';
+                        //_str +='<th>@ViewBag.LanguagePack["productreport_index_return_quantity"]</th>';
+                        //_str +='<th>@ViewBag.LanguagePack["productreport_index_exchange_quantity"]</th>';
+                        _str += '<th>@ViewBag.LanguagePack["productreport_index_sales_amount"]</th>';
+                        _str += '<th>@ViewBag.LanguagePack["productreport_index_per_value"]</th>';
+                        _str += '</tr>';
+                        _str += '</thead><tbody>';
+                        $.each(data.rows, function (i, item) {
+                            _str += '<tr>';
+                            if (item.s3 != '') {
+                                _str += '<td class="text-left">' + item.s1 + '<br/><span class="label-info">' + item.s3 + '</span></td>';
+                            }
+                            else {
+                                _str += '<td class="text-left">' + item.s1 + '</td>';
+                            }
+                            //_str += '<td class="text-right">' + item.s2 + '</td>';
+                            _str += '<td class="text-right">' + item.s5 + '</td>';
+                            _str += '<td class="text-right">' + item.s6 + '</td>';
+                            //_str += '<td class="text-right">' + item.s7 + '</td>';
+                            //_str += '<td class="text-right">' + item.s8 + '</td>';
+                            //_str += '<td class="text-right">' + item.s9 + '</td>';
+                            _str += '<td class="text-right">' + item.s10 + '</td>';
+                            _str += '<td class="text-right">' + item.s11 + '</td>';
+                            _str += '</tr>';
+                        });
+                        _str += '</tbody></table>';
+                        $('#data').find('#loading').hide();
+                        $('#data').find('#error').hide();
+                        $('#data').find('.table-responsive').html(_str);
+                        $('#data').find('.table-responsive').show();
+                    }
+                    else {
+                        $('#data').find('#loading').hide();
+                        $('#data').find('#error').show();
+                    }
+                }
+            });
+
+            //重力感应事件
+            addEventListener('load', function () {
+                //注册事件
+                orientationChange();
+                window.onorientationchange = orientationChange;
+            });
+
+            //加载图表
+            $('#navTab a').click(function (e) {
+                if ($(this).attr("href") == '#charts') {
+                    SetChart();
+                }
+            });
+
+            //切换图表类型
+            $('input[type=radio][name=ChartType]').bind('click', function () {
+                SetChart();
+            });
+        });
+
+        //重力感应
+        function orientationChange() {
+            var $tab = $('#navTab').find('li');
+            if ($tab.eq(1).attr("class") == "active") {
+                var _w_width = $(window).width();
+                var _w_height = $(window).height();
+                if (_w_width > _w_height) {
+                    _w_width = $(window).height();
+                    _w_height = $(window).width();
+                }
+                var _width = 0;
+                var _og = window.orientation;
+                if (_og == 90 || _og == -90) {
+                    _width = _w_height - 30;
+                }
+                else {
+                    _width = _w_width - 30;
+                }
+                $('#chart_canvas').css('width', _width);
+                SetChart();
+            }
+        }
+
+        function SetChart() {
+            // 初始化echarts图表
+            var $chart = echartExtend.Charts.Init('chart_canvas');
+            //grid页面
+            echartExtend.Charts.AjaxSet($chart, {
+                url: '@Url.Action("Report_Message", "ProductReport")',
+                para: {
+                    store: '@ViewBag.Stores',
+                    brand: '@ViewBag.Brand',
+                    time1: '@ViewBag.Time1',
+                    time2: '@ViewBag.Time2',
+                    sku: '@ViewBag.Sku',
+                    chart_type: commonJs.getRadioValue("ChartType"),
+                    show_type: 'chart'
+                },
+                func: function (data) {
+                    $chart.setOption(data);
+                }
+            });
+        }
+    </script>
+}

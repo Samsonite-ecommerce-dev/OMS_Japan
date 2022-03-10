@@ -1,0 +1,139 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _OrderReceive = (Samsonite.OMS.Database.OrderReceive)ViewData["order_receive"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_orderno"]：
+                        </th>
+                        <td>
+                            @_m.OrderNo
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_sub_orderno"]：
+                        </th>
+                        <td>
+                            @_m.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_store"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.MallName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_receiver"]：
+                        </th>
+                        <td>
+                            @if (_m.CustomerName != _OrderReceive.Receive)
+                            {
+                                <label class="color_fail line-throgth">@_OrderReceive.Receive</label><br />
+                            }
+                            @_m.CustomerName
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_tel"]：
+                        </th>
+                        <td>
+                            @if (_m.Tel != _OrderReceive.ReceiveTel)
+                            {
+                                <label class="color_fail line-throgth">@_OrderReceive.ReceiveTel</label><br />
+                            }
+                            @_m.Tel
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_mobile"]：
+                        </th>
+                        <td>
+                            @if (_m.Mobile != _OrderReceive.ReceiveCel)
+                            {
+                                <label class="color_fail line-throgth">@_OrderReceive.ReceiveCel</label><br />
+                            }
+                            @_m.Mobile
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_zipcode"]：
+                        </th>
+                        <td>
+                            @if (_m.Zipcode != _OrderReceive.ReceiveZipcode)
+                            {
+                                <label class="color_fail line-throgth">@_OrderReceive.ReceiveZipcode</label><br />
+                            }
+                            @_m.Zipcode
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_address"]：
+                        </th>
+                        <td colspan="3">
+                            @if (_m.Addr != _OrderReceive.ReceiveAddr)
+                            {
+                                <label class="color_fail line-throgth">@_OrderReceive.ReceiveAddr</label><br />
+                            }
+                            @_m.Addr
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_tracking_no"]：
+                        </th>
+                        <td colspan="3">
+                            @_m.InvoiceNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_oper_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.AddDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_stock_reply"]：
+                        </th>
+                        <td colspan="3">
+                            @if (!_m.IsSystemModify)
+                            {
+                                @Html.Raw(OMS.App.Helper.OrderHelper.GetWarehouseStatusDisplay(_m.ApiIsRead, _m.ApiStatus, true) + ((_m.ApiReplyDate != null) ? "<br />" + _m.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((_m.ApiReplyMsg != null) ? "<br />" + _m.ApiReplyMsg : ""));
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_confirm_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}", ((_m.AcceptUserDate != null) ? _m.AcceptUserName + "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.AcceptRemark)) ? "<br/>" + _m.AcceptRemark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_detail_manual_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}{2}", _m.ManualUserName, ((_m.ManualUserDate != null) ? "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.ManualUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.ManualRemark)) ? "<br/>" + _m.ManualRemark : "")))
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+}

@@ -1,0 +1,35 @@
+﻿
+@{
+    Layout = "~/Areas/Mobile/Views/Shared/_Layout.cshtml";
+    var _GroupList = (List<Samsonite.OMS.Database.SysFunctionGroup>)ViewData["group_list"];
+    var _FunctionList = (List<Samsonite.OMS.Database.SysFunction>)ViewData["function_list"];
+}
+
+<header class="main-menu" style="height:100px;">
+    <div class="left"></div>
+    <div class="face"><i class="glyphicon glyphicon-user"></i><span>@ViewBag.UserName</span></div>
+    <div class="right">@Html.Raw(ViewBag.MenuBar)</div>
+</header>
+<section class="main-group">
+    <div class="circle">
+    </div>
+    <div class="group-menu">
+        @foreach (var _o in _GroupList)
+            {
+            <a href="@Url.Action("Index","Home")?ID=@_o.Groupid"><i class="glyphicon @_o.GroupIcon"></i><span>@ViewBag.LanguagePack["menu_group_" + _o.Groupid]</span></a>
+        }
+    </div>
+</section>
+<section class="main-list">
+    <ul>
+        @foreach (var _o in _FunctionList)
+        {
+            //暂时不做客户报表
+            if (_o.Funcid != 39)
+            {
+                <li><a href="/Mobile/@_o.FuncUrl"><i class="glyphicon glyphicon-move color_success"></i><span class="glyphicon glyphicon-menu-right"></span>@ViewBag.LanguagePack["menu_function_" + _o.Funcid]</a></li>
+            }
+        }
+    </ul>
+</section>
+

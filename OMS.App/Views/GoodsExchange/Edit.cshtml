@@ -1,0 +1,163 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _OrderDetail = (Samsonite.OMS.Database.OrderDetail)ViewData["order_detail"];
+    var _OrderReturn = (Samsonite.OMS.Database.OrderReturn)ViewData["order_return"];
+    var _ExpressList = (List<Samsonite.OMS.Database.ExpressCompany>)ViewData["express_list"];
+    int _Effect_Quantity = Samsonite.Utility.Common.VariableHelper.SaferequestPositiveInt(_OrderDetail.Quantity - _OrderDetail.CancelQuantity - _OrderDetail.ReturnQuantity - _OrderDetail.ExchangeQuantity - _OrderDetail.RejectQuantity);
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_order_number"]：
+                        </th>
+                        <td>
+                            @_m.OrderNo
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_sub_order_number"]：
+                        </th>
+                        <td>
+                            @_m.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_sku"]：
+                        </th>
+                        <td>
+                            <span>
+                                @_OrderDetail.SKU
+                                <i class="fa fa-exchange color_primary"></i>
+                                <input class="select_sku" name="NewSku" type="text" value="@ViewBag.NewSku" prompt="@ViewBag.LanguagePack["goodsexchange_edit_select_message"]" />
+                            </span>
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_select_quantity"]：
+                        </th>
+                        <td>
+                            <select id="Quantity" name="Quantity" class="easyui-combobox">
+                                @for (int i = (_Effect_Quantity + _m.Quantity); i > 0; i--)
+                                {
+                                    if (_m.Quantity == i)
+                                    {
+                                        <option value="@i" selected="selected">@i</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@i">@i</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_logistics"]：
+                        </th>
+                        <td>
+                            <select name="ShippingCompany" class="easyui-combobox input-large">
+                                @foreach (var _o in _ExpressList)
+                                {
+                                    if (_o.ExpressName == _OrderReturn.ShippingCompany)
+                                    {
+                                        <option value="@_o.ExpressName" selected="selected">@_o.ExpressName</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@_o.ExpressName">@_o.ExpressName</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_logistics_number"]：
+                        </th>
+                        <td>
+                            <input name="ShippingNo" type="text" class="easyui-textbox input-large" value="@_OrderReturn.ShippingNo" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_receiver"]：
+                        </th>
+                        <td>
+                            <input id="Receiver" name="Receiver" type="text" class="easyui-textbox input-large" value="@_OrderReturn.CustomerName" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_tel"]：
+                        </th>
+                        <td>
+                            <input id="Tel" name="Tel" type="text" class="easyui-textbox input-large" value="@_OrderReturn.Tel" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_mobile"]：
+                        </th>
+                        <td>
+                            <input id="Mobile" name="Mobile" type="text" class="easyui-textbox input-large" value="@_OrderReturn.Mobile" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_zipcode"]：
+                        </th>
+                        <td>
+                            <input id="Zipcode" name="Zipcode" type="text" class="easyui-textbox input-large" value="@_OrderReturn.Zipcode" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_edit_address"]：
+                        </th>
+                        <td colspan="3">
+                            <input id="Addr" name="Addr" type="text" class="easyui-textbox input-xxlarge" value="@_OrderReturn.Addr" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_exchange_remark"]：
+                        </th>
+                        <td colspan="3">
+                            <textarea name="Remark" class="easyui-textarea input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //绑定SKU搜索框
+            easyUIExtend.ComboGrid($('.select_sku'), {
+                panelWidth: 650,
+                url: '@Url.Action("ProductSku_Message", "Common")',
+                idField: 's1',
+                textField: 's1',
+                queryParams: {
+                    //price: '@_OrderDetail.SellingPrice',
+                    sku: '@_OrderDetail.SKU'
+                },
+                multiple: false,
+                pagination:false,
+                columns: [[
+                   { field: 's1', title: '@ViewBag.LanguagePack["product_index_sku"]', align: 'left' },
+                   { field: 's2', title: '@ViewBag.LanguagePack["product_index_brand"]', align: 'left' },
+                   { field: 's3', title: '@ViewBag.LanguagePack["product_index_groupdesc"]', align: 'left' },
+                   { field: 's4', title: '@ViewBag.LanguagePack["product_index_material"]', align: 'left' },
+                   { field: 's5', title: '@ViewBag.LanguagePack["product_index_gdval"]', align: 'left' },
+                   { field: 's6', title: '@ViewBag.LanguagePack["product_index_productname"]', align: 'left' },
+                   { field: 's8', title: '@ViewBag.LanguagePack["product_index_marketprice"]', align: 'center' },
+                   { field: 's10', title: '@ViewBag.LanguagePack["product_index_inventory"]', align: 'center' }
+                ]]
+            });
+        });
+    </script>
+}

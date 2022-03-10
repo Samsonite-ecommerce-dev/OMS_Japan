@@ -1,0 +1,82 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                <input id="SearchKey" type="text" class="easyui-textbox input-xxlarge" prompt="搜索IP或关键字" />
+            </li>
+            <li>
+                日期:
+                <input id="SearchTime" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+            </li>
+            <li>
+                <select id="State" class="easyui-combobox">
+                    <option value="0">--全部--</option>
+                    <option value="2">成功</option>
+                    <option value="1">失败</option>
+                </select>
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="查询" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>刷新</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'s1',align:'center'">
+                        访问IP
+                    </th>
+                    <th data-options="field:'s2',align:'left'">
+                        访问信息
+                    </th>
+                    <th data-options="field:'s3',align:'center'">
+                        访问结果
+                    </th>
+                    <th data-options="field:'s4',align:'left'">
+                        备注信息
+                    </th>
+                    <th data-options="field:'s5',align:'left'">
+                        访问时间
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message","ApiLog")',
+                pageSize: 15
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    keyword: $('#SearchKey').val(),
+                    time: $('#SearchTime').val(),
+                    state: $('#State').combobox("getValue")
+                });
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+    </script>
+}
+

@@ -1,0 +1,263 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _OrderList = (List<Samsonite.OMS.Database.Order>)ViewData["order_list"];
+    var _ExceptionList = (List<dynamic>)ViewData["exception_order_list"];
+    var _WMSPostReplyList = (List<dynamic>)ViewData["wms_postreply_list"];
+    var _ClaimList = (List<dynamic>)ViewData["claim_list"];
+    var _RequireDeliveryList = (List<dynamic>)ViewData["delivery_require_list"];
+    var _PushDeliveryList = (List<dynamic>)ViewData["delivery_push_list"];
+}
+<div class="home">
+    <!--今日信息-->
+    <div class="main_panel panel_33">
+        <div class="head">@ViewBag.LanguagePack["home_main_todaymessage"]</div>
+        <div class="table_list" style="height:376px;">
+            <ul>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_neworder"]:</span><a id="h1" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_modifyorder"]:</span><a id="h2" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewModifyOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_cancelorder"]:</span><a id="h3" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewCancelOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_returnorder"]:</span><a id="h4" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewReturnOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_exchangeorder"]:</span><a id="h5" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewExchangeOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_rejectorder"]:</span><a id="h6" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewRejectOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errororder"]:</span><a id="h7" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionOrder</a></li>
+                <li class="display_none"><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_postreply"]:</span><a id="h8" href="javascript:void(0);" class="href-orange-line">@ViewBag.WMSPostReply</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorclaim"]:</span><a id="h9" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionClaim</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errordelivery_res"]:</span><a id="h10" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionRequireDelivery</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errordelivery"]:</span><a id="h11" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionPushDelivery</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorinventory"]:</span><a id="h12" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionInventory</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorprice"]:</span><a id="h13" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionPrice</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="main_panel panel_66">
+        <div id="tt1" class="easyui-tabs" style="width:99%;height:405px;margin:1px;">
+            <div title="@ViewBag.LanguagePack["home_main_todaymessage_neworder"]">
+                <table>
+                    <tbody>
+                        @foreach (var _o in _OrderList)
+                        {
+                            <tr>
+                                <td width="75%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.OrderNo</a></td>
+                                <td width="25%">@_o.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div title="@ViewBag.LanguagePack["home_main_todaymessage_errororder"]">
+                <table>
+                    <tbody>
+                        @foreach (var _o in _ExceptionList)
+                        {
+                            <tr>
+                                <td width="50%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
+                                <td width="50%">@Samsonite.Utility.Common.VariableHelper.StrSubstringSign(_o.ErrorMsg, 50, "..")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div title="@ViewBag.LanguagePack["home_main_todaymessage_postreply"]">
+                <table>
+                    <tbody>
+                        @foreach (var _o in _WMSPostReplyList)
+                        {
+                            <tr>
+                                <td width="50%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
+                                <td width="50%">@Samsonite.Utility.Common.VariableHelper.StrSubstringSign(_o.ApiReplyMsg, 50, "..")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div title="@ViewBag.LanguagePack["home_main_todaymessage_errorclaim"]">
+                <table>
+                    <tbody>
+                        @foreach (var _o in _ClaimList)
+                        {
+                            <tr>
+                                <td width="40%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
+                                <td width="10%">@Html.Raw(OMS.App.Helper.OrderHelper.GetClaimTypeDisplay(_o.ClaimType, true))</td>
+                                <td width="50%">@Samsonite.Utility.Common.VariableHelper.StrSubstringSign(_o.ErrorMessage, 50, "..")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div title="@ViewBag.LanguagePack["home_main_todaymessage_errordelivery_res"]">
+                <table>
+                    <tbody>
+                        @foreach (var _o in _RequireDeliveryList)
+                        {
+                            <tr>
+                                <td width="50%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
+                                <td width="50%">@Samsonite.Utility.Common.VariableHelper.StrSubstringSign(_o.ErrorMessage, 50, "..")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div title="@ViewBag.LanguagePack["home_main_todaymessage_errordelivery"]">
+                <table>
+                    <tbody>
+                        @foreach (var _o in _PushDeliveryList)
+                        {
+                            <tr>
+                                <td width="35%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
+                                <td width="15%">@_o.InvoiceNo</td>
+                                <td width="50%">@Samsonite.Utility.Common.VariableHelper.StrSubstringSign(_o.ErrorMessage, 50, "..")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!--销售合计-->
+    <div class="main_panel panel_33">
+        <div class="head">@ViewBag.LanguagePack["home_main_last_sales"]</div>
+        <div class="table_list" style="height:280px;">
+            <ul>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_order_quantity"]:</span>@ViewBag.OrderQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_item_quantity"]:</span>@ViewBag.ItemQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_avge_sales"]:</span>@(ViewBag.ItemQuantity / 30)</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_cancel_quantity"]:</span>@ViewBag.CancelQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_return_quantity"]:</span>@ViewBag.ReturnQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_exchange_quantity"]:</span>@ViewBag.ExchangeQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_reject_quantity"]:</span>@ViewBag.RejectQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_payment"]:</span>@Samsonite.Utility.Common.VariableHelper.FormateMoney(ViewBag.TotalOrderPayment)</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_avge_payment"]:</span>@Samsonite.Utility.Common.VariableHelper.FormateMoney(Math.Ceiling(ViewBag.TotalOrderPayment / 30))</li>
+            </ul>
+        </div>
+    </div>
+    <!--店铺销售统计-->
+    <div class="main_panel panel_66">
+        <div class="head">@ViewBag.LanguagePack["home_main_last_store_sales"]</div>
+        <div id="chart_canvas_1" style="width:98%;min-height:280px;margin:auto;padding-top:10px;"></div>
+    </div>
+    <!--排行榜-->
+    <div id="tt" class="easyui-tabs" style="width:99%;margin:1px;">
+        <div title="@ViewBag.LanguagePack["home_main_last_product_rank"]">
+            <div id="chart_canvas_2" style="width:98%;min-height:300px;margin:auto;padding-top:10px;"></div>
+        </div>
+        <div title="@ViewBag.LanguagePack["home_main_last_brand_rank"]">
+            <div id="chart_canvas_3" style="width:98%;min-height:300px;margin:auto;padding-top:10px;"></div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/echarts.min.js")
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/theme/shine.js")
+    @Scripts.Render("~/Content/js-library/js/echart-extend.js")
+    <script type="text/javascript">
+        $(function () {
+            // 初始化店铺销售统计
+            InitStoreSales();
+
+            // 初始化产品排行
+            InitProductRank();
+
+            //切换
+            $('#tt').tabs({
+                border: false,
+                onSelect: function (title, index) {
+                    if (index == 1) {
+                        InitBrandRank();
+                    }
+                }
+            });
+
+
+            $('#h1').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_1"]', '@Url.Action("Index", "OrderQuery")', false);
+            });
+
+            $('#h2').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_2"]', '@Url.Action("Index", "OrderModify")', false);
+            });
+
+            $('#h3').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_3"]', '@Url.Action("Index", "OrderCancel")', false);
+            });
+
+            $('#h4').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_5"]', '@Url.Action("Index", "GoodsReturn")', false);
+            });
+
+            $('#h5').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_4"]', '@Url.Action("Index", "GoodsExchange")', false);
+            });
+
+            $('#h6').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_53"]', '@Url.Action("Index", "OrderReject")', false);
+            });
+
+            $('#h7').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_29"]', '@Url.Action("Index", "OrderError")', false);
+            });
+
+            $('#h8').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_30"]', '@Url.Action("Index", "OrderWHReply")', false);
+            });
+
+            $('#h9').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_38"]', '@Url.Action("Index", "ClaimError")', false);
+            });
+
+            $('#h10').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_56"]', '@Url.Action("Index", "DeliveryRequireError")', false);
+            });
+
+            $('#h11').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_32"]', '@Url.Action("Index", "DeliveryPushError")', false);
+            });
+
+            $('#h12').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_54"]', '@Url.Action("Index", "InventoryError")', false);
+            });
+
+            $('#h13').bind('click', function () {
+                window.parent.frames.OpenTab('@ViewBag.LanguagePack["menu_function_63"]', '@Url.Action("Index", "PriceError")', false);
+            });
+        });
+
+        function InitStoreSales() {
+            var $chart = echartExtend.Charts.Init('chart_canvas_1');
+            echartExtend.Charts.AjaxSet($chart, {
+                url: '@Url.Action("Main_Message", "Home")',
+                para: {
+                    type: 1
+                },
+                func(data) {
+                    $chart.setOption(data);
+                }
+            });
+        }
+
+        function InitProductRank() {
+            var $chart = echartExtend.Charts.Init('chart_canvas_2');
+            echartExtend.Charts.AjaxSet($chart, {
+                url: '@Url.Action("Main_Message", "Home")',
+                para: {
+                    type: 2
+                },
+                func(data) {
+                    $chart.setOption(data);
+                }
+            });
+        }
+
+        function InitBrandRank() {
+            var $chart = echartExtend.Charts.Init('chart_canvas_3');
+            echartExtend.Charts.AjaxSet($chart, {
+                url: '@Url.Action("Main_Message", "Home")',
+                para: {
+                    type: 3
+                },
+                func(data) {
+                    $chart.setOption(data);
+                }
+            });
+        }
+    </script>
+}

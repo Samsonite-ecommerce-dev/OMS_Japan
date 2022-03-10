@@ -1,0 +1,128 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _RoleList = (List<Samsonite.OMS.Database.SysRole>)ViewData["role_list"];
+    var _MallList = (System.Text.StringBuilder)ViewData["mall_list"];
+    var _LanguageList = (List<Samsonite.OMS.DTO.AppLanguagePack>)ViewData["language_list"];
+    var _UserTypeList = (List<object[]>)ViewData["usertype_list"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_username"]：
+                        </th>
+                        <td>
+                            <input name="UserName" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_password"]：
+                        </th>
+                        <td>
+                            <input name="Password" type="password" class="easyui-textbox input-large" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["users_edit_realname"]：
+                        </th>
+                        <td>
+                            <input name="RealName" type="text" class="easyui-textbox input-large" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_roles"]：
+                        </th>
+                        <td>
+                            <div class="common-list_25">
+                                <input id="SelectAll_Role" type="checkbox" /><span>@ViewBag.LanguagePack["common_select_all"]</span>
+                                <ul>
+                                    @{
+                                        foreach (var _o in _RoleList)
+                                        {
+                                            <li><input id="role_@_o.Roleid" name="RoleID" type="checkbox" value="@_o.Roleid"><label for="role_@_o.Roleid">@_o.RoleName</label></li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_stores"]：
+                        </th>
+                        <td colspan="3">
+                            <div class="common-list_25">
+                                <input id="SelectAll_Mall" type="checkbox" /><span>@ViewBag.LanguagePack["common_select_all"]</span>
+                                @Html.Raw(_MallList.ToString())
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_default_language"]：
+                        </th>
+                        <td>
+                            @for (int t = 0; t < _LanguageList.Count; t++)
+                            {
+                                if (t == 0)
+                                {
+                                    <input id="lg_@_LanguageList[t].ID" name="DefaultLanguage" type="radio" value="@_LanguageList[t].ID" checked="checked" /><label for="lg_@_LanguageList[t].ID">@_LanguageList[t].Name</label>
+                                }
+                                else
+                                {
+                                    <input id="lg_@_LanguageList[t].ID" name="DefaultLanguage" type="radio" value="@_LanguageList[t].ID" /><label for="lg_@_LanguageList[t].ID">@_LanguageList[t].Name</label>
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["users_edit_type"]：
+                        </th>
+                        <td>
+                            @foreach (var _o in _UserTypeList)
+                            {
+                                if ((int)(_o[0]) == (int)Samsonite.OMS.DTO.UserType.InternalStaff)
+                                {
+                                    <input id="type_@_o[0]" name="UserType" type="radio" value="@_o[0]" checked="checked"><label for="type_@_o[0]">@_o[1]</label>
+                                }
+                                else
+                                {
+                                    <input id="type_@_o[0]" name="UserType" type="radio" value="@_o[0]"><label for="type_@_o[0]">@_o[1]</label>
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["users_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Memo" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //绑定全选
+            $('#SelectAll_Role').bind('click', function () {
+                commonJs.sysCheckBox($(this), 'RoleID');
+            });
+
+            $('#SelectAll_Mall').bind('click', function () {
+                commonJs.sysCheckBox($(this), 'Mall');
+            });
+        });
+    </script>
+}

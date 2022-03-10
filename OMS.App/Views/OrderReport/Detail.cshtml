@@ -1,0 +1,176 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_top"></div>
+    <div class="main_search">
+        <ul>
+            <li>
+                @ViewBag.LanguagePack["orderreport_detail_search_store"]:
+                <input id="StoreName" style="width:275px;" value="@ViewBag.MallSapCodes" prompt="@ViewBag.LanguagePack["common_prompt_all_mall"]">
+            </li>
+            <li>
+                @ViewBag.LanguagePack["orderreport_detail_search_time"]:
+                <input id="Time" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="@ViewBag.Time" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["orderreport_detail_search_by_time"]:
+                <input id="type1" name="Type" type="radio" value="0" /><label for="type1">@ViewBag.LanguagePack["orderreport_detail_search_by_time_day"]</label>
+                <input id="type2" name="Type" type="radio" value="1" /><label for="type2">@ViewBag.LanguagePack["orderreport_detail_search_by_time_month"]</label>
+                <input id="type3" name="Type" type="radio" value="2" /><label for="type3">@ViewBag.LanguagePack["orderreport_detail_search_by_time_year"]</label>
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div class="space_small">
+        </div>
+        <div id="tt" class="easyui-tabs">
+            <div class="main_tab" title="@ViewBag.LanguagePack["common_statistics"]">
+                <table id="dg">
+                    <thead>
+                        <tr>
+                            <th data-options="field:'s1',align:'left'">
+                                @ViewBag.LanguagePack["orderreport_detail_store"]
+                            </th>
+                            <th data-options="field:'s2',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_detail_order_quantity"]
+                            </th>
+                            <th data-options="field:'s3',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_detail_item_quantity"]
+                            </th>
+                            <th data-options="field:'s4',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_detail_cancel_quantity"]
+                            </th>
+                            <th data-options="field:'s5',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_detail_return_quantity"]
+                            </th>
+                            <th data-options="field:'s6',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_detail_exchange_quantity"]
+                            </th>
+                            <th data-options="field:'s7',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_detail_reject_quantity"]
+                            </th>
+                            <th data-options="field:'s8',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_detail_sales_amount"]
+                            </th>
+                            <th data-options="field:'s9',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_detail_per_sales"]
+                            </th>
+                            <th data-options="field:'s10',align:'center'">
+                                @ViewBag.LanguagePack["common_operation"]
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="main_tab" title="@ViewBag.LanguagePack["common_chart"]">
+                <div class="tab_nav">
+                    <input id="ctype1" name="ChartType" type="radio" value="1" checked="checked" /><label for="ctype1">@ViewBag.LanguagePack["orderreport_detail_order_quantity"]</label>
+                    <input id="ctype2" name="ChartType" type="radio" value="2" /><label for="ctype2">@ViewBag.LanguagePack["orderreport_detail_item_quantity"]</label>
+                    <input id="ctype3" name="ChartType" type="radio" value="3" /><label for="ctype3">@ViewBag.LanguagePack["orderreport_detail_cancel_quantity"]</label>
+                    <input id="ctype4" name="ChartType" type="radio" value="4" /><label for="ctype4">@ViewBag.LanguagePack["orderreport_detail_return_quantity"]</label>
+                    <input id="ctype5" name="ChartType" type="radio" value="5" /><label for="ctype5">@ViewBag.LanguagePack["orderreport_detail_exchange_quantity"]</label>
+                    <input id="ctype5" name="ChartType" type="radio" value="6" /><label for="ctype5">@ViewBag.LanguagePack["orderreport_detail_reject_quantity"]</label>
+                    <input id="ctype6" name="ChartType" type="radio" value="7" /><label for="ctype6">@ViewBag.LanguagePack["orderreport_detail_sales_amount"]</label>
+                </div>
+                <div class="padding_small"></div>
+                <div id="chart_canvas" style="width:98%;min-height:400px;margin:auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/echarts.min.js")
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/theme/shine.js")
+    @Scripts.Render("~/Content/js-library/js/echart-extend.js")
+    <script type="text/javascript">
+        $(function () {
+            //店铺列表
+            $('#StoreName').combotree({
+                url: '@Url.Action("Mall_Message", "Common")',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'comboTree'
+                },
+                multiple: true
+            });
+
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Detail_Message","OrderReport")',
+                pagination: false,
+                showFooter: true,
+                queryParams: {
+                    store: $("#StoreName").combotree("getValues").join(','),
+                    time: $('#Time').val(),
+                    type: '@ViewBag.Type'
+                }
+            });
+
+            //初始化日期类型
+            var $t = '@ViewBag.Type';
+            var $oType = $('input[type=radio][name=Type]');
+            for (var t = 0; t < $oType.length; t++) {
+                if ($oType.eq(t).val() == $t) {
+                    $oType.eq(t).prop("checked", true);
+                }
+            }
+
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    store: $("#StoreName").combotree("getValues").join(','),
+                    time: $('#Time').val(),
+                    type: commonJs.getRadioValue("Type"),
+                    show_type: 'record'
+                });
+            });
+
+            $('input[type=radio][name=Type]').bind('click', function () {
+                var _time = $('#Time').val();
+            });
+
+            $('input[type=radio][name=ChartType]').bind('click', function () {
+                SetChart();
+            });
+
+            //切换
+            $('#tt').tabs({
+                border: false,
+                onSelect: function (title, index) {
+                    if (index == 1) {
+                        $('.main_search').hide();
+                        SetChart();
+                    }
+                    else {
+                        $('.main_search').show();
+                    }
+                }
+            });
+        });
+
+        function SetChart() {
+            // 初始化echarts图表
+            var $chart = echartExtend.Charts.Init('chart_canvas');
+            echartExtend.Charts.AjaxSet($chart, {
+                url: '@Url.Action("Detail_Message", "OrderReport")',
+                para: {
+                    store: $("#StoreName").combotree("getValues").join(','),
+                    time: $('#Time').val(),
+                    type: commonJs.getRadioValue("Type"),
+                    chart_type: commonJs.getRadioValue("ChartType"),
+                    show_type: 'chart'
+                },
+                func: function (data) {
+                    $chart.setOption(data);
+                }
+            });
+        }
+    </script>
+}
+

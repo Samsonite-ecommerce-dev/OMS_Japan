@@ -1,0 +1,214 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string _ConfigKey = string.Join(",", Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().LanguagePacks);
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                <input id="SearchKey" type="text" class="easyui-textbox input-xlarge" prompt="@ViewBag.LanguagePack["common_search_key"]" />
+            </li>
+            <li>
+                <input id="ClassID" class="input-medium" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["common_delete"]:
+                <input id="deleted" type="checkbox" />
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="add" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-plus color_success"></i>@ViewBag.LanguagePack["common_add"]</a>
+            <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-save color_warning"></i>@ViewBag.LanguagePack["common_save"]</a>
+            <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>@ViewBag.LanguagePack["common_delete"]</a>
+            <a id="restore" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-eraser color_primary"></i>@ViewBag.LanguagePack["common_recover"]</a>
+            <span class="toolbar-separator"></span>
+            <a id="reset" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-recycle color_success"></i>@ViewBag.LanguagePack["language_index_updatepack"]</a>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s7',align:'center'">
+                        @ViewBag.LanguagePack["language_index_sort"]
+                    </th>
+                    <th data-options="field:'s1',align:'left'">
+                        @ViewBag.LanguagePack["language_index_key"]
+                    </th>
+                    <th data-options="field:'s2',align:'left',editor:'text'">
+                        @ViewBag.LanguagePack["language_index_chinese"]
+                    </th>
+                    <th data-options="field:'s3',align:'left',editor:'text'">
+                        @ViewBag.LanguagePack["language_index_chinese_traditional"]
+                    </th>
+                    <th data-options="field:'s4',align:'left',editor:'text'">
+                        @ViewBag.LanguagePack["language_index_english"]
+                    </th>
+                    <th data-options="field:'s5',align:'left',editor:'text'">
+                        @ViewBag.LanguagePack["language_index_korean"]
+                    </th>
+                    <th data-options="field:'s6',align:'left',editor:'text'">
+                        @ViewBag.LanguagePack["language_index_thai"]
+                    </th>
+                    <th data-options="field:'s8',align:'center'">
+                        @ViewBag.LanguagePack["language_index_state"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/jquery-easyui/1.5.1/extension/datagrid-cellediting.js")
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(','),
+                hideTools: getHideToolBar()
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "Language")',
+                pageSize: 50,
+                cellEdit: true
+            });
+            //功能类表
+            $('#ClassID').combobox({
+                url: '@Url.Action("GroupFunction_Message", "Language")?id=0',
+                method: 'get',
+                valueField: 'value',
+                textField: 'text',
+                groupField: 'group'
+            });
+            //隐藏其它语言
+            var opts = $('#dg').datagrid('getColumnFields');
+            if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Simplified_Chinese),') == -1) {
+                var _col = $('#dg').datagrid("getColumnOption", opts[3]);
+                $("#dg").datagrid('hideColumn', _col.field);
+            }
+            if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Traditional_Chinese),') == -1) {
+                var _col = $('#dg').datagrid("getColumnOption", opts[4]);
+                $("#dg").datagrid('hideColumn', _col.field);
+            }
+            if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.English),') == -1) {
+                var _col = $('#dg').datagrid("getColumnOption", opts[5]);
+                $("#dg").datagrid('hideColumn', _col.field);
+            }
+            if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Korean),') == -1) {
+                var _col = $('#dg').datagrid("getColumnOption", opts[6]);
+                $("#dg").datagrid('hideColumn', _col.field);
+            }
+            if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Thai),') == -1) {
+                var _col = $('#dg').datagrid("getColumnOption", opts[7]);
+                $("#dg").datagrid('hideColumn', _col.field);
+            }
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    keyword: $('#SearchKey').val(),
+                    classid: $('#ClassID').combobox('getValue'),
+                    isdelete: $('#deleted').prop("checked") ? 1 : 0
+                });
+                //操作限制
+                easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                    powerTools: ('@ViewBag.FunctionPower').split(','),
+                    hideTools: getHideToolBar()
+                });
+            });
+            //重置语言包
+            $('#reset').bind('click', function () {
+                commonJs.sysAjaxFunction({
+                    url: '@Url.Action("Reset_Message", "Language")',
+                    dataType: 'json',
+                    func: function (data) {
+                        if (data.result) {
+                            artDialogExtend.Tips.Success(data.msg, 3, function () {
+                                window.location.href = window.location.href;
+                            });
+                        }
+                        else {
+                            artDialogExtend.Tips.Alert(data.msg, 2);
+                        }
+                    }
+                });
+            });
+            //操作
+            $('#toolbar').find('#add').bind('click', function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("Add", "Language")',
+                    title: '@ViewBag.LanguagePack["common_add"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Add_Message", "Language")'
+                });
+            });
+            $('#toolbar').find('#edit').bind('click', function () {
+                var _data_message = '';
+                var _rows = $('#dg').datagrid('getChanges');
+                if (_rows.length > 0) {
+                    var _arr = new Array();
+                    var _r = new Object();
+                    for (var t = 0; t < _rows.length; t++) {
+                        _r = new Object();
+                        _r.id = _rows[t].ck;
+                        _r.cn = _rows[t].s2;
+                        _r.cn_tw = _rows[t].s3;
+                        _r.en = _rows[t].s4;
+                        _r.ko = _rows[t].s5;
+                        _r.th = _rows[t].s6;
+                        _arr.push(_r);
+                    }
+                    _data_message = JSON.stringify(_arr);
+                }
+                //保存数据
+                commonJs.sysAjaxFunction({
+                    url: '@Url.Action("Edit_Message", "Language")',
+                    dataType: 'json',
+                    para: { data: _data_message },
+                    func: function (data) {
+                        if (data.result) {
+                            artDialogExtend.Tips.Success(data.msg, 3, function () {
+                                easyUIExtend.Grid.Refresh($('#dg'));
+                            });
+                        }
+                        else {
+                            artDialogExtend.Tips.Alert(data.msg, 2);
+                        }
+                    }
+                });
+
+            });
+            $('#toolbar').find('#delete').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Delete_Message", "Language")');
+            });
+            $('#toolbar').find('#restore').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Restore_Message", "Language")');
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+
+        //获取工具栏
+        function getHideToolBar() {
+            var _result;
+            if ($('#deleted').prop("checked")) {
+                _result = new Array('delete');
+            }
+            else {
+                _result = new Array('restore');
+            }
+            return _result;
+        }
+    </script>
+}
+

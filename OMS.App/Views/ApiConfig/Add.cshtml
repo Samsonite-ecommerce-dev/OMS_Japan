@@ -1,0 +1,111 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _InterfaceList = (List<Samsonite.OMS.DTO.InterfaceGroupDto>)ViewData["interface_list"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>名称：
+                        </th>
+                        <td>
+                            <input name="AppID" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>Token：
+                        </th>
+                        <td>
+                            <input id="Token" name="Token" type="text" class="easyui-textbox input-xlarge" />
+                            <input id="create_token" type="button" class="btn btn-success" value="生成Token" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            IP限制：
+                        </th>
+                        <td>
+                            <div id="div_ips" class="common-list">
+                                <ul>
+                                    <li>
+                                        <i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><input name="Ips" type="text" value="" class="easyui-text input-medium" />
+                                    </li>
+                                </ul>
+                            </div>
+                            <input id="add-button" type="button" value="添加IP" class="btn btn-warning" />
+                            <span class="label-info">允许添加类似192.168.*.*来限制IP段</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            接口权限：
+                        </th>
+                        <td>
+                            <div class="common-list">
+                                @foreach (var group in _InterfaceList.OrderBy(p => p.RootID))
+                                {
+                                    <h3><input name="selectAll" type="checkbox" />@group.GroupName</h3>
+                                    <ul>
+                                        @foreach (var item in group.Interfaces.OrderBy(p => p.SeqNumber))
+                                        {
+                                            <li>
+                                                <input id="interface_@item.ID" name="Interface" type="checkbox" value="@item.ID"><label for="interface_@item.ID">@item.InterfaceName</label>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            有效：
+                        </th>
+                        <td>
+                            <input id="s_1" name="IsUsed" type="radio" value="1" checked="checked"><label for="s_1">是</label>
+                            <input id="s_2" name="IsUsed" type="radio" value="0"><label for="s_2">否</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            备注：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#create_token').bind('click', function () {
+                var _token = commonJs.CreateKey(32);
+                $('#Token').textbox('setValue', _token);
+
+            });
+
+            $('#add-button').bind('click', function () {
+                $('#div_ips').append('<li><i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><input name="Ips" type="text" class="easyui-text input-medium" /></li>');
+            });
+
+            $('.common-list').find('input[type=checkbox][name=selectAll]').bind('click', function () {
+                var $inputs = $(this).parent().next('ul').find('input[type=checkbox][name=Interface]');
+                for (var i = 0; i < $inputs.length; i++) {
+                    $inputs.eq(i).prop("checked",$(this).prop("checked"));
+                }
+            });
+        });
+
+        function del_power(object) {
+            $o = object.parent().remove();
+        }
+    </script>
+}

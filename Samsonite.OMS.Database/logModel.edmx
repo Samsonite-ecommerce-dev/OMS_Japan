@@ -1,0 +1,399 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="Samsonite.OMS.Database.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ECommercePlatformApiLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MallSapCode" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="OrderNo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="SubOrderNo" Type="varchar" MaxLength="50" />
+          <Property Name="Msg" Type="nvarchar(max)" />
+          <Property Name="PlatformType" Type="int" Nullable="false" />
+          <Property Name="LogType" Type="int" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ExternalInterfaceLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LogType" Type="int" Nullable="false" />
+          <Property Name="ValidMessage" Type="nvarchar" MaxLength="512" />
+          <Property Name="IP" Type="varchar" MaxLength="32" />
+          <Property Name="ReceiveMessage" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="ReturnResult" Type="bit" Nullable="false" />
+          <Property Name="ReturnMessage" Type="nvarchar" MaxLength="500" />
+          <Property Name="CreateTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="ServiceLog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LogType" Type="int" Nullable="false" />
+          <Property Name="LogLevel" Type="int" Nullable="false" />
+          <Property Name="LogMessage" Type="nvarchar(max)" />
+          <Property Name="LogRemark" Type="nvarchar" MaxLength="500" />
+          <Property Name="LogIp" Type="varchar" MaxLength="30" />
+          <Property Name="CreateTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WebApiAccessLog">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Url" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="UserID" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="Ip" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="State" Type="bit" Nullable="false" />
+          <Property Name="Remark" Type="nvarchar" MaxLength="512" />
+          <Property Name="CreateTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WebApiLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar" MaxLength="200" />
+          <Property Name="Msg" Type="nvarchar(max)" />
+          <Property Name="LogLevel" Type="nvarchar" MaxLength="50" />
+          <Property Name="AddDate" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WebAppErrorLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserID" Type="int" Nullable="false" />
+          <Property Name="UserIP" Type="varchar" MaxLength="32" />
+          <Property Name="LogLevel" Type="varchar" MaxLength="16" />
+          <Property Name="LogMessage" Type="nvarchar(max)" />
+          <Property Name="AddTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WebAppLoginLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LoginStatus" Type="bit" Nullable="false" />
+          <Property Name="Account" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Password" Type="varchar" MaxLength="200" />
+          <Property Name="UserID" Type="int" Nullable="false" />
+          <Property Name="IP" Type="varchar" MaxLength="30" />
+          <Property Name="Remark" Type="nvarchar" MaxLength="500" />
+          <Property Name="AddTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WebAppOperationLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OperationType" Type="int" Nullable="false" />
+          <Property Name="TableName" Type="varchar" MaxLength="128" />
+          <Property Name="UserID" Type="int" Nullable="false" />
+          <Property Name="UserIP" Type="varchar" MaxLength="32" />
+          <Property Name="RecordID" Type="varchar" MaxLength="512" Nullable="false" />
+          <Property Name="LogMessage" Type="nvarchar(max)" />
+          <Property Name="AddTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WebAppPasswordLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Account" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Password" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="UserID" Type="int" Nullable="false" />
+          <Property Name="IP" Type="varchar" MaxLength="30" />
+          <Property Name="Remark" Type="nvarchar" MaxLength="500" />
+          <Property Name="AddTime" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="SamsoniteOMSDatabaseStoreContainer">
+          <EntitySet Name="ECommercePlatformApiLog" EntityType="Self.ECommercePlatformApiLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ExternalInterfaceLog" EntityType="Self.ExternalInterfaceLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="ServiceLog" EntityType="Self.ServiceLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WebApiAccessLog" EntityType="Self.WebApiAccessLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WebApiLog" EntityType="Self.WebApiLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WebAppErrorLog" EntityType="Self.WebAppErrorLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WebAppLoginLog" EntityType="Self.WebAppLoginLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WebAppOperationLog" EntityType="Self.WebAppOperationLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WebAppPasswordLog" EntityType="Self.WebAppPasswordLog" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="Samsonite.OMS.Database" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="logEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ECommercePlatformApiLog" EntityType="Samsonite.OMS.Database.ECommercePlatformApiLog" />
+          <EntitySet Name="ExternalInterfaceLog" EntityType="Samsonite.OMS.Database.ExternalInterfaceLog" />
+          <EntitySet Name="ServiceLog" EntityType="Samsonite.OMS.Database.ServiceLog" />
+          <EntitySet Name="WebApiAccessLog" EntityType="Samsonite.OMS.Database.WebApiAccessLog" />
+          <EntitySet Name="WebApiLog" EntityType="Samsonite.OMS.Database.WebApiLog" />
+          <EntitySet Name="WebAppErrorLog" EntityType="Samsonite.OMS.Database.WebAppErrorLog" />
+          <EntitySet Name="WebAppLoginLog" EntityType="Samsonite.OMS.Database.WebAppLoginLog" />
+          <EntitySet Name="WebAppOperationLog" EntityType="Samsonite.OMS.Database.WebAppOperationLog" />
+          <EntitySet Name="WebAppPasswordLog" EntityType="Samsonite.OMS.Database.WebAppPasswordLog" />
+        </EntityContainer>
+        <EntityType Name="ECommercePlatformApiLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MallSapCode" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="OrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SubOrderNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Msg" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="PlatformType" Type="Int32" Nullable="false" />
+          <Property Name="LogType" Type="Int32" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="ExternalInterfaceLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LogType" Type="Int32" Nullable="false" />
+          <Property Name="ValidMessage" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="IP" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="ReceiveMessage" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ReturnResult" Type="Boolean" Nullable="false" />
+          <Property Name="ReturnMessage" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="CreateTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="ServiceLog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LogType" Type="Int32" Nullable="false" />
+          <Property Name="LogLevel" Type="Int32" Nullable="false" />
+          <Property Name="LogMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LogRemark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="LogIp" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="CreateTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="WebApiAccessLog">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Url" Type="String" Nullable="false" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="UserID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Ip" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="State" Type="Boolean" Nullable="false" />
+          <Property Name="Remark" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="CreateTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="WebApiLog">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="Msg" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="LogLevel" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AddDate" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="WebAppErrorLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="UserIP" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="LogLevel" Type="String" MaxLength="16" FixedLength="false" Unicode="false" />
+          <Property Name="LogMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AddTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="WebAppLoginLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LoginStatus" Type="Boolean" Nullable="false" />
+          <Property Name="Account" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="IP" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Remark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="AddTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="WebAppOperationLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OperationType" Type="Int32" Nullable="false" />
+          <Property Name="TableName" Type="String" MaxLength="128" FixedLength="false" Unicode="false" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="UserIP" Type="String" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="RecordID" Type="String" Nullable="false" MaxLength="512" FixedLength="false" Unicode="false" />
+          <Property Name="LogMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AddTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="WebAppPasswordLog">
+          <Key>
+            <PropertyRef Name="LogID" />
+          </Key>
+          <Property Name="LogID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Account" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="IP" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="Remark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="AddTime" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="SamsoniteOMSDatabaseStoreContainer" CdmEntityContainer="logEntities">
+          <EntitySetMapping Name="ECommercePlatformApiLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.ECommercePlatformApiLog">
+              <MappingFragment StoreEntitySet="ECommercePlatformApiLog">
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="LogType" ColumnName="LogType" />
+                <ScalarProperty Name="PlatformType" ColumnName="PlatformType" />
+                <ScalarProperty Name="Msg" ColumnName="Msg" />
+                <ScalarProperty Name="SubOrderNo" ColumnName="SubOrderNo" />
+                <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
+                <ScalarProperty Name="MallSapCode" ColumnName="MallSapCode" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ExternalInterfaceLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.ExternalInterfaceLog">
+              <MappingFragment StoreEntitySet="ExternalInterfaceLog">
+                <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
+                <ScalarProperty Name="ReturnMessage" ColumnName="ReturnMessage" />
+                <ScalarProperty Name="ReturnResult" ColumnName="ReturnResult" />
+                <ScalarProperty Name="ReceiveMessage" ColumnName="ReceiveMessage" />
+                <ScalarProperty Name="IP" ColumnName="IP" />
+                <ScalarProperty Name="ValidMessage" ColumnName="ValidMessage" />
+                <ScalarProperty Name="LogType" ColumnName="LogType" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="ServiceLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.ServiceLog">
+              <MappingFragment StoreEntitySet="ServiceLog">
+                <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
+                <ScalarProperty Name="LogIp" ColumnName="LogIp" />
+                <ScalarProperty Name="LogRemark" ColumnName="LogRemark" />
+                <ScalarProperty Name="LogMessage" ColumnName="LogMessage" />
+                <ScalarProperty Name="LogLevel" ColumnName="LogLevel" />
+                <ScalarProperty Name="LogType" ColumnName="LogType" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WebApiAccessLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebApiAccessLog">
+              <MappingFragment StoreEntitySet="WebApiAccessLog">
+                <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="State" ColumnName="State" />
+                <ScalarProperty Name="Ip" ColumnName="Ip" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="Url" ColumnName="Url" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WebApiLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebApiLog">
+              <MappingFragment StoreEntitySet="WebApiLog">
+                <ScalarProperty Name="AddDate" ColumnName="AddDate" />
+                <ScalarProperty Name="LogLevel" ColumnName="LogLevel" />
+                <ScalarProperty Name="Msg" ColumnName="Msg" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WebAppErrorLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebAppErrorLog">
+              <MappingFragment StoreEntitySet="WebAppErrorLog">
+                <ScalarProperty Name="AddTime" ColumnName="AddTime" />
+                <ScalarProperty Name="LogMessage" ColumnName="LogMessage" />
+                <ScalarProperty Name="LogLevel" ColumnName="LogLevel" />
+                <ScalarProperty Name="UserIP" ColumnName="UserIP" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="LogID" ColumnName="LogID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WebAppLoginLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebAppLoginLog">
+              <MappingFragment StoreEntitySet="WebAppLoginLog">
+                <ScalarProperty Name="AddTime" ColumnName="AddTime" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="IP" ColumnName="IP" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Account" ColumnName="Account" />
+                <ScalarProperty Name="LoginStatus" ColumnName="LoginStatus" />
+                <ScalarProperty Name="LogID" ColumnName="LogID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WebAppOperationLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebAppOperationLog">
+              <MappingFragment StoreEntitySet="WebAppOperationLog">
+                <ScalarProperty Name="AddTime" ColumnName="AddTime" />
+                <ScalarProperty Name="LogMessage" ColumnName="LogMessage" />
+                <ScalarProperty Name="RecordID" ColumnName="RecordID" />
+                <ScalarProperty Name="UserIP" ColumnName="UserIP" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="TableName" ColumnName="TableName" />
+                <ScalarProperty Name="OperationType" ColumnName="OperationType" />
+                <ScalarProperty Name="LogID" ColumnName="LogID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WebAppPasswordLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebAppPasswordLog">
+              <MappingFragment StoreEntitySet="WebAppPasswordLog">
+                <ScalarProperty Name="AddTime" ColumnName="AddTime" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="IP" ColumnName="IP" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
+                <ScalarProperty Name="Account" ColumnName="Account" />
+                <ScalarProperty Name="LogID" ColumnName="LogID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="无" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

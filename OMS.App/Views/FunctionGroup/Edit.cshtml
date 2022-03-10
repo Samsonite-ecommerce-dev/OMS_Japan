@@ -1,0 +1,59 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Groupid" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>栏目名称：
+                        </th>
+                        <td>
+                            <input name="GroupName" type="text" class="easyui-textbox input-xlarge" value="@_m.GroupName"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            栏目图标：
+                        </th>
+                        <td>
+                            <span id="show_icon"><i class="fa @_m.GroupIcon"></i><label class="label-info">@_m.GroupIcon</label></span>
+                            <input name="GroupIcon" type="hidden" value="@_m.GroupIcon" />
+                            <input id="sicon" type="button" value="选择图标" class="btn btn-warning" onclick="selectIcon()" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            简要描述：
+                        </th>
+                        <td>
+                            <textarea name="GroupMemo" class="easyui-textarea  input-xlarge" style="height:100px;">@_m.GroupMemo</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        function DoIconMessage(css) {
+            $('#show_icon').html("<i class=\"fa " + css + "\"></i><label class=\"label-info\">" + css + "</label>");
+            $('input[name=GroupIcon]').val(css);
+            artDialogExtend.Dialog.Close();
+        }
+
+        function selectIcon() {
+            artDialogExtend.Dialog.Open('@Url.Action("SelectIcon","Common")',
+            {
+                title: '选择图标',
+                width: '100%',
+                height: '100%'
+            });
+        }
+    </script>
+}

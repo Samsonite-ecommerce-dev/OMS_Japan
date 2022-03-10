@@ -1,0 +1,1 @@
+C:\Windows\Microsoft.NET\Framework\v4.0.30319\installutil.exe /u D:\Project\Order Management System\Singapore\OMS.Service\OMS.Service.Windows\bin\Debug\OMS.Service.Windows.exe

@@ -1,0 +1,170 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _DetailList = (List<Samsonite.OMS.Database.OrderDetail>)Model;
+    var _Order = (Samsonite.OMS.Database.Order)ViewData["order"];
+    var _AdjustmentList = (List<Samsonite.OMS.Database.OrderDetailAdjustment>)ViewData["adjustment_list"];
+    var _ShippingAdjustmentList = (List<Samsonite.OMS.Database.OrderShippingAdjustment>)ViewData["shipping_adjustment_list"];
+    var _PayList = (List<Samsonite.OMS.Database.OrderPaymentDetail>)ViewData["payment_detail_list"];
+    int _Effect_Quantity = 0;
+    int _AmountAccuracy = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().AmountAccuracy;
+    int t = 0;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="OrderNo" type="hidden" value="@_Order.OrderNo" />
+            <table class="common_table1">
+                <tbody>
+                    <tr>
+                        <th></th>
+                        <th>@ViewBag.LanguagePack["orderreject_edit_sub_order_number"]</th>
+                        <th>@ViewBag.LanguagePack["orderreject_edit_sku"]</th>
+                        <th>@ViewBag.LanguagePack["orderreject_edit_productname"]</th>
+                        <th>@ViewBag.LanguagePack["orderreject_edit_price"]</th>
+                        <th>@ViewBag.LanguagePack["orderreject_edit_reject_quantity"]</th>
+                        <th>@ViewBag.LanguagePack["orderreject_edit_actual_payment"]</th>
+                        <th>@ViewBag.LanguagePack["orderreject_edit_state"]</th>
+                        <th>@ViewBag.LanguagePack["orderreject_edit_shipping_state"]</th>
+                    </tr>
+                    @foreach (var _O in _DetailList)
+                    {
+                        _Effect_Quantity = Samsonite.Utility.Common.VariableHelper.SaferequestPositiveInt(_O.Quantity - _O.CancelQuantity - _O.ReturnQuantity - _O.ExchangeQuantity - _O.RejectQuantity);
+                        <tr id="@t">
+                            <td>
+                                <input id="SelectID_@t" name="SelectID" type="checkbox" value="@_O.Id" @((_Effect_Quantity == 0) ? "disabled=\"disabled\"" : "") />
+                            </td>
+                            <td>
+                                @_O.SubOrderNo
+                            </td>
+                            <td>
+                                @_O.SKU
+                            </td>
+                            <td width="375" class="textalign_left">
+                                @_O.ProductName
+                            </td>
+                            <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_O.SellingPrice)</td>
+                            <td>
+                                @if (_Effect_Quantity > 0)
+                                {
+                                    <select id="Quantity_@t" name="Quantity" class="easyui-combobox input-mini" data-options="disabled:true">
+                                        @for (int i = _Effect_Quantity; i > 0; i--)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    @_Effect_Quantity
+                                }
+                                <input id="Quantity_Max_@t" type="hidden" value="@_Effect_Quantity" />
+                            </td>
+                            <td>
+                                @Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_O.ActualPaymentAmount))
+                            </td>
+                            <td>
+                                @Html.Raw(OMS.App.Helper.OrderHelper.GetProductStatusDisplay(_O.Status, true))
+                            </td>
+                            <td>
+                                @Html.Raw(OMS.App.Helper.OrderHelper.GetWarehouseProcessStatusDisplay(_O.ShippingStatus, true))
+                            </td>
+                        </tr>
+                        t++;
+                    }
+                </tbody>
+            </table>
+            <div class="space_tiny space_spilt"></div>
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_edit_order_no"]：
+                        </th>
+                        <td colspan="3">@_Order.OrderNo</td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordercancel_edit_paytype"]：
+                        </th>
+                        <td colspan="3">@OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(_Order.PaymentType)</td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_edit_order_total"]：
+                        </th>
+                        <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.OrderAmount)</td>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_edit_pay_total"]：
+                        </th>
+                        <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.PaymentAmount)</td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_edit_insist_amount"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.BalanceAmount)
+                            @Html.Raw(OMS.App.Helper.OrderHelper.MixedPaymentMessage(_PayList))
+                        </td>
+                        @*<th>
+                @ViewBag.LanguagePack["orderreject_edit_point_amount"]：
+            </th>
+            <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.PointAmount)</td>*@
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_edit_delivery_charge"]：
+                        </th>
+                        <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.DeliveryFee)</td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_edit_promotion"]：
+                        </th>
+                        <td colspan="3">
+                            @foreach (var _o in _AdjustmentList)
+                            {
+                                <p>@Html.Raw(string.Format("{0}<i class=\"fa fa-arrow-circle-right color_info\"></i>{1}({2})", (!string.IsNullOrEmpty(_o.SubOrderNo) ? _o.SubOrderNo : _o.OrderNo), _o.LineitemText, Samsonite.Utility.Common.VariableHelper.FormateMoney(Math.Abs(_o.BasePrice))))</p>
+                            }
+                            @foreach (var _o in _ShippingAdjustmentList)
+                            {
+                                <p>@Html.Raw(string.Format("{0}<i class=\"fa fa-arrow-circle-right color_info\"></i>{1}({2})", _o.OrderNo, _o.AdjustmentLineitemText, Samsonite.Utility.Common.VariableHelper.FormateMoney(Math.Abs(_o.AdjustmentGrossPrice))))</p>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["orderreject_edit_reject_time"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="CancelTime" type="text" class="input-medium Wdate" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["orderreject_edit_remark"]：
+                        </th>
+                        <td colspan="3">
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            $('.common_table1').find('input[name=SelectID]').bind('click', function () {
+                var _t = $(this).parent().parent().attr("id");
+                if ($(this).prop("checked")) {
+                    //设置控件有效
+                    $('#Quantity_' + _t).combobox({ disabled: false });
+                }
+                else {
+                    $('#Quantity_' + _t).combobox({ disabled: true });
+                }
+            });
+        });
+    </script>
+}

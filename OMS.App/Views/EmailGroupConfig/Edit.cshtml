@@ -1,0 +1,63 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = (Samsonite.OMS.Database.SendMailGroup)Model;
+    var _emails = _m.MailAddresses.Split(',');
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.ID" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>邮件组名：
+                        </th>
+                        <td>
+                            <input name="GroupName" type="text" class="easyui-textbox input-xlarge" value="@_m.GroupName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            邮件地址：
+                        </th>
+                        <td>
+                            <div class="common-list">
+                                <ul>
+                                        @foreach (string _o in _emails)
+                                        {
+                                            <li>
+                                                <i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><input name="MailAddresses" type="text" value="@_o" class="easyui-text input-large" />
+                                            </li>
+                                    }
+                                </ul>
+                            </div>
+                            <input id="add-button" type="button" value="添加邮件地址" class="btn btn-warning" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            备注：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#add-button').bind('click', function () {
+                $('.common-list').append('<li><i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><input name="MailAddresses" type="text" class="easyui-text input-large" /></li>');
+            });
+        });
+
+        function del_power(object) {
+            $o = object.parent().remove();
+        }
+    </script>
+}

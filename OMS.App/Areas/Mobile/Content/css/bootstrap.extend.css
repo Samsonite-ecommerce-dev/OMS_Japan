@@ -1,0 +1,89 @@
+﻿@charset "utf-8";
+/***btn***/
+.btn-gold {
+  color: #fff;
+  background-color: #ff9900;
+  border-color: #ff9900;
+}
+.btn-gold:focus,
+.btn-gold.focus {
+  color: #fff;
+  background-color: #ff9900;
+  border-color: #985f0d;
+}
+.btn-gold:hover {
+  color: #fff;
+  background-color: #ff9900;
+  border-color: #ff9900;
+}
+.btn-gold:active,
+.btn-gold.active{
+  color: #fff;
+  background-color: #ff9900;
+  border-color: #ff9900;
+}
+
+.btn-orange {
+  color: #fff;
+  background-color: #db6533;
+  border-color: #db6533;
+}
+.btn-orange:focus,
+.btn-orange.focus {
+  color: #fff;
+  background-color: #ec971f;
+  border-color: #985f0d;
+}
+.btn-orange:hover {
+  color: #fff;
+  background-color: #ec971f;
+  border-color: #d58512;
+}
+.btn-orange:active,
+.btn-orange.active, {
+  color: #fff;
+  background-color: #ec971f;
+  border-color: #d58512;
+}
+
+/***spin***/
+@-webkit-keyframes icon-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+  }
+}
+@keyframes icon-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+            transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+            transform: rotate(359deg);
+  }
+}
+.btn-icon-spin {
+  -webkit-animation: icon-spin 2s infinite linear;
+          animation: icon-spin 2s infinite linear;
+}
+
+/*圆框*/
+.glyphicon-circle-green{border:2px #20b992 solid;border-radius:50%;padding:3px;}
+
+/*输出框清空小图标*/
+.my-input-clear{position:absolute;right:7%;padding:0 5px;margin-top:-32px;display:block;}
+
+/***model***/
+.modal-dialog .modal-header{background:#5cb85c;border-radius:5px 5px 0 0;}
+.modal-dialog .modal-title{color:#fff;font-weight:bold;}
+.modal-dialog .modal-body{font-size:1.6rem;line-height:32px;}
+.modal-dialog .modal-body i{vertical-align: middle;}
+.modal-dialog .modal-body i.success{color:#5cb85c;font-size:3rem;}
+.modal-dialog .modal-body i.warning{color:#f0ad4e;font-size:3rem;}
+.modal-dialog .modal-body i.error{color:#d9534f;font-size:3rem;}
+.modal-dialog .modal-body i.question{color:#337ab7;font-size:3rem;}

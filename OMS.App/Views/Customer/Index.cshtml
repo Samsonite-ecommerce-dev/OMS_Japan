@@ -1,0 +1,106 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                @ViewBag.LanguagePack["customer_index_search_name"]：
+                <input id="CustomerName" type="text" class="easyui-textbox input-large" prompt="@ViewBag.LanguagePack["common_search_key"]" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["customer_index_search_tel"]：
+                <input id="Tel" type="text" class="easyui-textbox input-medium" />
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>@ViewBag.LanguagePack["common_edit"]</a>
+            <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>@ViewBag.LanguagePack["common_delete"]</a>
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',align:'left'">
+                        @ViewBag.LanguagePack["customer_index_customer_number"]
+                    </th>
+                    <th data-options="field:'s2',align:'left'">
+                        @ViewBag.LanguagePack["customer_index_platform_userno"]
+                    </th>
+                    <th data-options="field:'s3',align:'center'">
+                        @ViewBag.LanguagePack["customer_index_platform_username"]
+                    </th>
+                    <th data-options="field:'s4',align:'center'">
+                        @ViewBag.LanguagePack["customer_index_customer_name"]
+                    </th>
+                    <th data-options="field:'s5',align:'center'">
+                        @ViewBag.LanguagePack["customer_index_tel"]
+                    </th>
+                    <th data-options="field:'s6',align:'center'">
+                        @ViewBag.LanguagePack["customer_index_mobile"]
+                    </th>
+                    <th data-options="field:'s7',align:'left'">
+                        @ViewBag.LanguagePack["customer_index_email"]
+                    </th>
+                    <th data-options="field:'s8',align:'center'">
+                        @ViewBag.LanguagePack["customer_index_zipode"]
+                    </th>
+                    <th data-options="field:'s9',align:'left'">
+                        @ViewBag.LanguagePack["customer_index_area"]
+                    </th>
+                    <th data-options="field:'s10',align:'left'">
+                        @ViewBag.LanguagePack["customer_index_address"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "Customer")'
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    name: $('#CustomerName').val(),
+                    tel: $('#Tel').val()
+                });
+            });
+            //操作
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "Customer")?id=$',
+                    title: '@ViewBag.LanguagePack["common_edit"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "Customer")'
+                });
+            });
+            $('#toolbar').find('#delete').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Delete_Message", "Customer")');
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+    </script>
+}
+

@@ -1,0 +1,117 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string _ConfigKey = string.Join(",", Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().LanguagePacks);
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["language_edit_function"]：
+                        </th>
+                        <td>
+                            <input id="FunctionID" name="FunctionID" class="input-medium" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["language_edit_sort"]：
+                        </th>
+                        <td>
+                            <input id="SortID" name="SortID" class="input-xlarge" type="text" value="--New--" />
+                            <span class="color_danger">*@ViewBag.LanguagePack["language_edit_sort_message"]</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+
+                        </th>
+                        <td>
+                            <input id="addKey" class="btn btn-info" type="button" value="@ViewBag.LanguagePack["language_edit_add_button"]" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="padding_small"></div>
+            <div id="key_area"></div>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //功能类表
+            $('#FunctionID').combobox({
+                url: '@Url.Action("GroupFunction_Message", "Language")',
+                method: 'get',
+                valueField: 'value',
+                textField: 'text',
+                groupField: 'group',
+                onSelect: function (rec) {
+                    var g = $('#SortID').combogrid('grid');
+                    g.datagrid({
+                        queryParams: { fid: rec.value }
+                    });
+                }
+            });
+            //绑定排序
+            easyUIExtend.ComboGrid($('#SortID'), {
+                panelWidth: 425,
+                url: '@Url.Action("LanguagePack_Message", "Language")',
+                idField: 's0',
+                textField: 's1',
+                multiple: false,
+                pagination: false,
+                columns: [[
+                   { field: 's0', title: '@ViewBag.LanguagePack["language_edit_id"]', align: 'center' },
+                   { field: 's1', title: '@ViewBag.LanguagePack["language_edit_key"]', align: 'left' },
+                   { field: 's2', title: '@ViewBag.LanguagePack["language_edit_sort"]', align: 'center' }
+                ]]
+            });
+            //添加key
+            $('#addKey').bind('click', function () {
+                var _str = '';
+                _str += '<table class="table1" style="margin-top:5px;">';
+                _str += '<tbody>';
+                _str += '<tr>';
+                _str += '<th><i class="fa fa-times-circle color_danger pointer" onclick="del_key($(this))"></i><span class="color_danger">*</span>@ViewBag.LanguagePack["language_edit_key"]：</th><td colspan="3"><input name="PackKey" type="text" class="easyui-text input-xlarge" /></td>';
+                _str += '</tr>';
+                if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Simplified_Chinese),') > -1) {
+                    _str += '<tr>';
+                    _str += '<th>@ViewBag.LanguagePack["language_edit_chinese"]：</th><td><input name="PackChinese" type="text" class="easyui-text input-xxlarge" /></td>';
+                    _str += '</tr>';
+                }
+                if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Traditional_Chinese),') > -1) {
+                    _str += '<tr>';
+                    _str += '<th>@ViewBag.LanguagePack["language_edit_chinese_traditional"]：</th><td><input name="PackTraditionalChinese" type="text" class="easyui-text input-xxlarge" /></td>';
+                    _str += '</tr>';
+                }
+                if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.English),') > -1) {
+                    _str += '<tr>';
+                    _str += '<th>@ViewBag.LanguagePack["language_edit_english"]：</th><td><input name="PackEnglish" type="text" class="easyui-text input-xxlarge" /></td>';
+                    _str += '</tr>';
+                }
+                if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Korean),') > -1) {
+                    _str += '<tr>';
+                    _str += '<th>@ViewBag.LanguagePack["language_edit_korean"]：</th><td><input name="PackKorean" type="text" class="easyui-text input-xxlarge" /></td>';
+                    _str += '</tr>';
+                }
+                if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Thai),') > -1) {
+                    _str += '<tr>';
+                    _str += '<th>@ViewBag.LanguagePack["language_edit_thai"]：</th><td><input name="PackThai" type="text" class="easyui-text input-xxlarge" /></td>';
+                    _str += '</tr>';
+                }
+                _str += '</tbody>';
+                _str += '</table>';
+                $('#key_area').append(_str);
+            });
+        });
+
+        function del_key(object) {
+            $o = object.parent().parent().parent().parent().remove();
+        }
+    </script>
+}
+

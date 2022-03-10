@@ -1,0 +1,175 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = (Samsonite.OMS.Database.View_ProductSet)Model;
+    var _MallList = (List<Samsonite.OMS.Database.Mall>)ViewData["mall_list"];
+    var _DetailList = (List<dynamic>)ViewData["detail_list"];
+    var _InventoryList = (List<Samsonite.OMS.Database.MallProduct>)ViewData["inventory_list"];
+    var _ApprovalList = (List<Samsonite.OMS.Database.View_ApprovalRecord>)ViewData["approval_list"];
+    List<string> _AppConfig = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().PromotionApproval;
+    int _WarningInventory = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().WarningInventoryNumConfig;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <div class="easyui-tabs" style="width:99%;">
+                <div title="@ViewBag.LanguagePack["packagegoods_detail_tab1"]" style="padding:3px">
+                    <table class="table1">
+                        <tbody>
+                            <tr>
+                                <th>
+                                    @ViewBag.LanguagePack["packagegoods_detail_package"]：
+                                </th>
+                                <td>
+                                    @_m.SetName
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @ViewBag.LanguagePack["packagegoods_detail_code"]：
+                                </th>
+                                <td>
+                                    @_m.SetCode
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @ViewBag.LanguagePack["packagegoods_detail_effect"]：
+                                </th>
+                                <td>
+                                    @_m.StartDate.ToString("yyyy-MM-dd HH:mm:ss")
+                                    -
+                                    @_m.EndDate.ToString("yyyy-MM-dd HH:mm:ss")
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @ViewBag.LanguagePack["packagegoods_detail_need_stock_quantity"]：
+                                </th>
+                                <td>
+                                    @_m.Inventory
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @ViewBag.LanguagePack["packagegoods_detail_storename"]：
+                                </th>
+                                <td colspan="3">
+                                    @string.Join(",", _MallList.Select(p => p.Name))
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @ViewBag.LanguagePack["packagegoods_detail_discrib"]：
+                                </th>
+                                <td colspan="3">
+                                    @_m.Description
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    @ViewBag.LanguagePack["packagegoods_detail_apply_message"]：
+                                </th>
+                                <td colspan="3">
+                                    @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
+                                </td>
+                            </tr>
+                            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
+                            {
+                                var _o = _ApprovalList.Where(p => p.ApprovalIdentify == (Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString())).SingleOrDefault();
+                                <tr>
+                                    <th>
+                                        @ViewBag.LanguagePack["packagegoods_detail_sale_approval_message"]：
+                                    </th>
+                                    <td colspan="3">
+                                        @if (_o != null)
+                                        {
+                                            Html.Raw(string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br />" + _o.ApprovalRemark : "")));
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
+                            {
+                                var _o = _ApprovalList.Where(p => p.ApprovalIdentify == (Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString())).SingleOrDefault();
+                                <tr>
+                                    <th>
+                                        @ViewBag.LanguagePack["packagegoods_detail_wh_approval_message"]：
+                                    </th>
+                                    <td colspan="3">
+                                        @if (_o != null)
+                                        {
+                                            Html.Raw(string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br />" + _o.ApprovalRemark : "")));
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div title="@ViewBag.LanguagePack["packagegoods_detail_tab2"]" style="padding:3px">
+                    <table class="common_table1">
+                        <tbody>
+                            <tr>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_sku"]</th>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_product_name"]</th>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_quantity"]</th>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_price"]</th>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_isprimary"]</th>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_group"]</th>
+                            </tr>
+                            @foreach (var _o in _DetailList)
+                            {
+                                <tr>
+                                    <td>@_o.SKU</td>
+                                    <td class="textalign_left">@_o.ProductName</td>
+                                    <td>@_o.Quantity</td>
+                                    <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_o.Price)</td>
+                                    <td>@((_o.IsPrimary)?ViewBag.LanguagePack["common_major"]:ViewBag.LanguagePack["common_secondary"])</td>
+                                    <td>@_o.Parent</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div title="@ViewBag.LanguagePack["packagegoods_detail_tab3"]" style="padding:3px">
+                    <table class="common_table1">
+                        <tbody>
+                            <tr>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_mall"]</th>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_sku"]</th>
+                                <th>@ViewBag.LanguagePack["packagegoods_detail_inventory"]</th>
+                            </tr>
+                            @foreach (var _o in _MallList)
+                            {
+                                var _Inventory = _InventoryList.Where(p => p.MallSapCode == _o.SapCode).FirstOrDefault();
+                                if (_Inventory != null)
+                                {
+                                    <tr>
+                                        <td>
+                                            @if (_Inventory.Quantity <= _WarningInventory)
+                                            {
+                                                <i class="fa fa-exclamation-circle color_warning"></i>
+                                            }
+                                            @_o.Name
+                                        </td>
+                                        <td>@_Inventory.SKU</td>
+                                        <td>@_Inventory.Quantity</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td><i class="fa fa-exclamation-circle color_warning"></i>@_o.Name</td>
+                                        <td>@_m.SetCode</td>
+                                        <td>0</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

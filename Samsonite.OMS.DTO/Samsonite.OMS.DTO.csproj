@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{DDCC579D-1EC7-466F-ACC4-3256827EC1EB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Samsonite.OMS.DTO</RootNamespace>
+    <AssemblyName>Samsonite.OMS.DTO</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="API\InterfaceDto.cs" />
+    <Compile Include="AppLanguagePack.cs" />
+    <Compile Include="Attribute\CustomPropertyAttribute.cs" />
+    <Compile Include="ECommerce\DwOrderDetailDto.cs" />
+    <Compile Include="ECommerce\PlatformServicePowerDto.cs" />
+    <Compile Include="EmailDto.cs" />
+    <Compile Include="ECommerce\ItemDto.cs" />
+    <Compile Include="EmployeeImportDto.cs" />
+    <Compile Include="Enum\CompanyType.cs" />
+    <Compile Include="Enum\ECommerceType.cs" />
+    <Compile Include="Enum\ExpressStatus.cs" />
+    <Compile Include="Enum\UserType.cs" />
+    <Compile Include="Enum\RefundStatus.cs" />
+    <Compile Include="IconDto.cs" />
+    <Compile Include="ExpressDto.cs" />
+    <Compile Include="InvoiceDto.cs" />
+    <Compile Include="AreaDto.cs" />
+    <Compile Include="ECommerce\ClaimInfoDto.cs" />
+    <Compile Include="ApplicationConfigDto.cs" />
+    <Compile Include="Enum\ApprovalType.cs" />
+    <Compile Include="Enum\ErrorType.cs" />
+    <Compile Include="Enum\ProcessStatus.cs" />
+    <Compile Include="Enum\ProductType.cs" />
+    <Compile Include="Enum\MallType.cs" />
+    <Compile Include="ShippingMethodDto.cs" />
+    <Compile Include="ValueAddedServicesDto.cs" />
+    <Compile Include="OrderQuery.cs" />
+    <Compile Include="DefinedDto.cs" />
+    <Compile Include="ECommerce\ServiceResultDto.cs" />
+    <Compile Include="DeliveryDto.cs" />
+    <Compile Include="ECommerce\DwInventoryDto.cs" />
+    <Compile Include="ECommerce\DwPriceDto.cs" />
+    <Compile Include="Enum\ClaimType.cs" />
+    <Compile Include="Enum\LogLevel.cs" />
+    <Compile Include="Enum\OrderChangeType.cs" />
+    <Compile Include="Enum\OrderType.cs" />
+    <Compile Include="Enum\OrderStatus.cs" />
+    <Compile Include="Enum\WarehouseStatus.cs" />
+    <Compile Include="FtpDto.cs" />
+    <Compile Include="ItemResult.cs" />
+    <Compile Include="ProductImportDto.cs" />
+    <Compile Include="ProductPromotionDto.cs" />
+    <Compile Include="ProductSetDto.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReceiveDto .cs" />
+    <Compile Include="ReportDto.cs" />
+    <Compile Include="ECommerce\TradeDto.cs" />
+    <Compile Include="SapDto.cs" />
+    <Compile Include="Sap\SapLogEnum.cs" />
+    <Compile Include="Sap\SapLogDto.cs" />
+    <Compile Include="ServiceDto.cs" />
+    <Compile Include="UserSessionDto.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Samsonite.OMS.Database\Samsonite.OMS.Database.csproj">
+      <Project>{9c8b3e3d-f34c-4303-b630-347a4a1d1191}</Project>
+      <Name>Samsonite.OMS.Database</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,187 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _OrderDetail = (Samsonite.OMS.Database.View_OrderDetail)ViewData["order_detail"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_order_number"]：
+                        </th>
+                        <td>
+                            @_m.OrderNo
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_sub_order_number"]：
+                        </th>
+                        <td>
+                            @_m.SubOrderNo
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_peyment_type"]：
+                        </th>
+                        <td colspan="3">
+                            @OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(_OrderDetail.PaymentType)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_sku"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.SKU
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_productname"]：
+                        </th>
+                        <td>
+                            @_OrderDetail.ProductName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_price"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.SellingPrice)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_return_quantity"]：
+                        </th>
+                        <td>
+                            @_m.Quantity/<label class="color_primary">@_OrderDetail.Quantity</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_OrderDetail.ProductPaymentAmount)
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_actual_payment"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_OrderDetail.ActualPaymentAmount))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_refund_total_refund"]：
+                        </th>
+                        <td colspan="3">
+                            @*@ViewBag.LanguagePack["goodsreturn_detail_refund_point"]
+                                (<span class="color_primary">@Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_m.RefundPoint))</span>)
+                                <br />*@
+                            @ViewBag.LanguagePack["goodsreturn_detail_refund_payment"]
+                            (<span class="color_primary">@Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_m.RefundAmount))</span>)
+                            <br />
+                            @ViewBag.LanguagePack["goodsreturn_detail_refund_express_fee"]
+                            (<span class="color_primary">@Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_m.RefundExpress))</span>)
+                            <br />
+                            @ViewBag.LanguagePack["goodsreturn_detail_refund_express_surcharge"]
+                            (<span class="color_primary">@Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_m.RefundSurcharge))</span>)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_pickup_time"]：
+                        </th>
+                        <td colspan="3">
+                            @if (!string.IsNullOrEmpty(_m.ShippingPickUpDay))
+                            {
+                                @_m.ShippingPickUpDay
+                                if (_m.ShippingPickUpTimeType == 1)
+                                {
+                                    <label>13:00-18:00</label>
+                                }
+                                else
+                                {
+                                    <label>09:00-13:00</label>
+                                }
+                            }
+</td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_reason"]：
+                        </th>
+                        <td colspan="3">
+                            @Samsonite.OMS.Service.OrderReturnProcessService.GetReason(_m.Reason)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_receive_logistics"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(Samsonite.OMS.Service.ExpressCompanyService.GetExpressMessage(_m.ShippingCompany, _m.ShippingNo))
+                            @if (ViewBag.ShippingDoc!=null)
+                            {
+                                <a href="@ViewBag.ShippingDoc" target="_blank"><i class="fa fa-print color_success"></i></a>
+                                <br />
+                            }
+                            <i class="fa fa-truck color_success"></i>@Samsonite.OMS.Service.OrderReceiveService.GetReceiveMessage(new Samsonite.OMS.DTO.ReceiveDto() { Receiver = _m.CustomerName, Tel = _m.Tel, Mobile = _m.Mobile, ZipCode = _m.Zipcode, Address = _m.Addr })
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_state"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(OMS.App.Helper.OrderHelper.GetProcessStatusDisplay(_m.Status, true))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_oper_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_stock_reply"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(OMS.App.Helper.OrderHelper.GetWarehouseStatusDisplay(_m.ApiIsRead, _m.ApiStatus, true) + ((_m.ApiReplyDate != null) ? "<br />" + _m.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((_m.ApiReplyMsg != null) ? "<br />" + _m.ApiReplyMsg : ""))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_accept_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}", ((_m.AcceptUserDate != null) ? _m.AcceptUserName + "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.AcceptRemark)) ? "<br/>" + _m.AcceptRemark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_refund_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}", ((_m.RefundUserDate != null) ? _m.RefundUserName + "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.RefundUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.RefundRemark)) ? "<br/>" + _m.RefundRemark : "")))
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsreturn_detail_manual_message"]：
+                        </th>
+                        <td colspan="3">
+                            @Html.Raw(string.Format("{0}{1}", ((_m.ManualUserDate != null) ? _m.ManualUserName + "," + Samsonite.Utility.Common.VariableHelper.FormateTime(_m.ManualUserDate, "yyyy-MM-dd HH:mm:ss") : ""), ((!string.IsNullOrEmpty(_m.ManualRemark)) ? "<br/>" + _m.ManualRemark : "")))
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

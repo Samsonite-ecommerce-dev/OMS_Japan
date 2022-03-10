@@ -1,0 +1,43 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .main {
+        width: 60%;
+        margin: auto;
+        padding-top: 20px;
+    }
+
+    iframe {
+        width: 100%;
+        border: none;
+    }
+</style>
+<div class="main">
+    <div class="easyui-tabs" style="width:99%;">
+
+        @if (@ViewBag.InvoiceDoc != null)
+        {
+            <div title="Invoice" style="padding:3px">
+                <iframe id="i1" scrolling="auto" src="@ViewBag.InvoiceDoc"></iframe>
+            </div>
+        }
+        @if (@ViewBag.ShippingDoc != null)
+        {
+            <div title="Shipping Label" style="padding:3px">
+                <iframe id="i2" scrolling="auto" src="@ViewBag.ShippingDoc"></iframe>
+            </div>
+        }
+    </div>
+</div>
+    @section scripts {
+        <script type="text/javascript">
+            $(function () {
+                var iframes = $('.main').find('iframe');
+                for (var i = 0; i < iframes.length; i++) {
+                    iframes[i].height = $(document).height();
+                }
+            });
+        </script>
+    }

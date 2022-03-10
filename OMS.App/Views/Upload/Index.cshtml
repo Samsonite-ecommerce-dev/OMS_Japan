@@ -1,0 +1,154 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _model = (Samsonite.OMS.Database.SysUploadModel)Model;
+}
+@section style {
+    @Styles.Render("~/Content/js-library/bootstrap/3.3.5/css/bootstrap.min.css")
+    @Styles.Render("~/Content/font/glyphicon/css/font-glyphicon.css")
+    @Styles.Render("~/Content/js-library/bootstrap/fileinput/css/fileinput.min.css")
+}
+<style type="text/css">
+    .panel-body
+    {
+        padding:0px;
+    }
+</style>
+<div class="main">
+    <div id="tt" class="easyui-tabs" style="width:99%;">
+        <div title="@ViewBag.LanguagePack["upload_index_title_view"]" style="padding:3px">
+            <div class="main_upload_dir">
+                <i class="fa fa-folder-open"></i><a href="javascript:void(0);" onclick="SearchNextPath()">Root</a>
+            </div>
+            <div class="main_upload_view">
+                <div id="toolbar">
+                    <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+                </div>
+                <table id="dg">
+                    <thead>
+                        <tr>
+                            <th data-options="field:'s1',align:'left'">
+                                @ViewBag.LanguagePack["upload_index_filename"]
+                            </th>
+                            <th data-options="field:'s2',align:'left'">
+                                @ViewBag.LanguagePack["upload_index_filetype"]
+                            </th>
+                            <th data-options="field:'s3',align:'center'">
+                                @ViewBag.LanguagePack["upload_index_filesize"]
+                            </th>
+                            <th data-options="field:'s4',align:'center'">
+                                @ViewBag.LanguagePack["upload_index_edittime"]
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div title="@ViewBag.LanguagePack["upload_index_title_upload"]" style="padding:3px">
+            <div class="main_upload_file">
+                <div class="upload_input">
+                    <form method="POST" action="" enctype="multipart/form-data">
+                        <input id="fileInput" name="fileInput" type="file" multiple>
+                        <input id="filename" type="hidden" value="" />
+                    </form>
+                </div>
+                <div class="upload_message label-info">Supported file formats:<label class="color_danger">@_model.AllowFile.Replace("|", ",")</label>,The maximum size of file :<label class="color_danger">@Samsonite.Utility.Common.VariableHelper.FormatSize(_model.MaxFileSize)</label></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/Content/js-library/bootstrap/fileinput/js/fileinput.min.js")
+    <script type="text/javascript">
+        $(function () {
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar:$('#toolbar'),
+                url: '@Url.Action("Index_Message", "Upload")',
+                width: '100%',
+                height:350,
+                pagination: false
+            });
+
+            //操作
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+
+            //上传组件参数
+            var _allowedFiles = '@_model.AllowFile';
+            var _allowedFileArray = new Array();
+            if (_allowedFiles != '') {
+                _allowedFileArray = _allowedFiles.split('|');
+            }
+            var _maxFileSize = '@_model.MaxFileSize';
+            //配置上传组件
+            $("#fileInput").fileinput({
+                uploadUrl: "@Url.Action("Save_Message", "Upload")",
+                uploadExtraData: {
+                    model: '@_model.ModelMark',
+                    catalog: '@_model.SaveCatalog'
+                },
+                allowedFileExtensions: _allowedFileArray,
+                uploadAsync: false,
+                showCaption: true,
+                showBrowse: true,
+                showPreview: ('@_model.FileType' == '1') ? true : false,
+                showRemove: true,
+                showUpload: true,
+                showCancel: true,
+                showClose: true,
+                browseClass: "btn btn-primary",
+                uploadClass: "btn btn-success",
+                removeClass: "btn btn-danger",
+                maxFileSize: parseInt(_maxFileSize / 1024),//单位为kb，如果为0表示不限制文件大小
+                maxFileCount: '@_model.MaxFileCount',//表示允许同时上传的最大文件个数
+                validateInitialCount: true,
+                showAjaxErrorDetails: false
+            }).on('filebatchuploadsuccess', function (event, data) {
+                var data = data.response;
+                if (data.result) {
+                    //显示上传的文件
+                    SearchNextPath(data.filepath);
+                    //切换
+                    var tab = $('#tt').tabs('select', 0);
+                } else {
+                    artDialogExtend.Tips.Error('File upload fail:' + data.msg, 3);
+                }
+            }).on('filebatchuploaderror', function (event, data, msg) {
+                artDialogExtend.Tips.Error(msg, 3);
+            });
+        });
+
+        function SearchNextPath(objPath) {
+            var _s = "<i class=\"fa fa-folder-open\"></i>";
+            _s += "<a href=\"javascript:void(0);\" onclick=\"SearchNextPath()\">Root</a>";
+            if (objPath == undefined) objPath = "";
+            var _dirs = objPath.split('/');
+            for (var t = 0; t < _dirs.length; t++) {
+                if (_dirs[t] != '') {
+                    if (t == _dirs.length - 1) {
+                        _s += "<span>" + _dirs[t] + "</span>";
+                    }
+                    else {
+                        _s += "<a href=\"javascript:void(0);\" onclick=\"SearchNextPath('" + _dirs[t] + "')\">" + _dirs[t] + "</a>";
+                    }
+                }
+            }
+            $('.main_upload_dir').html(_s);
+            easyUIExtend.Grid.Search($('#dg'), {
+                filepath: objPath
+            });
+        }
+
+        function SelectFile(objPath) {
+            //返回参数
+            var _win = art.dialog.open.origin;
+            if (_win)
+            {
+                _win.gl_SelectUploadFile(objPath);
+                _win.artDialogExtend.Dialog.Close();
+            }   
+        }
+    </script>
+}

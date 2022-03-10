@@ -1,0 +1,119 @@
+/* CSS Document @charset "utf-8"; */
+/**easyui-extend**/
+.easyui-textarea
+{
+	border:1px #d4d4d4 solid;
+	border-radius:5px;
+	padding:2px;
+}
+
+/**.easyui-text**/
+.easyui-text
+{
+    border:1px #d4d4d4 solid;
+    border-radius:5px;
+    outline-style: none;
+    resize: none;
+    white-space: normal;
+    line-height:25px;
+    padding: 0 0 0 5px;
+    margin: 0;
+}
+
+/**easyui-select**/
+.easyui-select{
+    border:1px #d4d4d4 solid;
+    border-radius:5px;
+    padding:3px 0;
+    margin:0px;
+}
+
+/*separator*/
+.toolbar-separator {
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #fff;
+    height: 24px;
+    margin: 2px 1px;
+    display: inline-block;
+    vertical-align: top;
+    line-height: 24px;
+}
+/**easyui-area**/
+.easyui-area{
+
+}
+
+.easyui-area input{
+    width:125px;
+}
+/**choosebox**/
+.easyui_exd-choosebox {
+    background-color: #fff;
+    border: 1px solid #d4d4d4;
+    border-radius: 5px;
+    display: inline-block;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    position: relative;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.easyui_exd-choosebox input{
+    line-height:24px;
+}
+
+.easyui_exd-choosebox .button {
+    position: absolute;
+    right: 0px;
+    vertical-align: top;
+    border-left: 1px solid #bbb;
+    background: linear-gradient(to bottom, #fff 0px, #eee 100%) repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+    color: #444;
+    display: inline-block;
+    outline: medium none;
+    overflow: hidden;
+    text-align: center;
+    text-decoration: none;
+}
+
+.easyui_exd-choosebox .button:hover {
+    background: linear-gradient(to top, #fff 0px, #95b8e7 100%) repeat-x scroll 0 0 rgba(0, 0, 0, 0);
+    color: #000;
+}
+
+.easyui_exd-choosebox .button span {
+    width: 25px;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 28px;
+    vertical-align: top;
+    overflow: hidden;
+    position: relative;
+}
+
+.easyui_exd-choosebox .button span label {
+    cursor: pointer;
+}
+
+.easyui_exd-choosebox .close {
+    position: absolute;
+    right: 30px;
+    display: inline-block;
+    font-size:10px;
+    font-weight:normal;
+    height:26px;
+    line-height:26px;
+    color:#333;
+}
+
+.easyui_exd-choosebox .text {
+    border: 0 none;
+    font-size: 12px;
+    outline-style: none;
+    padding: 2px 0 2px 3px;
+    resize: none;
+    vertical-align: top;
+    white-space: normal;
+}

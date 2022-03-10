@@ -1,0 +1,49 @@
+/* CSS Document @charset "utf-8"; */
+/*lazada*/
+.doc_main{
+    width: 700px;
+    margin: 35px auto 0 auto;
+    padding:0 10px 50px 10px;
+    font-size:13px;
+}
+
+.doc_main table{
+    width:99%;
+    border-collapse: separate;
+    border-spacing: 0px;
+    margin:auto;
+    border-top:1px #ccc solid !important;
+    border-right:1px #ccc solid !important;
+    border-left:1px #ccc solid !important;
+}
+
+.doc_main table th:first-child{
+   border-left:none;
+}
+
+.doc_main table th{
+    border-left:1px #ccc solid;
+    border-bottom:1px #ccc solid;
+    padding:3px;
+}
+
+.doc_main table td:first-child{
+   border-left:none;
+}
+
+.doc_main table td{
+    border-left:1px #ccc solid;
+    border-bottom:1px #ccc solid;
+    padding:3px;
+}
+
+.doc_main table td:last-child{
+   border-right:none;
+}
+
+/*zalora*/
+.doc_main_1{
+    width: 700px;
+    margin: auto;
+    font-size:12px;
+}

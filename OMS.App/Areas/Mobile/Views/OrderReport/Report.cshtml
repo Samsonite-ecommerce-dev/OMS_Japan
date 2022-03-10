@@ -1,0 +1,211 @@
+﻿
+@{
+    Layout = "~/Areas/Mobile/Views/Shared/_Layout.cshtml";
+}
+@section style {
+    @Styles.Render("~/Content/js-library/bootstrap/datetimepicker/css/bootstrap-datetimepicker.min.css")
+    <style type="text/css">
+        .FixedDataColumn
+        {
+            position: relative;
+            left: expression(this.parentElement.offsetParent.parentElement.scrollLeft);
+            background-color: buttonface;
+            border: 1px solid black;
+            z-index: 200;
+        }
+    </style>
+}
+<header class="main-menu">
+    <div class="left"><a href="@Url.Action("Index","OrderReport")"><i class="glyphicon glyphicon-arrow-left"></i></a></div>
+    <div class="middle">报表详情</div>
+    <div class="right"></div>
+</header>
+<section class="main-edit">
+    <ul id="navTab" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#data" role="tab" data-toggle="tab">@ViewBag.LanguagePack["common_statistics"]</a></li>
+        <li role="presentation"><a href="#charts" role="tab" data-toggle="tab">@ViewBag.LanguagePack["common_chart"]</a></li>
+    </ul>
+    <div class="space_small"></div>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active text-center" id="data">
+            <!--加载数据-->
+            <div class="table-responsive display_none"></div>
+            <!--加载报表记录-->
+            <div id="loading"><i class="glyphicon glyphicon-refresh btn-icon-spin"></i>数据加载中...</div>
+            <div id="error" class="color_danger display_none"><i class="glyphicon glyphicon-warning-sign"></i>信息不存在</div>
+            <div class="space_small"></div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="charts" style="width:100%;">
+            <div>
+                <label class="radio-inline">
+                    <input type="radio" name="ChartType" id="ir1" value="1" checked="checked">@ViewBag.LanguagePack["orderreport_index_item_quantity"]
+                </label>
+                <label class="radio-inline">
+                    <input type="radio" name="ChartType" id="ir2" value="2">@ViewBag.LanguagePack["orderreport_index_sales_amount"]
+                </label>
+            </div>
+            <div class="space_small"></div>
+            <div id="chart_canvas" style="width:98%;height:300px;margin:auto"></div>
+        </div>
+    </div>
+</section>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/echarts.min.js")
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/theme/shine.js")
+    @Scripts.Render("~/Content/js-library/js/echart-extend.js")
+    <script type="text/javascript">
+
+
+        $(function () {
+            //设置图表div宽度(如果不设置,则图表默认取到的宽度是0,所以无法正常显示)
+            $('#chart_canvas').css('width', $(window).width() - 30);
+            //加载报表
+            mobile.ajax({
+                url: '@Url.Action("Report_Message", "OrderReport")',
+                data: {
+                    store: '@ViewBag.Stores',
+                    time1: '@ViewBag.Time1',
+                    time2: '@ViewBag.Time2',
+                    show_type: 'record'
+                },
+                successFunc: function (data) {
+                    var _str = '';
+                    if (data.rows.length > 0) {
+                        @*_str += '<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">';
+                        $.each(data.rows, function (i, item) {
+                            _str += '<div class="panel ' + ((item.s0) ? "panel-danger" : "panel-default") + '">';
+                            _str += '<div class="panel-heading" role="tab" id="heading_' + i + '">';
+                            _str += '<h4 class="panel-title"><a ' + ((i == 0) ? '' : 'class="collapsed"') + ' data-toggle="collapse" data-parent="#accordion" href="#collapse_' + i + '" aria-expanded="' + ((i == 0) ? "true" : "false") + ' aria-controls="collapse_' + i + '" style="display:inline-block;width:99%;text-align:center;">' + item.s1 + '</a></h4>';
+                            _str += '</div>';
+                            _str += '<div id="collapse_' + i + '" class="panel-collapse ' + ((i == 0) ? "collapse in" : "collapse") + ' role="tabpanel" aria-labelledby="heading_' + i + '">';
+                            _str += '<div class="panel-body">';
+                            _str += '<ul class="list-group">';
+                            _str += '<li class="list-group-item"><span class="badge">' + item.s2 + '</span>@ViewBag.LanguagePack["orderreport_index_order_quantity"]</li>';
+                            _str += '<li class="list-group-item"><span class="badge">' + item.s3 + '</span>@ViewBag.LanguagePack["orderreport_index_item_quantity"]</li>';
+                            _str += '<li class="list-group-item"><span class="badge">' + item.s4 + '</span>@ViewBag.LanguagePack["orderreport_index_cancel_quantity"]</li>';
+                            _str += '<li class="list-group-item"><span class="badge">' + item.s5 + '</span>@ViewBag.LanguagePack["orderreport_index_return_quantity"]</li>';
+                            _str += '<li class="list-group-item"><span class="badge">' + item.s6 + '</span> @ViewBag.LanguagePack["orderreport_index_exchange_quantity"]</li>';
+                            _str += '<li class="list-group-item"><span class="badge">' + item.s7 + '</span>@ViewBag.LanguagePack["orderreport_index_sales_amount"]</li>';
+                            _str += '<li class="list-group-item"><span class="badge">' + item.s8 + '</span>@ViewBag.LanguagePack["orderreport_index_per_sales"]</li>';
+                            _str += '</ul>';
+                            _str += '</div>';
+                            _str += '</div>';
+                            _str += '</div>';
+                        });
+                        _str += '</div>';*@
+
+                        _str += '<table class="table table-striped table-bordered"><thead>';
+                        _str += '<tr class="active">';
+                        _str += '<th>@ViewBag.LanguagePack["orderreport_index_date"]</th>';
+                        _str += '<th>@ViewBag.LanguagePack["orderreport_index_order_quantity"]</th>';
+                        _str += '<th>@ViewBag.LanguagePack["orderreport_index_item_quantity"]</th>';
+                        //_str +='<th>@ViewBag.LanguagePack["orderreport_index_cancel_quantity"]</th>';
+                        //_str +='<th>@ViewBag.LanguagePack["orderreport_index_return_quantity"]</th>';
+                        //_str +='<th>@ViewBag.LanguagePack["orderreport_index_exchange_quantity"]</th>';
+                        _str += '<th>@ViewBag.LanguagePack["orderreport_index_sales_amount"]</th>';
+                        _str += '<th>@ViewBag.LanguagePack["orderreport_index_per_sales"]</th>';
+                        _str += '</tr>';
+                        _str += '</thead><tbody>';
+                        $.each(data.rows, function (i, item) {
+                            if (item.s0) {
+                                _str += '<tr>';
+                                _str += '<td class="color_danger">' + item.s1 + '</td>';
+                                _str += '<td class="text-right color_danger">' + item.s2 + '</td>';
+                                _str += '<td class="text-right color_danger">' + item.s3 + '</td>';
+                                //_str += '<td class="text-right color_danger">' + item.s4 + '</td>';
+                                //_str += '<td class="text-right color_danger">' + item.s5 + '</td>';
+                                //_str += '<td class="text-right color_danger">' + item.s6 + '</td>';
+                                _str += '<td class="text-right color_danger">' + item.s7 + '</td>';
+                                _str += '<td class="text-right color_danger">' + item.s8 + '</td>';
+                                _str += '</tr>';
+                            }
+                            else {
+                                _str += '<tr>';
+                                _str += '<td>' + item.s1 + '</td>';
+                                _str += '<td class="text-right">' + item.s2 + '</td>';
+                                _str += '<td class="text-right">' + item.s3 + '</td>';
+                                //_str += '<td class="text-right">' + item.s4 + '</td>';
+                                //_str += '<td class="text-right">' + item.s5 + '</td>';
+                                //_str += '<td class="text-right">' + item.s6 + '</td>';
+                                _str += '<td class="text-right">' + item.s7 + '</td>';
+                                _str += '<td class="text-right">' + item.s8 + '</td>';
+                                _str += '</tr>';
+                            }
+                        });
+                        _str += '</tbody></table>';
+                        $('#data').find('#loading').hide();
+                        $('#data').find('#error').hide();
+                        $('#data').find('.table-responsive').html(_str);
+                        $('#data').find('.table-responsive').show();
+                    }
+                    else {
+                        $('#data').find('#loading').hide();
+                        $('#data').find('#error').show();
+                    }
+                }
+            });
+
+            //重力感应事件
+            addEventListener('load', function () {
+                //注册事件
+                orientationChange();
+                window.onorientationchange = orientationChange;
+            });
+
+            //加载图表
+            $('#navTab a').click(function (e) {
+                if ($(this).attr("href") == '#charts') {
+                    SetChart();
+                }
+            });
+
+            //切换图表类型
+            $('input[type=radio][name=ChartType]').bind('click', function () {
+                SetChart();
+            });
+        });
+
+        //重力感应
+        function orientationChange() {
+            var $tab = $('#navTab').find('li');
+            if ($tab.eq(1).attr("class") == "active") {
+                var _w_width = $(window).width();
+                var _w_height = $(window).height();
+                if (_w_width > _w_height) {
+                    _w_width = $(window).height();
+                    _w_height = $(window).width();
+                }
+                var _width = 0;
+                var _og = window.orientation;
+                if (_og == 90 || _og == -90) {
+                    _width = _w_height - 30;
+                }
+                else {
+                    _width = _w_width - 30;
+                }
+                $('#chart_canvas').css('width', _width);
+                SetChart();
+            }
+        }
+
+        function SetChart() {
+            // 初始化echarts图表
+            var $chart = echartExtend.Charts.Init('chart_canvas');
+            //grid页面
+            echartExtend.Charts.AjaxSet($chart, {
+                url: '@Url.Action("Report_Message", "OrderReport")',
+                para: {
+                    store: '@ViewBag.Stores',
+                    time1: '@ViewBag.Time1',
+                    time2: '@ViewBag.Time2',
+                    chart_type: commonJs.getRadioValue("ChartType"),
+                    show_type: 'chart'
+                },
+                func: function (data) {
+                    $chart.setOption(data);
+                }
+            });
+        }
+    </script>
+}

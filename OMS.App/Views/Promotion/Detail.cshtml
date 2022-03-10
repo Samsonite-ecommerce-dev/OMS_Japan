@@ -1,0 +1,103 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = (Samsonite.OMS.Database.View_Promotion)Model;
+    var _ApprovalList = (List<Samsonite.OMS.Database.View_ApprovalRecord>)ViewData["approval_list"];
+    List<string> _AppConfig = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().PromotionApproval;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_detail_activity_name"]：
+                        </th>
+                        <td>
+                            @_m.PromotionName
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_detail_effect"]：
+                        </th>
+                        <td>
+                            @_m.BeginDate.ToString("yyyy/MM/dd")-@_m.EndDate.ToString("yyyy/MM/dd")
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_detail_store"]：
+                        </th>
+                        <td>
+                            @ViewBag.Stores
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_detail_activity_rule"]：
+                        </th>
+                        <td>
+                            @Html.Raw(@ViewBag.Rules)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_detail_activity_gift_rule"]：
+                        </th>
+                        <td>
+                            @((_m.GiftRule == 1) ? ViewBag.LanguagePack["promotion_edit_activity_gift_rule_2"] : ViewBag.LanguagePack["promotion_edit_activity_gift_rule_1"])
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_detail_activity_gift"]：
+                        </th>
+                        <td>
+                            @Html.Raw(ViewBag.Gifts)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_detail_message"]：
+                        </th>
+                        <td>
+                            @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
+                        </td>
+                    </tr>
+                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
+                    {
+                        var _o = _ApprovalList.Where(p => p.ApprovalIdentify == (Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString())).SingleOrDefault();
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["promotion_detail_sale_approval_message"]：
+                            </th>
+                            <td>
+                                @if (_o != null)
+                                {
+                                    Html.Raw(string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br />" + _o.ApprovalRemark : "")));
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
+                    {
+                        var _o = _ApprovalList.Where(p => p.ApprovalIdentify == (Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString())).SingleOrDefault();
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["promotion_detail_wh_approval_message"]：
+                            </th>
+                            <td>
+                                @if (_o != null)
+                                {
+                                    Html.Raw(string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br />" + _o.ApprovalRemark : "")));
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

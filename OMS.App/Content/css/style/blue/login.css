@@ -1,0 +1,159 @@
+/* CSS Document @charset "utf-8"; */
+body {
+    font-size: 12px;
+    background: url(images/light.png) no-repeat #1c77ac center top;
+    overflow: hidden;
+    padding: 0px;
+    margin: 0px;
+}
+
+/*login*/
+.logintop {
+    height: 47px;
+    background: url(images/loginbg1.png) repeat-x;
+    z-index: 100;
+    width: 100%;
+}
+
+.logintop span {
+    color: #fff;
+    line-height: 47px;
+    background: url(images/loginsj.png) no-repeat 21px 18px;
+    text-indent: 44px;
+    color: #afc5d2;
+    float: left;
+}
+
+.loginbody {
+    background: url(images/loginbg3.png) no-repeat center center;
+    width: 100%;
+    overflow: hidden;
+    text-align: left;
+}
+
+.systemlogo {
+    background: url(images/logo.png) no-repeat center;
+    width: 100%;
+    height: 46px;
+    margin-top: 6%;
+}
+
+.loginbox {
+    width: 692px;
+    height: 336px;
+    background: url(images/logininfo.png) no-repeat;
+    margin: 20px auto 0 auto;
+}
+
+.loginbox ul {
+    margin: 0 0 0 268px;
+    padding: 90px 0 0 0;
+}
+
+.loginbox ul li {
+    margin-bottom: 25px;
+    list-style-type: none;
+}
+
+.loginbox ul li label {
+    color: #687f92;
+    padding-left: 25px;
+}
+
+.loginbox ul li label a {
+    color: #687f92;
+}
+
+.loginbox ul li label a:hover {
+    color: #3d96c9;
+}
+
+.loginbox ul li label input {
+    margin-right: 5px;
+}
+
+.loginuser {
+    width: 299px;
+    height: 48px;
+    background: url(images/loginuser.png) no-repeat;
+    border: none;
+    line-height: 48px;
+    padding-left: 44px;
+    font-size: 14px;
+    color: #333;
+}
+
+.loginpwd {
+    width: 299px;
+    height: 48px;
+    background: url(images/loginpassword.png) no-repeat;
+    border: none;
+    line-height: 48px;
+    padding-left: 44px;
+    font-size: 14px;
+    color: #333;
+}
+
+.loginbtn {
+    width: 111px;
+    height: 35px;
+    background: url(images/buttonbg.png) repeat-x;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    cursor: pointer;
+    line-height: 35px;
+    border: none;
+}
+
+.loginbox ul li.error {
+    background: url(images/icon-warning.jpg) no-repeat;
+    padding-left: 26px;
+    background-size: 24px;
+    margin-bottom: 5px;
+    line-height: 24px;
+    color: #dd4e42;
+    display: none;
+}
+
+.loginbm {
+    height: 32px;
+    padding-top:6px;
+    text-align: center;
+    background: url(images/loginbg2.png) repeat;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    color:#afc5d2;
+}
+
+.loginbm .line{
+    line-height: 25px;
+}
+
+.loginbm .line a:hover {
+    text-decoration:underline;
+}
+
+/*cloud*/
+#mainBody {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: -1;
+}
+
+.cloud {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    background: url(images/cloud.png) no-repeat;
+    z-index: 1;
+    opacity: 0.5;
+}
+
+#cloud2 {
+    z-index: 2;
+}

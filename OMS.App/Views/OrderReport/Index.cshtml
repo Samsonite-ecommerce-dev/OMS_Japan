@@ -1,0 +1,200 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _QuickTimeList = (List<object[]>)ViewData["quicktime_list"];
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                @ViewBag.LanguagePack["orderreport_index_search_store"]:
+                <input id="StoreName" style="width:275px;" value="" prompt="@ViewBag.LanguagePack["common_prompt_all_mall"]">
+            </li>
+            <li>
+                @ViewBag.LanguagePack["orderreport_index_search_time"]:
+                <select id="quick_time" class="easyui-combobox">
+                    <option value="0" selected="selected">@ViewBag.LanguagePack["common_select"]</option>
+                    @foreach (var _o in _QuickTimeList)
+                    {
+                        <option value="@_o[0]">@_o[1]</option>
+                    }
+                </select>
+                <input id="Time1" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="@DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd")" />
+                -
+                <input id="Time2" type="text" class="input-medium Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" value="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd")" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["orderreport_index_search_by_time"]:
+                <input id="type1" name="Type" type="radio" value="0" checked="checked" /><label for="type1">@ViewBag.LanguagePack["orderreport_index_search_by_time_day"]</label>
+                <input id="type2" name="Type" type="radio" value="1" /><label for="type2">@ViewBag.LanguagePack["orderreport_index_search_by_time_month"]</label>
+                <input id="type3" name="Type" type="radio" value="2" /><label for="type3">@ViewBag.LanguagePack["orderreport_index_search_by_time_year"]</label>
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div class="space_small">
+        </div>
+        <div id="tt" class="easyui-tabs">
+            <div class="main_tab" title="@ViewBag.LanguagePack["common_statistics"]">
+                <div id="toolbar">
+                    <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+                </div>
+                <table id="dg">
+                    <thead>
+                        <tr>
+                            <th data-options="field:'s1',align:'left'">
+                                @ViewBag.LanguagePack["orderreport_index_date"]
+                            </th>
+                            <th data-options="field:'s2',align:'center',sortable:true">
+                                @ViewBag.LanguagePack["orderreport_index_order_quantity"]
+                            </th>
+                            <th data-options="field:'s3',align:'center',sortable:true">
+                                @ViewBag.LanguagePack["orderreport_index_item_quantity"]
+                            </th>
+                            <th data-options="field:'s4',align:'center',sortable:true">
+                                @ViewBag.LanguagePack["orderreport_index_cancel_quantity"]
+                            </th>
+                            <th data-options="field:'s5',align:'center',sortable:true">
+                                @ViewBag.LanguagePack["orderreport_index_return_quantity"]
+                            </th>
+                            <th data-options="field:'s6',align:'center',sortable:true">
+                                @ViewBag.LanguagePack["orderreport_index_exchange_quantity"]
+                            </th>
+                            <th data-options="field:'s7',align:'center',sortable:true">
+                                @ViewBag.LanguagePack["orderreport_index_reject_quantity"]
+                            </th>
+                            <th data-options="field:'s8',align:'center',sortable:true">
+                                @ViewBag.LanguagePack["orderreport_index_sales_amount"]
+                            </th>
+                            <th data-options="field:'s9',align:'center'">
+                                @ViewBag.LanguagePack["orderreport_index_per_sales"]
+                            </th>
+                            <th data-options="field:'s10',align:'center'">
+                                @ViewBag.LanguagePack["common_operation"]
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div class="main_tab" title="@ViewBag.LanguagePack["common_chart"]">
+                <div class="tab_nav">
+                    <input id="ctype1" name="ChartType" type="radio" value="1" checked="checked" /><label for="ctype1">@ViewBag.LanguagePack["orderreport_index_item_quantity"]</label>
+                    <input id="ctype2" name="ChartType" type="radio" value="2" /><label for="ctype2">@ViewBag.LanguagePack["orderreport_index_sales_amount"]</label>
+                </div>
+                <div class="padding_small"></div>
+                <div id="chart_canvas" style="width:98%;min-height:400px;margin:auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/echarts.min.js")
+    @Scripts.Render("~/Content/js-library/echarts/3.1.5/theme/shine.js")
+    @Scripts.Render("~/Content/js-library/js/echart-extend.js")
+    <script type="text/javascript">
+        $(function () {
+            //店铺列表
+            $('#StoreName').combotree({
+                url: '@Url.Action("Mall_Message", "Common")',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'comboTree'
+                },
+                multiple: true
+            });
+
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message","OrderReport")',
+                showFooter: true,
+                multiSort: true,
+                remoteSort: true,
+                pageSize: 30
+            });
+
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    store: $("#StoreName").combotree("getValues").join(','),
+                    time1: $('#Time1').val(),
+                    time2: $('#Time2').val(),
+                    type: commonJs.getRadioValue("Type"),
+                    show_type: 'record'
+                });
+            });
+
+            //操作
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+
+            $('#quick_time').combobox({
+                onChange: function (value) {
+                    if (value > 0) {
+                        commonJs.sysAjaxFunction({
+                            url: '@Url.Action("QuickTime_Message", "Common")',
+                            para: { id: value, format: 'yyyy-MM-dd' },
+                            isload: false,
+                            func: function (data) {
+                                data = eval('(' + data + ')');
+                                $('#Time1').val(data.t1);
+                                $('#Time2').val(data.t2);
+                            }
+                        });
+                    }
+                    else {
+                        $('#Time1').val('');
+                        $('#Time2').val('');
+                    }
+                }
+            });
+
+            $('input[type=radio][name=ChartType]').bind('click', function () {
+                SetChart();
+            });
+
+            //切换
+            $('#tt').tabs({
+                border: false,
+                onSelect: function (title, index) {
+                    if (index == 1) {
+                        $('.main_search').hide();
+                        SetChart();
+                    }
+                    else {
+                        $('.main_search').show();
+                    }
+                }
+            });
+        });
+
+        function SetChart() {
+            // 初始化echarts图表
+            var $chart = echartExtend.Charts.Init('chart_canvas');
+            //grid页面
+            var $pagination = $('#dg').datagrid('getPager').data("pagination").options;
+            echartExtend.Charts.AjaxSet($chart, {
+                url: '@Url.Action("Index_Message", "OrderReport")',
+                para: {
+                    store: $("#StoreName").combotree("getValues").join(','),
+                    time1: $('#Time1').val(),
+                    time2: $('#Time2').val(),
+                    type: commonJs.getRadioValue("Type"),
+                    chart_type: commonJs.getRadioValue("ChartType"),
+                    show_type: 'chart',
+                    rows: $pagination.pageSize,
+                    page: $pagination.pageNumber
+                },
+                func: function (data) {
+                    $chart.setOption(data);
+                }
+            });
+        }
+    </script>
+}
+

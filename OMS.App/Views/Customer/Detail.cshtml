@@ -1,0 +1,166 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+}
+<div class="main">
+    <div class="easyui-tabs" style="width:99%;">
+        <div title="@ViewBag.LanguagePack["customer_detail_tab_customer_info"]" style="padding:3px">
+            <div class="main_edit">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_customer_no"]：
+                            </th>
+                            <td>
+                                @_m.CustomerNo
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_platform_userno"]：
+                            </th>
+                            <td>
+                                @_m.PlatformUserNo
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_platform_username"]：
+                            </th>
+                            <td>
+                                @_m.PlatformUserName
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_customer_name"]：
+                            </th>
+                            <td>
+                                @_m.Name
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_tel"]：
+                            </th>
+                            <td>
+                                @_m.Tel
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_mobile"]：
+                            </th>
+                            <td>
+                                @_m.Mobile
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_email"]：
+                            </th>
+                            <td>
+                                @_m.Email
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_zipode"]：
+                            </th>
+                            <td>
+                                @_m.Zipcode
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_area"]：
+                            </th>
+                            <td>
+                                @Samsonite.OMS.Service.AreaService.JoinAreaMessage(new Samsonite.OMS.DTO.AreaDto() { Province = _m.Province, City = _m.City, District = _m.District })
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                @ViewBag.LanguagePack["customer_detail_address"]：
+                            </th>
+                            <td>
+                                @_m.Addr
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div title="@ViewBag.LanguagePack["customer_detail_tab_customer_order"]" style="padding:3px">
+            <div id="toolbar">
+                <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+            </div>
+            <table id="dg">
+                <thead>
+                    <tr>
+                        <th data-options="field:'s1',align:'left'">
+                            @ViewBag.LanguagePack["orderquery_index_order_number"]
+                        </th>
+                        <th data-options="field:'s2',align:'left'">
+                            @ViewBag.LanguagePack["orderquery_index_storename"]
+                        </th>
+                        <th data-options="field:'s3',align:'left'">
+                            @ViewBag.LanguagePack["orderquery_index_ordertype"]
+                        </th>
+                        <th data-options="field:'s4',align:'center'">
+                            @ViewBag.LanguagePack["orderquery_index_order_amount"]
+                        </th>
+                        <th data-options="field:'s5',align:'center'">
+                            @ViewBag.LanguagePack["orderquery_index_order_payment_amount"]
+                        </th>
+                        <th data-options="field:'s6',align:'center'">
+                            @ViewBag.LanguagePack["orderquery_index_receiver"]
+                        </th>
+                        <th data-options="field:'s7',align:'left'">
+                            @ViewBag.LanguagePack["orderquery_index_customer_tel"]
+                        </th>
+                        <th data-options="field:'s8',align:'left'">
+                            @ViewBag.LanguagePack["orderquery_index_customer_addr"]
+                        </th>
+                        <th data-options="field:'s9',align:'center'">
+                            @ViewBag.LanguagePack["orderquery_index_orderstatus"]
+                        </th>
+                        <th data-options="field:'s10',align:'center'">
+                            @ViewBag.LanguagePack["orderquery_index_source"]
+                        </th>
+                        <th data-options="field:'s11',align:'left'">
+                            @ViewBag.LanguagePack["orderquery_index_ordertime"]
+                        </th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        @*<div title="@ViewBag.LanguagePack["customer_detail_tab_customer_score"]" style="padding:3px">
+            </div>*@
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/jquery-easyui/1.5.1/extension/datagrid-detailview.js")
+    <script type="text/javascript">
+        $(function () {
+            //列表
+            easyUIExtend.GridExtension.DetailView($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Detail_Message", "Customer")',
+                queryParams: {
+                    type: 'order',
+                    customerno: '@_m.CustomerNo'
+                },
+                multiSort: true,
+                remoteSort: true,
+                detail_url: '@Url.Action("Index_Message_Detail", "OrderQuery")'
+            });
+
+            //刷新
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+        });
+    </script>
+}

@@ -1,0 +1,200 @@
+/* CSS Document @charset "utf-8"; */
+html {
+    font-size: 12px;
+    font-family: sans-serif;
+}
+
+ul{
+    padding:0px;
+    margin:0px;
+}
+
+li{
+    list-style-type:none;
+}
+
+/**frame**/
+.frame_top {
+    background: url(images/topbg.gif) repeat-x;
+    height: 88px;
+}
+
+.frame_top .top_left {
+    width:50%;
+    min-width:320px;
+    float: left;
+    height: 88px;
+    line-height: 88px;
+    overflow:hidden;
+    background: url(images/topleft.jpg) no-repeat;
+}
+
+.frame_top .top_left a {
+    background: url(images/logo_index.png) no-repeat 12px 7px;
+    display: block;
+    height: 88px;
+    padding-left: 100px;
+    color: #fff;
+    font-size: 24px;
+    text-decoration: none;
+}
+
+.frame_top .top_left a:hover {
+    text-decoration: none;
+}
+
+.frame_top .top_right {
+    float: right;
+    height: 88px;
+    background: url(images/topright.jpg) no-repeat right;
+}
+
+.frame_top .top_right ul {
+    padding: 12px 10px 0 0;
+    float: right;
+}
+
+.frame_top .top_right ul li {
+    float: left;
+    padding: 0 9px 0 9px;
+    font-size:14px;
+    background: url(images/line.gif) no-repeat right;
+}
+
+.frame_top .top_right ul li:last-child {
+    background: none;
+}
+
+.frame_top .top_right ul li a {
+    font-size: 14px;
+    color: #e9f2f7;
+    text-decoration:none;
+}
+
+.frame_top .top_right ul li a:hover {
+    color: #fff;
+}
+
+.frame_top .top_right ul li span {
+    margin-top: 2px;
+    float: left;
+    padding-right: 3px;
+}
+
+.frame_top .top_right .user {
+    height: 30px;
+    background: url(images/ub1.png) repeat-x;
+    border-radius: 30px;
+    clear: both;
+    margin: 10px 12px 0 0;
+    float: right;
+    margin-right: 12px;
+    white-space: nowrap;
+    position: relative;
+}
+
+.frame_top .top_right .user span {
+    display: inline-block;
+    padding-right: 10px;
+    line-height: 30px;
+    font-size: 14px;
+    color: #b8ceda;
+    padding-left: 25px;
+}
+
+/**left**/
+.frame_left .menu_list {
+    width: 180px;
+    padding-top:2px;
+}
+
+.frame_left .menu_list li {
+    padding-bottom:2px;
+}
+
+.frame_left .menu_list li:first-child {
+}
+
+.frame_left .menu_list li:last-child {
+    border-bottom: none;
+}
+
+.frame_left .menu_list li .title {
+    padding-left: 10px;
+    color: #fff;
+    line-height: 35px;
+    height: 35px;
+    font-weight: bold;
+    background: -webkit-linear-gradient(bottom right,#066cac,#066cac,#5bc0de);
+    background: -moz-linear-gradient(bottom right,#066cac,#066cac,#5bc0de);
+    background: -o-linear-gradient(bottom right,#066cac,#066cac,#5bc0de);
+    background: linear-gradient(to bottom right,#066cac,#066cac,#5bc0de);
+    cursor: pointer;
+}
+
+.frame_left .menu_list li dl {
+    background-color: #fff;
+    display: none;
+    margin:0px;
+}
+
+.frame_left .menu_list li dd {
+    line-height: 30px;
+    height: 30px;
+    margin-left: 0px;
+    overflow:hidden;
+    cursor: pointer;
+}
+
+.frame_left .menu_list li dd cite {
+    display: block;
+    float: left;
+    margin-left: 16px;
+    background: url(images/list.gif) no-repeat;
+    width: 16px;
+    height: 16px;
+    margin-top: 7px;
+}
+
+.frame_left .menu_list li dd a {
+    display: block;
+    color: #000;
+}
+
+.frame_left .menu_list li dd a:hover {
+    color: #3eafe0;
+    text-decoration: none;
+}
+
+.frame_left .menu_list li dd.active {
+    position: relative;
+    background: url(images/libg.png) repeat-x;
+    line-height: 30px;
+    color: #fff;
+}
+
+.frame_left .menu_list li dd.active a {
+    color: #fff;
+}
+
+.frame_left .menu_list li dd.active cite {
+    display: block;
+    float: left;
+    margin-left: 16px;
+    background: url(images/list1.gif) no-repeat;
+    width: 16px;
+    height: 16px;
+    margin-top: 7px;
+}
+
+.frame_left .menu_list li dd.active i {
+    display: block;
+    background: url(images/sj.png) no-repeat;
+    width: 6px;
+    height: 11px;
+    position: absolute;
+    right: 0;
+    z-index: 99;
+    top: 9px;
+    right: -1px;
+}

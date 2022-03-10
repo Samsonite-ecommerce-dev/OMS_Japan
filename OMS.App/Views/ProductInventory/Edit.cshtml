@@ -1,0 +1,195 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _ProductTypeList = (List<object[]>)ViewData["product_type"];
+    var _m = (Samsonite.OMS.Database.View_MallProductInventory)Model;
+    var _priceRanges = (List<Samsonite.OMS.Database.MallProductPriceRange>)ViewData["price_range_list"];
+    var _defaultSalesPrice = _priceRanges.Where(p => p.IsDefault).SingleOrDefault();
+    int _AmountAccuracy = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().AmountAccuracy;
+}
+
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input type="hidden" name="ID" value="@_m.ID" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_inventory_edit_store"]：
+                        </th>
+                        <td>
+                            <input id="StoreName" name="StoreName" class="input-xlarge" value="@_m.MallSapCode">
+                            <input name="SKU" type="hidden" value="@_m.SKU">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_inventory_edit_type"]：
+                        </th>
+                        <td>
+                            @for (var t = 0; t < _ProductTypeList.Count; t++)
+                            {
+                                <input id="pt_@t" name="ProductType" type="radio" value="@_ProductTypeList[t][0]" @((_m.ProductType == t + 1) ? "checked=\"checked\"" : "") /><label for="pt_@t">@_ProductTypeList[t][1]</label>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_inventory_edit_sku"]：
+                        </th>
+                        <td>
+                            @_m.SKU
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_inventory_edit_mall_productname"]：
+                        </th>
+                        <td>
+                            <input name="MallProductTitle" type="text" class="easyui-textbox input-xxlarge" value="@_m.MallProductTitle" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_inventory_edit_outerproduct"]：
+                        </th>
+                        <td>
+                            <input name="MallProductId" type="text" class="easyui-textbox input-large" value="@_m.MallProductId" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_inventory_edit_outersku"]：
+                        </th>
+                        <td>
+                            <input name="MallSkuId" type="text" class="easyui-textbox input-large" value="@_m.MallSkuId" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_inventory_edit_marketprice"]：
+                        </th>
+                        <td>
+                            @Samsonite.Utility.Common.VariableHelper.FormateMoney(_m.MarketPrice)
+                        </td>
+                    </tr>
+                    @*<tr>
+                            <th>
+                                @ViewBag.LanguagePack["product_inventory_edit_inventory"]：
+                            </th>
+                            <td>
+                                <input name="Quantity" class="easyui-numberspinner input-mini" value="@_m.Quantity" data-options="min:0" />
+                            </td>
+                        </tr>*@
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_inventory_edit_saleprice"]：
+                        </th>
+                        <td>
+                            @*<input name="salesPrice" value="@_m.SalesPrice" class="easyui-numberbox" data-options="min:0,precision:@_AmountAccuracy" />*@
+                            <input id="AddButton" type="button" value="@ViewBag.LanguagePack["product_inventory_edit_saleprice_range_button"]" class="btn btn-info" />
+                            <div class="common-list-table" style="width:75%;">
+                                <ul id="price-list">
+                                    <li class="common-list-table-tr">
+                                        <span class="avg-2">&nbsp;</span>
+                                        <span class="avg-7">@ViewBag.LanguagePack["product_inventory_edit_saleprice_range"]</span>
+                                        <span class="avg-3">@ViewBag.LanguagePack["product_inventory_edit_saleprice"]</span>
+                                    </li>
+                                    <li class="common-list-table-td">
+                                        @if (_defaultSalesPrice != null)
+                                        {
+                                            <span class="avg-2"><input id="is_default_salesprice" type="checkbox" name="Is_Default_SalesPrice" value="1" checked /><label class="color_primary">@ViewBag.LanguagePack["product_inventory_edit_saleprice_default"]</label></span>
+                                            <span class="avg-7">-</span>
+                                            <span class="avg-3"><input id="salesprice_default" name="SalesPrice_Default" type="text" value="@_defaultSalesPrice.SalesPrice" class="easyui-text input-small" /></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="avg-2"><input id="is_default_salesprice" type="checkbox" name="Is_Default_SalesPrice" value="1" /><label class="color_primary">@ViewBag.LanguagePack["product_inventory_edit_saleprice_default"]</label></span>
+                                            <span class="avg-7">-</span>
+                                            <span class="avg-3"><input id="salesprice_default" name="SalesPrice_Default" type="text" value="0" class="easyui-text input-small" disabled="disabled" /></span>
+                                        }
+                                    </li>
+                                    @foreach (var _O in _priceRanges.Where(p => !p.IsDefault))
+                                    {
+                                        <li class="common-list-table-td">
+                                            <span class="avg-2">&nbsp;</span>
+                                            <span class="avg-7">
+                                                <input name="SalesPrice_TimeBegin" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 00:00:00'})" value="@Convert.ToDateTime(_O.SalesValidBegin).ToString("yyyy-MM-dd HH:mm:ss")" />
+                                                -
+                                                <input name="SalesPrice_TimeEnd" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 23:59:59'})" value="@Convert.ToDateTime(_O.SalesValidEnd).ToString("yyyy-MM-dd HH:mm:ss")" />
+                                            </span>
+                                            <span class="avg-3"><input name="SalesPrice_Range" type="text" value="@_O.SalesPrice" class="easyui-text input-small" /></span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_inventory_edit_isonsale"]：
+                        </th>
+                        <td colspan="3">
+                            <input id="io_1" name="IsOnSale" type="radio" value="1" @((_m.IsOnSale) ? "checked=\"checked\"" : "")><label for="io_1">@ViewBag.LanguagePack["common_yes"]</label>
+                            <input id="io_2" name="IsOnSale" type="radio" value="0" @((!_m.IsOnSale) ? "checked=\"checked\"" : "")><label for="io_2">@ViewBag.LanguagePack["common_no"]</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_inventory_edit_isused"]：
+                        </th>
+                        <td colspan="3">
+                            <input id="Status_1" name="IsUsed" type="radio" value="1" @((_m.IsUsed) ? "checked=\"checked\"" : "")><label for="Status_1">@ViewBag.LanguagePack["common_yes"]</label>
+                            <input id="Status_2" name="IsUsed" type="radio" value="0" @((!_m.IsUsed) ? "checked=\"checked\"" : "")><label for="Status_2">@ViewBag.LanguagePack["common_no"]</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //初始化店铺列表
+            $('#StoreName').combobox({
+                url: '@Url.Action("Mall_Message", "Common")',
+                valueField: 'value',
+                textField: 'text',
+                groupField: 'group',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'comboBox'
+                }
+            });
+
+            //是否需要默认价格
+            $('#is_default_salesprice').bind('click', function (e) {
+                if ($(this).prop("checked")) {
+                    $('#salesprice_default').prop("disabled", false);
+                }
+                else {
+                    $('#salesprice_default').prop("disabled", true);
+                }
+            });
+
+            $('#AddButton').bind('click', function () {
+                var $list = $('#price-list');
+                var _str = '';
+                _str += '<li class="common-list-table-td">';
+                _str += '<span class="avg-2"><i class="fa fa-close color_danger pointer" onclick="del_sku($(this))"></i></span>';
+                _str += '<span class="avg-7"><input name="SalesPrice_TimeBegin" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:\'yyyy-MM-dd 00:00:00\'})" />';
+                _str += '&nbsp;-&nbsp;'
+                _str += '<input name="SalesPrice_TimeEnd" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:\'yyyy-MM-dd 23:59:59\'})" /></span>';
+                _str += '<span class="avg-3"><input name="SalesPrice_Range" type="text" value="0" class="easyui-text input-small" /></span>';
+                _str += '</li>';
+                $list.append(_str);
+            });
+        });
+
+        function del_sku(object) {
+            $o = object.parent().parent().remove();
+        }
+    </script>
+}

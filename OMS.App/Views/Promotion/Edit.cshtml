@@ -1,0 +1,260 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+    var _StoreList = (List<Samsonite.OMS.Database.Mall>)ViewData["store_list"];
+    var _Promotion_StoreList = (List<string>)ViewData["promotion_store_list"];
+    var _Promotion_ProductList = (List<Samsonite.OMS.Database.PromotionProduct>)ViewData["promotion_product_list"];
+    var _Promotion_GiftList = (List<Samsonite.OMS.Database.PromotionGift>)ViewData["promotion_gift_list"];
+    int _AmountAccuracy = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().AmountAccuracy;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["promotion_edit_activity_name"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="Title" type="text" class="easyui-textbox input-xxlarge" value="@_m.PromotionName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["promotion_edit_effect"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="BeginTime" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="@_m.BeginDate.ToString("yyyy-MM-dd HH:mm:ss")" />
+                            -
+                            <input name="EndTime" type="text" class="input-medium Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' })" value="@_m.EndDate.ToString("yyyy-MM-dd HH:mm:ss")" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["promotion_edit_store"]：
+                        </th>
+                        <td colspan="3">
+                            <div class="common-list_25">
+                                <input id="SelectAll" type="checkbox" /><span>@ViewBag.LanguagePack["common_select_all"]</span>
+                                <ul>
+                                    @foreach (var _o in _StoreList)
+                                    {
+                                        <li>
+                                            @if (_Promotion_StoreList.Contains(_o.SapCode))
+                                            {
+                                                <input id="mall_@_o.Id" name="Mall" type="checkbox" value="@_o.SapCode" checked="checked" /><span><label for="mall_@_o.Id">@_o.Name</label></span>
+                                            }
+                                            else
+                                            {
+                                                <input id="mall_@_o.Id" name="Mall" type="checkbox" value="@_o.SapCode" /><span><label for="mall_@_o.Id">@_o.Name</label></span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="product_sku">
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["promotion_edit_activity_rule"]：
+                        </th>
+                        <td colspan="3">
+                            <input id="s1" type="radio" name="RuleType" value="1" /><label for="s1">@ViewBag.LanguagePack["promotion_edit_buy_product"]</label>
+                            <input id="s2" type="radio" name="RuleType" value="2" /><label for="s2">@ViewBag.LanguagePack["promotion_edit_buy_total"]</label>
+                            <div id="option1">
+                                <input id="select_sku" type="text" value="" class="input-large" prompt="@ViewBag.LanguagePack["promotion_edit_select_sku_message"]" />
+                                <input id="AddButton" type="button" value="@ViewBag.LanguagePack["common_add"]" class="btn btn-info" />
+                                <div class="common-list_25">
+                                    <ul id="sku_list">
+                                        @foreach (var _o in _Promotion_ProductList)
+                                        {
+                                            <li><i class="fa fa-close color_danger pointer" onclick="del_sku($(this))"></i>@_o.SKU<input name="Product_Sku" type="hidden" value="@_o.SKU" /></li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                            <div id="option2">
+                                <input name="TotalMoney" type="text" class="easyui-numberbox input-medium" value="@_m.TotalAmount" data-options="min:0,precision:@_AmountAccuracy" />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="display_none">
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["promotion_edit_activity_gift_rule"]：
+                        </th>
+                        <td>
+                            <input id="r1" type="radio" name="GiftRule" value="0" @((_m.GiftRule == 0) ? "checked=\"checked\"" : "") /><label for="r1">@ViewBag.LanguagePack["promotion_edit_activity_gift_rule_1"]</label>
+                            <input id="r2" type="radio" name="GiftRule" value="1" @((_m.GiftRule == 1) ? "checked=\"checked\"" : "") /><label for="r2">@ViewBag.LanguagePack["promotion_edit_activity_gift_rule_2"]</label>
+                        </td>
+                    </tr>
+                    <tr id="gift_sku">
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["promotion_edit_activity_gift"]：
+                        </th>
+                        <td colspan="3">
+                            <input id="select_sku" type="text" value="" class="input-large" prompt="@ViewBag.LanguagePack["promotion_edit_select_gift_message"]" />
+                            <input id="AddButton" type="button" value="@ViewBag.LanguagePack["common_add"]" class="btn btn-info" />
+                            <div class="common-list-table" style="width:50%;">
+                                <ul id="sku_list">
+                                    <li class="common-list-table-tr">
+                                        <span class="avg-2">&nbsp;</span>
+                                        <span class="avg-6">@ViewBag.LanguagePack["promotion_edit_product_sku"]</span>
+                                        <span class="avg-4">@ViewBag.LanguagePack["promotion_edit_gift_quantity"]</span>
+                                    </li>
+                                    @foreach (var _o in _Promotion_GiftList)
+                                    {
+                                        <li class="common-list-table-td">
+                                            <span class="avg-2"><i class="fa fa-close color_danger pointer" onclick="del_gift($(this))"></i></span>
+                                            <span class="avg-6">@_o.SKU<input name="Gift_Sku" type="hidden" value="@_o.SKU" /></span>
+                                            <span class="avg-4"><input name="Gift_Quantity" type="text" class="easyui-text input-mini" value="@_o.Quantity" /></span>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["promotion_edit_remark"]：
+                        </th>
+                        <td colspan="3">
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //绑定全选
+            $('#SelectAll').bind('click', function () {
+                commonJs.sysCheckBox($(this), 'Mall');
+            });
+            //初始化规则模式
+            var _type = '@_m.RuleType';
+            if (_type == 1) {
+                $('input[name=RuleType]').eq(0).prop("checked", true);
+                $('input[name=RuleType]').eq(1).prop("checked", false);
+                $('#option1').show();
+                $('#option2').hide();
+            }
+            else {
+                $('input[name=RuleType]').eq(0).prop("checked", false);
+                $('input[name=RuleType]').eq(1).prop("checked", true);
+                $('#option1').hide();
+                $('#option2').show();
+            }
+            //选择规则模式
+            $('input[name=RuleType]').bind('click', function () {
+                if (parseInt($('input[name=RuleType]:checked').val()) == 1) {
+                    $('#option1').show();
+                    $('#option2').hide();
+                }
+                else {
+                    $('#option1').hide();
+                    $('#option2').show();
+                }
+            });
+            //绑定SKU搜索框
+            easyUIExtend.ComboGrid($('#product_sku').find('#select_sku'), {
+                panelWidth: 875,
+                url: '@Url.Action("ProductSku_Message", "Common")',
+                idField: 's1',
+                textField: 's1',
+                pageSize: 10,
+                multiple: true,
+                columns: [[
+                   { field: 's0', checkbox: true },
+                   { field: 's1', title: '@ViewBag.LanguagePack["product_index_sku"]', align: 'left' },
+                   { field: 's2', title: '@ViewBag.LanguagePack["product_index_brand"]', align: 'left' },
+                   { field: 's3', title: '@ViewBag.LanguagePack["product_index_groupdesc"]', align: 'left' },
+                   { field: 's4', title: '@ViewBag.LanguagePack["product_index_material"]', align: 'left' },
+                   { field: 's5', title: '@ViewBag.LanguagePack["product_index_gdval"]', align: 'left' },
+                   { field: 's6', title: '@ViewBag.LanguagePack["product_index_productname"]', align: 'left' },
+                   { field: 's8', title: '@ViewBag.LanguagePack["product_index_marketprice"]', align: 'center' },
+                   { field: 's10', title: '@ViewBag.LanguagePack["product_index_inventory"]', align: 'center' }
+                ]]
+            });
+            //选择商品sku
+            $('#product_sku').find('#AddButton').bind('click', function () {
+                add_sku($('#product_sku'), 'Product');
+            });
+            //绑定赠品SKU搜索框
+            easyUIExtend.ComboGrid($('#gift_sku').find('#select_sku'), {
+                panelWidth: 650,
+                url: '@Url.Action("GiftSku_Message", "Common")',
+                idField: 's1',
+                textField: 's1',
+                pageSize: 10,
+                multiple: true,
+                columns: [[
+                   { field: 's0', checkbox: true },
+                   { field: 's1', title: '@ViewBag.LanguagePack["product_index_sku"]', align: 'left' },
+                   { field: 's2', title: '@ViewBag.LanguagePack["product_index_brand"]', align: 'left' },
+                   { field: 's3', title: '@ViewBag.LanguagePack["product_index_productname"]', align: 'left' }
+                ]]
+            });
+            //选择赠品sku
+            $('#gift_sku').find('#AddButton').bind('click', function () {
+                add_sku($('#gift_sku'), 'Gift');
+            });
+        });
+
+        function add_sku(object, prefix) {
+            var _array = new Array();
+            var _sku = $.trim(object.find('#select_sku').combogrid('getText'));
+            if (_sku == '') {
+                artDialogExtend.Message.Alert('@ViewBag.LanguagePack["promotion_edit_message_no_sku"]');
+                return false;
+            }
+            else {
+                if (_sku.indexOf(',') > -1) {
+                    _array = _sku.split(',');
+                }
+                else {
+                    _array.push(_sku);
+                }
+            }
+
+            //插入
+            for (var t = 0; t < _array.length; t++) {
+                if (_array[t] != '') {
+                    var _isAdd = true;
+                    var $list = object.find('#sku_list');
+                    //查看是否已经存在该sku
+                    $sku_list = $list.find('li');
+                    for (var i = 0; i < $sku_list.length; i++) {
+                        if ($.trim($sku_list.eq(i).find("input[name=" + prefix + "_Sku]").val()) == _array[t]) {
+                            _isAdd = false;
+                        }
+                    }
+                    if (_isAdd) {
+                        //添加产品
+                        if (prefix == 'Product') {
+                            $list.append('<li><i class="fa fa-close color_danger pointer" onclick="del_sku($(this))"></i>' + _array[t] + '<input name="' + prefix + '_Sku" type="hidden" value="' + _array[t] + '" /></li>');
+                        }
+                        else {
+                            $list.append('<li class="common-list-table-td"><span class="avg-2"><i class="fa fa-close color_danger pointer" onclick="del_gift($(this))"></i></span><span class="avg-6">' + _array[t] + '<input name="' + prefix + '_Sku" type="hidden" value="' + _array[t] + '" /></span><span class="avg-4"><input name="' + prefix + '_Quantity" type="text" value="1" class="easyui-text input-mini" /></span></li>');
+                        }
+                    }
+                }
+            }
+            //清空数据栏
+            object.find('#select_sku').combogrid('clear');
+        }
+
+        function del_sku(object) {
+            $o = object.parent().remove();
+        }
+
+        function del_gift(object) {
+            $o = object.parent().parent().remove();
+        }
+    </script>
+}

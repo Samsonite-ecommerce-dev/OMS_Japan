@@ -1,0 +1,100 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _ParentBrandList = (List<object[]>)ViewData["parent_brand_list"];
+    var _m = (Samsonite.OMS.Database.Brand)Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.ID" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["brand_edit_brandname"]：
+                        </th>
+                        <td>
+                            <input name="BrandName" type="text" class="easyui-textbox input-large" value="@_m.BrandName" />
+                        </td>
+                    </tr>
+                    <tr id="parent_brand">
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["brand_edit_parentbrandname"]：
+                        </th>
+                        <td>
+                            <select name="ParentID" class="easyui-combobox">
+                                <option value="0">--</option>
+                                @foreach (var _o in _ParentBrandList)
+                                {
+                                    if (_m.ParentID == Samsonite.Utility.Common.VariableHelper.SaferequestInt(_o[0]))
+                                    {
+                                        <option value="@_o[0]" selected="selected">@_o[1]</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@_o[0]">@_o[1]</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["brand_edit_sapcode"]：
+                        </th>
+                        <td>
+                            <input name="SapCode" type="text" class="easyui-textbox input-large" value="@_m.SapCode" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["brand_edit_sort"]：
+                        </th>
+                        <td>
+                            <input name="Sort" type="text" class="easyui-numberbox input-mini" value="@((_m.ParentID==0)?_m.RootID:_m.Sort)" data-options="min:0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["brand_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["brand_edit_isused"]：
+                        </th>
+                        <td>
+                            <input id="Status_1" name="Status" type="radio" value="1" @((!_m.IsLock) ? "checked=\"checked\"" : "")><label for="Status_1">@ViewBag.LanguagePack["common_yes"]</label>
+                            <input id="Status_2" name="Status" type="radio" value="0" @((_m.IsLock) ? "checked=\"checked\"" : "")><label for="Status_2">@ViewBag.LanguagePack["common_no"]</label>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('input[name=IsParent]').bind("click", function () {
+                SelectParentID();
+            });
+
+            SelectParentID();
+        });
+
+        function SelectParentID()
+        {
+            var _value = '@_m.IsParent';
+            if (_value == 'True') {
+                $('#parent_brand').hide();
+            }
+            else {
+                $('#parent_brand').show();
+            }
+        }
+    </script>
+}

@@ -1,0 +1,188 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _QuickTimeList = (List<object[]>)ViewData["quicktime_list"];
+    var _ClaimTypeList = (List<object[]>)ViewData["claimtype_list"];
+}
+
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                @ViewBag.LanguagePack["claimerror_index_search_order"]:
+                <input id="OrderNumber" type="text" class="easyui-textbox input-xlarge" prompt="@ViewBag.LanguagePack["common_search_order"]" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["claimerror_index_search_store"]:
+                <input id="StoreName" name="StoreName" class="input-xlarge" value="">
+            </li>
+            <li>
+                @ViewBag.LanguagePack["claimerror_index_search_time"]:
+                <select id="quick_time" class="easyui-combobox">
+                    <option value="0" selected="selected">@ViewBag.LanguagePack["common_select"]</option>
+                    @foreach (var _o in _QuickTimeList)
+                    {
+                        <option value="@_o[0]">@_o[1]</option>
+                    }
+                </select>
+                <input id="Time1" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+                -
+                <input id="Time2" type="text" class="input-medium Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["claimerror_index_search_type"]:
+                <select id="Type" class="easyui-combobox">
+                    <option value="-1" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                    @foreach (var _o in _ClaimTypeList)
+                    {
+                        <option value="@_o[0]">@_o[1]</option>
+                    }
+                </select>
+            </li>
+            <li>
+                @ViewBag.LanguagePack["claimerror_index_search_error"]:
+                <input id="ErrorMessage" type="text" class="easyui-textbox input-xlarge" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["claimerror_index_search_state"]:
+                <select id="Status" name="Status" class="easyui-combobox">
+                    <option value="0" selected="selected">@ViewBag.LanguagePack["common_deal_with_no"]</option>
+                    <option value="1">@ViewBag.LanguagePack["common_deal_with_yes"]</option>
+                    <option value="2">@ViewBag.LanguagePack["common_deleted"]</option>
+                </select>
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>@ViewBag.LanguagePack["common_delete"]</a>
+            <a id="restore" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-eraser color_primary"></i>@ViewBag.LanguagePack["common_recover"]</a>
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',align:'left'">
+                        @ViewBag.LanguagePack["claimerror_index_order_no"]
+                    </th>
+                    <th data-options="field:'s2',align:'left'">
+                        @ViewBag.LanguagePack["claimerror_index_sub_order_no"]
+                    </th>
+                    <th data-options="field:'s3',align:'left'">
+                        @ViewBag.LanguagePack["claimerror_index_store"]
+                    </th>
+                    <th data-options="field:'s4',align:'center'">
+                        @ViewBag.LanguagePack["claimerror_index_type"]
+                    </th>
+                    <th data-options="field:'s5',align:'center'">
+                        @ViewBag.LanguagePack["claimerror_index_quantity"]
+                    </th>
+                    <th data-options="field:'s6',align:'left'">
+                        @ViewBag.LanguagePack["claimerror_index_claimtime"]
+                    </th>
+                    <th data-options="field:'s7',align:'center'">
+                        @ViewBag.LanguagePack["claimerror_index_error_count"]
+                    </th>
+                    <th data-options="field:'s8',align:'left'">
+                        @ViewBag.LanguagePack["claimerror_index_error_msg"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //初始化店铺列表
+            $('#StoreName').combobox({
+                url: '@Url.Action("Mall_Message", "Common")',
+                valueField: 'value',
+                textField: 'text',
+                groupField: 'group',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'comboBox',
+                    existAll: 1
+                }
+            });
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(','),
+                hideTools: getHideToolBar()
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "ClaimError")'
+            });
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    orderid: $('#OrderNumber').val(),
+                    store: $('#StoreName').combobox('getValue'),
+                    time1: $('#Time1').val(),
+                    time2: $('#Time2').val(),
+                    type: $('#Type').combobox('getValue'),
+                    status: $('#Status').combobox('getValue'),
+                    msg: $('#ErrorMessage').val()
+                });
+                //操作限制
+                easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                    powerTools: ('@ViewBag.FunctionPower').split(','),
+                    hideTools: getHideToolBar()
+                });
+            });
+            //操作
+            $('#toolbar').find('#delete').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Delete_Message", "ClaimError")');
+            });
+            $('#toolbar').find('#restore').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Restore_Message", "ClaimError")');
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+            $('#quick_time').combobox({
+                onChange: function (value) {
+                    if (value > 0) {
+                        commonJs.sysAjaxFunction({
+                            url: '@Url.Action("QuickTime_Message", "Common")',
+                            para: { id: value, format: 'yyyy-MM-dd' },
+                            isload: false,
+                            func: function (data) {
+                                data = eval('(' + data + ')');
+                                $('#Time1').val(data.t1);
+                                $('#Time2').val(data.t2);
+                            }
+                        });
+                    }
+                    else {
+                        $('#Time1').val('');
+                        $('#Time2').val('');
+                    }
+                }
+            });
+        });
+
+        //获取工具栏
+        function getHideToolBar() {
+            var _result;
+            var _status = $('#Status').combobox('getValue');
+            if (_status == 0 || _status == 1) {
+                _result = new Array('restore');
+            }
+            else
+            {
+                _result = new Array('delete');
+            }
+            return _result;
+        }
+    </script>
+}

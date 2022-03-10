@@ -1,0 +1,158 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _ProductTypeList = (List<object[]>)ViewData["product_type"];
+    var _BrandList = (List<string>)ViewData["brand_list"];
+    var _m = Model;
+    int _AmountAccuracy = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().AmountAccuracy;
+}
+
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input type="hidden" name="ID" value="@_m.Id" />
+            <table class="table1">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_type"]：
+                        </th>
+                        <td colspan="3">
+                            @foreach (var _o in _ProductTypeList)
+                            {
+                                if (ViewBag.Types.IndexOf((_o[0]).ToString()) > -1)
+                                {
+                                    <input id="t@_o[0]" name="Type" type="checkbox" value="@_o[0]" checked="checked" /><label for="t@_o[0]">@_o[1]</label>
+                                }
+                                else
+                                {
+                                    <input id="t@_o[0]" name="Type" type="checkbox" value="@_o[0]" /><label for="t@_o[0]">@_o[1]</label>
+                                }
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_brand"]：
+                        </th>
+                        <td colspan="3">
+                            <select name="Name" class="easyui-combobox">
+                                @foreach (var _o in _BrandList)
+                                {
+                                    if (_m.Name.ToUpper() == _o.ToUpper())
+                                    {
+                                        <option value="@_o" selected="selected">@_o</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@_o">@_o</option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_productname"]：
+                        </th>
+                        <td>
+                            <input name="Description" type="text" class="easyui-textbox input-large" value="@_m.Description" />
+                        </td>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_groupdesc"]:
+                        </th>
+                        <td>
+                            <input name="GroupDesc" type="text" class="easyui-textbox input-large" value="@_m.GroupDesc" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_edit_imageurl"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="ImageUrl" type="text" class="easyui-textbox input-xxlarge" value="@_m.ImageUrl" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_matlgroup"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="MatlGroup" type="text" class="easyui-textbox input-large" value="@_m.MatlGroup" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_material"]：
+                        </th>
+                        <td>
+                            <input name="Material" type="text" class="easyui-textbox input-large" value="@_m.Material" />
+                        </td>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_gdval"]：
+                        </th>
+                        <td>
+                            <input name="GdVal" type="text" class="easyui-textbox input-large" value="@_m.GdVal" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_sku"]：
+                        </th>
+                        <td>
+                            <input name="SKU" value="@_m.SKU" class="easyui-textbox input-large" />
+                        </td>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["product_edit_ean"]：
+                        </th>
+                        <td>
+                            <input name="EAN" class="easyui-textbox input-large" value="@_m.EAN" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_edit_size"]：
+                        </th>
+                        <td colspan="3">
+                            @ViewBag.LanguagePack["product_edit_size_l"]
+                            <input name="ProductLength" type="text" class="easyui-numberbox input-small" data-options="precision:3" value="@_m.ProductLength" />
+                            @ViewBag.LanguagePack["product_edit_size_w"]
+                            <input name="ProductWidth" type="text" class="easyui-numberbox input-small" data-options="precision:3" value="@_m.ProductWidth" />
+                            @ViewBag.LanguagePack["product_edit_size_h"]
+                            <input name="ProductHeight" type="text" class="easyui-numberbox input-small" data-options="precision:3" value="@_m.ProductHeight" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_edit_weight"]：
+                        </th>
+                        <td>
+                            <input name="ProductWeight" type="text" class="easyui-numberbox input-medium" data-options="precision:3" value="@_m.ProductWeight" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["product_edit_volume"]：
+                        </th>
+                        <td>
+                            <input name="ProductVolume" type="text" class="easyui-numberbox input-medium" data-options="precision:3" value="@_m.ProductVolume" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_edit_marketprice"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="marketPrice" value="@_m.MarketPrice" class="easyui-numberbox" data-options="min:0,precision:@_AmountAccuracy" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["product_edit_inventory"]：
+                        </th>
+                        <td colspan="3">
+                            <input name="Quantity" class="easyui-numberspinner input-mini" value="@_m.Quantity" data-options="min:0" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

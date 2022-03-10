@@ -1,0 +1,181 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _ProductStateList = (List<object[]>)ViewData["productstate_list"];
+    var _QuickTimeList = (List<object[]>)ViewData["quicktime_list"];
+}
+
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <ul>
+            <li>
+                @ViewBag.LanguagePack["orderbooking_index_search_order_number"]:
+                <input id="OrderNumber" type="text" class="easyui-textbox input-xlarge" prompt="@ViewBag.LanguagePack["common_search_order"]" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["orderbooking_index_search_store_name"]:
+                <input id="StoreName" name="StoreName" style="width:275px;" value="" prompt="@ViewBag.LanguagePack["common_prompt_all_mall"]">
+            </li>
+            <li>
+                @ViewBag.LanguagePack["orderbooking_index_search_sendtime"]:
+                <select id="quick_time" class="easyui-combobox">
+                    <option value="0" selected="selected">@ViewBag.LanguagePack["common_select"]</option>
+                    @foreach (var _o in _QuickTimeList)
+                    {
+                        <option value="@_o[0]">@_o[1]</option>
+                    }
+                </select>
+                <input id="Time1" type="text" class="input-medium Wdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+                -
+                <input id="Time2" type="text" class="input-medium Wdate" onclick="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" />
+            </li>
+            <li>
+                @ViewBag.LanguagePack["orderbooking_index_search_orderstatus"]:
+                @for (int t = 0; t < _ProductStateList.Count; t++)
+                {
+                    <input id="os_@t" name="ProductStatus" type="checkbox" value="@_ProductStateList[t][0]" /><label for="os_@t">@_ProductStateList[t][1]</label>
+                }
+            </li>
+            <li>
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+            </li>
+        </ul>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>@ViewBag.LanguagePack["common_edit"]</a>
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'ck',checkbox:true">
+                    </th>
+                    <th data-options="field:'s1',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_order_number"]
+                    </th>
+                    <th data-options="field:'s2',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_outerID"]
+                    </th>
+                    <th data-options="field:'s3',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_storename"]
+                    </th>
+                    <th data-options="field:'s4',align:'center'">
+                        @ViewBag.LanguagePack["orderbooking_index_product_sku"]
+                    </th>
+                    <th data-options="field:'s5',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_productname"]
+                    </th>
+                    <th data-options="field:'s6',align:'center'">
+                        @ViewBag.LanguagePack["orderbooking_index_product_price"]
+                    </th>
+                    <th data-options="field:'s7',align:'center'">
+                        @ViewBag.LanguagePack["orderbooking_index_product_quantity"]
+                    </th>
+                    <th data-options="field:'s8',align:'center'">
+                        @ViewBag.LanguagePack["orderbooking_index_payment_amount"]
+                    </th>
+                    <th data-options="field:'s9',align:'center'">
+                        @ViewBag.LanguagePack["orderbooking_index_product_status"]
+                    </th>
+                    <th data-options="field:'s10',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_customer_name"]
+                    </th>
+                    <th data-options="field:'s11',align:'center'">
+                        @ViewBag.LanguagePack["orderbooking_index_receiver"]
+                    </th>
+                    <th data-options="field:'s12',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_customer_tel"]
+                    </th>
+                    <th data-options="field:'s13',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_customer_addr"]
+                    </th>
+                    <th data-options="field:'s14',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_product_sendtime"]
+                    </th>
+                    <th data-options="field:'s15',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_product_shipping_status"]
+                    </th>
+                    <th data-options="field:'s16',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_paytime"]
+                    </th>
+                    <th data-options="field:'s17',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_ordertime"]
+                    </th>
+                    <th data-options="field:'s18',align:'left'">
+                        @ViewBag.LanguagePack["orderbooking_index_remark"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+<script type="text/javascript">
+        $(function () {
+            //初始化店铺列表
+            $('#StoreName').combotree({
+                url: '@Url.Action("Mall_Message", "Common")',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'comboTree'
+                },
+                multiple: true
+            });
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(',')
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "OrderReserve")'
+            });
+            //查询
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    orderid: $('#OrderNumber').val(),
+                    store: $("#StoreName").combotree("getValues").join(','),
+                    product_status: commonJs.getCheckBoxValue('ProductStatus').join(','),
+                    time1: $('#Time1').val(),
+                    time2: $('#Time2').val()
+                });
+            });
+            //操作
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.ComplexSaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "OrderReserve")?id=$',
+                    title: '@ViewBag.LanguagePack["common_edit"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "OrderReserve")'
+                });
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+            $('#quick_time').combobox({
+                onChange: function (value) {
+                    if (value > 0) {
+                        commonJs.sysAjaxFunction({
+                            url: '@Url.Action("QuickTime_Message", "Common")',
+                            para: { id: value, format: 'yyyy-MM-dd' },
+                            isload: false,
+                            func: function (data) {
+                                data = eval('(' + data + ')');
+                                $('#Time1').val(data.t1);
+                                $('#Time2').val(data.t2);
+                            }
+                        });
+                    }
+                    else {
+                        $('#Time1').val('');
+                        $('#Time2').val('');
+                    }
+                }
+            });
+        });
+</script>
+}

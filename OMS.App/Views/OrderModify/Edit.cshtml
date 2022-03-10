@@ -1,0 +1,63 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _m = Model;
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <input name="ID" type="hidden" value="@_m.Id" />
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["ordermodify_edit_receiver"]：
+                        </th>
+                        <td>
+                            <input name="Receiver" type="text" class="easyui-textbox input-large" value="@_m.CustomerName" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_edit_tel"]：
+                        </th>
+                        <td>
+                            <input name="Tel" type="text" class="easyui-textbox input-medium" value="@_m.Tel" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["ordermodify_edit_mobile"]：
+                        </th>
+                        <td>
+                            <input name="Mobile" type="text" class="easyui-textbox input-medium" value="@_m.Mobile" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_edit_zipcode"]：
+                        </th>
+                        <td>
+                            <input name="ZipCode" type="text" class="easyui-textbox input-medium" value="@_m.Zipcode" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["ordermodify_edit_address"]：
+                        </th>
+                        <td>
+                            <input name="Address" type="text" class="easyui-textbox input-xxlarge" value="@_m.Addr" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["ordermodify_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="Remark" class="easyui-textarea  input-xlarge" style="height:100px;">@_m.Remark</textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>

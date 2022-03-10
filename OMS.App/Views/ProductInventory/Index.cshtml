@@ -1,0 +1,382 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _BrandList = (List<object[]>)ViewData["brand_list"];
+    var _ProductTypeList = (List<object[]>)ViewData["product_type"];
+    int _AmountAccuracy = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().AmountAccuracy;
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_left" style="width:200px;">
+        <div class="title"><a href="javascript:void(0)" class="layout-button-left"></a><span>@ViewBag.LanguagePack["product_inventory_index_search_store"]</span></div>
+        <ul id="tt" class="easyui-tree"></ul>
+    </div>
+    <div class="main_right">
+        <div class="main_search">
+            <form id="SearchForm" action="" method="post">
+                <ul>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_brand"]:
+                        <select id="Brand" name="Brand" class="easyui-combobox">
+                            <option value="0" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                            @foreach (var _o in _BrandList)
+                            {
+                                <option value="@_o[0]">@_o[1]</option>
+                            }
+                        </select>
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_productname"]:
+                        <input id="ProductName" name="ProductName" type="text" class="easyui-textbox input-medium" />
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_sku"]:
+                        <input id="Sku" name="Sku" type="text" class="easyui-textbox input-large" prompt="@ViewBag.LanguagePack["product_inventory_index_search_sku_key"]" />
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_collection"]:
+                        <input id="Collection" name="Collection" type="text" class="easyui-textbox input-medium" prompt="" />
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_salesprice"]
+                        <input id="Price1" name="Price1" type="text" class="easyui-numberbox input-small" data-options="min:0,precision:@_AmountAccuracy">
+                        -
+                        <input id="Price2" name="Price2" type="text" class="easyui-numberbox input-small" data-options="min:0,precision:@_AmountAccuracy">
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_iventory"]:
+                        <input id="Inventory1" name="Inventory1" type="text" class="easyui-numberbox input-small" data-options="precision:0">
+                        -
+                        <input id="Inventory2" name="Inventory2" type="text" class="easyui-numberbox input-small" data-options="precision:0">
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_type"]:
+                        <select id="ProductType" name="ProductType" class="easyui-combobox">
+                            <option value="" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                            @foreach (var _o in _ProductTypeList)
+                            {
+                                <option value="@_o[0]">@_o[1]</option>
+                            }
+                        </select>
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_sold_state"]:
+                        <select id="SoldStatus" name="SoldStatus" class="easyui-combobox">
+                            <option value="0" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
+                            <option value="1">@ViewBag.LanguagePack["product_inventory_index_search_sold_state_1"]</option>
+                            <option value="2">@ViewBag.LanguagePack["product_inventory_index_search_sold_state_2"]</option>
+                        </select>
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_state"]:
+                        <select id="Status" name="Status" class="easyui-combobox">
+                            <option value="1" selected="selected">@ViewBag.LanguagePack["common_active"]</option>
+                            <option value="0">@ViewBag.LanguagePack["common_inactive"]</option>
+                        </select>
+                    </li>
+                    <li>
+                        @ViewBag.LanguagePack["product_inventory_index_search_abnormal"]:
+                        <input id="IsAbnormal" name="IsAbnormal" type="checkbox" value="1" />
+                    </li>
+                    <li>
+                        <input id="StoreName" name="StoreName" type="hidden" value="@ViewBag.SapCode" />
+                        <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+                    </li>
+                </ul>
+            </form>
+        </div>
+        <div class="main_list">
+            <div id="toolbar">
+                <a id="add" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-plus color_success"></i>@ViewBag.LanguagePack["common_add"]</a>
+                <a id="edit" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-pencil-square-o color_warning"></i>@ViewBag.LanguagePack["common_edit"]</a>
+                <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>@ViewBag.LanguagePack["common_delete"]</a>
+                <a id="active" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-check-circle color_success"></i>@ViewBag.LanguagePack["common_active"]</a>
+                <a id="inactive" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-times-circle color_danger"></i>@ViewBag.LanguagePack["common_inactive"]</a>
+                <span class="toolbar-separator"></span>
+                <a id="importproductexcel" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-download color_success"></i>@ViewBag.LanguagePack["product_inventory_index_button_import_product"]</a>
+                <a id="exportproductexcel" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-upload color_primary"></i>@ViewBag.LanguagePack["product_inventory_index_button_export_product"]</a>
+                <span class="toolbar-separator"></span>
+                <a id="importpriceexcel" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-download color_success"></i>@ViewBag.LanguagePack["product_inventory_index_button_import_price"]</a>
+                <a id="exportpriceexcel" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-upload color_primary"></i>@ViewBag.LanguagePack["product_inventory_index_button_export_price"]</a>
+                <span class="toolbar-separator"></span>
+                <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+            </div>
+            <div>
+                <table id="dg">
+                    <thead>
+                        <tr>
+                            <th data-options="field:'ck',checkbox:true">
+                            </th>
+                            <th data-options="field:'s1',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_store"]
+                            </th>
+                            <th data-options="field:'s2',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_sku"]
+                            </th>
+                            <th data-options="field:'s3',align:'center',sortable:true">
+                                @ViewBag.LanguagePack["product_inventory_index_inventory"]
+                            </th>
+                            <th data-options="field:'s4',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_marketprice"]
+                            </th>
+                            <th data-options="field:'s5',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_saleprice"]
+                            </th>
+                            <th data-options="field:'s6',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_type"]
+                            </th>
+                            <th data-options="field:'s7',align:'left'">
+                                @ViewBag.LanguagePack["product_inventory_index_productname"]
+                            </th>
+                            <th data-options="field:'s8',align:'left'">
+                                @ViewBag.LanguagePack["product_inventory_index_collection"]
+                            </th>
+                            <th data-options="field:'s9',align:'left'">
+                                @ViewBag.LanguagePack["product_inventory_index_local_productname"]
+                            </th>
+                            <th data-options="field:'s10',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_brand"]
+                            </th>
+                            <th data-options="field:'s11',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_ean"]
+                            </th>
+                            <th data-options="field:'s12',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_mallproductid"]
+                            </th>
+                            <th data-options="field:'s13',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_mallskuid"]
+                            </th>
+                            <th data-options="field:'s14',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_size"]
+                            </th>
+                            <th data-options="field:'s15',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_volume"]
+                            </th>
+                            <th data-options="field:'s16',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_weight"]
+                            </th>
+                            <th data-options="field:'s17',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_isonsale"]
+                            </th>
+                            <th data-options="field:'s18',align:'center'">
+                                @ViewBag.LanguagePack["product_inventory_index_isused"]
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            //店铺列表
+            $('#tt').tree({
+                url: '@Url.Action("Mall_Message", "Common")',
+                queryParams: {
+                    mall_type: 'all',
+                    show_type: 'tree',
+                    existAll: 1
+                },
+                onClick: function (node) {
+                    //根节点点击不触发
+                    if (node.children == null) {
+                        $('#StoreName').val(node.id);
+                        Search();
+                    }
+                },
+                onLoadSuccess: function (node, data) {
+                    //默认选择第一个店铺
+                    var node = $('#tt').tree('find', '');
+                    $('#tt').tree('select', node.target);
+                }
+            });
+            //工具栏
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(','),
+                hideTools: getHideToolBar()
+            });
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "ProductInventory")',
+                queryParams: {
+                    storeid: $('#StoreName').val(),
+                    status: $('#Status').combobox('getValue'),
+                },
+                multiSort: false,
+                remoteSort: true
+            });
+            //左侧栏
+            $('.main .main_left').height($(window).height() + 80);
+            $('.main .main_left .title').find('a').bind('click', function () {
+                var $o = $(this);
+                if ($o.attr("class") == "layout-button-left") {
+                    $('.main .main_left .title').find('span').css('display', 'none');
+                    $('.main .main_left').find('ul').hide();
+                    $('.main_left').animate({ width: "30px" }, function () {
+                        $o.attr("class", "layout-button-right");
+                    });
+                }
+                else {
+                    $('.main_left').animate({ width: "200px" }, function () {
+                        $o.attr("class", "layout-button-left");
+                        $('.main .main_left .title').find('span').css('display', '');
+                        $('.main .main_left').find('ul').show();
+                    });
+                }
+            });
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                Search();
+            });
+            //操作
+            $('#toolbar').find('#add').bind('click', function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("Add", "ProductInventory")',
+                    title: '@ViewBag.LanguagePack["common_add"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Add_Message", "ProductInventory")'
+                });
+            });
+            $('#toolbar').find('#edit').bind('click', function () {
+                easyUIExtend.Grid.SaveOper($('#dg'), {
+                    url: '@Url.Action("Edit", "ProductInventory")?id=$',
+                    title: '@ViewBag.LanguagePack["common_edit"]',
+                    width: '100%',
+                    height: '100%',
+                    dataUrl: '@Url.Action("Edit_Message", "ProductInventory")'
+                });
+            });
+            $('#toolbar').find('#delete').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Delete_Message", "ProductInventory")');
+            });
+            $('#toolbar').find('#active').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("Active_Message", "ProductInventory")');
+            });
+            $('#toolbar').find('#inactive').bind('click', function () {
+                easyUIExtend.Grid.ComplexOper($('#dg'), '@Url.Action("InActive_Message", "ProductInventory")');
+            });
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+            //保存产品导入的文件
+            $('#importproductexcel').click(function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("ImportProductExcel", "ProductInventory")',
+                    title: '@ViewBag.LanguagePack["product_edit_import_file"]',
+                    ok: function () {
+                        var _filepath = this.iframe.contentWindow.$("#input_upload").choosebox('getValue');
+                        $this = this;
+                        commonJs.sysAjaxFunction({
+                            url: '@Url.Action("ImportProductExcel_SaveUpload", "ProductInventory")',
+                            dataType: 'json',
+                            para: { filepath: _filepath },
+                            func: function (data) {
+                                if (data.result) {
+                                    if (data.rows.length == 0) {
+                                        artDialogExtend.Tips.Success(data.msg, 2, function () {
+                                            $this.close();
+                                        });
+                                    }
+                                    else {
+                                        artDialogExtend.Tips.Success(data.msg, 2, function () {
+                                            //显示错误信息
+                                            $this.iframe.contentWindow.$('#dg').datagrid('loadData', data.rows);
+                                        });
+                                    }
+                                } else {
+                                    artDialogExtend.Tips.Error(data.msg, 5);
+                                }
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+            //导出产品数据
+            $('#exportproductexcel').bind('click', function () {
+                var _action = '@Url.Action("ExportProductExcel", "ProductInventory")';
+                $('#SearchForm').attr("action", _action);
+                $('#SearchForm').submit();
+            });
+            //保存产品价格导入的文件
+            $('#importpriceexcel').click(function () {
+                easyUIExtend.Grid.SaveDialog({
+                    url: '@Url.Action("ImportPriceExcel", "ProductInventory")',
+                    title: '@ViewBag.LanguagePack["product_edit_import_file"]',
+                    ok: function () {
+                        var _filepath = this.iframe.contentWindow.$("#input_upload").choosebox('getValue');
+                        $this = this;
+                        commonJs.sysAjaxFunction({
+                            url: '@Url.Action("ImportPriceExcel_SaveUpload", "ProductInventory")',
+                            dataType: 'json',
+                            para: { filepath: _filepath },
+                            func: function (data) {
+                                if (data.result) {
+                                    if (data.rows.length == 0) {
+                                        artDialogExtend.Tips.Success(data.msg, 2, function () {
+                                            $this.close();
+                                        });
+                                    }
+                                    else {
+                                        artDialogExtend.Tips.Success(data.msg, 2, function () {
+                                            //显示错误信息
+                                            $this.iframe.contentWindow.$('#dg').datagrid('loadData', data.rows);
+                                        });
+                                    }
+                                } else {
+                                    artDialogExtend.Tips.Error(data.msg, 5);
+                                }
+                            }
+                        });
+                        return false;
+                    }
+                });
+            });
+            //导出价格数据
+            $('#exportpriceexcel').bind('click', function () {
+                var _action = '@Url.Action("ExportPriceExcel", "ProductInventory")';
+                $('#SearchForm').attr("action", _action);
+                $('#SearchForm').submit();
+            });
+        });
+
+        //搜索
+        function Search() {
+            easyUIExtend.Grid.Search($('#dg'), {
+                storeid: $('#StoreName').val(),
+                brand: $('#Brand').combobox('getValue'),
+                productname: $('#ProductName').val(),
+                sku: $('#Sku').val(),
+                collection:$('#Collection').val(),
+                price1: $('#Price1').numberbox('getValue'),
+                price2: $('#Price2').numberbox('getValue'),
+                inventory1: $('#Inventory1').val(),
+                inventory2: $('#Inventory2').val(),
+                ptype: $('#ProductType').combobox('getValue'),
+                soldstatus: $('#SoldStatus').combobox('getValue'),
+                status: $('#Status').combobox('getValue'),
+                isabnormal: $('#IsAbnormal').prop("checked") ? 1 : 0
+            });
+            //操作限制
+            easyUIExtend.Grid.Toolbar($('#toolbar'), {
+                powerTools: ('@ViewBag.FunctionPower').split(','),
+                hideTools: getHideToolBar()
+            });
+        }
+
+        //获取工具栏
+        function getHideToolBar() {
+            var _result;
+            if (parseInt($('#Status').combobox('getValue')) == 1) {
+                _result = new Array('active');
+            }
+            else {
+                _result = new Array('inactive');
+            }
+            return _result;
+        }
+    </script>
+}

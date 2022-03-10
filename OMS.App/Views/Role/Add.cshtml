@@ -1,0 +1,66 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _PowerList = (System.Text.StringBuilder)ViewData["power_list"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["role_edit_rolename"]：
+                        </th>
+                        <td>
+                            <input name="RoleName" type="text" class="easyui-textbox input-xlarge" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["role_edit_select_function"]：
+                        </th>
+                        <td>
+                            @Html.Raw(_PowerList.ToString())
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["role_edit_remark"]：
+                        </th>
+                        <td>
+                            <textarea name="RoleMemo" class="easyui-textarea  input-xlarge" style="height:100px;"></textarea>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $(".power_list").find("input[name=power_check]").bind("click", function () {
+                var $powers = $(this).parent().find('input[name=power_' + $(this).val() + ']');
+                if ($(this).prop("checked")) {
+                    $powers.prop("checked", true);
+                }
+                else {
+                    $powers.prop("checked", false);
+                }
+            });
+
+            $(".power_list .detail_power").find("input[type=checkbox]").bind("click", function () {
+                var $check = $(this).parent().parent().find('input[name=power_check]');
+                if ($(this).prop("checked")) {
+                    $check.prop("checked", true);
+                }
+                else {
+                    //计算是否下属都未选中
+                    if ($(this).parent().find('input[type=checkbox]:checked').length == 0) {
+                        $check.prop("checked", false);
+                    }
+                }
+            });
+        });
+    </script>
+}

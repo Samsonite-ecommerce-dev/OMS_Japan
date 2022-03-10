@@ -1,0 +1,150 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _GroupList = (List<Samsonite.OMS.Database.UserEmployeeGroup>)ViewData["time_list"];
+    var _BrandList = (List<object[]>)ViewData["brand_list"];
+}
+<div class="main">
+    <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
+    <div class="main_search">
+        <form id="SearchForm" action="@Url.Action("ExportExcel", "EmployeeReport")" m method="post">
+            <ul>
+                <li>
+                    @ViewBag.LanguagePack["employeereport_index_search_group"]:
+                    <select id="GroupTime" name="GroupTime" class="easyui-combobox">
+                        @foreach (var _o in _GroupList)
+                        {
+                            if (@_o.ID == _GroupList.LastOrDefault().ID)
+                            {
+                                <option value="@_o.ID" selected="selected">@_o.EmployeeGroup</option>
+                            }
+                            else
+                            {
+                                <option value="@_o.ID">@_o.EmployeeGroup</option>
+                            }
+                        }
+                    </select>
+                </li>
+                <li>
+                    @ViewBag.LanguagePack["employeereport_index_search_email"]:
+                    <input id="CustomerEmail" name="CustomerEmail" type="text" class="easyui-textbox input-large" value="@ViewBag.Email" />
+                </li>
+                <li>
+                    @ViewBag.LanguagePack["employeereport_index_search_warning"]:
+                    <input id="IsWarning" name="IsWarning" type="checkbox" value="1" />
+                </li>
+                <li>
+                    <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+                </li>
+            </ul>
+        </form>
+    </div>
+    <div class="main_list">
+        <div id="toolbar">
+            <a id="exportexcel" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-upload color_primary"></i>@ViewBag.LanguagePack["common_export"]</a>
+            <span class="toolbar-separator"></span>
+            <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
+        </div>
+        <table id="dg">
+            <thead>
+                <tr>
+                    <th data-options="field:'s1',align:'left'">
+                        @ViewBag.LanguagePack["employeereport_index_email"]
+                    </th>
+                    <th data-options="field:'s2',align:'center'">
+                        @ViewBag.LanguagePack["employeereport_index_name"]
+                    </th>
+                    <th data-options="field:'s3',align:'center'">
+                        @ViewBag.LanguagePack["employeereport_index_time"]
+                    </th>
+                    <th data-options="field:'s4',align:'left'">
+                        @ViewBag.LanguagePack["employeereport_index_total"]
+                    </th>
+                    @for (int t = 0; t < _BrandList.Count; t++)
+                    {
+                        <th data-options="field:'b_@_BrandList[t][0]',align:'center'">
+                            @_BrandList[t][1]
+                        </th>
+                    }
+                    <th data-options="field:'s5',align:'center'">
+                        @ViewBag.LanguagePack["common_operation"]
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+@section scripts {
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    <script type="text/javascript">
+        $(function () {
+            //列表
+            easyUIExtend.Grid.List($('#dg'), {
+                toolbar: '#toolbar',
+                url: '@Url.Action("Index_Message", "EmployeeReport")',
+                queryParams: {
+                    groupid: $('#GroupTime').combobox("getValue")
+                },
+                pagination: false,
+                rowStyler: function (index, row) {
+                    if (index % 2 == 1) {
+                        return 'background-color:#eee;';
+                    }
+                },
+                onLoadSuccess: onLoadSuccess
+            });
+
+            //搜索
+            $('#SearchButton').bind('click', function () {
+                easyUIExtend.Grid.Search($('#dg'), {
+                    groupid: $('#GroupTime').combobox("getValue"),
+                    email: $('#CustomerEmail').textbox("getValue"),
+                    is_warning: $('#IsWarning').prop("checked") ? 1 : 0
+                });
+            });
+
+            //操作
+            $('#toolbar').find('#refresh').bind('click', function () {
+                easyUIExtend.Grid.Refresh($('#dg'));
+            });
+            //导出数据
+            $('#exportexcel').bind('click', function () {
+                $('#SearchForm').submit();
+            });
+        });
+
+        function onLoadSuccess() {
+            var _total = $('#dg').datagrid("getRows").length;
+            for (var i = 0; i < 2 * _total; i++) {
+                $('#dg').datagrid('mergeCells', {
+                    index: 2 * i,
+                    field: 's1',
+                    rowspan: 2
+                });
+                $('#dg').datagrid('mergeCells', {
+                    index: 2 * i,
+                    field: 's2',
+                    rowspan: 2
+                });
+                $('#dg').datagrid('mergeCells', {
+                    index: 2 * i,
+                    field: 's3',
+                    rowspan: 2
+                });
+                $('#dg').datagrid('mergeCells', {
+                    index: 2 * i,
+                    field: 's5',
+                    rowspan: 2
+                });
+            }
+
+            //$('#dg').datagrid({
+            //    rowStyler: function (index, row) {
+            //        if (index==0) {
+            //            return 'background-color:pink;color:blue;font-weight:bold;';
+            //        }
+            //    }
+            //});
+        }
+    </script>
+}
+

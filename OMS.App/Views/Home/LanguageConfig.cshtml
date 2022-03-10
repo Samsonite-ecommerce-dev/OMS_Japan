@@ -1,0 +1,57 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var _LanguageList = (List<Samsonite.OMS.DTO.AppLanguagePack>)ViewData["language_list"];
+}
+<div class="main">
+    <div class="main_edit">
+        <form id="subform" method="post">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>
+                            <span class="color_danger">*</span>@ViewBag.LanguagePack["home_languageconfig_select"]：
+                        </th>
+                        <td>
+                            @foreach (var _O in _LanguageList)
+                            {
+                                <input id="lg_@_O.ID" name="Language" type="radio" value="@_O.ID" @((ViewBag.LanguageType == _O.ID) ? "checked=\"checked\"" : "") /><label for="lg_@_O.ID">@_O.Name</label>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input id="submit_button" type="button" class="btn btn-info" value="@ViewBag.LanguagePack["common_save"]" />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+@section scripts {
+    <script type="text/javascript">
+        $(function () {
+            $('#submit_button').bind('click', function () {
+                $button = $(this);
+                easyUIExtend.SubForm({
+                    form: $('#subform'),
+                    url: '@Url.Action("LanguageConfig_Message", "Home")',
+                    button: $button,
+                    success: function (data) {
+                        artDialogExtend.Loading.Close();
+                        data = eval('(' + data + ')');
+                        if (data.result) {
+                            artDialogExtend.Tips.Success(data.msg, 2, function () {
+                                window.parent.location.href = window.parent.location.href;
+                            });
+                        }
+                        else {
+                            artDialogExtend.Tips.Alert(data.msg, 5);
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

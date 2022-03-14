@@ -51,49 +51,6 @@
                             @OMS.App.Helper.MallHelper.GetMallInterfaceTypeDisplay(_m.InterfaceType)
                         </td>
                     </tr>
-                    <tr id="tr_userid">
-                        <th>
-                            @ViewBag.LanguagePack["stores_edit_userid"]：
-                        </th>
-                        <td>
-                            <input id="UserID" name="UserID" type="text" class="easyui-textbox input-xxlarge" value="@_m.UserID" />
-                            <input id="RequireUserIDButton" type="button" value="@ViewBag.LanguagePack["common_require"]" class="btn btn-info" />
-                        </td>
-                    </tr>
-                    <tr id="tr_code">
-                        <th>
-                            @ViewBag.LanguagePack["stores_edit_code"]：
-                        </th>
-                        <td>
-                            <input id="Code" name="Code" type="text" class="easyui-textbox input-xlarge" />
-                            <input id="RequireCodeButton" type="button" value="@ViewBag.LanguagePack["common_require"]" class="btn btn-info" />
-                        </td>
-                    </tr>
-                    <tr id="tr_token">
-                        <th>
-                            @ViewBag.LanguagePack["stores_edit_token"]：
-                        </th>
-                        <td>
-                            <input id="Token" name="Token" type="text" class="easyui-textbox input-xxlarge" value="@_m.Token" />
-                            <input id="RequireTokenButton" type="button" value="@ViewBag.LanguagePack["common_require"]" class="btn btn-success" disabled="disabled" />
-                        </td>
-                    </tr>
-                    <tr id="tr_refresh_token">
-                        <th>
-                            @ViewBag.LanguagePack["stores_edit_refresh_token"]：
-                        </th>
-                        <td>
-                            <input id="RefreshToken" name="RefreshToken" type="text" class="easyui-textbox input-xxlarge" value="@_m.RefreshToken" />
-                        </td>
-                    </tr>
-                    <tr id="tr_tokentime">
-                        <th>
-                            @ViewBag.LanguagePack["stores_edit_tokentime"]：
-                        </th>
-                        <td>
-                            <input id="TokenTime" name="TokenTime" type="text" class="input-medium Wdate" value="@_m.TokenTime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
-                        </td>
-                    </tr>
                     <tr id="tr_ftp">
                         <th>
                             @ViewBag.LanguagePack["stores_edit_ftp"]：
@@ -134,147 +91,19 @@
                     }
                 }
             });
-
-            //Shopee获取店铺的UserID
-            $('#RequireUserIDButton').bind("click", function () {
-                if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.SHOPEE_Singapore)') {
-                    var _url = '@Html.Raw(Samsonite.OMS.Service.AuthorizationService.GenerateShopeeAuthUrl())';
-                    artDialogExtend.Dialog.Open(_url, {
-                        width: '75%',
-                        height: '75%'
-                    });
-                }
-                else {
-                    artDialogExtend.Message.Alert("This function supports Shopee only!");
-                }
-            });
-
-            //Lazada获取店铺的授权码
-            $('#RequireCodeButton').bind("click", function () {
-                if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.LAZADA_Singapore)') {
-                    var _url = '@Html.Raw(Samsonite.OMS.Service.AuthorizationService.GenerateLazadaAuthUrl())';
-                    artDialogExtend.Dialog.Open(_url, {
-                        width: '75%',
-                        height: '75%'
-                    });
-                }
-                else {
-                    artDialogExtend.Message.Alert("This function supports Lazada only!");
-                }
-            });
-
-            //Lazada获取店铺Token
-            $('#RequireTokenButton').bind("click", function () {
-                var _code = $('#Code').textbox('getValue');
-                if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.LAZADA_Singapore)')
-                {
-                    if($.trim(_code)!='')
-                    {
-                        $button = $(this);
-                        easyUIExtend.SubForm({
-                            form: $('#subform'),
-                            url: '@Url.Action("GetAccessToken_Message", "Store")',
-                            button: $button,
-                            success: function (data) {
-                                artDialogExtend.Loading.Close();
-                                $button.prop("disabled", false);
-
-                                data = eval('(' + data + ')');
-                                if (data.result) {
-                                    $('#Token').textbox('setValue',data.token);
-                                    $('#TokenTime').val(data.token_time);
-                                    $('#RefreshToken').textbox('setValue',data.refresh_token);
-                                }
-                                else {
-                                    artDialogExtend.Message.Alert(data.msg);
-                                }
-                            }
-                        });
-                    }
-                    else
-                    {
-                        artDialogExtend.Message.Alert('Please Input a Authorization Code!');
-                    }
-                }
-                else {
-                    artDialogExtend.Message.Alert("This function supports Lazada only!");
-                }
-            });
-
             SelectStore();
         });
 
         function SelectStore() {
-            if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.LAZADA_Singapore)') {
-                $('#tr_userid').hide();
-                $('#tr_code').show();
-                $('#tr_token').show();
-                $('#tr_refresh_token').show();
-                $('#tr_tokentime').show();
-                $('#tr_ftp').hide();
-            }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.DEMANDWARE_Singapore)') {
-                $('#tr_userid').hide();
-                $('#tr_code').hide();
-                $('#tr_token').hide();
-                $('#tr_refresh_token').hide();
-                $('#tr_tokentime').hide();
+            if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.TUMI_Japan)') {
                 $('#tr_ftp').show();
             }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.ZALORA_Singapore)') {
-                $('#tr_userid').show();
-                $('#RequireUserIDButton').hide();
-                $('#tr_code').hide();
-                $('#tr_token').show();
-                $('#RequireTokenButton').hide();
-                $('#tr_refresh_token').hide();
-                $('#tr_tokentime').show();
-                $('#tr_ftp').hide();
-            }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.TUMI_Singapore)') {
-                $('#tr_userid').hide();
-                $('#tr_code').hide();
-                $('#tr_token').hide();
-                $('#tr_refresh_token').hide();
-                $('#tr_tokentime').hide();
-                $('#tr_ftp').show();
-            }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.SHOPEE_Singapore)') {
-                $('#tr_userid').show();
-                $('#tr_code').hide();
-                $('#tr_token').hide();
-                $('#tr_refresh_token').hide();
-                $('#tr_tokentime').show();
-                $('#tr_ftp').hide();
-            }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.Micros_Singapore)') {
-                $('#tr_userid').hide();
-                $('#tr_code').hide();
-                $('#tr_token').hide();
-                $('#tr_refresh_token').hide();
-                $('#tr_tokentime').hide();
+            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.Micros_Japan)') {
                 $('#tr_ftp').show();
             }
             else {
-                $('#tr_userid').hide();
-                $('#tr_code').hide();
-                $('#tr_token').hide();
-                $('#tr_refresh_token').hide();
-                $('#tr_tokentime').hide();
                 $('#tr_ftp').hide();
             }
-        }
-
-        //返回Lazada店铺授权码
-        function SetCode(val)
-        {
-            $('#Code').textbox('setValue',val);
-        }
-
-        //返回Shopee店铺ID
-        function SetUserID(val)
-        {
-            $('#UserID').textbox('setValue',val);
         }
     </script>
 }

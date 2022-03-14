@@ -590,8 +590,6 @@ namespace Samsonite.OMS.Service
                                     OrderProcessService.SetSubOrderStatus(objView_OrderCancel.SubOrderNo, (int)ProductStatus.CancelComplete, "Cancel process completed", objDB);
                                     //判断是否需要完结主订单
                                     OrderProcessService.CompleteOrder(objView_OrderCancel.OrderNo, objDB);
-                                    //判断是否需要完结D/N
-                                    DeliveryService.CompleteDelivery(objView_OrderCancel.OrderNo, objView_OrderCancel.SubOrderNo, objDB);
                                 }
                                 else
                                 {
@@ -607,8 +605,6 @@ namespace Samsonite.OMS.Service
                                 OrderProcessService.SetSubOrderStatus(objView_OrderCancel.SubOrderNo, (int)ProductStatus.CancelComplete, "Cancel process completed", objDB);
                                 //判断是否需要完结主订单
                                 OrderProcessService.CompleteOrder(objView_OrderCancel.OrderNo, objDB);
-                                //判断是否需要完结D/N
-                                DeliveryService.CompleteDelivery(objView_OrderCancel.OrderNo, objView_OrderCancel.SubOrderNo, objDB);
                             }
                         }
                         else
@@ -688,8 +684,6 @@ namespace Samsonite.OMS.Service
                                     OrderProcessService.SetSubOrderStatus(objView_OrderCancel.SubOrderNo, (int)ProductStatus.CancelComplete, "Cancel process completed", objDB);
                                     //判断是否需要完结主订单
                                     OrderProcessService.CompleteOrder(objView_OrderCancel.OrderNo, objDB);
-                                    //判断是否需要完结D/N
-                                    DeliveryService.CompleteDelivery(objView_OrderCancel.OrderNo, objView_OrderCancel.SubOrderNo, objDB);
                                 }
                                 else
                                 {
@@ -705,8 +699,6 @@ namespace Samsonite.OMS.Service
                                 OrderProcessService.SetSubOrderStatus(objView_OrderCancel.SubOrderNo, (int)ProductStatus.CancelComplete, "Cancel process completed", objDB);
                                 //判断是否需要完结主订单
                                 OrderProcessService.CompleteOrder(objView_OrderCancel.OrderNo, objDB);
-                                //判断是否需要完结D/N
-                                DeliveryService.CompleteDelivery(objView_OrderCancel.OrderNo, objView_OrderCancel.SubOrderNo, objDB);
                             }
                         }
                         else
@@ -786,8 +778,6 @@ namespace Samsonite.OMS.Service
                         OrderProcessService.SetSubOrderStatus(objOrderCancel.SubOrderNo, (int)ProductStatus.CancelComplete, "Cancel process completed", objDB);
                         //判断是否需要完结主订单
                         OrderProcessService.CompleteOrder(objOrderCancel.OrderNo, objDB);
-                        //判断是否需要完结D/N
-                        DeliveryService.CompleteDelivery(objOrderCancel.OrderNo, objOrderCancel.SubOrderNo, objDB);
 
                         //返回数据
                         _result[0] = true;

@@ -72,8 +72,9 @@ namespace OMS.App.Controllers
                                s4 = dy.PackEnglish,
                                s5 = dy.PackKorean,
                                s6 = dy.PackThai,
-                               s7 = string.Format("<a href=\"javascript: void(0)\" onclick=\"easyUIExtend.Grid.CommonOper($('#dg'),'" + Url.Action("Sort_Message", "Language") + "',{{id:{0},type:'U'}})\"><i class=\"fa fa-arrow-up color_success\"></i></a><a href=\"javascript: void(0)\" onclick=\"easyUIExtend.Grid.CommonOper($('#dg'),'" + Url.Action("Sort_Message", "Language") + "',{{id:{0},type:'D'}})\"><i class=\"fa fa-arrow-down color_success\"></i></a>", dy.ID),
-                               s8 = (!dy.IsDelete) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>",
+                               s7=dy.PackJapan,
+                               s8 = string.Format("<a href=\"javascript: void(0)\" onclick=\"easyUIExtend.Grid.CommonOper($('#dg'),'" + Url.Action("Sort_Message", "Language") + "',{{id:{0},type:'U'}})\"><i class=\"fa fa-arrow-up color_success\"></i></a><a href=\"javascript: void(0)\" onclick=\"easyUIExtend.Grid.CommonOper($('#dg'),'" + Url.Action("Sort_Message", "Language") + "',{{id:{0},type:'D'}})\"><i class=\"fa fa-arrow-down color_success\"></i></a>", dy.ID),
+                               s9 = (!dy.IsDelete) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>",
                            }
                 };
                 return _result;
@@ -109,6 +110,7 @@ namespace OMS.App.Controllers
             string _PackEnglishs = Request.Form["PackEnglish"];
             string _PackKoreans = Request.Form["PackKorean"];
             string _PackThais = Request.Form["PackThai"];
+            string _PackJapans = Request.Form["PackJapan"];
             using (var db = new ebEntities())
             {
                 using (var Trans = db.Database.BeginTransaction())
@@ -126,6 +128,7 @@ namespace OMS.App.Controllers
                         string[] _PackEnglish_Array = (!string.IsNullOrEmpty(_PackEnglishs)) ? _PackEnglishs.Split(',') : null;
                         string[] _PackKorean_Array = (!string.IsNullOrEmpty(_PackKoreans)) ? _PackKoreans.Split(',') : null;
                         string[] _PackThai_Array = (!string.IsNullOrEmpty(_PackThais)) ? _PackThais.Split(',') : null;
+                        string[] _PackJapan_Array = (!string.IsNullOrEmpty(_PackJapans)) ? _PackJapans.Split(',') : null;
                         string _key = string.Empty;
                         //要插队的排序号
                         int _N_SeqNumberID = 0;
@@ -182,6 +185,7 @@ namespace OMS.App.Controllers
                                 PackEnglish = (_PackEnglish_Array != null) ? _PackEnglish_Array[t] : "",
                                 PackKorean = (_PackKorean_Array != null) ? _PackKorean_Array[t] : "",
                                 PackThai = (_PackThai_Array != null) ? _PackThai_Array[t] : "",
+                                PackJapan = (_PackJapan_Array != null) ? _PackJapan_Array[t] : "",
                                 SeqNumber = _SeqNumberID,
                                 IsDelete = false
                             };
@@ -245,6 +249,7 @@ namespace OMS.App.Controllers
                             objLanguagePack.PackEnglish = _d.en;
                             objLanguagePack.PackKorean = _d.ko;
                             objLanguagePack.PackThai = _d.th;
+                            objLanguagePack.PackJapan = _d.jpn;
                         }
                         db.SaveChanges();
                         //编辑日志
@@ -277,6 +282,7 @@ namespace OMS.App.Controllers
             public string en { get; set; }
             public string ko { get; set; }
             public string th { get; set; }
+            public string jpn { get; set; }
         }
         #endregion
 

@@ -103,12 +103,6 @@
     <Compile Include="DeliverysDocument.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="DeliverysNote.cs">
-      <DependentUpon>appModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="DeliverysNoteDetail.cs">
-      <DependentUpon>appModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="DynamicRepository.cs" />
     <Compile Include="ECommercePlatform.cs">
       <DependentUpon>appModel.tt</DependentUpon>

@@ -19,6 +19,7 @@ namespace Samsonite.OMS.Service.AppLanguage
             _result.Add(new AppLanguagePack() { ID = (int)LanguagePackType.English, Key = "EN", Name = "English", FileName = "en", IsDefault = true });
             _result.Add(new AppLanguagePack() { ID = (int)LanguagePackType.Korean, Key = "KO", Name = "Korean", FileName = "en", IsDefault = false });
             _result.Add(new AppLanguagePack() { ID = (int)LanguagePackType.Thai, Key = "TH", Name = "Thai", FileName = "en", IsDefault = false });
+            _result.Add(new AppLanguagePack() { ID = (int)LanguagePackType.Japan, Key = "JPN", Name = "Japan", FileName = "en", IsDefault = false });
             return _result;
         }
 
@@ -53,6 +54,10 @@ namespace Samsonite.OMS.Service.AppLanguage
         /// <summary>
         /// 泰文
         /// </summary>
-        Thai = 5
+        Thai = 5,
+        /// <summary>
+        /// 日文
+        /// </summary>
+        Japan = 6
     }
 }

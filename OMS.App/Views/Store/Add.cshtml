@@ -157,27 +157,11 @@
 
         function SelectStore() {
             var _platformID = parseInt($('#PlatformCode').combobox("getValue"));
-            if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.LAZADA_Singapore)') {
-                SelectInterfaceType(0);
-                $('#tr_retail_mall').hide();
-            }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.DEMANDWARE_Singapore)') {
+            if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.TUMI_Japan)') {
                 SelectInterfaceType(1);
                 $('#tr_retail_mall').hide();
             }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.ZALORA_Singapore)') {
-                SelectInterfaceType(0);
-                $('#tr_retail_mall').hide();
-            }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.TUMI_Singapore)') {
-                SelectInterfaceType(1);
-                $('#tr_retail_mall').hide();
-            }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.SHOPEE_Singapore)') {
-                SelectInterfaceType(0);
-                $('#tr_retail_mall').hide();
-            }
-            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.Micros_Singapore)') {
+            else if (_platformID == '@((int)Samsonite.OMS.DTO.PlatformType.Micros_Japan)') {
                 SelectInterfaceType(1);
                 $('#StoreName').textbox("readonly", true);
                 $('#SapCode').textbox("readonly", true);

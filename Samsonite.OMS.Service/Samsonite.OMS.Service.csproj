@@ -88,15 +88,8 @@
     <Compile Include="AppNotification\NotificationService.cs" />
     <Compile Include="ExpressCompanyService.cs" />
     <Compile Include="EmailService.cs" />
-    <Compile Include="Sap\Catalog\CatalogConfig.cs" />
-    <Compile Include="Sap\Catalog\CatalogService.cs" />
-    <Compile Include="Sap\WMSInventory\WMSInventoryConfig.cs" />
-    <Compile Include="Sap\WMSInventory\WMSInventoryService.cs" />
     <Compile Include="Sap\Materials\MaterialConfig.cs" />
     <Compile Include="Sap\Materials\MaterialService.cs" />
-    <Compile Include="Sap\OutboundDelivery\OutboundDeliveryDTO.cs" />
-    <Compile Include="Sap\OutboundDelivery\OutboundDeliveryService.cs" />
-    <Compile Include="Sap\OutboundDelivery\OutboundDeliveryConfig.cs" />
     <Compile Include="SMSService.cs" />
     <Compile Include="ModuleService.cs" />
     <Compile Include="OrderReceiveService.cs" />

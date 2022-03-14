@@ -35,8 +35,6 @@ namespace Samsonite.OMS.Database
         public virtual DbSet<Customer> Customer { get; set; }
         public virtual DbSet<Deliverys> Deliverys { get; set; }
         public virtual DbSet<DeliverysDocument> DeliverysDocument { get; set; }
-        public virtual DbSet<DeliverysNote> DeliverysNote { get; set; }
-        public virtual DbSet<DeliverysNoteDetail> DeliverysNoteDetail { get; set; }
         public virtual DbSet<ECommercePlatform> ECommercePlatform { get; set; }
         public virtual DbSet<ECommercePushInventoryRecord> ECommercePushInventoryRecord { get; set; }
         public virtual DbSet<ECommercePushPriceRecord> ECommercePushPriceRecord { get; set; }

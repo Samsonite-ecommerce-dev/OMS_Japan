@@ -1082,9 +1082,6 @@
     <Content Include="Content\js-library\my97datepicker\4.7.2\skin\whyGreen\datepicker.css" />
     <Content Include="Content\js-library\my97datepicker\4.7.2\skin\whyGreen\img.gif" />
     <Content Include="Content\js-library\my97datepicker\4.7.2\WdatePicker.js" />
-    <Content Include="Document\Template\Shipping\manifests_template.html" />
-    <Content Include="Document\Template\Shipping\singpost_tumi_invoice_template.html" />
-    <Content Include="Document\Template\Shipping\singpost_sam_invoice_template.html" />
     <Content Include="Global.asax" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
@@ -1101,6 +1098,7 @@
     <Folder Include="App_Data\" />
     <Folder Include="Areas\Mobile\Content\js\locale\" />
     <Folder Include="Content\js-library\bootstrap\fileinput\fonts\" />
+    <Folder Include="Document\Template\Shipping\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />

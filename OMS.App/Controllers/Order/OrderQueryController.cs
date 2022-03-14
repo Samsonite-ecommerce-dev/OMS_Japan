@@ -1159,15 +1159,12 @@ namespace OMS.App.Controllers
                 List<string> _Orders = _list.Select(p => "'" + (string)p.OrderNo + "'").ToList();
                 List<OrderModify> objOrderModify_List = new List<OrderModify>();
                 List<OrderGift> objOrderGift_List = new List<OrderGift>();
-                List<DeliverysNoteDetail> objDeliverysNoteDetail_List = new List<DeliverysNoteDetail>();
                 if (_Orders.Count > 0)
                 {
                     //获取更新的地址信息
                     objOrderModify_List = db.Fetch<OrderModify>($"select Id,OrderNo,SubOrderNo,CustomerName,Tel,Province,City,District,Addr from OrderModify where OrderNo in ({string.Join(",", _Orders)}) and Status={(int)ProcessStatus.ModifyComplete}");
                     //读取赠品
                     objOrderGift_List = db.Fetch<OrderGift>($"select OrderNo,SubOrderNo,Sku,Quantity from OrderGift where OrderNo in ({string.Join(",", _Orders)})");
-                    //关联DN信息
-                    objDeliverysNoteDetail_List = db.Fetch<DeliverysNoteDetail>($"select OrderNo,SubOrderNo,DeliveryNo from DeliverysNoteDetail where OrderNo in ({string.Join(",", _Orders)})");
                 }
 
                 foreach (dynamic _dy in _list)
@@ -1193,12 +1190,6 @@ namespace OMS.App.Controllers
                         {
                             _dy.Gifts += $",{_gf.Sku}*{_gf.Quantity}";
                         }
-                    }
-                    //DN信息
-                    var objDeliverysNoteDetail = objDeliverysNoteDetail_List.Where(p => p.OrderNo == _dy.OrderNo && p.SubOrderNo == _dy.SubOrderNo).FirstOrDefault();
-                    if (objDeliverysNoteDetail != null)
-                    {
-                        _dy.DeliveryNo = objDeliverysNoteDetail.DeliveryNo;
                     }
 
                     //数据解密并脱敏

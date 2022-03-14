@@ -22,6 +22,7 @@ namespace Samsonite.OMS.Database
         public string PackTraditionalChinese { get; set; }
         public string PackKorean { get; set; }
         public string PackThai { get; set; }
+        public string PackJapan { get; set; }
         public int SeqNumber { get; set; }
         public bool IsDelete { get; set; }
     }

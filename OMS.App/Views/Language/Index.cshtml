@@ -36,7 +36,7 @@
                 <tr>
                     <th data-options="field:'ck',checkbox:true">
                     </th>
-                    <th data-options="field:'s7',align:'center'">
+                    <th data-options="field:'s8',align:'center'">
                         @ViewBag.LanguagePack["language_index_sort"]
                     </th>
                     <th data-options="field:'s1',align:'left'">
@@ -57,7 +57,10 @@
                     <th data-options="field:'s6',align:'left',editor:'text'">
                         @ViewBag.LanguagePack["language_index_thai"]
                     </th>
-                    <th data-options="field:'s8',align:'center'">
+                    <th data-options="field:'s7',align:'left',editor:'text'">
+                        @ViewBag.LanguagePack["language_index_japan"]
+                    </th>
+                    <th data-options="field:'s9',align:'center'">
                         @ViewBag.LanguagePack["language_index_state"]
                     </th>
                 </tr>
@@ -165,6 +168,7 @@
                         _r.en = _rows[t].s4;
                         _r.ko = _rows[t].s5;
                         _r.th = _rows[t].s6;
+                        _r.jpn = _rows[t].s7;
                         _arr.push(_r);
                     }
                     _data_message = JSON.stringify(_arr);

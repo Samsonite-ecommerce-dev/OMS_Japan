@@ -569,15 +569,6 @@ namespace Test
             Console.WriteLine(x.ResultData.Count);
         }
 
-        public static void PushDN()
-        {
-            TumiAPI objTumiAPI = TumiAPIClient();
-            var x = objTumiAPI.PushOBDFile(true);
-            Console.WriteLine($"Urgent:{x.SuccessRecord}");
-            var y = objTumiAPI.PushOBDFile(false);
-            Console.WriteLine($"No Urgent:{y.SuccessRecord}");
-        }
-
         public static void PushOrderDetail()
         {
             /****************** TumiAPI  Order  OrderDetail**************************/

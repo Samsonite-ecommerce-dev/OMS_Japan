@@ -445,8 +445,6 @@ namespace Samsonite.OMS.Service
                                 {
                                     //判断是否需要完结主订单
                                     OrderProcessService.CompleteOrder(objOrderDetail.OrderNo, db);
-                                    //判断是否需要完结D/N
-                                    DeliveryService.CompleteDelivery(objOrderDetail.OrderNo, objOrderDetail.SubOrderNo, db);
                                 }
                             }
                         }

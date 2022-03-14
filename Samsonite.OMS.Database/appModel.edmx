@@ -161,34 +161,6 @@
           <Property Name="DocumentFile" Type="nvarchar" MaxLength="256" />
           <Property Name="CreateTime" Type="datetime" Nullable="false" />
         </EntityType>
-        <EntityType Name="DeliverysNote">
-          <Key>
-            <PropertyRef Name="NoteID" />
-          </Key>
-          <Property Name="NoteID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="DeliveryNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="MallSapCode" Type="varchar" MaxLength="32" Nullable="false" />
-          <Property Name="NoteMessage" Type="nvarchar" MaxLength="500" />
-          <Property Name="IsDeal" Type="bit" Nullable="false" />
-          <Property Name="CreateTime" Type="datetime" Nullable="false" />
-          <Property Name="OperUserID" Type="int" Nullable="false" />
-          <Property Name="OperTime" Type="datetime" />
-          <Property Name="IsUsed" Type="bit" Nullable="false" />
-        </EntityType>
-        <EntityType Name="DeliverysNoteDetail">
-          <Key>
-            <PropertyRef Name="NoteDetailID" />
-          </Key>
-          <Property Name="NoteDetailID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="NoteID" Type="bigint" Nullable="false" />
-          <Property Name="DeliveryNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="SortID" Type="int" Nullable="false" />
-          <Property Name="OrderNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="SubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="IsFinish" Type="bit" Nullable="false" />
-          <Property Name="FinishUserID" Type="int" Nullable="false" />
-          <Property Name="FinishTime" Type="datetime" />
-        </EntityType>
         <EntityType Name="ECommercePlatform">
           <Key>
             <PropertyRef Name="Id" />
@@ -304,6 +276,7 @@
           <Property Name="PackTraditionalChinese" Type="nvarchar" MaxLength="256" />
           <Property Name="PackKorean" Type="nvarchar" MaxLength="256" />
           <Property Name="PackThai" Type="nvarchar" MaxLength="256" />
+          <Property Name="PackJapan" Type="nvarchar" MaxLength="256" />
           <Property Name="SeqNumber" Type="int" Nullable="false" />
           <Property Name="IsDelete" Type="bit" Nullable="false" />
         </EntityType>
@@ -549,7 +522,6 @@
           <Property Name="Status" Type="int" Nullable="false" />
           <Property Name="EBStatus" Type="nvarchar" MaxLength="50" />
           <Property Name="ShippingProvider" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="PackageNumber" Type="varchar" MaxLength="50" />
           <Property Name="ShippingType" Type="int" Nullable="false" />
           <Property Name="ShippingStatus" Type="int" Nullable="false" />
           <Property Name="DeliveringPlant" Type="varchar" MaxLength="32" Nullable="false" />
@@ -1374,7 +1346,7 @@
           <Property Name="InterfaceID" Type="int" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_ApprovalRecord”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_ApprovalRecord”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_ApprovalRecord">
           <Key>
             <PropertyRef Name="ID" />
@@ -1396,7 +1368,7 @@
           <Property Name="ApprovalUserName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_DeliverysNote”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_DeliverysNote”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_DeliverysNote">
           <Key>
             <PropertyRef Name="NoteID" />
@@ -1422,7 +1394,7 @@
           <Property Name="OperUserName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_Mall_Platform”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_Mall_Platform”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_Mall_Platform">
           <Key>
             <PropertyRef Name="Id" />
@@ -1470,7 +1442,7 @@
           <Property Name="VirtualWMSCode" Type="varchar" MaxLength="32" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_MallDetail”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_MallDetail”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_MallDetail">
           <Key>
             <PropertyRef Name="Id" />
@@ -1520,7 +1492,7 @@
           <Property Name="RelatedBrandStore" Type="varchar" MaxLength="512" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_MallProductInventory”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_MallProductInventory”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_MallProductInventory">
           <Key>
             <PropertyRef Name="ID" />
@@ -1600,7 +1572,7 @@
           <Property Name="SalesValidEnd" Type="varchar" MaxLength="30" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_OrderCancel”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_OrderCancel”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_OrderCancel">
           <Key>
             <PropertyRef Name="Id" />
@@ -1675,7 +1647,7 @@
           <Property Name="RefundExpress" Type="decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_OrderDetail”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_OrderDetail”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_OrderDetail">
           <Key>
             <PropertyRef Name="MallSapCode" />
@@ -1819,10 +1791,9 @@
           <Property Name="IsStop" Type="bit" Nullable="false" />
           <Property Name="ShippingProvider" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="DeliveringPlant" Type="varchar" MaxLength="32" Nullable="false" />
-          <Property Name="PackageNumber" Type="varchar" MaxLength="50" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_OrderDetail_Deliverys”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_OrderDetail_Deliverys”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_OrderDetail_Deliverys">
           <Key>
             <PropertyRef Name="Id" />
@@ -1938,7 +1909,7 @@
           <Property Name="DeliveringPlant" Type="varchar" MaxLength="32" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_OrderDetail_Receive”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_OrderDetail_Receive”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_OrderDetail_Receive">
           <Key>
             <PropertyRef Name="Id" />
@@ -2035,7 +2006,7 @@
           <Property Name="ParentSubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_OrderExchange”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_OrderExchange”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_OrderExchange">
           <Key>
             <PropertyRef Name="Id" />
@@ -2108,7 +2079,7 @@
           <Property Name="ExpressAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_OrderModify”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_OrderModify”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_OrderModify">
           <Key>
             <PropertyRef Name="Id" />
@@ -2174,7 +2145,7 @@
           <Property Name="ExpressId" Type="int" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_OrderReject”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_OrderReject”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_OrderReject">
           <Key>
             <PropertyRef Name="Id" />
@@ -2214,7 +2185,7 @@
           <Property Name="AcceptUserName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_OrderReturn”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_OrderReturn”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_OrderReturn">
           <Key>
             <PropertyRef Name="Id" />
@@ -2300,7 +2271,7 @@
           <Property Name="ShippingPickUpTimeType" Type="int" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_ProductSet”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_ProductSet”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_ProductSet">
           <Key>
             <PropertyRef Name="Id" />
@@ -2329,7 +2300,7 @@
           <Property Name="AddUserName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_Promotion”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_Promotion”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_Promotion">
           <Key>
             <PropertyRef Name="Id" />
@@ -2369,7 +2340,7 @@
           <Property Name="AddUserName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_SysFunction”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_SysFunction”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_SysFunction">
           <Key>
             <PropertyRef Name="Funcid" />
@@ -2396,7 +2367,7 @@
           <Property Name="GroupName" Type="nvarchar" MaxLength="32" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Singapore_Encryption.dbo.View_UserEmployee”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+警告 6002: 表/视图“OMS_Japan.dbo.View_UserEmployee”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_UserEmployee">
           <Key>
             <PropertyRef Name="EmployeeID" />
@@ -2449,8 +2420,6 @@
           <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Deliverys" EntityType="Self.Deliverys" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="DeliverysDocument" EntityType="Self.DeliverysDocument" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="DeliverysNote" EntityType="Self.DeliverysNote" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="DeliverysNoteDetail" EntityType="Self.DeliverysNoteDetail" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ECommercePlatform" EntityType="Self.ECommercePlatform" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ECommercePushInventoryRecord" EntityType="Self.ECommercePushInventoryRecord" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="ECommercePushPriceRecord" EntityType="Self.ECommercePushPriceRecord" Schema="dbo" store:Type="Tables" />
@@ -2782,8 +2751,7 @@
     [View_OrderDetail].[LoyaltyCardNo] AS [LoyaltyCardNo], 
     [View_OrderDetail].[IsStop] AS [IsStop], 
     [View_OrderDetail].[ShippingProvider] AS [ShippingProvider], 
-    [View_OrderDetail].[DeliveringPlant] AS [DeliveringPlant], 
-    [View_OrderDetail].[PackageNumber] AS [PackageNumber]
+    [View_OrderDetail].[DeliveringPlant] AS [DeliveringPlant]
     FROM [dbo].[View_OrderDetail] AS [View_OrderDetail]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="View_OrderDetail_Deliverys" EntityType="Self.View_OrderDetail_Deliverys" store:Type="Views" store:Schema="dbo">
@@ -3181,8 +3149,6 @@
           <EntitySet Name="Customer" EntityType="Samsonite.OMS.Database.Customer" />
           <EntitySet Name="Deliverys" EntityType="Samsonite.OMS.Database.Deliverys" />
           <EntitySet Name="DeliverysDocument" EntityType="Samsonite.OMS.Database.DeliverysDocument" />
-          <EntitySet Name="DeliverysNote" EntityType="Samsonite.OMS.Database.DeliverysNote" />
-          <EntitySet Name="DeliverysNoteDetail" EntityType="Samsonite.OMS.Database.DeliverysNoteDetail" />
           <EntitySet Name="ECommercePlatform" EntityType="Samsonite.OMS.Database.ECommercePlatform" />
           <EntitySet Name="ECommercePushInventoryRecord" EntityType="Samsonite.OMS.Database.ECommercePushInventoryRecord" />
           <EntitySet Name="ECommercePushPriceRecord" EntityType="Samsonite.OMS.Database.ECommercePushPriceRecord" />
@@ -3425,34 +3391,6 @@
           <Property Name="DocumentFile" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="CreateTime" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
-        <EntityType Name="DeliverysNote">
-          <Key>
-            <PropertyRef Name="NoteID" />
-          </Key>
-          <Property Name="NoteID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="DeliveryNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="MallSapCode" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
-          <Property Name="NoteMessage" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="IsDeal" Type="Boolean" Nullable="false" />
-          <Property Name="CreateTime" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="OperUserID" Type="Int32" Nullable="false" />
-          <Property Name="OperTime" Type="DateTime" Precision="3" />
-          <Property Name="IsUsed" Type="Boolean" Nullable="false" />
-        </EntityType>
-        <EntityType Name="DeliverysNoteDetail">
-          <Key>
-            <PropertyRef Name="NoteDetailID" />
-          </Key>
-          <Property Name="NoteDetailID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NoteID" Type="Int64" Nullable="false" />
-          <Property Name="DeliveryNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="SortID" Type="Int32" Nullable="false" />
-          <Property Name="OrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="SubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="IsFinish" Type="Boolean" Nullable="false" />
-          <Property Name="FinishUserID" Type="Int32" Nullable="false" />
-          <Property Name="FinishTime" Type="DateTime" Precision="3" />
-        </EntityType>
         <EntityType Name="ECommercePlatform">
           <Key>
             <PropertyRef Name="Id" />
@@ -3568,6 +3506,7 @@
           <Property Name="PackTraditionalChinese" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="PackKorean" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="PackThai" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <Property Name="PackJapan" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="SeqNumber" Type="Int32" Nullable="false" />
           <Property Name="IsDelete" Type="Boolean" Nullable="false" />
         </EntityType>
@@ -3813,7 +3752,6 @@
           <Property Name="Status" Type="Int32" Nullable="false" />
           <Property Name="EBStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="ShippingProvider" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="PackageNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="ShippingType" Type="Int32" Nullable="false" />
           <Property Name="ShippingStatus" Type="Int32" Nullable="false" />
           <Property Name="DeliveringPlant" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
@@ -5069,7 +5007,6 @@
           <Property Name="IsStop" Type="Boolean" Nullable="false" />
           <Property Name="ShippingProvider" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DeliveringPlant" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
-          <Property Name="PackageNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="View_OrderDetail_Deliverys">
           <Key>
@@ -5840,36 +5777,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="DeliverysNote">
-            <EntityTypeMapping TypeName="Samsonite.OMS.Database.DeliverysNote">
-              <MappingFragment StoreEntitySet="DeliverysNote">
-                <ScalarProperty Name="IsUsed" ColumnName="IsUsed" />
-                <ScalarProperty Name="OperTime" ColumnName="OperTime" />
-                <ScalarProperty Name="OperUserID" ColumnName="OperUserID" />
-                <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
-                <ScalarProperty Name="IsDeal" ColumnName="IsDeal" />
-                <ScalarProperty Name="NoteMessage" ColumnName="NoteMessage" />
-                <ScalarProperty Name="MallSapCode" ColumnName="MallSapCode" />
-                <ScalarProperty Name="DeliveryNo" ColumnName="DeliveryNo" />
-                <ScalarProperty Name="NoteID" ColumnName="NoteID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="DeliverysNoteDetail">
-            <EntityTypeMapping TypeName="Samsonite.OMS.Database.DeliverysNoteDetail">
-              <MappingFragment StoreEntitySet="DeliverysNoteDetail">
-                <ScalarProperty Name="FinishTime" ColumnName="FinishTime" />
-                <ScalarProperty Name="FinishUserID" ColumnName="FinishUserID" />
-                <ScalarProperty Name="IsFinish" ColumnName="IsFinish" />
-                <ScalarProperty Name="SubOrderNo" ColumnName="SubOrderNo" />
-                <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
-                <ScalarProperty Name="SortID" ColumnName="SortID" />
-                <ScalarProperty Name="DeliveryNo" ColumnName="DeliveryNo" />
-                <ScalarProperty Name="NoteID" ColumnName="NoteID" />
-                <ScalarProperty Name="NoteDetailID" ColumnName="NoteDetailID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="ECommercePlatform">
             <EntityTypeMapping TypeName="Samsonite.OMS.Database.ECommercePlatform">
               <MappingFragment StoreEntitySet="ECommercePlatform">
@@ -5985,6 +5892,7 @@
               <MappingFragment StoreEntitySet="LanguagePack">
                 <ScalarProperty Name="IsDelete" ColumnName="IsDelete" />
                 <ScalarProperty Name="SeqNumber" ColumnName="SeqNumber" />
+                <ScalarProperty Name="PackJapan" ColumnName="PackJapan" />
                 <ScalarProperty Name="PackThai" ColumnName="PackThai" />
                 <ScalarProperty Name="PackKorean" ColumnName="PackKorean" />
                 <ScalarProperty Name="PackTraditionalChinese" ColumnName="PackTraditionalChinese" />
@@ -6251,7 +6159,6 @@
                 <ScalarProperty Name="DeliveringPlant" ColumnName="DeliveringPlant" />
                 <ScalarProperty Name="ShippingStatus" ColumnName="ShippingStatus" />
                 <ScalarProperty Name="ShippingType" ColumnName="ShippingType" />
-                <ScalarProperty Name="PackageNumber" ColumnName="PackageNumber" />
                 <ScalarProperty Name="ShippingProvider" ColumnName="ShippingProvider" />
                 <ScalarProperty Name="EBStatus" ColumnName="EBStatus" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
@@ -7315,7 +7222,6 @@
           <EntitySetMapping Name="View_OrderDetail">
             <EntityTypeMapping TypeName="Samsonite.OMS.Database.View_OrderDetail">
               <MappingFragment StoreEntitySet="View_OrderDetail">
-                <ScalarProperty Name="PackageNumber" ColumnName="PackageNumber" />
                 <ScalarProperty Name="DeliveringPlant" ColumnName="DeliveringPlant" />
                 <ScalarProperty Name="ShippingProvider" ColumnName="ShippingProvider" />
                 <ScalarProperty Name="IsStop" ColumnName="IsStop" />

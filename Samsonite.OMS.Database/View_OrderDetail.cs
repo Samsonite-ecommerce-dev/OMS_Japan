@@ -98,6 +98,5 @@ namespace Samsonite.OMS.Database
         public bool IsStop { get; set; }
         public string ShippingProvider { get; set; }
         public string DeliveringPlant { get; set; }
-        public string PackageNumber { get; set; }
     }
 }

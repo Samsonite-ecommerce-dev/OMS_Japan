@@ -38,7 +38,6 @@ namespace Samsonite.OMS.Database
         public int Status { get; set; }
         public string EBStatus { get; set; }
         public string ShippingProvider { get; set; }
-        public string PackageNumber { get; set; }
         public int ShippingType { get; set; }
         public int ShippingStatus { get; set; }
         public string DeliveringPlant { get; set; }

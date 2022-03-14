@@ -853,18 +853,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
 
         #endregion
 
-        #region 推送OBD
-        /// <summary>
-        /// 推送OBD文件
-        /// </summary>
-        /// <returns></returns>
-        public CommonResult PushOBDFile(bool objIsUrgent)
-        {
-            int _perPage = 50;
-            return ExtendAPI.PushOBDFile(this.MallSapCode, objIsUrgent, _perPage);
-        }
-        #endregion
-
         #region 函数
         /// <summary>
         /// 获取支付类型(默认支付宝,如果订单类型是货到付款,则支付方式也为货到付款)

@@ -404,13 +404,6 @@ namespace Test
             //SapService.GeneratePosLogs(DateTime.Now.AddDays(-30),DateTime.Now.AddDays(-10), "", mallCodes);
         }
 
-        public static void PushDN()
-        {
-            MicrosAPI objMicrosAPI = MicrosAPIClinet();
-            var x = objMicrosAPI.PushOBDFile(false);
-            Console.WriteLine(x.SuccessRecord);
-        }
-
         public static void PushOrderDetail()
         {
             /****************** MicrosAPI  Order  OrderDetail**************************/

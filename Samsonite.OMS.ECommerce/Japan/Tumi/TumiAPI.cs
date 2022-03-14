@@ -2265,18 +2265,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         }
         #endregion
 
-        #region 推送OBD
-        /// <summary>
-        /// 推送OBD文件
-        /// </summary>
-        /// <returns></returns>
-        public CommonResult PushOBDFile(bool objIsUrgent)
-        {
-            int _perPage = 50;
-            return ExtendAPI.PushOBDFile(this.MallSapCode, objIsUrgent, _perPage);
-        }
-        #endregion
-
         #region 函数
         /// <summary>
         /// 解析Monogram

@@ -6,7 +6,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <_PublishTargetUrl>D:\Publish\Singapore\OMS_App</_PublishTargetUrl>
+    <_PublishTargetUrl>D:\Publish\Japan\OMS_App</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="Areas/Mobile/Content/css/bootstrap.extend.css">
@@ -175,10 +175,10 @@
       <publishTime>05/07/2018 11:39:33</publishTime>
     </File>
     <File Include="bin/OMS.App.dll">
-      <publishTime>01/18/2022 15:06:52</publishTime>
+      <publishTime>03/14/2022 15:00:40</publishTime>
     </File>
     <File Include="bin/OMS.App.pdb">
-      <publishTime>01/18/2022 15:06:52</publishTime>
+      <publishTime>03/14/2022 15:00:40</publishTime>
     </File>
     <File Include="bin/Org.Mentalis.Security.dll">
       <publishTime>09/07/2015 09:08:51</publishTime>
@@ -193,43 +193,43 @@
       <publishTime>08/28/2014 10:12:56</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Database.dll">
-      <publishTime>11/16/2021 16:45:28</publishTime>
+      <publishTime>03/14/2022 14:56:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Database.dll.config">
-      <publishTime>09/19/2019 10:37:59</publishTime>
+      <publishTime>03/14/2022 11:37:01</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Database.pdb">
-      <publishTime>11/16/2021 16:45:28</publishTime>
+      <publishTime>03/14/2022 14:56:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.DTO.dll">
-      <publishTime>11/16/2021 16:45:29</publishTime>
+      <publishTime>03/14/2022 14:56:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.DTO.pdb">
-      <publishTime>11/16/2021 16:45:29</publishTime>
+      <publishTime>03/14/2022 14:56:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.ECommerce.dll">
-      <publishTime>01/18/2022 15:06:40</publishTime>
+      <publishTime>03/14/2022 14:59:12</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.ECommerce.pdb">
-      <publishTime>01/18/2022 15:06:40</publishTime>
+      <publishTime>03/14/2022 14:59:12</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Encryption.dll">
-      <publishTime>11/16/2021 16:45:29</publishTime>
+      <publishTime>03/14/2022 14:56:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Encryption.pdb">
-      <publishTime>11/16/2021 16:45:29</publishTime>
+      <publishTime>03/14/2022 14:56:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Service.dll">
-      <publishTime>01/18/2022 15:06:38</publishTime>
+      <publishTime>03/14/2022 14:56:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Service.pdb">
-      <publishTime>01/18/2022 15:06:38</publishTime>
+      <publishTime>03/14/2022 14:56:28</publishTime>
     </File>
     <File Include="bin/Samsonite.Utility.dll">
-      <publishTime>11/10/2021 15:38:33</publishTime>
+      <publishTime>02/24/2022 10:20:21</publishTime>
     </File>
     <File Include="bin/Samsonite.Utility.pdb">
-      <publishTime>11/10/2021 15:38:33</publishTime>
+      <publishTime>02/24/2022 10:20:21</publishTime>
     </File>
     <File Include="bin/ShopeeSdk.dll">
       <publishTime>11/10/2021 15:38:33</publishTime>
@@ -238,16 +238,16 @@
       <publishTime>11/10/2021 15:38:33</publishTime>
     </File>
     <File Include="bin/SingPostSdk.dll">
-      <publishTime>12/15/2021 10:18:17</publishTime>
+      <publishTime>03/14/2022 14:59:11</publishTime>
     </File>
     <File Include="bin/SingPostSdk.dll.config">
       <publishTime>06/20/2019 16:04:17</publishTime>
     </File>
     <File Include="bin/SingPostSdk.pdb">
-      <publishTime>12/15/2021 10:18:17</publishTime>
+      <publishTime>03/14/2022 14:59:11</publishTime>
     </File>
     <File Include="bin/SingPostSdk.XmlSerializers.dll">
-      <publishTime>12/15/2021 10:18:18</publishTime>
+      <publishTime>03/14/2022 14:59:12</publishTime>
     </File>
     <File Include="bin/System.Web.Helpers.dll">
       <publishTime>10/24/2016 10:12:10</publishTime>
@@ -3205,10 +3205,10 @@
       <publishTime>11/19/2019 11:33:19</publishTime>
     </File>
     <File Include="Views/Language/Add.cshtml">
-      <publishTime>10/25/2017 11:20:32</publishTime>
+      <publishTime>03/14/2022 13:45:11</publishTime>
     </File>
     <File Include="Views/Language/Index.cshtml">
-      <publishTime>07/19/2019 10:11:04</publishTime>
+      <publishTime>03/14/2022 13:45:05</publishTime>
     </File>
     <File Include="Views/Login/Index.cshtml">
       <publishTime>06/27/2019 09:13:12</publishTime>
@@ -3466,7 +3466,7 @@
       <publishTime>10/24/2016 10:20:37</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>10/23/2021 16:27:32</publishTime>
+      <publishTime>03/14/2022 14:59:19</publishTime>
     </File>
   </ItemGroup>
 </Project>

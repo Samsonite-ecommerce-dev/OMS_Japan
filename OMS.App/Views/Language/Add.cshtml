@@ -103,6 +103,11 @@
                     _str += '<th>@ViewBag.LanguagePack["language_edit_thai"]：</th><td><input name="PackThai" type="text" class="easyui-text input-xxlarge" /></td>';
                     _str += '</tr>';
                 }
+                if ((',@_ConfigKey,').indexOf(',@((int)Samsonite.OMS.Service.AppLanguage.LanguagePackType.Japan),') > -1) {
+                    _str += '<tr>';
+                    _str += '<th>@ViewBag.LanguagePack["language_edit_japan"]：</th><td><input name="PackJapan" type="text" class="easyui-text input-xxlarge" /></td>';
+                    _str += '</tr>';
+                }
                 _str += '</tbody>';
                 _str += '</table>';
                 $('#key_area').append(_str);

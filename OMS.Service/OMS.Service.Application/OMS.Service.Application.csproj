@@ -53,7 +53,6 @@
     <Compile Include="AnalysisReport.cs" />
     <Compile Include="DataClaimFromAPI.cs" />
     <Compile Include="PoslogReplyFromSAP.cs" />
-    <Compile Include="DataInventoryFromWMS.cs" />
     <Compile Include="PoslogToSAP.cs" />
     <Compile Include="DataExpress.cs" />
     <Compile Include="DataProductFromAPI.cs" />

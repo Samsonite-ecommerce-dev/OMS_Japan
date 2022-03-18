@@ -72,6 +72,67 @@ namespace OMS.API.Models.Warehouse
     }
 
     /// <summary>
+    /// 换货
+    /// </summary>
+    public class ExchangeData
+    {
+        /// <summary>
+        /// 产品编号
+        /// </summary>
+        public string productId { get; set; }
+
+        /// <summary>
+        /// 产品sku
+        /// </summary>
+        public string sku { get; set; }
+
+        /// <summary>
+        /// 数量
+        /// </summary>
+        public int quantity { get; set; }
+
+        /// <summary>
+        /// 退货的快递公司
+        /// </summary>
+        public string expressCompany { get; set; }
+
+        /// <summary>
+        /// 退货的快递单号
+        /// </summary>
+        public string expressNo { get; set; }
+
+        /// <summary>
+        /// 收货人
+        /// </summary>
+        public string receiver { get; set; }
+
+        /// <summary>
+        /// 联系方式
+        /// </summary>
+        public string tel { get; set; }
+
+        /// <summary>
+        /// 手机号码
+        /// </summary>
+        public string mobile { get; set; }
+
+        /// <summary>
+        /// 邮政编码
+        /// </summary>
+        public string zipcode { get; set; }
+
+        /// <summary>
+        /// 收货地址
+        /// </summary>
+        public string address { get; set; }
+
+        /// <summary>
+        /// 备注
+        /// </summary>
+        public string remark { get; set; }
+    }
+
+    /// <summary>
     /// 退货
     /// </summary>
     public class ReturnData

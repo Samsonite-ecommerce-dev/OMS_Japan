@@ -21,9 +21,6 @@ namespace OMS.API
             //自定义权限验证标签
             config.Filters.Add(new AuthorizeFilterAttribute());
 
-            //自定义全局过滤器
-            config.Filters.Add(new ApiResultFilterAttribute());
-
             //自定义异常过滤器
             config.Filters.Add(new ApiExceptionFilterAttribute());
         }

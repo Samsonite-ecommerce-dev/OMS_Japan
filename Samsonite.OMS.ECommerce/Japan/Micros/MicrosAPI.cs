@@ -372,7 +372,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                         SellingPrice = XmlHelper.GetSingleNodeDecimalValue(saleForDelivery, $"{nsPrefix}RegularSalesUnitPrice", nsmgr),
                                         PaymentAmount = XmlHelper.GetSingleNodeDecimalValue(saleForDelivery, $"{nsPrefix}ActualSalesUnitPrice", nsmgr),
                                         ActualPaymentAmount = XmlHelper.GetSingleNodeDecimalValue(saleForDelivery, $"{nsPrefix}ActualSalesUnitPrice", nsmgr),
-                                        Status = (int)ProductStatus.Pending,
+                                        Status = (int)ProductStatus.Received,
                                         EBStatus = string.Empty,
                                         ShippingProvider = string.Empty,
                                         ShippingType = (int)ShipType.OMSShipping,

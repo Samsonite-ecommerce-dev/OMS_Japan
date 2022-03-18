@@ -39,7 +39,11 @@ namespace Samsonite.OMS.DTO
         /// <summary>
         /// 仓库已读取
         /// </summary>
-        InDelivery = 1,
+        Processing = 1,
+        /// <summary>
+        /// 已发货
+        /// </summary>
+        InDelivery = 2,
         /// <summary>
         /// 店铺确认(O2O)
         /// </summary>
@@ -57,7 +61,7 @@ namespace Samsonite.OMS.DTO
         /// </summary>
         //PickupGoods = 5,
         /// <summary>
-        /// 已发货
+        /// 已发货完成(客户收到货物)
         /// </summary>
         Delivered = 10,
         /// <summary>

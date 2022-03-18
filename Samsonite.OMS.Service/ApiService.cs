@@ -8,6 +8,30 @@ namespace Samsonite.OMS.Service
     public class ApiService
     {
         /// <summary>
+        /// 获取api接口用途
+        /// </summary>
+        /// <param name="controller"></param>
+        /// <returns></returns>
+        public static int GetAPIType(string controller)
+        {
+            int _result = 0;
+            switch (controller)
+            {
+                case "Warehouse":
+                    _result = (int)APIType.Warehouse;
+                    break;
+                case "ClickCollect":
+                    _result = (int)APIType.ClickCollect;
+                    break;
+                case "Platform":
+                    _result = (int)APIType.Platform;
+                    break;
+            }
+
+            return _result;
+        }
+
+        /// <summary>
         /// 功能组列表
         /// </summary>
         /// <returns></returns>

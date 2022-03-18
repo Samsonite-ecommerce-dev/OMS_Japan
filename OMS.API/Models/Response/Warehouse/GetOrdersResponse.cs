@@ -21,14 +21,19 @@ namespace OMS.API.Models.Warehouse
         public string orderNo { get; set; }
 
         /// <summary>
+        /// 子订单号
+        /// </summary>
+        public string subOrderNo { get; set; }
+
+        /// <summary>
         /// 订单产生时间
         /// </summary>
         public string orderDate { get; set; }
 
-        /// <summary>
-        /// 电商虚拟仓库编号
-        /// </summary>
-        public string stockCode { get; set; }
+        ///// <summary>
+        ///// 电商虚拟仓库编号
+        ///// </summary>
+        //public string stockCode { get; set; }
 
         /// <summary>
         /// 付款方式
@@ -45,6 +50,90 @@ namespace OMS.API.Models.Warehouse
         /// </summary>
         public decimal salePrice { get; set; }
 
+        /// <summary>
+        /// sku
+        /// </summary>
+        public string sku { get; set; }
+
+        /// <summary>
+        /// 产品id(Material-Gdval)
+        /// </summary>
+        public string productId { get; set; }
+
+        /// <summary>
+        /// 产品名称
+        /// </summary>
+        public string productName { get; set; }
+
+        /// <summary>
+        /// 数量
+        /// </summary>
+        public int quantity { get; set; }
+
+        /// <summary>
+        /// 产品状态
+        /// </summary>
+        public int productStatus { get; set; }
+
+        /// <summary>
+        /// 快递号
+        /// </summary>
+        public string deliveryNo { get; set; }
+
+        /// <summary>
+        /// 发货信息文档Url
+        /// </summary>
+        public string deliveryDoc { get; set; }
+
+        ///// <summary>
+        ///// Demandware物流方式
+        ///// </summary>
+        //public string shippingType { get; set; }
+
+        /// <summary>
+        /// 预购订单时间
+        /// </summary>
+        public string reservationDate { get; set; }
+
+        /// <summary>
+        /// 是否是预购订单
+        /// </summary>
+        public bool isReservation { get; set; }
+
+        /// <summary>
+        /// Monogram属性
+        /// </summary>
+        public List<MonogramModel> monograms { get; set; }
+
+        /// <summary>
+        /// 包裹信息
+        /// </summary>
+        public GiftCardModel giftWrapping { get; set; }
+
+        /// <summary>
+        /// 是否含有赠品
+        /// </summary>
+        public bool isGifts { get; set; }
+
+        /// <summary>
+        /// 赠品sku
+        /// </summary>
+        public List<OrderGiftModel> freeGiftID { get; set; }
+
+        /// <summary>
+        /// 是否是套装
+        /// </summary>
+        public bool isSet { get; set; }
+
+        /// <summary>
+        /// 套装名
+        /// </summary>
+        public string setName { get; set; }
+
+        /// <summary>
+        /// 发货类型:普通/紧急
+        /// </summary>
+        public string shippingType { get; set; }
 
         /// <summary>
         /// 收件人信息
@@ -87,84 +176,45 @@ namespace OMS.API.Models.Warehouse
         public string receiveAddr { get; set; }
 
         /// <summary>
-        /// 子订单号
+        /// 收件人地址1
         /// </summary>
-        public string subOrderNo { get; set; }
+        public string receiveAddr1 { get; set; }
 
         /// <summary>
-        /// sku
+        /// 收件人地址2
         /// </summary>
-        public string sku { get; set; }
-
-        /// <summary>
-        /// 产品id(Material-Gdval)
-        /// </summary>
-        public string productId { get; set; }
-
-        /// <summary>
-        /// 产品名称
-        /// </summary>
-        public string productName { get; set; }
-
-        /// <summary>
-        /// 数量
-        /// </summary>
-        public int quantity { get; set; }
-
-        /// <summary>
-        /// 产品状态
-        /// </summary>
-        public int productStatus { get; set; }
-
-        /// <summary>
-        /// 快递号
-        /// </summary>
-        public string deliveryNo { get; set; }
-
-        /// <summary>
-        /// 发货信息文档Url
-        /// </summary>
-        public string deliveryDoc { get; set; }
-
-        /// <summary>
-        /// Demandware物流方式
-        /// </summary>
-        public string shippingType { get; set; }
-
-        /// <summary>
-        /// 预购订单时间
-        /// </summary>
-        public string reservationDate { get; set; }
-
-        /// <summary>
-        /// 是否是预购订单
-        /// </summary>
-        public bool isReservation { get; set; }
-
-        /// <summary>
-        /// 是否含有赠品
-        /// </summary>
-        public bool isGifts { get; set; }
-
-        /// <summary>
-        /// 赠品sku
-        /// </summary>
-        public List<OrderGiftModel> freeGiftID { get; set; }
-
-        /// <summary>
-        /// 是否是套装
-        /// </summary>
-        public bool isSet { get; set; }
-
-        /// <summary>
-        /// 套装名
-        /// </summary>
-        public string setName { get; set; }
+        public string receiveAddr2 { get; set; }
 
         /// <summary>
         /// 备注
         /// </summary>
         public string remark { get; set; }
+    }
+
+    public class MonogramModel
+    {
+        public string Text { get; set; }
+
+        public string Font { get; set; }
+
+        public string Color { get; set; }
+
+        public string Location { get; set; }
+
+        public string PatchID { get; set; }
+    }
+
+    public class GiftCardModel
+    {
+        public string Message { get; set; }
+
+        public string Recipient { get; set; }
+
+        public string Sender { get; set; }
+
+        public string Font { get; set; }
+
+        public string GiftCardID { get; set; }
     }
 
     /// <summary>

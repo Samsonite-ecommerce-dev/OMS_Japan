@@ -87,6 +87,7 @@
     <Compile Include="ApprovalRecord.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="EntityRepository.cs" />
     <Compile Include="BaseRepository.cs" />
     <Compile Include="Brand.cs">
       <DependentUpon>appModel.tt</DependentUpon>

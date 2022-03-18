@@ -25,7 +25,7 @@ namespace Test
         {
             using (var db = new ebEntities())
             {
-                string _mallSapCode = "1241289";
+                string _mallSapCode = "1234567";
 
                 //读取店铺信息
                 View_Mall_Platform objView_Mall_Platform = db.View_Mall_Platform.Where(p => p.SapCode == _mallSapCode && p.PlatformCode == (int)PlatformType.TUMI_Japan).SingleOrDefault();
@@ -386,7 +386,7 @@ namespace Test
             List<string> paths = new List<string>()
             {
                  //@"D:\Test\Singapore\DW\orders\MonoSAMSG_order_export_dev00002211.xml",
-                @"D:\Test\Singapore\Tumi\GWP\TUMISG_order_export_20220214112813892.xml"
+                @"D:\Test\JPN-Tumi\orders\TUMISG_order_export_TUSG00010908.xml"
                 //@"E:\Test\orders_export_00000703.xml",
                 //@"E:\Test\orders_export_00000625.xml",
                 //@"E:\Test\orders_export_00000735.xml",

@@ -21,17 +21,17 @@ namespace Test
     public class TestApi
     {
         //测试
-        private static string localSite = "http://127.0.0.1:8087";
-        //private string localSite = "https://sgomsapitest.samsonite-asia.com";
-        private static string secret = "IBC2BJcGv2w64pkdiR8K1tmrpJQ44huQ";
+        private static string localSite = "http://127.0.0.1:8095";
+        //private string localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
+        private static string secret = "u676lo4pq9F72g8q8Ep2i77p6YVuArW8";
 
         //正式
-        //private string localSite = "https://sgomsapi.samsonite-asia.com";
+        //private string localSite = "https://tumi-jpomsapi.samsonite-asia.com";
         //private static string secret = "Ku1CS4UHicVxR8v0qKxIdKZ3OkO45Gyy";
 
         public static void Test()
         {
-            //APIGetOrders();
+            APIGetOrders();
             //APIGetChangedOrders();
             //APIPostInventory();
             //APIPostDelivery();
@@ -51,8 +51,8 @@ namespace Test
                 objParams.Add("format", "json");
                 objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
                 //传递参数
-                objParams.Add("startdate", "20180101000000");
-                objParams.Add("enddate", "20190130000000");
+                objParams.Add("startdate", "20220301000000");
+                objParams.Add("enddate", "20220330000000");
                 objParams.Add("pageindex", "1");
                 objParams.Add("pagesize", "50");
                 objParams.Add("orderby", "asc");

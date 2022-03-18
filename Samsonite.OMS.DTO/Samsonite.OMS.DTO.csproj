@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\APIType.cs" />
     <Compile Include="API\InterfaceDto.cs" />
     <Compile Include="AppLanguagePack.cs" />
     <Compile Include="Attribute\CustomPropertyAttribute.cs" />

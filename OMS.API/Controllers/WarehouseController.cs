@@ -14,7 +14,7 @@ using OMS.API.Utils;
 
 namespace OMS.API.Controllers
 {
-    [RoutePrefix("api/warehouse")]
+    [RoutePrefix("api")]
     public class WarehouseController : ApiController
     {
         private IQueryService _queryService;

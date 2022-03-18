@@ -15,7 +15,9 @@ namespace Samsonite.OMS.Database
     public partial class WebApiAccessLog
     {
         public int id { get; set; }
+        public int LogType { get; set; }
         public string Url { get; set; }
+        public string RequestID { get; set; }
         public string UserID { get; set; }
         public string Ip { get; set; }
         public bool State { get; set; }

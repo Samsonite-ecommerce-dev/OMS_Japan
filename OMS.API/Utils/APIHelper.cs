@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
 
@@ -9,20 +8,6 @@ namespace OMS.API.Utils
 {
     public class APIHelper
     {
-        #region 公共方法
-        /// <summary>
-        /// 获取有效用户列表
-        /// </summary>
-        /// <returns></returns>
-        public static List<WebApiAccount> GetWebApiAccountList()
-        {
-            using (var db = new ebEntities())
-            {
-                return db.WebApiAccount.Where(p => p.IsUsed).ToList();
-            }
-        }
-        #endregion
-
         /// <summary>
         /// 获取付款类型
         /// </summary>
@@ -80,6 +65,29 @@ namespace OMS.API.Utils
         }
 
         /// <summary>
+        /// 映射快递提供商代码
+        /// </summary>
+        /// <param name="objExpressID"></param>
+        /// <returns></returns>
+        public static string GetExpressCode(int objExpressID)
+        {
+            string _result = string.Empty;
+            switch (objExpressID)
+            {
+                case 1:
+                    _result = "MXpress";
+                    break;
+                case 2:
+                    _result = "Ninja Van Marketplace";
+                    break;
+                case 3:
+                    _result = "SF Express MY MP";
+                    break;
+            }
+            return _result;
+        }
+
+        /// <summary>
         /// 映射仓库状态
         /// </summary>
         /// <param name="objShippingStatus"></param>
@@ -87,19 +95,41 @@ namespace OMS.API.Utils
         public static int GetShippingStatus(string objShippingStatus)
         {
             int _result = 0;
-            switch (objShippingStatus)
+            switch (objShippingStatus.ToUpper())
             {
-                case "Picked":
+                case "PICKED":
                     _result = (int)WarehouseProcessStatus.Picked;
                     break;
-                case "Delivered":
+                case "PACKED":
+                    _result = (int)WarehouseProcessStatus.Packed;
+                    break;
+                case "SHIPPED":
                     _result = (int)WarehouseProcessStatus.Delivered;
                     break;
                 default:
-                    _result = 0;
                     break;
             }
             return _result;
+        }
+
+        /// <summary>
+        /// 映射发货仓库
+        /// </summary>
+        /// <param name="objStorageInfoList"></param>
+        /// <param name="objDeliveringPlant"></param>
+        /// <returns></returns>
+        public static string GetPlantCode(List<StorageInfo> objStorageInfoList, string objDeliveringPlant)
+        {
+            var objStorageInfo = objStorageInfoList.Where(p => p.VirtualSAPCode == objDeliveringPlant).SingleOrDefault();
+            if (objStorageInfo != null)
+            {
+                return objStorageInfo.PlantCode;
+            }
+            else
+            {
+                //默认值SAM
+                return objStorageInfoList.Where(p => p.IsMain).FirstOrDefault()?.PlantCode;
+            }
         }
     }
 }

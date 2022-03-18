@@ -103,8 +103,9 @@ namespace OMS.API.Utils
         /// </summary>
         /// <param name="parameters"></param>
         /// <param name="secret"></param>
+        /// <param name="encryptMethod"></param>
         /// <returns></returns>
-        public static string CreateSign(IDictionary<string, string> parameters, string secret)
+        public static string CreateSign(IDictionary<string, string> parameters, string secret, string encryptMethod)
         {
             // 第一步：把字典按Key的字母顺序排序
             IDictionary<string, string> sortedParams = new SortedDictionary<string, string>(parameters, StringComparer.Ordinal);
@@ -125,8 +126,17 @@ namespace OMS.API.Utils
 
             // 第三步：使用HMAC加密
             byte[] bytes;
-            HMACMD5 hmac = new HMACMD5(Encoding.UTF8.GetBytes(secret));
-            bytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(_query));
+            if (GlobalConfig.SIGN_METHOD_SHA256.Equals(encryptMethod))
+            {
+                HMACSHA256 _provider = new HMACSHA256();
+                _provider.Key = Encoding.UTF8.GetBytes(secret);
+                bytes = _provider.ComputeHash(Encoding.UTF8.GetBytes(_query));
+            }
+            else
+            {
+                HMACMD5 hmac = new HMACMD5(Encoding.UTF8.GetBytes(secret));
+                bytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(_query));
+            }
 
             // 第四步：把二进制转化为大写的十六进制
             StringBuilder result = new StringBuilder();
@@ -136,6 +146,37 @@ namespace OMS.API.Utils
             }
 
             return result.ToString();
+        }
+        #endregion
+
+        #region 创建请求ID
+        /// <summary>
+        /// 生成唯一随机数
+        /// 注:GUID+4位随机数
+        /// </summary>
+        /// <returns></returns>
+        public static string GreateRequestID()
+        {
+            string _result = string.Empty;
+            _result = Guid.NewGuid().ToString("N");
+            Random _rnd = new Random();
+            int value = _rnd.Next(1000, 10000);
+            _result += value.ToString();
+            return _result;
+        }
+        #endregion
+
+        #region 写日志
+        /// <summary>
+        /// 写日志
+        /// </summary>
+        /// <param name="controllerName"></param>
+        /// <param name="actionName"></param>
+        /// <param name="requestD"></param>
+        /// <param name="logs"></param>
+        public static void WriteLogger(string controllerName, string actionName, string requestD, string[] logs)
+        {
+            FileLogHelper.WriteLog(logs, requestD, $"{controllerName}/{actionName}/{DateTime.Now.ToString("HH")}");
         }
         #endregion
     }

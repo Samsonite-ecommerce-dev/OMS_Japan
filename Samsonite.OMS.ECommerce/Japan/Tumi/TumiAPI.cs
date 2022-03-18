@@ -499,7 +499,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                             orderDetail.PaymentAmount = Math.Round(XmlHelper.GetSingleNodeDecimalValue(productNode, $"{nsPrefix}gross-price", nsmgr) / _quantity, _AmountAccuracy);
                             orderDetail.ActualPaymentAmount = orderDetail.PaymentAmount;
                             //默认都是已付款订单
-                            orderDetail.Status = (int)ProductStatus.Pending;
+                            orderDetail.Status = (int)ProductStatus.Received;
                             orderDetail.EBStatus = order.PaymentStatus;
                             orderDetail.ShippingProvider = string.Empty;
                             orderDetail.ShippingType = (int)ShipType.OMSShipping;

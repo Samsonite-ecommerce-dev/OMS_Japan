@@ -14,8 +14,8 @@
     <link rel="bookmark" type="image/x-icon" href="/Content/css/favicon.ico" />
     <link rel="shortcut icon" href="/Content/css/favicon.ico">
     <!--easyui-->
-    @Styles.Render("~/Content/js-library/jquery-easyui/1.5.1/themes/bootstrap/easyui.css")
-    @Styles.Render("~/Content/js-library/jquery-easyui/1.5.1/themes/icon.css")
+    @Styles.Render("~/Content/js-library/jquery-easyui/1.9.5/themes/bootstrap/easyui.css")
+    @Styles.Render("~/Content/js-library/jquery-easyui/1.9.5/themes/icon.css")
     <!-- web -->
     @Styles.Render("~/Content/css/style/" + _SkinStyle + "/iframe.css?v=20170627")
     @Styles.Render("~/Content/css/common.css")
@@ -68,8 +68,8 @@
     <!-- script -->
     @Scripts.Render("~/Content/js-library/jquery/1.11.1/jquery.min.js")
     <!--easyui-->
-    @Scripts.Render("~/Content/js-library/jquery-easyui/1.5.1/jquery.easyui.min.js")
-    @Scripts.Render(string.Format("~/Content/js-library/jquery-easyui/1.5.1/locale/easyui-lang-{0}.js", @Samsonite.OMS.Service.AppLanguage.LanguageService.CurrentLanguageFile))
+    @Scripts.Render("~/Content/js-library/jquery-easyui/1.9.5/jquery.easyui.min.js")
+    @Scripts.Render(string.Format("~/Content/js-library/jquery-easyui/1.9.5/locale/easyui-lang-{0}.js", @Samsonite.OMS.Service.AppLanguage.LanguageService.CurrentLanguageFile))
     @Scripts.Render("~/Content/js-library/js/easyui-extend.js")
     @Scripts.Render("~/Content/js-library/js/easyui-iframe.js")
     @Scripts.Render(string.Format("~/Content/js-library/js/locale/lang-{0}.js", @Samsonite.OMS.Service.AppLanguage.LanguageService.CurrentLanguageFile))

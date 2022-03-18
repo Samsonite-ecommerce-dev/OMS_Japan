@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http.Filters;
 using System.Net.Http;
-using System.Text;
 using System.Web.Http.Controllers;
 using Samsonite.Utility.Common;
 
@@ -13,136 +12,48 @@ using OMS.API.Utils;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.Service;
 
-
-
 public class AuthorizeFilterAttribute : ActionFilterAttribute
 {
-    private List<WebApiAccount> objWebApiAccounts = new List<WebApiAccount>();
+    private List<AuthorizeUser> authorizeUsers;
+    private string _requestD = string.Empty;
     public AuthorizeFilterAttribute()
     {
-        //获取有效的访问配置
-        objWebApiAccounts = APIHelper.GetWebApiAccountList();
+        //初始化账号信息
+        authorizeUsers = AuthorizeHelper.GetApiAccounts();
     }
 
     public override void OnActionExecuting(HttpActionContext actionContext)
     {
-        var actionName = actionContext.ActionDescriptor.ActionName;
-        var controllerName = actionContext.ControllerContext.ControllerDescriptor.ControllerName;
-        //访问者IP
-        string _ip = HttpContextHelper.GetIP();
-        //访问地址
-        string _url = actionContext.Request.RequestUri.PathAndQuery;
-        //添加日志
         WebApiAccessLog objWebApiAccessLog = new WebApiAccessLog();
-        objWebApiAccessLog.Ip = _ip;
-        objWebApiAccessLog.Url = _url;
-        objWebApiAccessLog.State = true;
-        objWebApiAccessLog.CreateTime = DateTime.Now;
+
+        var _controllerName = actionContext.ControllerContext.ControllerDescriptor.ControllerName;
+        var _actionName = actionContext.ActionDescriptor.ActionName;
+        var _postBody = string.Empty;
+        _requestD = UtilsHelper.GreateRequestID();
         try
         {
-
-            //基础参数
-            IDictionary<string, string> paramDict = HttpContextHelper.GetRequestParams(actionContext.Request.RequestUri.Query);
-            string _userID = (paramDict.ContainsKey("userid")) ? VariableHelper.SaferequestStr(paramDict["userid"]) : "";
-            string _version = (paramDict.ContainsKey("version")) ? VariableHelper.SaferequestStr(paramDict["version"]) : "";
-            string _format = (paramDict.ContainsKey("format")) ? VariableHelper.SaferequestStr(paramDict["format"]) : "";
-            string _timestamp = (paramDict.ContainsKey("timestamp")) ? VariableHelper.SaferequestStr(paramDict["timestamp"]) : "";
-            string _sign = (paramDict.ContainsKey("sign")) ? VariableHelper.SaferequestStr(paramDict["sign"]) : "";
-
-            objWebApiAccessLog.UserID = _userID;
-
-            //账号
-            if (string.IsNullOrEmpty(_userID))
+            var _result = AuthorizeHelper.VisitValid(actionContext, authorizeUsers);
+            ////测试用-------------
+            //_result.Result = true;
+            ////-------------------
+            //访问信息
+            objWebApiAccessLog.LogType = ApiService.GetAPIType(_controllerName);
+            objWebApiAccessLog.Url = _result.Params.Url;
+            objWebApiAccessLog.RequestID = _requestD;
+            objWebApiAccessLog.UserID = _result.Params.Userid;
+            objWebApiAccessLog.Ip = _result.Params.Ip;
+            objWebApiAccessLog.CreateTime = DateTime.Now;
+            //Body参数
+            _postBody = _result.Params.PostBody;
+            //返回信息
+            if (_result.Result)
             {
-                throw new Exception("Userid is mandatory!");
-            }
-            //版本
-            if (string.IsNullOrEmpty(_version))
-            {
-                throw new Exception("Version is mandatory!");
-            }
-            //格式
-            if (!string.IsNullOrEmpty(_format))
-            {
-                if (_format.ToLower() != "json") throw new Exception("Invalid Request Format");
+                objWebApiAccessLog.State = true;
+                objWebApiAccessLog.Remark = _result.Message;
             }
             else
             {
-                throw new Exception("Format is mandatory!");
-            }
-            ////时间戳
-            //if (!string.IsNullOrEmpty(_timestamp))
-            //{
-            //    try
-            //    {
-            //        TimeHelper.UnixTimestampToDateTime(VariableHelper.SaferequestInt64(_timestamp));
-            //    }
-            //    catch
-            //    {
-            //        throw new Exception("Invalid Timestamp format");
-            //    }
-
-            //    //时间差为正负10分钟
-            //    DateTime _ts = TimeHelper.UnixTimestampToDateTime(VariableHelper.SaferequestInt64(_timestamp));
-            //    if (DateTime.Compare(_ts, DateTime.Now.AddMinutes(-15)) < 0 || DateTime.Compare(_ts, DateTime.Now.AddMinutes(15)) > 0)
-            //    {
-            //        throw new Exception("Timestamp has expired!");
-            //    }
-            //}
-            //else
-            //{
-            //    throw new Exception("Timestamp is mandatory!");
-            //}
-            ////签名
-            //if (string.IsNullOrEmpty(_sign))
-            //{
-            //    throw new Exception("Sign is mandatory!");
-            //}
-
-            //账号是否存在
-            var objWebApiAccount = objWebApiAccounts.Where(p => p.AppID == _userID).SingleOrDefault();
-            if (objWebApiAccount != null)
-            {
-                string[] ip_areas = _ip.Split('.');
-                //ip段限制,比如192.168.*.*
-                string ip_area = string.Empty;
-                for (int t = 0; t < ip_areas.Length; t++)
-                {
-                    if (t == 0)
-                    {
-                        ip_area += ip_areas[0];
-                    }
-                    else if (t == 1)
-                    {
-                        ip_area += "." + ip_areas[1];
-                    }
-                }
-                ip_area = ip_area + ".*.*";
-                ////是否允许IP
-                //if (objWebApiAccount.Ips.Contains(_ip) || objWebApiAccount.Ips.Contains(ip_area))
-                //{
-                //    //去除签名字段
-                //    paramDict.Remove("sign");
-                //    //验证签名
-                //    string _appSign = UtilsHelper.CreateSign(paramDict, objWebApiAccount.Token);
-                //    if (_appSign == _sign)
-                //    {
-                //        //日志
-                //        objWebApiAccessLog.State = true;
-                //    }
-                //    else
-                //    {
-                //        throw new Exception("Incorrect Signature!");
-                //    }
-                //}
-                //else
-                //{
-                //    throw new Exception("Access Denied!");
-                //}
-            }
-            else
-            {
-                throw new Exception("User ID does not exist!");
+                throw new Exception(_result.Message);
             }
         }
         catch (Exception ex)
@@ -153,6 +64,7 @@ public class AuthorizeFilterAttribute : ActionFilterAttribute
             //错误提示
             ApiResponse apiResult = new ApiResponse()
             {
+                RequestID = _requestD,
                 Code = (int)ApiResultCode.Fail,
                 Message = ex.Message
             };
@@ -167,10 +79,55 @@ public class AuthorizeFilterAttribute : ActionFilterAttribute
         //文件日志
         if (GlobalConfig.IsApiDebugLog)
         {
-            FileLogHelper.WriteLog(new string[] { $"Client Ip:{objWebApiAccessLog.Ip}", $"RequestUri:{objWebApiAccessLog.Url}" }, DateTime.Now.ToString("HH"), $"{controllerName}/{actionName}");
+            string[] _logs = new string[] { $"Client Ip:{objWebApiAccessLog.Ip}", $"Request Uri:{objWebApiAccessLog.Url}", $"Request Json:{_postBody}" };
+            UtilsHelper.WriteLogger(_controllerName, _actionName, _requestD, _logs);
         }
         //跳转继续执行
         base.OnActionExecuting(actionContext);
+    }
+
+    public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
+    {
+        //保存访问日志
+        var _actionName = actionExecutedContext.ActionContext.ActionDescriptor.ActionName;
+        var _controllerName = actionExecutedContext.ActionContext.ControllerContext.ControllerDescriptor.ControllerName;
+        if (actionExecutedContext.ActionContext.Response != null)
+        {
+            //取得由API返回的状态码
+            var _status = actionExecutedContext.ActionContext.Response.StatusCode;
+            //取得由API返回的信息
+            var obj = actionExecutedContext.ActionContext.Response.Content;
+            string _contextResult = string.Empty;
+            if (obj is ObjectContent<ApiResponse>)
+            {
+                ObjectContent<ApiResponse> result = (ObjectContent<ApiResponse>)obj;
+                //添加requestID
+                ((ApiResponse)result.Value).RequestID = _requestD;
+                _contextResult = UtilsHelper.JsonSerialize(result.Value);
+                //返回信息
+                actionExecutedContext.Response = new HttpResponseMessage()
+                {
+                    Content = UtilsHelper.ContextResponse(result.Value)
+                };
+            }
+            else if (obj is ObjectContent<ApiPageResponse>)
+            {
+                ObjectContent<ApiPageResponse> result = (ObjectContent<ApiPageResponse>)obj;
+                //添加requestID
+                ((ApiPageResponse)result.Value).RequestID = _requestD;
+                _contextResult = UtilsHelper.JsonSerialize(result.Value);
+                //返回信息
+                actionExecutedContext.Response = new HttpResponseMessage()
+                {
+                    Content = UtilsHelper.ContextResponse(result.Value)
+                };
+            }
+            //文件日志
+            if (GlobalConfig.IsApiDebugLog)
+            {
+                UtilsHelper.WriteLogger(_controllerName, _actionName, _requestD, new string[] { $"ApiResult: {_contextResult}", "********************************************************************************", "\r" });
+            }
+        }
     }
 }
 

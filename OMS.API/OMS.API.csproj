@@ -184,7 +184,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Filter\ApiExceptionFilterAttribute.cs" />
-    <Compile Include="App_Filter\ApiResultFilterAttribute.cs" />
     <Compile Include="App_Filter\AuthorizeFilterAttribute.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
@@ -201,13 +200,15 @@
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Interface\ClickCollect\IPostService.cs" />
     <Compile Include="Interface\ClickCollect\IQueryService.cs" />
+    <Compile Include="Models\ApiRequest.cs" />
+    <Compile Include="Models\ApiResponse.cs" />
+    <Compile Include="Models\AuthorizeModel.cs" />
     <Compile Include="Models\Enum\ApiResultCode.cs" />
     <Compile Include="Models\Enum\ApiEnum.cs" />
     <Compile Include="Models\Enum\Warehouse\PostDetailType.cs" />
     <Compile Include="Models\Enum\Warehouse\ReplyType.cs" />
     <Compile Include="Interface\Warehouse\IPostService.cs" />
     <Compile Include="Interface\Warehouse\IQueryService.cs" />
-    <Compile Include="Models\ApiRequest.cs" />
     <Compile Include="Models\Request\ClickCollect\GetOrderItemsRequest.cs" />
     <Compile Include="Models\Request\ClickCollect\GetOrdersRequest.cs" />
     <Compile Include="Models\Request\ClickCollect\SetStatusToDeliveredRequest.cs" />
@@ -228,14 +229,9 @@
     <Compile Include="Models\Response\Warehouse\PostDetailResponse.cs" />
     <Compile Include="Models\Response\Warehouse\PostInventoryResponse.cs" />
     <Compile Include="Models\Response\Warehouse\PostReplyResponse.cs" />
-    <Compile Include="Utils\APIHelper.cs" />
-    <Compile Include="Utils\GlobalConfig.cs" />
-    <Compile Include="Utils\HttpContextHelper.cs" />
-    <Compile Include="Utils\UtilsHelper.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\ApiResponse.cs" />
     <Compile Include="Models\Response\BaseResponse.cs" />
     <Compile Include="Models\Response\Warehouse\GetChangedOrdersResponse.cs" />
     <Compile Include="Models\Response\Warehouse\GetOrdersResponse.cs" />
@@ -243,6 +239,11 @@
     <Compile Include="Models\Request\Warehouse\PostDetailRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="Utils\APIHelper.cs" />
+    <Compile Include="Utils\AuthorizeHelper.cs" />
+    <Compile Include="Utils\GlobalConfig.cs" />
+    <Compile Include="Utils\HttpContextHelper.cs" />
+    <Compile Include="Utils\UtilsHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />

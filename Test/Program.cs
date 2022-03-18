@@ -1,4 +1,5 @@
-﻿using OMS.Service.Base;
+﻿using OMS.API.Models.Warehouse;
+using OMS.Service.Base;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.ECommerce;
@@ -12,11 +13,13 @@ using SingPostSdk;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,8 +32,8 @@ namespace Test
         static void Main(string[] args)
         {
             //TestApiMicros.Test();
-            //TestApiShopee.Test();
-            //TestApi.Test();
+            //TestApiTumi.Test();
+            TestApi.Test();
             //DeBug();
             //PDFToImage();
             //CreateQRImg();
@@ -68,7 +71,30 @@ namespace Test
 
         private static void DeBug()
         {
-
+            DateTime startDate = Convert.ToDateTime("2022-03-01 00:00:00");
+            DateTime endDate = Convert.ToDateTime("2022-03-31 00:00:00");
+            using (var db = new ebEntities())
+            {
+                var _list = (from o in db.Order
+                             join od in db.OrderDetail.Where(p => p.CreateDate >= startDate && p.CreateDate <= endDate && p.Status == (int)ProductStatus.Received && !p.IsSystemCancel && !p.IsExchangeNew && !p.IsSetOrigin && !p.IsError && !p.IsDelete && !(db.OrderWMSReply.Where(o => o.Status && o.SubOrderNo == p.SubOrderNo).Any())) on o.Id equals od.OrderId
+                             join r in db.OrderReceive on od.SubOrderNo equals r.SubOrderNo
+                             select new
+                             {
+                                 MallSapCode = o.MallSapCode,
+                                 OrderNo = o.OrderNo,
+                                 SubOrderNo = od.SubOrderNo,
+                                 PlatformType = o.PlatformType,
+                                 PaymentType = o.PaymentType,
+                                 OrderAmount = o.OrderAmount,
+                                 OrderPaymentAmount = o.PaymentAmount,
+                             });
+                var _entityRepository = new EntityRepository();
+                var x = _entityRepository.GetPage(1, 10, _list.AsQueryable().AsNoTracking(), p => p.OrderNo, true);
+                foreach (var item in x.Items)
+                {
+                    Console.WriteLine(item.OrderNo + "-" + item.SubOrderNo);
+                }
+            }
         }
 
         private static void PDFToImage()

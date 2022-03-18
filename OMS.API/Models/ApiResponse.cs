@@ -8,6 +8,11 @@ namespace OMS.API.Models
     public class ApiResponse
     {
         /// <summary>
+        /// 请求处理单号
+        /// </summary>
+        public string RequestID { get; set; }
+
+        /// <summary>
         /// 结果代码（100表示成功，其它表示失败）
         /// </summary>
         public int Code { get; set; }

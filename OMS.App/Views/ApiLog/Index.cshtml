@@ -1,10 +1,22 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
+    List<object[]> _LogTypeList = (List<object[]>)ViewData["type_list"];
 }
 <div class="main">
     <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
     <div class="main_search">
         <ul>
+            <li>
+                <select id="Type" class="easyui-combobox">
+                    <option value="0">--全部用途--</option>
+                    @{
+                        foreach (var _o in _LogTypeList)
+                        {
+                            <option value="@_o[0]">@_o[1]</option>
+                        }
+                    }
+                </select>
+            </li>
             <li>
                 <input id="SearchKey" type="text" class="easyui-textbox input-xxlarge" prompt="搜索IP或关键字" />
             </li>
@@ -37,13 +49,16 @@
                     <th data-options="field:'s2',align:'left'">
                         访问信息
                     </th>
-                    <th data-options="field:'s3',align:'center'">
+                    <th data-options="field:'s3',align:'left'">
+                        访问请求流水号
+                    </th>
+                    <th data-options="field:'s4',align:'center'">
                         访问结果
                     </th>
-                    <th data-options="field:'s4',align:'left'">
+                    <th data-options="field:'s5',align:'left'">
                         备注信息
                     </th>
-                    <th data-options="field:'s5',align:'left'">
+                    <th data-options="field:'s6',align:'left'">
                         访问时间
                     </th>
                 </tr>
@@ -68,6 +83,7 @@
             //搜索
             $('#SearchButton').bind('click', function () {
                 easyUIExtend.Grid.Search($('#dg'), {
+                    type: $('#Type').combobox("getValue"),
                     keyword: $('#SearchKey').val(),
                     time: $('#SearchTime').val(),
                     state: $('#State').combobox("getValue")

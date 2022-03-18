@@ -120,6 +120,11 @@ namespace OMS.API.Models.Warehouse
         public string SetCode { get; set; }
 
         /// <summary>
+        /// 普通/紧急
+        /// </summary>
+        public string ShippingType { get; set; }
+
+        /// <summary>
         /// 收件人信息
         /// </summary>
         public string Receive { get; set; }
@@ -160,13 +165,13 @@ namespace OMS.API.Models.Warehouse
         public string ReceiveAddr { get; set; }
 
         /// <summary>
-        /// 
+        /// 收件人地址1
         /// </summary>
-        public string ShippingType { get; set; }
+        public string ReceiveAddr1 { get; set; }
 
         /// <summary>
-        /// 快递号
+        /// 收件人地址1
         /// </summary>
-        public string InvoiceNo { get; set; }
+        public string ReceiveAddr2 { get; set; }
     }
 }

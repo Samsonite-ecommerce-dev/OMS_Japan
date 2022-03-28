@@ -960,11 +960,6 @@ namespace Samsonite.OMS.Service
                         {
                             //设置流程状态为仓库确认
                             objDB.Database.ExecuteSqlCommand("update OrderReturn set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where Id={0}", objView_OrderReturn.Id, (int)ProcessStatus.ReturnWHSure, UserLoginService.GetCurrentUserID, objResTime, objRemark);
-                            //如果是换货产生的退货,更新换货流程状态
-                            if (objView_OrderReturn.IsFromExchange)
-                            {
-                                objDB.Database.ExecuteSqlCommand("update OrderExchange set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where ReturnDetailId={0}", objView_OrderReturn.ChangeID, (int)ProcessStatus.ExchangeWHSure, UserLoginService.GetCurrentUserID, objResTime, objRemark);
-                            }
                         }
                         else
                         {
@@ -976,17 +971,8 @@ namespace Samsonite.OMS.Service
                         //查看流程状态
                         if (objView_OrderReturn.Status == (int)ProcessStatus.Return || objView_OrderReturn.Status == (int)ProcessStatus.ReturnWHSure)
                         {
-                            //如果是换货生成的退货,则需要在收货之后发送新订单给仓库
-                            if (objView_OrderReturn.IsFromExchange)
-                            {
-                                var _WHResponse = OrderExchangeProcessService.ReceiptSure(0, objView_OrderReturn.ChangeID, objResTime, objRemark, objDB);
-                                if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
-                            }
-                            else
-                            {
-                                var _WHResponse = OrderReturnProcessService.ReceiptSure(objView_OrderReturn.Id, objResTime, objRemark, objDB);
-                                if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
-                            }
+                            var _WHResponse = OrderReturnProcessService.ReceiptSure(objView_OrderReturn.Id, objResTime, objRemark, objDB);
+                            if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
                         }
                         else
                         {
@@ -1000,11 +986,6 @@ namespace Samsonite.OMS.Service
                         {
                             //设置流程状态为失败
                             objDB.Database.ExecuteSqlCommand("update OrderReturn set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where Id={0}", objView_OrderReturn.Id, (int)ProcessStatus.ReturnFail, UserLoginService.GetCurrentUserID, objResTime, objRemark);
-                            //如果是换货产生的退货,更新换货流程状态
-                            if (objView_OrderReturn.IsFromExchange)
-                            {
-                                objDB.Database.ExecuteSqlCommand("update OrderExchange set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where ReturnDetailId={0}", objView_OrderReturn.ChangeID, (int)ProcessStatus.ExchangeFail, UserLoginService.GetCurrentUserID, objResTime, objRemark);
-                            }
                         }
                         else
                         {

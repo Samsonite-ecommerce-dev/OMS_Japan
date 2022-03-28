@@ -88,14 +88,45 @@ namespace OMS.API.Utils
         }
 
         /// <summary>
-        /// 映射仓库状态
+        /// 映射物流状态
         /// </summary>
-        /// <param name="objShippingStatus"></param>
+        /// <param name="objStatus"></param>
         /// <returns></returns>
-        public static int GetShippingStatus(string objShippingStatus)
+        public static int GetShipmentStatus(string objStatus)
         {
             int _result = 0;
-            switch (objShippingStatus.ToUpper())
+            switch (objStatus.ToUpper())
+            {
+                case "PENDING":
+                    _result = (int)ExpressStatus.PendingPickUp;
+                    break;
+                case "PICKEDUP":
+                    _result = (int)ExpressStatus.PickedUp;
+                    break;
+                case "INTRANSIT":
+                    _result = (int)ExpressStatus.InTransit;
+                    break;
+                case "OUTFORDELIVERY":
+                    _result = (int)ExpressStatus.OutForDelivery;
+                    break;
+                case "SIGN":
+                    _result = (int)ExpressStatus.Signed;
+                    break;
+                default:
+                    break;
+            }
+            return _result;
+        }
+
+        /// <summary>
+        /// 映射仓库状态
+        /// </summary>
+        /// <param name="objStatus"></param>
+        /// <returns></returns>
+        public static int GetWMSStatus(string objStatus)
+        {
+            int _result = 0;
+            switch (objStatus.ToUpper())
             {
                 case "PICKED":
                     _result = (int)WarehouseProcessStatus.Picked;

@@ -291,7 +291,7 @@ namespace OMS.App.Helper
             List<DefineEnum> _result = new List<DefineEnum>();
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.Pending, Display = _LanguagePack["common_productstatus_nopay"], Css = "color_warning" });
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.Received, Display = _LanguagePack["common_productstatus_new"], Css = "color_default" });
-            _result.Add(new DefineEnum() { ID = (int)ProductStatus.Processing, Display = _LanguagePack["common_productstatus_processing"], Css = "color_info" });
+            _result.Add(new DefineEnum() { ID = (int)ProductStatus.Processing, Display = _LanguagePack["common_productstatus_processing"], Css = "color_primary" });
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.InDelivery, Display = _LanguagePack["common_productstatus_in_delivery"], Css = "color_info" });
             //_result.Add(new DefineEnum() { ID = (int)ProductStatus.Acknowledge, Display = _LanguagePack["common_productstatus_acknowledge"], Css = "color_primary" });
             //_result.Add(new DefineEnum() { ID = (int)ProductStatus.InTransit, Display = _LanguagePack["common_productstatus_in_transit"], Css = "color_info" });

@@ -180,7 +180,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                         Remark = string.Empty,
                         CreateDate = XmlHelper.GetSingleNodeTimeValue(transaction, $"{nsPrefix}EndDateTime", nsmgr),
                         AddDate = DateTime.Now,
-                        EditDate = null
+                        EditDate = DateTime.Now
                     };
 
                     /**********************customer*********************************************/
@@ -574,265 +574,9 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
         #endregion
 
         #region 获取快递号
-        /// <summary>
-        /// 获取快递号
-        /// </summary>
-        /// <param name="objView_OrderDetail"></param>
-        /// <returns></returns>
-        public CommonResult<DeliveryResult> GetTrackingNumbers(List<View_OrderDetail> objOrderDetail_List = null)
-        {
-            CommonResult<DeliveryResult> _result = new CommonResult<DeliveryResult>();
-            using (ebEntities db = new ebEntities())
-            {
-                DateTime _time = DateTime.Now.AddDays(MicrosConfig.timeAgo);
-                if (objOrderDetail_List == null)
-                {
-                    //需要申请的订单
-                    //1.普通订单
-                    //2.主级子订单
-                    //3.最近90天的订单
-                    objOrderDetail_List = db.Database.SqlQuery<View_OrderDetail>("select * from View_OrderDetail where MallSapCode={0} and ProductStatus={1} and (IsSet=0 or (IsSet=1 and IsSetOrigin=0)) and ParentSubOrderNo='' and IsExchangeNew=0 and IsError=0 and IsDelete=0 and isnull((select PushCount from ECommercePushRecord where PushType={2} and RelatedId=View_OrderDetail.DetailID),0)<{3} and datediff(day,OrderTime,{4})<=0",
-                    this.MallSapCode, (int)ProductStatus.Pending, (int)ECommercePushType.RequireTrackingCode, MicrosConfig.maxPushCount, _time).ToList();
-                }
-                //默认快递公司
-                ExpressCompany objExpressCompany = SingPostConfig.expressCompany;
-                //获取快递号
-                foreach (var _d in objOrderDetail_List)
-                {
-                    try
-                    {
-                        SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
-                        var _rsp = objSpeedPostExtend.CreateShipmentForOrder(_d, db);
-                        if (Convert.ToBoolean(_rsp[0]))
-                        {
-                            var _InvoinceNo = _rsp[1].ToString();
-                            //快递信息
-                            Deliverys objDeliverys = new Deliverys()
-                            {
-                                OrderNo = _d.OrderNo,
-                                SubOrderNo = _d.SubOrderNo,
-                                MallSapCode = _d.MallSapCode,
-                                ExpressId = objExpressCompany.Id,
-                                ExpressName = objExpressCompany.ExpressName,
-                                InvoiceNo = _InvoinceNo,
-                                Packages = 1,
-                                ExpressType = string.Empty,
-                                ExpressAmount = 0,
-                                Warehouse = string.Empty,
-                                ReceiveTime = string.Empty,
-                                ClearUpTime = string.Empty,
-                                DeliveryDate = string.Empty,
-                                ExpressStatus = 0,
-                                ExpressMsg = string.Empty,
-                                Remark = "Create a new ShipmentNumber in SingPost",
-                                CreateDate = DateTime.Now,
-                                IsNeedPush = true
-                            };
-                            //获取文档
-                            objSpeedPostExtend.GetDocument(_d, _InvoinceNo);
-                            //更新状态
-                            OrderService.OrderStatus_PendingToReceived(_d, objDeliverys, db);
-                            //如果是套装
-                            if (_d.IsSet && !_d.IsSetOrigin)
-                            {
-                                //获取次级产品子订单
-                                foreach (var _sets in db.View_OrderDetail.Where(p => p.OrderNo == _d.OrderNo && p.SetCode == _d.SetCode && p.IsSet && !p.IsSetOrigin && p.ParentSubOrderNo == _d.SubOrderNo))
-                                {
-                                    //文档赋值
-                                    List<DeliverysDocument> _d_doc = db.DeliverysDocument.Where(p => p.OrderNo == _d.OrderNo && p.SubOrderNo == _d.SubOrderNo).ToList();
-                                    foreach (var item in _d_doc)
-                                    {
-                                        db.DeliverysDocument.Add(new DeliverysDocument()
-                                        {
-                                            MallSapCode = _sets.MallSapCode,
-                                            OrderNo = _sets.OrderNo,
-                                            SubOrderNo = _sets.SubOrderNo,
-                                            DocumentType = item.DocumentType,
-                                            DocumentFile = item.DocumentFile,
-                                            CreateTime = DateTime.Now
-                                        });
-                                    }
-                                    db.SaveChanges();
-                                    //更新状态
-                                    Deliverys _tmpDeliverys = GenericHelper.TCopyValue<Deliverys>(objDeliverys);
-                                    _tmpDeliverys.SubOrderNo = _sets.SubOrderNo;
-                                    _tmpDeliverys.IsNeedPush = false;
-                                    OrderService.OrderStatus_PendingToReceived(_sets, _tmpDeliverys, db);
-                                }
-                            }
-
-                            //写入成功日志
-                            ECommercePushRecordService.SaveRequireDeliveryLog(new ECommercePushRecord()
-                            {
-                                PushType = (int)ECommercePushType.RequireTrackingCode,
-                                RelatedTableName = "OrderDetail",
-                                RelatedId = _d.DetailID,
-                                PushMessage = _d.MallProductId,
-                                PushResult = true,
-                                PushResultMessage = string.Empty,
-                                PushCount = 1,
-                                IsDelete = false,
-                                EditTime = DateTime.Now,
-                                AddTime = DateTime.Now
-                            }, db);
-
-                            //返回结果
-                            _result.ResultData.Add(new CommonResultData<DeliveryResult>()
-                            {
-                                Data = new DeliveryResult()
-                                {
-                                    MallSapCode = _d.MallSapCode,
-                                    OrderNo = _d.OrderNo,
-                                    SubOrderNo = _d.SubOrderNo,
-                                    InvoiceNo = _InvoinceNo
-                                },
-                                Result = true,
-                                ResultMessage = string.Empty
-                            });
-                        }
-                        else
-                        {
-                            throw new ECommerceException(_rsp[2].ToString(), _rsp[3].ToString());
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        //写入失败日志
-                        ECommercePushRecordService.SaveRequireDeliveryLog(new ECommercePushRecord()
-                        {
-                            PushType = (int)ECommercePushType.RequireTrackingCode,
-                            RelatedTableName = "OrderDetail",
-                            RelatedId = _d.DetailID,
-                            PushMessage = _d.MallProductId,
-                            PushResult = false,
-                            PushResultMessage = ex.Message,
-                            PushCount = 1,
-                            IsDelete = false,
-                            EditTime = DateTime.Now,
-                            AddTime = DateTime.Now
-                        }, db);
-
-                        //返回结果
-                        _result.ResultData.Add(new CommonResultData<DeliveryResult>()
-                        {
-                            Data = new DeliveryResult()
-                            {
-                                MallSapCode = _d.MallSapCode,
-                                OrderNo = _d.OrderNo,
-                                SubOrderNo = _d.SubOrderNo,
-                                InvoiceNo = string.Empty
-                            },
-                            Result = false,
-                            ResultMessage = ex.Message
-                        });
-                    }
-                }
-            }
-            return _result;
-        }
         #endregion
 
         #region 推送状态
-        /// <summary>
-        /// 推送ReadyToShip状态到平台
-        /// </summary>
-        /// <param name="objDeliverys_List"></param>
-        /// <returns></returns>
-        public CommonResult<DeliveryResult> SetReadyToShip(List<View_OrderDetail_Deliverys> objDeliverys_List = null)
-        {
-            CommonResult<DeliveryResult> _result = new CommonResult<DeliveryResult>();
-            using (var db = new ebEntities())
-            {
-                DateTime _time = DateTime.Now.AddDays(MicrosConfig.timeAgo);
-                if (objDeliverys_List == null)
-                {
-                    //条件:
-                    //1.在仓库回复Picked之后,才推送ready to ship
-                    //2.推送失败次数超过20次,则不在推送
-                    //3.最近90天的订单
-                    objDeliverys_List = db.Database.SqlQuery<View_OrderDetail_Deliverys>("select * from View_OrderDetail_Deliverys where MallSapCode={0} and Status={1} and ShippingStatus>={2} and IsNeedPush=1 and isnull((select PushCount from ECommercePushRecord where PushType={3} and RelatedId=View_OrderDetail_Deliverys.DeliveryID),0)<{4} and datediff(day,CreateDate,{5})<=0", this.MallSapCode, (int)ProductStatus.InDelivery, (int)WarehouseProcessStatus.Picked, (int)ECommercePushType.PushTrackingCode, MicrosConfig.maxPushCount, _time).ToList();
-                }
-                foreach (var _d in objDeliverys_List)
-                {
-                    try
-                    {
-                        SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
-                        var _rsp = objSpeedPostExtend.AssignShipping(_d);
-                        if (_rsp.data != null)
-                        {
-                            //设置成无需上传
-                            db.Database.ExecuteSqlCommand("Update Deliverys set IsNeedPush=0 where Id={0}", _d.DeliveryID);
-
-                            //写入成功日志
-                            ECommercePushRecordService.SavePushDeliveryLog(new ECommercePushRecord()
-                            {
-                                PushType = (int)ECommercePushType.PushTrackingCode,
-                                RelatedTableName = "Deliverys",
-                                RelatedId = _d.DeliveryID,
-                                PushMessage = _d.InvoiceNo,
-                                PushResult = true,
-                                PushResultMessage = string.Empty,
-                                PushCount = 1,
-                                IsDelete = false,
-                                EditTime = DateTime.Now,
-                                AddTime = DateTime.Now
-                            }, db);
-
-                            //返回结果
-                            _result.ResultData.Add(new CommonResultData<DeliveryResult>()
-                            {
-                                Data = new DeliveryResult()
-                                {
-                                    MallSapCode = _d.MallSapCode,
-                                    OrderNo = _d.OrderNo,
-                                    SubOrderNo = _d.SubOrderNo,
-                                    InvoiceNo = _d.InvoiceNo
-                                },
-                                Result = true,
-                                ResultMessage = string.Empty
-                            });
-                        }
-                        else
-                        {
-                            throw new ECommerceException(_rsp.code, _rsp.message);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        //写入失败日志
-                        ECommercePushRecordService.SavePushDeliveryLog(new ECommercePushRecord()
-                        {
-                            PushType = (int)ECommercePushType.PushTrackingCode,
-                            RelatedTableName = "Deliverys",
-                            RelatedId = _d.DeliveryID,
-                            PushMessage = _d.MallProductId,
-                            PushResult = false,
-                            PushResultMessage = ex.Message,
-                            PushCount = 1,
-                            IsDelete = false,
-                            EditTime = DateTime.Now,
-                            AddTime = DateTime.Now
-                        }, db);
-
-
-                        //返回结果
-                        _result.ResultData.Add(new CommonResultData<DeliveryResult>()
-                        {
-                            Data = new DeliveryResult()
-                            {
-                                MallSapCode = _d.MallSapCode,
-                                OrderNo = _d.OrderNo,
-                                SubOrderNo = _d.SubOrderNo,
-                                InvoiceNo = _d.InvoiceNo
-                            },
-                            Result = false,
-                            ResultMessage = ex.Message
-                        });
-                    }
-                }
-            }
-            return _result;
-        }
         #endregion
 
         #region 获取平台订单状态
@@ -851,6 +595,18 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
             return _result;
         }
 
+        #endregion
+
+        #region  商品API
+        #endregion
+
+        #region 推送库存
+        #endregion
+
+        #region 推送价格
+        #endregion
+
+        #region 推送订单详情
         #endregion
 
         #region 函数

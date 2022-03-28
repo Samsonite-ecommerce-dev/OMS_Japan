@@ -19,15 +19,15 @@ namespace OMS.API.Implments.Warehouse
         /// <summary>
         /// 更新库存
         /// </summary>
-        /// <param name="objPostInventoryRequestList"></param>
-        /// <param name="objReduceQuantitys"></param>
+        /// <param name="inventorys"></param>
+        /// <param name="reduceQuantitys"></param>
         /// <returns></returns>
-        public List<PostInventoryResponse> SaveInventorys(List<PostInventoryRequest> objPostInventoryRequestList, Dictionary<string, int> objReduceQuantitys)
+        public List<PostInventoryResponse> SaveInventorys(List<PostInventoryRequest> inventorys, Dictionary<string, int> reduceQuantitys)
         {
             List<PostInventoryResponse> _result = new List<PostInventoryResponse>();
             using (var db = new ebEntities())
             {
-                foreach (var item in objPostInventoryRequestList)
+                foreach (var item in inventorys)
                 {
                     item.Sku = VariableHelper.SaferequestStr(item.Sku);
                     item.ProductType = VariableHelper.SaferequestInt(item.ProductType);
@@ -50,7 +50,7 @@ namespace OMS.API.Implments.Warehouse
                             //根据productId匹配出sku
                             item.Sku = objProduct.SKU;
                             //计算需要扣除的WMS未获取的订单
-                            var _o = objReduceQuantitys.Where(p => p.Key == item.Sku).SingleOrDefault();
+                            var _o = reduceQuantitys.Where(p => p.Key == item.Sku).SingleOrDefault();
                             if (!string.IsNullOrEmpty(_o.Key))
                             {
                                 _updateQuantity = _updateQuantity - _o.Value;
@@ -105,12 +105,12 @@ namespace OMS.API.Implments.Warehouse
         /// <summary>
         /// 更新快递号
         /// </summary>
-        /// <param name="objPostDeliverysRequestList"></param>
+        /// <param name="deliverys"></param>
         /// <returns></returns>
-        public List<PostDeliverysResponse> SaveDeliverys(List<PostDeliverysRequest> objPostDeliverysRequestList)
+        public List<PostDeliverysResponse> SaveDeliverys(List<PostDeliverysRequest> deliverys)
         {
             List<PostDeliverysResponse> _result = new List<PostDeliverysResponse>();
-            foreach (var item in objPostDeliverysRequestList)
+            foreach (var item in deliverys)
             {
                 item.MallCode = VariableHelper.SaferequestStr(item.MallCode);
                 item.OrderNo = VariableHelper.SaferequestStr(item.OrderNo);
@@ -182,7 +182,7 @@ namespace OMS.API.Implments.Warehouse
                         IsNeedPush = false
                     };
                     //保存快递信息
-                    DeliveryDto objDeliveryDto = DeliveryService.SaveDeliverys(objDeliverys, item.DeliveryCode);
+                    DeliveryDto objDeliveryDto = DeliveryService.SaveDeliverys(objDeliverys, item.DeliveryCode, "WMS post the Delivery");
                     _result.Add(new PostDeliverysResponse()
                     {
                         Result = objDeliveryDto.Result,
@@ -212,16 +212,16 @@ namespace OMS.API.Implments.Warehouse
         }
 
         /// <summary>
-        /// 回复信息
+        /// 回复操作状态
         /// </summary>
-        /// <param name="objPostReplyRequestList"></param>
+        /// <param name="postReplys"></param>
         /// <returns></returns>
-        public List<PostReplyResponse> SavePostReplys(List<PostReplyRequest> objPostReplyRequestList)
+        public List<PostReplyResponse> SavePostReplys(List<PostReplyRequest> postReplys)
         {
             List<PostReplyResponse> _result = new List<PostReplyResponse>();
             using (var db = new ebEntities())
             {
-                foreach (var item in objPostReplyRequestList)
+                foreach (var item in postReplys)
                 {
                     item.MallCode = VariableHelper.SaferequestStr(item.MallCode);
                     item.OrderNo = VariableHelper.SaferequestStr(item.OrderNo);
@@ -243,7 +243,7 @@ namespace OMS.API.Implments.Warehouse
 
                     try
                     {
-                        if (item.Type < (int)ReplyType.OrderIsRead || item.Type > (int)ReplyType.NewOrder)
+                        if (item.Type < (int)ReplyType.OrderIsRead || item.Type > (int)ReplyType.Modify)
                         {
                             throw new Exception("The type is invaild!");
                         }
@@ -252,10 +252,6 @@ namespace OMS.API.Implments.Warehouse
                         if (item.Type == (int)ReplyType.OrderIsRead)
                         {
                             SaveOrderReply(item, db);
-                        }
-                        else if (item.Type == (int)ReplyType.NewOrder)
-                        {
-                            SaveNewOrderReply(item, db);
                         }
                         else
                         {
@@ -295,59 +291,150 @@ namespace OMS.API.Implments.Warehouse
         }
 
         /// <summary>
-        /// 其它回复信息
+        /// 更新物流状态
         /// </summary>
-        /// <param name="objPostDetailRequestList"></param>
+        /// <param name="shipmentStatus"></param>
         /// <returns></returns>
-        public List<PostDetailResponse> SaveReplyDetails(List<PostDetailRequest> objPostDetailRequestList)
+        public List<UpdateShipmentStatusResponse> SaveShipmentStatus(List<UpdateShipmentStatusRequest> shipmentStatus)
         {
-            List<PostDetailResponse> _result = new List<PostDetailResponse>();
+            List<UpdateShipmentStatusResponse> _result = new List<UpdateShipmentStatusResponse>();
             using (var db = new ebEntities())
             {
-                foreach (var item in objPostDetailRequestList)
+                foreach (var item in shipmentStatus)
                 {
                     try
                     {
-                        if (item.Type == (int)PostDetailType.WarehouseStatus)
+                        if (string.IsNullOrEmpty(item.DeliveryNo))
                         {
-                            SaveWarehouseStatus(item, db);
+                            throw new Exception("Please input a Delivery No.!");
                         }
-                        else if (item.Type == (int)PostDetailType.ExpressDetail)
+
+                        if (string.IsNullOrEmpty(item.Status))
                         {
-                            SaveExpressDetail(item, db);
+                            throw new Exception("Please input a Shipping Status!!");
                         }
-                        else if (item.Type == (int)PostDetailType.Invoice)
+
+                        //如果没传更新时间,则默认当前时间
+                        DateTime _updateDate = DateTime.Now;
+                        if (!string.IsNullOrEmpty(item.UpdateDate))
+                            _updateDate = UtilsHelper.parseDate(item.UpdateDate);
+
+                        Deliverys objDeliverys = db.Deliverys.Where(p => p.InvoiceNo == item.DeliveryNo).SingleOrDefault();
+                        if (objDeliverys != null)
                         {
-                            SaveInvoiceMessage(item, db);
+                            //保存运单号状态和运单详情
+                            objDeliverys.ExpressStatus = APIHelper.GetShipmentStatus(item.Status);
+                            objDeliverys.ExpressMsg = $"{_updateDate.ToString("yyyy-MM-dd HH:mm:ss")} {item.Remark}<br/>{objDeliverys.ExpressMsg}";
+                            db.SaveChanges();
+
+                            _result.Add(new UpdateShipmentStatusResponse()
+                            {
+                                Result = true,
+                                Message = string.Empty,
+                                DeliveryNo = item.DeliveryNo,
+                                DeliveryCompany = item.DeliveryCompany,
+                                UpdateDate = item.UpdateDate,
+                                Status = item.Status,
+                                Remark = item.Remark
+                            });
                         }
                         else
                         {
-                            throw new Exception("Invalid Type!");
+                            throw new Exception("The Order does not exist!");
                         }
-
-                        //返回信息
-                        _result.Add(new PostDetailResponse()
-                        {
-                            Result = true,
-                            MallCode = item.MallCode,
-                            OrderNo = item.OrderNo,
-                            SubOrderNo = item.SubOrderNo,
-                            Type = item.Type
-                        });
-
-
                     }
                     catch (Exception ex)
                     {
-                        //返回信息
-                        _result.Add(new PostDetailResponse()
+                        _result.Add(new UpdateShipmentStatusResponse()
                         {
                             Result = false,
-                            Message = ex.Message,
+                            Message = ex.ToString(),
+                            DeliveryNo = item.DeliveryNo,
+                            DeliveryCompany = item.DeliveryCompany,
+                            UpdateDate = item.UpdateDate,
+                            Status = item.Status,
+                            Remark = item.Remark
+                        });
+                    }
+                }
+            }
+            return _result;
+        }
+
+        /// <summary>
+        /// 更新仓库状态
+        /// </summary>
+        /// <param name="wmsStatus"></param>
+        /// <returns></returns>
+        public List<UpdateWMSStatusResponse> SaveWMSStatus(List<UpdateWMSStatusRequest> wmsStatus)
+        {
+            List<UpdateWMSStatusResponse> _result = new List<UpdateWMSStatusResponse>();
+            using (var db = new ebEntities())
+            {
+                foreach (var item in wmsStatus)
+                {
+                    try
+                    {
+                        if (string.IsNullOrEmpty(item.MallCode))
+                        {
+                            throw new Exception("Please input a MallSapCode!");
+                        }
+
+                        if (string.IsNullOrEmpty(item.OrderNo))
+                        {
+                            throw new Exception("Please input a OrderNo!");
+                        }
+
+                        if (string.IsNullOrEmpty(item.SubOrderNo))
+                        {
+                            throw new Exception("Please input a SubOrderNo!");
+                        }
+
+                        if (string.IsNullOrEmpty(item.Status))
+                        {
+                            throw new Exception("Please input a Shipping Status!");
+                        }
+
+                        View_OrderDetail objOrderDetail = db.View_OrderDetail.Where(p => p.OrderNo == item.OrderNo && p.SubOrderNo == item.SubOrderNo && p.MallSapCode == item.MallCode).SingleOrDefault();
+                        if (objOrderDetail != null)
+                        {
+                            //更新物流状态
+                            int _wmsStatus = APIHelper.GetWMSStatus(item.Status);
+                            int _rowCount = db.Database.ExecuteSqlCommand("update OrderDetail set ShippingStatus={0} where OrderNo={1} and SubOrderNo={2}", _wmsStatus, objOrderDetail.OrderNo, objOrderDetail.SubOrderNo);
+                            if (_rowCount > 0)
+                            {
+                                _result.Add(new UpdateWMSStatusResponse()
+                                {
+                                    Result = true,
+                                    Message = string.Empty,
+                                    MallCode = item.MallCode,
+                                    OrderNo = item.OrderNo,
+                                    SubOrderNo = item.SubOrderNo,
+                                    Status = item.Status,
+                                    Remark = item.Remark
+                                });
+                            }
+                            else
+                            {
+                                throw new Exception("Data update fail!");
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("The SubOrderNo does not exist!");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _result.Add(new UpdateWMSStatusResponse()
+                        {
+                            Result = false,
+                            Message = ex.ToString(),
                             MallCode = item.MallCode,
                             OrderNo = item.OrderNo,
                             SubOrderNo = item.SubOrderNo,
-                            Type = item.Type
+                            Status = item.Status,
+                            Remark = item.Remark
                         });
                     }
                 }
@@ -388,6 +475,7 @@ namespace OMS.API.Implments.Warehouse
                     {
                         throw new Exception("The ReplyState is invaild!");
                     }
+
                     View_OrderDetail objOrderDetail = db.View_OrderDetail.Where(p => p.OrderNo == item.OrderNo && p.SubOrderNo == item.SubOrderNo && p.MallSapCode == item.MallCode).SingleOrDefault();
                     if (objOrderDetail != null)
                     {
@@ -400,102 +488,13 @@ namespace OMS.API.Implments.Warehouse
                                 throw new Exception("Post reply fail!");
                             }
                         }
-                        else if (objOrderDetail.ProductStatus == (int)ProductStatus.InDelivery)
+                        else if (objOrderDetail.ProductStatus == (int)ProductStatus.Processing)
                         {
                             //如果已经处于InDelivery状态,那么说明已经回复成功,那么不在重复操作,提示成功
                         }
                         else
                         {
                             throw new Exception($"The status of SubOrderNo.:{item.SubOrderNo} is incorrect!");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"SubOrderNo:{item.SubOrderNo} does not exist!");
-                    }
-                    Trans.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Trans.Rollback();
-                    throw ex;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 保存换货新订单/预售订单回复
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="db"></param>
-        /// <returns></returns>
-        private void SaveNewOrderReply(PostReplyRequest item, ebEntities db)
-        {
-            using (var Trans = db.Database.BeginTransaction())
-            {
-                try
-                {
-                    if (string.IsNullOrEmpty(item.MallCode))
-                    {
-                        throw new Exception("Please input a MallSapCode!");
-                    }
-
-                    if (string.IsNullOrEmpty(item.OrderNo))
-                    {
-                        throw new Exception("Please input a OrderNo!");
-                    }
-
-                    if (string.IsNullOrEmpty(item.SubOrderNo))
-                    {
-                        throw new Exception("Please input a SubOrderNo!");
-                    }
-
-                    if (item.RecordId == 0)
-                    {
-                        throw new Exception("Please input a Record Id!");
-                    }
-
-                    //成功/失败
-                    if (item.ReplyState != (int)WarehouseStatus.DealSuccessful && item.ReplyState != (int)WarehouseStatus.DealFail)
-                    {
-                        throw new Exception("The ReplyState is invaild!");
-                    }
-
-                    var objOrderChangeRecord = db.OrderChangeRecord.Where(p => p.Type == (int)ReplyType.NewOrder && p.OrderNo == item.OrderNo && p.SubOrderNo == item.SubOrderNo && p.Id == item.RecordId).Join(db.OrderDetail, a => a.DetailId, ar => ar.Id, (r, detail) => new
-                    {
-                        RecordID = r.Id,
-                        ProductStatus = detail.Status
-                    }).SingleOrDefault();
-                    if (objOrderChangeRecord != null)
-                    {
-                        //如果是换货新订单,那么初始状态为ExchangeNew
-                        if (objOrderChangeRecord.ProductStatus == (int)ProductStatus.Received || objOrderChangeRecord.ProductStatus == (int)ProductStatus.ExchangeNew)
-                        {
-                            StringBuilder _sql = this.SavePostReplyOrder(item);
-                            //如果成功
-                            if (item.ReplyState == (int)WarehouseStatus.DealSuccessful)
-                            {
-                                //需要更新OrderChangeRecord表的值,如果成功需要将isdelete标记成删除状态,表示已完成
-                                _sql.AppendLine($"update OrderChangeRecord set ApiIsRead=1,[Status]={item.ReplyState},ApiReadDate='{item.ReplyDate}',ApiReplyMsg=N'{item.Message}',ApiReplyDate='{item.ReplyDate}',isDelete=1 where id={item.RecordId} and SubOrderNo = '{item.SubOrderNo}'and type= {(int)ReplyType.NewOrder};");
-                            }
-                            else
-                            {
-                                //需要更新OrderChangeRecord表的值
-                                _sql.AppendLine($"update OrderChangeRecord set ApiIsRead=1,[Status]={item.ReplyState},ApiReadDate='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}',ApiReplyMsg=N'{item.Message}',ApiReplyDate='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' where id={item.RecordId} and SubOrderNo = '{item.SubOrderNo}' and type= {(int)ReplyType.NewOrder};");
-                            }
-                            //执行sql
-                            if (db.Database.ExecuteSqlCommand(_sql.ToString()) == 0)
-                            {
-                                throw new Exception("Post reply fail!");
-                            }
-                        }
-                        else
-                        {
-                            //如果已经处于InDelivery状态,那么说明已经回复成功，那么不在重复操作，提示成功
-                            if (objOrderChangeRecord.ProductStatus != (int)ProductStatus.InDelivery)
-                            {
-                                throw new Exception($"The status of SubOrderNo.:{item.SubOrderNo} is incorrect!");
-                            }
                         }
                     }
                     else
@@ -555,22 +554,27 @@ namespace OMS.API.Implments.Warehouse
                     db.Database.ExecuteSqlCommand($"update OrderChangeRecord set ApiIsRead=1,Status={item.ReplyState},ApiReadDate='{item.ReplyDate}',ApiReplyMsg=N'{item.Message}',ApiReplyDate='{item.ReplyDate}',isDelete=1 where id={objOrderChangeRecord.Id}");
 
                     //对应类型关联操作
-                    if (item.Type == (int)ReplyType.Modify)
-                    {
-                        //如果回复处理中/成功/失败,则进行操作
-                        var _WHResponse = OrderModifyProcessService.WHResponse(objOrderChangeRecord.DetailId, item.ReplyState, VariableHelper.SaferequestTime(item.ReplyDate), item.Message, db);
-                        if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
-                    }
-                    else if (item.Type == (int)ReplyType.Cancel)
+
+                    if (item.Type == (int)ReplyType.Cancel)
                     {
                         //如果回复处理中/成功/失败,则进行操作
                         var _WHResponse = OrderCancelProcessService.WHResponse(objOrderChangeRecord.DetailId, item.ReplyState, VariableHelper.SaferequestTime(item.ReplyDate), item.Message, db);
                         if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
                     }
+                    else if (item.Type == (int)ReplyType.Exchange)
+                    {
+                        //如果回复处理中/成功/失败,则进行操作
+                    }
                     else if (item.Type == (int)ReplyType.Return)
                     {
                         //如果回复处理中/成功/失败,则进行操作
                         var _WHResponse = OrderReturnProcessService.WHResponse(objOrderChangeRecord.DetailId, item.ReplyState, VariableHelper.SaferequestTime(item.ReplyDate), item.Message, db);
+                        if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
+                    }
+                    else if (item.Type == (int)ReplyType.Modify)
+                    {
+                        //如果回复处理中/成功/失败,则进行操作
+                        var _WHResponse = OrderModifyProcessService.WHResponse(objOrderChangeRecord.DetailId, item.ReplyState, VariableHelper.SaferequestTime(item.ReplyDate), item.Message, db);
                         if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
                     }
                 }
@@ -609,188 +613,13 @@ namespace OMS.API.Implments.Warehouse
             if (_WMSReplyState)
             {
                 //更新子订单 ProductStatus
-                _sql.AppendLine($"update OrderDetail set [Status]={(int)ProductStatus.InDelivery},ShippingStatus = {(int)WarehouseProcessStatus.ToWMS},EditDate='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' where OrderNo='{item.OrderNo}' and SubOrderNo='{item.SubOrderNo}';");
+                _sql.AppendLine($"update OrderDetail set [Status]={(int)ProductStatus.Processing},ShippingStatus = {(int)WarehouseProcessStatus.ToWMS},EditDate='{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}' where OrderNo='{item.OrderNo}' and SubOrderNo='{item.SubOrderNo}';");
                 //写入日志
-                _sql.AppendLine($"insert into OrderLog Values('{item.OrderNo}','{item.SubOrderNo}',{(int)ProductStatus.Received},{(int)ProductStatus.InDelivery},0,'WMS get the order','{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}');");
+                _sql.AppendLine($"insert into OrderLog Values('{item.OrderNo}','{item.SubOrderNo}',{(int)ProductStatus.Received},{(int)ProductStatus.Processing},0,'WMS get the order','{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}');");
                 //更新订单状态为 Processing
                 _sql.AppendLine($"update [Order] set [Status]={(int)OrderStatus.Processing} where OrderNo='{item.OrderNo}';");
             }
             return _sql;
-        }
-        #endregion
-
-        #region 其它回复信息函数
-        /// <summary>
-        /// 保存仓库状态
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        private void SaveWarehouseStatus(PostDetailRequest item, ebEntities db)
-        {
-            using (var Trans = db.Database.BeginTransaction())
-            {
-                try
-                {
-                    PostShippingStatusResponse data = JsonHelper.JsonDeserialize<PostShippingStatusResponse>(item.Data.ToString());
-
-                    data.Status = VariableHelper.SaferequestStr(data.Status);
-
-                    if (string.IsNullOrEmpty(item.MallCode))
-                    {
-                        throw new Exception("Please input a MallSapCode!");
-                    }
-
-                    if (string.IsNullOrEmpty(item.OrderNo))
-                    {
-                        throw new Exception("Please input a OrderNo!");
-                    }
-
-                    if (string.IsNullOrEmpty(item.SubOrderNo))
-                    {
-                        throw new Exception("Please input a SubOrderNo!");
-                    }
-
-                    if (string.IsNullOrEmpty(data.Status))
-                    {
-                        throw new Exception("Please input a Shipping Status!");
-                    }
-
-                    View_OrderDetail objOrderDetail = db.View_OrderDetail.Where(p => p.OrderNo == item.OrderNo && p.SubOrderNo == item.SubOrderNo && p.MallSapCode == item.MallCode).SingleOrDefault();
-                    if (objOrderDetail != null)
-                    {
-                        //更新物流状态
-                        int _ShippingStatus = APIHelper.GetShippingStatus(data.Status);
-                        int _rowCount = db.Database.ExecuteSqlCommand("update OrderDetail set ShippingStatus={0} where OrderNo={1} and SubOrderNo={2}", _ShippingStatus, objOrderDetail.OrderNo, objOrderDetail.SubOrderNo);
-                        if (_rowCount == 0)
-                        {
-                            throw new Exception("Data update fail!");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("The SubOrderNo does not exist!");
-                    }
-                    Trans.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Trans.Rollback();
-                    throw ex;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 保存快递跟踪信息
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        private void SaveExpressDetail(PostDetailRequest item, ebEntities db)
-        {
-            using (var Trans = db.Database.BeginTransaction())
-            {
-                try
-                {
-                    PostExpressDetailResponse data = JsonHelper.JsonDeserialize<PostExpressDetailResponse>(item.Data.ToString());
-
-                    data.Detail = VariableHelper.SaferequestNull(data.Detail);
-
-                    if (string.IsNullOrEmpty(item.MallCode))
-                    {
-                        throw new Exception("Please input a MallSapCode!");
-                    }
-
-                    if (string.IsNullOrEmpty(item.OrderNo))
-                    {
-                        throw new Exception("Please input a OrderNo!");
-                    }
-
-                    if (string.IsNullOrEmpty(item.SubOrderNo))
-                    {
-                        throw new Exception("Please input a SubOrderNo!");
-                    }
-
-                    if (string.IsNullOrEmpty(data.Detail))
-                    {
-                        throw new Exception("Please input a Express Detail!");
-                    }
-
-                    View_OrderDetail objOrderDetail = db.View_OrderDetail.Where(p => p.OrderNo == item.OrderNo && p.SubOrderNo == item.SubOrderNo && p.MallSapCode == item.MallCode).SingleOrDefault();
-                    if (objOrderDetail != null)
-                    {
-                        //保存运单号状态和运单详情
-                        int _rowCount = db.Database.ExecuteSqlCommand("update Deliverys set ExpressStatus={0},ExpressMsg={1} where OrderNo={2} and SubOrderNo={3}", data.Status, data.Detail, objOrderDetail.OrderNo, objOrderDetail.SubOrderNo);
-                        if (_rowCount == 0)
-                        {
-                            throw new Exception("Data update fail!");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("The Order does not exist!");
-                    }
-                    Trans.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Trans.Rollback();
-                    throw ex;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 保存发票信息
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        private void SaveInvoiceMessage(PostDetailRequest item, ebEntities db)
-        {
-            using (var Trans = db.Database.BeginTransaction())
-            {
-                try
-                {
-                    if (string.IsNullOrEmpty(item.MallCode))
-                    {
-                        throw new Exception("Please input a MallSapCode!");
-                    }
-
-                    if (string.IsNullOrEmpty(item.OrderNo))
-                    {
-                        throw new Exception("Please input a OrderNo!");
-                    }
-
-                    if (string.IsNullOrEmpty(item.Data.ToString()))
-                    {
-                        throw new Exception("Please input a Invoice Message!");
-                    }
-
-                    Order objOrder = db.Order.Where(p => p.OrderNo == item.OrderNo && p.MallSapCode == item.MallCode).SingleOrDefault();
-                    if (objOrder != null)
-                    {
-                        //保存发票信息
-                        string _invoiceMessage = item.Data.ToString();
-                        if (!string.IsNullOrEmpty(_invoiceMessage))
-                        {
-                            int _rowCount = db.Database.ExecuteSqlCommand("update [order] set InvoiceMessage={0} where MallSapCode={1} and OrderNo={2};", _invoiceMessage, item.MallCode, item.OrderNo);
-                            if (_rowCount == 0)
-                            {
-                                throw new Exception("Data update fail!");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("The Order does not exist!");
-                    }
-                    Trans.Commit();
-                }
-                catch (Exception ex)
-                {
-                    Trans.Rollback();
-                    throw ex;
-                }
-            }
         }
         #endregion
     }

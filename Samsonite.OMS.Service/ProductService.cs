@@ -621,6 +621,7 @@ namespace Samsonite.OMS.Service
         {
             using (var db = new ebEntities())
             {
+                db.Database.ExecuteSqlCommand("update Product set Quantity=0 where sku in (select sku from MallProduct where IsOnSale=0 group by sku)");
                 db.Database.ExecuteSqlCommand("update MallProduct set Quantity=0 where IsOnSale=0");
             }
         }

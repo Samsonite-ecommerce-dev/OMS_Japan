@@ -21,8 +21,8 @@ namespace Test
     public class TestApi
     {
         //测试
-        private static string localSite = "http://127.0.0.1:8095";
-        //private string localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
+        //private static string localSite = "http://127.0.0.1:8095";
+        private static string localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
         private static string secret = "u676lo4pq9F72g8q8Ep2i77p6YVuArW8";
 
         //正式
@@ -36,7 +36,8 @@ namespace Test
             //APIPostInventory();
             //APIPostDelivery();
             //APIPostReply();
-            //APIPostDetail();
+            //APIUpdateWMSStatus();
+            //APIUpdateShipmentStatus();
         }
 
         #region apitest
@@ -179,24 +180,38 @@ namespace Test
             List<object> postData = new List<object>() {
                 new
                 {
-                    sku="17S*00017",
+                    sku="0232722D",
                     productType=1,
-                    productId="74301-1726",
-                    quantity=200
+                    productId="142486-1041",
+                    quantity=100
                 },
                 new
                 {
-                    sku="I67*80010",
+                    sku="0232722NVY",
                     productType=1,
-                    productId="74389-B139",
-                    quantity=201
+                    productId="142486-1596",
+                    quantity=200
                 } ,
                 new
                 {
-                    sku="18S*64003",
+                    sku="0232789D",
                     productType=1,
-                    productId="64531-1879",
-                    quantity=202
+                    productId="142480-1041",
+                    quantity=300
+                },
+                new
+                {
+                    sku="0192142D",
+                    productType=1,
+                    productId="142627-1041",
+                    quantity=400
+                },
+                new
+                {
+                    sku="0192136BFR",
+                    productType=1,
+                    productId="142623-9653",
+                    quantity=500
                 }
             };
 
@@ -259,20 +274,20 @@ namespace Test
             List<PostDeliverysRequest> postData = new List<PostDeliverysRequest>() {
                 new PostDeliverysRequest
                 {
-                    MallCode="1142521",
-                    OrderNo = "2571351561392440",
-                    SubOrderNo="TB2571351561392440_set_79B01002_1",
+                    MallCode="1234567",
+                    OrderNo = "TUSG00010508",
+                    SubOrderNo="TUSG00010508_2",
                     Sku="",
                     DeliveryCode="",
                     Company="STO",
-                    DeliveryNo="409472272776",
+                    DeliveryNo="409472272777",
                     Packages=1,
                     Type="",
                     ReceiveCost=0,
                     Warehouse="",
-                    ReceiveDate="20170321134931",
-                    DealDate="20170321134931",
-                    SendDate="20170321134931"
+                    ReceiveDate=DateTime.Now.AddDays(-1).ToString("yyyyMMddHHmmss"),
+                    DealDate=DateTime.Now.AddDays(-1).ToString("yyyyMMddHHmmss"),
+                    SendDate=DateTime.Now.ToString("yyyyMMddHHmmss")
                 }
             };
             //获取信息
@@ -335,9 +350,19 @@ namespace Test
             List<PostReplyRequest> postData = new List<PostReplyRequest>() {
                 new PostReplyRequest()
                 {
-                    MallCode="1135220",
-                    OrderNo = "0000013305",
-                    SubOrderNo="0000013305_1",
+                    MallCode="1234567",
+                    OrderNo = "TUSG00010610",
+                    SubOrderNo="TUSG00010610_1",
+                    Type=0,
+                    ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    ReplyState=(int)WarehouseStatus.DealSuccessful,
+                    Message="ok"
+                },
+                new PostReplyRequest()
+                {
+                    MallCode="1234567",
+                    OrderNo = "TUSG00010508",
+                    SubOrderNo="TUSG00010508_2",
                     Type=0,
                     ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
                     ReplyState=(int)WarehouseStatus.DealSuccessful,
@@ -497,7 +522,7 @@ namespace Test
             }
         }
 
-        public static void APIPostDetail()
+        public static void APIUpdateWMSStatus()
         {
             IDictionary<string, string> objParams = new Dictionary<string, string>();
             objParams.Add("userid", "wmsuser");
@@ -512,57 +537,26 @@ namespace Test
                 _params += $"&{_item.Key}={_item.Value}";
             }
             _params = _params.Substring(1);
-            localSite = $"{localSite}/API/PostDetail?{_params}";
+            localSite = $"{localSite}/API/updateWMSStatus?{_params}";
 
             //物流信息
-            List<PostDetailRequest> postData = new List<PostDetailRequest>() {
-                //new PostDetailRequest
-                //{
-                //    MallCode="1170918",
-                //    OrderNo = "377346485",
-                //    SubOrderNo="LT377346485_1",
-                //    Type=(int)PostDetailType.WarehouseStatus,
-                //    Data=new PostShippingStatusResponse
-                //    {
-                //         Status="Picked"
-                //    }
-                //},
-                new PostDetailRequest
+            List<UpdateWMSStatusRequest> postData = new List<UpdateWMSStatusRequest>() {
+                new UpdateWMSStatusRequest
                 {
-                    MallCode="1135220",
-                    OrderNo = "0000012303",
-                    SubOrderNo="0000012303_1",
-                    Type=(int)PostDetailType.ExpressDetail,
-                    Data=new PostExpressDetailResponse
-                    {
-                         Status=0,
-                         Detail="delivered"
-                    }
+                    MallCode="1234567",
+                    OrderNo = "TUSG00010508",
+                    SubOrderNo="TUSG00010508_1",
+                     Status="PACKED",
+                     Remark="test"
                 },
-                //new PostDetailRequest
-                //{
-                //    MallCode="1129057",
-                //    OrderNo = "245257222SG",
-                //    SubOrderNo="245257222SG_1",
-                //    Type=(int)PostDetailType.Invoice,
-                //    Data=new List<object>()
-                //    {
-                //        new
-                //        {
-                //         invoiceType="个人",
-                //         invoiceNo="1321210211",
-                //         invoiceTitle="CCTV",
-                //         invoiceAmount="100"
-                //        },
-                //        new
-                //        {
-                //         invoiceType="个人",
-                //         invoiceNo="1321210211",
-                //         invoiceTitle="MTV",
-                //         invoiceAmount="60"
-                //        },
-                //    }
-                //},
+                new UpdateWMSStatusRequest
+                {
+                    MallCode="1234567",
+                    OrderNo = "TUSG00010508",
+                    SubOrderNo="TUSG00010508_2",
+                     Status="PICKED",
+                     Remark="test"
+                },
             };
             //获取信息
             HttpWebRequest req = null;
@@ -603,49 +597,79 @@ namespace Test
             }
         }
 
-        public static void ReadFile()
+        public static void APIUpdateShipmentStatus()
         {
-            string _path = @"D:\Project\OMS\China\OMS.App\Views\";
-            //string _path = @"D:\Project\OMS\China\OMS.App\Controllers\";
-
-            DirectoryInfo _dir = new DirectoryInfo(_path);
-            //foreach (var _o in _dir.GetDirectories())
-            //{
-            //    DirectoryInfo _d = new DirectoryInfo(_path + _o.Name);
-            //    foreach (var _o1 in _d.GetFiles())
-            //    {
-            //        Console.WriteLine(_o1.FullName);
-            //    }
-            //}
-            int t = 0;
-            var _files = Samsonite.Utility.Common.FileHelper.ReadFiles(_path, new List<string>());
-            foreach (string str in _files)
+            IDictionary<string, string> objParams = new Dictionary<string, string>();
+            objParams.Add("userid", "wmsuser");
+            objParams.Add("version", "1.0");
+            objParams.Add("format", "json");
+            objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
+            string _sign = CreateSign(objParams, secret);
+            objParams.Add("sign", _sign);
+            string _params = string.Empty;
+            foreach (var _item in objParams)
             {
-                string _text = File.ReadAllText(str);
-                List<string> _r = GetValues(_text);
-                foreach (string _str in _r)
-                {
-                    Console.WriteLine(_str);
-                }
-                t += _r.Count;
+                _params += $"&{_item.Key}={_item.Value}";
             }
-            Console.WriteLine(t);
-        }
+            _params = _params.Substring(1);
+            localSite = $"{localSite}/API/updateShipmentStatus?{_params}";
 
-        private static List<string> GetValues(string objText)
-        {
-            List<string> _result = new List<string>();
-            Regex _regex = new Regex(@"LanguagePack\[""(.+?)""\]", RegexOptions.IgnoreCase);
-            var _arrays = _regex.Matches(objText);
-            foreach (Match _o in _arrays)
-            {
-                string _v = _o.Value.Replace("LanguagePack[", "").Replace("]", "").Replace("\"", "");
-                if (!_result.Contains(_v))
+            //物流信息
+            List<UpdateShipmentStatusRequest> postData = new List<UpdateShipmentStatusRequest>() {
+                new UpdateShipmentStatusRequest
                 {
-                    _result.Add(_v);
+                     DeliveryNo="409472272776",
+                     DeliveryCompany="STO",
+                     UpdateDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
+                     Status="Sigh",
+                     Remark="sign!"
+                },
+                new UpdateShipmentStatusRequest
+                {
+                    DeliveryNo="409472272777",
+                     DeliveryCompany="STO",
+                     UpdateDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
+                     Status="INTRANSIT",
+                     Remark="INTRANSIT..."
+                },
+            };
+            //获取信息
+            HttpWebRequest req = null;
+            if (localSite.StartsWith("https", StringComparison.OrdinalIgnoreCase))
+            {
+                ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(TrustAllValidationCallback);
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                req = (HttpWebRequest)WebRequest.CreateDefault(new Uri(localSite));
+            }
+            else
+            {
+                req = (HttpWebRequest)WebRequest.Create(localSite);
+            }
+            req.ReadWriteTimeout = 5 * 1000;
+            req.Method = WebRequestMethods.Http.Post;
+            var _Data = Samsonite.Utility.Common.JsonHelper.JsonSerialize(postData);
+
+            using (var sw = new StreamWriter(req.GetRequestStream()))
+            {
+                sw.Write(_Data);
+            }
+            using (var response = req.GetResponse())
+            {
+                using (var sr = new StreamReader(response.GetResponseStream()))
+                {
+                    string responseText = sr.ReadToEnd();
+                    Console.WriteLine(responseText);
+                    JObject obj = JsonConvert.DeserializeObject<JObject>(responseText);
+                    if (obj.GetValue("Code").ToString() == "100")
+                    {
+                        Console.WriteLine("success");
+                    }
+                    else
+                    {
+                        Console.WriteLine("fail");
+                    }
                 }
             }
-            return _result;
         }
 
         public static string CreateSign(IDictionary<string, string> parameters, string secret)

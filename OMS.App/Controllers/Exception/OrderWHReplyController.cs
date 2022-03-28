@@ -95,7 +95,7 @@ namespace OMS.App.Controllers
                 //WH接收失败订单
                 _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "owr.Status=0", Param = null });
                 //查询
-                var _list = db.GetPage<dynamic>("select owr.Id,od.OrderNo,od.SubOrderNo,od.MallName,od.OrderTime,od.SKU,od.ProductName,od.Quantity,od.SellingPrice,od.ProductStatus,od.PaymentAmount,od.ActualPaymentAmount,owr.ApiReplyDate,owr.ApiReplyMsg,owr.ApiCount from View_OrderDetail as od inner join OrderWMSReply as owr on od.SubOrderNo=owr.SubOrderNo order by od.OrderTime desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = db.GetPage<dynamic>("select owr.Id,od.OrderNo,od.SubOrderNo,od.MallName,od.OrderTime,od.SKU,od.ProductName,od.Quantity,od.SellingPrice,od.ProductStatus,od.PaymentAmount,od.ActualPaymentAmount,owr.ApiReplyDate,owr.ApiReplyMsg,owr.ApiCount from View_OrderDetail as od inner join OrderWMSReply as owr on od.SubOrderNo=owr.SubOrderNo order by owr.Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
                 _result.Data = new
                 {
                     total = _list.TotalItems,

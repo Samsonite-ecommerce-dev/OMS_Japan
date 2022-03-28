@@ -55,8 +55,9 @@ namespace Samsonite.OMS.Service
         /// </summary>
         /// <param name="item"></param>
         /// <param name="deliveryCode"></param>
+        /// <param name="remark"></param>
         /// <returns></returns>
-        public static DeliveryDto SaveDeliverys(Deliverys item, string deliveryCode)
+        public static DeliveryDto SaveDeliverys(Deliverys item, string deliveryCode, string remark)
         {
             DeliveryDto resultObj = new DeliveryDto();
 
@@ -68,7 +69,7 @@ namespace Samsonite.OMS.Service
                     //判断订单是否存在
                     if (objOrderDetail != null)
                     {
-                        if (objOrderDetail.ProductStatus == (int)ProductStatus.Pending || objOrderDetail.ProductStatus == (int)ProductStatus.Received || objOrderDetail.ProductStatus == (int)ProductStatus.InDelivery)
+                        if (objOrderDetail.ProductStatus == (int)ProductStatus.Pending || objOrderDetail.ProductStatus == (int)ProductStatus.Received || objOrderDetail.ProductStatus == (int)ProductStatus.Processing)
                         {
                             //匹配快递公司,如果匹配不到，则ExpressId设置为0
                             var objExpressCompany = db.ExpressCompany.Where(o => o.ExpressName.Contains(item.ExpressName) || o.Code == deliveryCode).FirstOrDefault();
@@ -96,7 +97,7 @@ namespace Samsonite.OMS.Service
                                 item.IsNeedPush = false;
                             }
                             //保存快递号
-                            SaveOrUpdate(objOrderDetail, item);
+                            SaveOrUpdate(objOrderDetail, item, remark);
                         }
                         else
                         {
@@ -133,9 +134,10 @@ namespace Samsonite.OMS.Service
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="objView_OrderDetail"></param>
-        /// <param name="objDelivery"></param>
-        private static void SaveOrUpdate(View_OrderDetail objView_OrderDetail, Deliverys objDelivery)
+        /// <param name="view_OrderDetail"></param>
+        /// <param name="delivery"></param>
+        /// <param name="remark"></param>
+        private static void SaveOrUpdate(View_OrderDetail view_OrderDetail, Deliverys delivery, string remark)
         {
             using (var db = new ebEntities())
             {
@@ -144,49 +146,49 @@ namespace Samsonite.OMS.Service
                     try
                     {
                         //判断是否存在，如果存在就更新，不存在就插入
-                        var objExistsDelivery = db.Deliverys.Where(o => o.OrderNo == objDelivery.OrderNo && o.SubOrderNo == objDelivery.SubOrderNo && o.MallSapCode == objDelivery.MallSapCode).SingleOrDefault();
+                        var objExistsDelivery = db.Deliverys.Where(o => o.OrderNo == delivery.OrderNo && o.SubOrderNo == delivery.SubOrderNo && o.MallSapCode == delivery.MallSapCode).SingleOrDefault();
                         if (objExistsDelivery != null)
                         {
-                            if (!string.IsNullOrEmpty(objDelivery.ExpressName))
+                            if (!string.IsNullOrEmpty(delivery.ExpressName))
                             {
-                                objExistsDelivery.ExpressId = objDelivery.ExpressId;
-                                objExistsDelivery.ExpressName = objDelivery.ExpressName;
+                                objExistsDelivery.ExpressId = delivery.ExpressId;
+                                objExistsDelivery.ExpressName = delivery.ExpressName;
                             }
-                            if (!string.IsNullOrEmpty(objDelivery.InvoiceNo)) objExistsDelivery.InvoiceNo = objDelivery.InvoiceNo;
-                            if (!string.IsNullOrEmpty(objDelivery.ExpressType)) objExistsDelivery.ExpressType = objDelivery.ExpressType;
-                            if (objDelivery.Packages > 0) objExistsDelivery.Packages = objDelivery.Packages;
-                            if (objDelivery.ExpressAmount > 0) objExistsDelivery.ExpressAmount = objDelivery.ExpressAmount;
-                            if (!string.IsNullOrEmpty(objDelivery.Warehouse)) objExistsDelivery.Warehouse = objDelivery.Warehouse;
-                            if (!string.IsNullOrEmpty(objDelivery.ReceiveTime)) objExistsDelivery.ReceiveTime = objDelivery.ReceiveTime;
-                            if (!string.IsNullOrEmpty(objDelivery.ClearUpTime)) objExistsDelivery.ClearUpTime = objDelivery.ClearUpTime;
-                            if (!string.IsNullOrEmpty(objDelivery.DeliveryDate)) objExistsDelivery.DeliveryDate = objDelivery.DeliveryDate;
+                            if (!string.IsNullOrEmpty(delivery.InvoiceNo)) objExistsDelivery.InvoiceNo = delivery.InvoiceNo;
+                            if (!string.IsNullOrEmpty(delivery.ExpressType)) objExistsDelivery.ExpressType = delivery.ExpressType;
+                            if (delivery.Packages > 0) objExistsDelivery.Packages = delivery.Packages;
+                            if (delivery.ExpressAmount > 0) objExistsDelivery.ExpressAmount = delivery.ExpressAmount;
+                            if (!string.IsNullOrEmpty(delivery.Warehouse)) objExistsDelivery.Warehouse = delivery.Warehouse;
+                            if (!string.IsNullOrEmpty(delivery.ReceiveTime)) objExistsDelivery.ReceiveTime = delivery.ReceiveTime;
+                            if (!string.IsNullOrEmpty(delivery.ClearUpTime)) objExistsDelivery.ClearUpTime = delivery.ClearUpTime;
+                            if (!string.IsNullOrEmpty(delivery.DeliveryDate)) objExistsDelivery.DeliveryDate = delivery.DeliveryDate;
                             db.SaveChanges();
 
                             //***如果是仓库自取快递号,则直接完成订单***//
-                            if (objDelivery.InvoiceNo.ToUpper() == AppGlobalService.ExpressTakenByCustomer.ToUpper())
+                            if (delivery.InvoiceNo.ToUpper() == AppGlobalService.ExpressTakenByCustomer.ToUpper())
                             {
-                                List<int> allowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.InDelivery };
-                                if (allowStatus.Contains(objView_OrderDetail.ProductStatus))
+                                List<int> allowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing };
+                                if (allowStatus.Contains(view_OrderDetail.ProductStatus))
                                 {
                                     //更新状态
-                                    var _result = db.Database.ExecuteSqlCommand("update OrderDetail set Status={0},EditDate={1},CompleteDate={1} where OrderNo={2} and SubOrderNo={3}", (int)ProductStatus.Delivered, DateTime.Now, objView_OrderDetail.OrderNo, objView_OrderDetail.SubOrderNo);
+                                    var _result = db.Database.ExecuteSqlCommand("update OrderDetail set Status={0},EditDate={1},CompleteDate={1} where OrderNo={2} and SubOrderNo={3}", (int)ProductStatus.Delivered, DateTime.Now, view_OrderDetail.OrderNo, view_OrderDetail.SubOrderNo);
                                     if (_result > 0)
                                     {
                                         //记录订单状态
                                         db.OrderLog.Add(new OrderLog
                                         {
                                             Msg = "Items had been taken by Customer",
-                                            OrderNo = objView_OrderDetail.OrderNo,
-                                            SubOrderNo = objView_OrderDetail.SubOrderNo,
+                                            OrderNo = view_OrderDetail.OrderNo,
+                                            SubOrderNo = view_OrderDetail.SubOrderNo,
                                             CreateDate = DateTime.Now,
-                                            OriginStatus = objView_OrderDetail.ProductStatus,
+                                            OriginStatus = view_OrderDetail.ProductStatus,
                                             NewStatus = (int)ProductStatus.Delivered
                                         });
                                         db.SaveChanges();
                                         //修改换货记录里面的状态
-                                        OrderExchangeProcessService.DeliverySure(objView_OrderDetail.MallSapCode, objView_OrderDetail.OrderNo, objView_OrderDetail.SubOrderNo, db);
+                                        OrderExchangeProcessService.DeliverySure(view_OrderDetail.MallSapCode, view_OrderDetail.OrderNo, view_OrderDetail.SubOrderNo, db);
                                         //判断产品是否已经全部收货，如果全部为收货，就设置主订单状态为 Complete
-                                        OrderProcessService.CompleteOrder(objView_OrderDetail.OrderNo, db);
+                                        OrderProcessService.CompleteOrder(view_OrderDetail.OrderNo, db);
                                     }
                                 }
                             }
@@ -194,21 +196,21 @@ namespace Samsonite.OMS.Service
                         }
                         else
                         {
-                            db.Deliverys.Add(objDelivery);
+                            db.Deliverys.Add(delivery);
                             db.SaveChanges();
                             //修改产品状态
-                            var _result = db.Database.ExecuteSqlCommand("update OrderDetail set Status={2},EditDate={3} where OrderNo={0} and SubOrderNo={1}", objView_OrderDetail.OrderNo, objView_OrderDetail.SubOrderNo, (int)ProductStatus.Received, DateTime.Now);
+                            var _result = db.Database.ExecuteSqlCommand("update OrderDetail set Status={2},EditDate={3} where OrderNo={0} and SubOrderNo={1}", view_OrderDetail.OrderNo, view_OrderDetail.SubOrderNo, (int)ProductStatus.InDelivery, DateTime.Now);
                             if (_result > 0)
                             {
                                 //记录订单状态
                                 db.OrderLog.Add(new OrderLog
                                 {
-                                    Msg = "Push the Delivery Invoice manually",
-                                    OrderNo = objDelivery.OrderNo,
-                                    SubOrderNo = objDelivery.SubOrderNo,
+                                    Msg = remark,
+                                    OrderNo = delivery.OrderNo,
+                                    SubOrderNo = delivery.SubOrderNo,
                                     CreateDate = DateTime.Now,
-                                    OriginStatus = objView_OrderDetail.ProductStatus,
-                                    NewStatus = (int)ProductStatus.Received
+                                    OriginStatus = view_OrderDetail.ProductStatus,
+                                    NewStatus = (int)ProductStatus.InDelivery
                                 });
                                 db.SaveChanges();
                             }
@@ -224,19 +226,5 @@ namespace Samsonite.OMS.Service
             }
         }
         #endregion
-
-        /// <summary>
-        /// 获取快递信息
-        /// </summary>
-        /// <param name="objOrderNo"></param>
-        /// <param name="objSubOrderNo"></param>
-        /// <returns></returns>
-        public static Deliverys GetDeliverys(string objOrderNo, string objSubOrderNo)
-        {
-            using (var db = new ebEntities())
-            {
-                return db.Deliverys.Where(p => p.OrderNo == objOrderNo && p.SubOrderNo == objSubOrderNo).SingleOrDefault();
-            }
-        }
     }
 }

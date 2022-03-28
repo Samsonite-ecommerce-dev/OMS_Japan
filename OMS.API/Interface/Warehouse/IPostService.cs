@@ -10,30 +10,37 @@ namespace OMS.API.Interface.Warehouse
         /// <summary>
         /// 更新库存
         /// </summary>
-        /// <param name="objPostInventoryRequestList"></param>
-        /// <param name="objReduceQuantitys"></param>
+        /// <param name="inventorys"></param>
+        /// <param name="reduceQuantitys"></param>
         /// <returns></returns>
-        List<PostInventoryResponse> SaveInventorys(List<PostInventoryRequest> objPostInventoryRequestList, Dictionary<string, int> objReduceQuantitys);
+        List<PostInventoryResponse> SaveInventorys(List<PostInventoryRequest> inventorys, Dictionary<string, int> reduceQuantitys);
 
         /// <summary>
         /// 更新快递号
         /// </summary>
-        /// <param name="objPostDeliverysRequestList"></param>
+        /// <param name="deliverys"></param>
         /// <returns></returns>
-        List<PostDeliverysResponse> SaveDeliverys(List<PostDeliverysRequest> objPostDeliverysRequestList);
+        List<PostDeliverysResponse> SaveDeliverys(List<PostDeliverysRequest> deliverys);
 
         /// <summary>
-        /// 回复信息
+        /// 回复操作状态
         /// </summary>
-        /// <param name="objPostReplyRequestList"></param>
+        /// <param name="postReplys"></param>
         /// <returns></returns>
-        List<PostReplyResponse> SavePostReplys(List<PostReplyRequest> objPostReplyRequestList);
+        List<PostReplyResponse> SavePostReplys(List<PostReplyRequest> postReplys);
 
         /// <summary>
-        /// 其它回复信息
+        /// 更新物流状态
         /// </summary>
-        /// <param name="objPostDetailRequestList"></param>
+        /// <param name="shipmentStatus"></param>
         /// <returns></returns>
-        List<PostDetailResponse> SaveReplyDetails(List<PostDetailRequest> objPostDetailRequestList);
+        List<UpdateShipmentStatusResponse> SaveShipmentStatus(List<UpdateShipmentStatusRequest> shipmentStatus);
+
+        /// <summary>
+        /// 更新仓库状态
+        /// </summary>
+        /// <param name="wmsStatus"></param>
+        /// <returns></returns>
+        List<UpdateWMSStatusResponse> SaveWMSStatus(List<UpdateWMSStatusRequest> wmsStatus);
     }
 }

@@ -109,7 +109,7 @@ namespace OMS.App.Controllers
                             ExpressName = VariableHelper.SaferequestStr(item.DeliveryName),
                             Packages = 1
                         };
-                        DeliveryDto itemResult = DeliveryService.SaveDeliverys(delivery, item.DeliveryCode);
+                        DeliveryDto itemResult = DeliveryService.SaveDeliverys(delivery, item.DeliveryCode, "Push the Delivery Invoice manually");
                         if (!itemResult.Result)
                         {
                             //写入错误

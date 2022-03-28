@@ -160,14 +160,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// <returns></returns>
         public CommonResult<DeliveryResult> RequireDeliverys()
         {
-            if (this.ServicePowers.IsRequireDelivery)
-            {
-                return this.GetTrackingNumbers();
-            }
-            else
-            {
-                return null;
-            }
+            return null;
         }
 
         /// <summary>
@@ -176,14 +169,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// <returns></returns>
         public CommonResult<DeliveryResult> SendDeliverys()
         {
-            if (this.ServicePowers.IsSendDelivery)
-            {
-                return this.SetReadyToShip();
-            }
-            else
-            {
-                return null;
-            }
+            return null;
         }
         #endregion
 

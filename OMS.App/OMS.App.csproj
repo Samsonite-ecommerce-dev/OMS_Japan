@@ -188,8 +188,6 @@
     <Compile Include="Controllers\Customer\CustomerController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\Exception\ClaimErrorController.cs" />
-    <Compile Include="Controllers\Exception\DeliveryRequireErrorController.cs" />
-    <Compile Include="Controllers\Exception\DeliveryPushErrorController.cs" />
     <Compile Include="Controllers\Exception\OrderErrorController.cs" />
     <Compile Include="Controllers\Exception\OrderWHReplyController.cs" />
     <Compile Include="Controllers\Function\FunctionController.cs" />

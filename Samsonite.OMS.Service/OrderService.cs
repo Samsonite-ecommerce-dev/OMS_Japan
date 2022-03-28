@@ -754,7 +754,7 @@ namespace Samsonite.OMS.Service
                                 ShippingType = objOrderDetail.Status,
                                 //收货确认之后ShippingType变成0,然后生成D/N
                                 ShippingStatus = (int)WarehouseProcessStatus.Delete,
-                                DeliveringPlant= objOrderDetail.DeliveringPlant,
+                                DeliveringPlant = objOrderDetail.DeliveringPlant,
                                 CancelQuantity = 0,
                                 ReturnQuantity = 0,
                                 ExchangeQuantity = 0,
@@ -777,7 +777,7 @@ namespace Samsonite.OMS.Service
                                 AddDate = DateTime.Now,
                                 EditDate = DateTime.Now,
                                 CompleteDate = null,
-                                IsStop= objOrderDetail.IsStop,
+                                IsStop = objOrderDetail.IsStop,
                                 IsError = objOrderDetail.IsError,
                                 ErrorMsg = objOrderDetail.ErrorMsg,
                                 ErrorRemark = string.Empty,
@@ -1158,9 +1158,7 @@ namespace Samsonite.OMS.Service
                             NewStatus = (int)ProductStatus.Delivered
                         });
                         objDB.SaveChanges();
-                        //修改换货记录里面的状态
-                        OrderExchangeProcessService.DeliverySure(objView_OrderDetail.MallSapCode, objView_OrderDetail.OrderNo, objView_OrderDetail.SubOrderNo);
-                        //判断产品是否已经全部收货，如果全部为收货，就设置主订单状态为 Complete
+                        //判断产品是否已经全部收货,如果全部为收货,就设置主订单状态为 Complete
                         OrderProcessService.CompleteOrder(objView_OrderDetail.OrderNo);
                     }
                 }

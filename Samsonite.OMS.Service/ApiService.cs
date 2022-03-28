@@ -84,6 +84,22 @@ namespace Samsonite.OMS.Service
                          InterfaceName="Post Inventory",
                          ActionName="PostInventory",
                          SeqNumber=5
+                    },
+                    new InterfaceDto()
+                    {
+                         ID=105,
+                         RouteGroup="",
+                         InterfaceName="Update Shipment Status",
+                         ActionName="UpdateShipmentStatus",
+                         SeqNumber=6
+                    },
+                    new InterfaceDto()
+                    {
+                         ID=106,
+                         RouteGroup="",
+                         InterfaceName="Update WMS Status",
+                         ActionName="UpdateWMSStatus",
+                         SeqNumber=7
                     }
                 },
                 RootID = 1

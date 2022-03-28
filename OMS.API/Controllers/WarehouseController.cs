@@ -126,86 +126,6 @@ namespace OMS.API.Controllers
         }
 
         /// <summary>
-        /// 回复操作状态
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("postReply")]
-        public ApiResponse PostReply()
-        {
-            ApiResponse result = new ApiResponse();
-            using (var db = new ebEntities())
-            {
-                try
-                {
-                    var _jsonData = Request.Content.ReadAsStringAsync().Result;
-
-                    if (GlobalConfig.IsApiDebugLog)
-                    {
-                        FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
-                    }
-
-                    var _models = JsonHelper.JsonDeserialize<List<PostReplyRequest>>(_jsonData);
-                    if (_models != null)
-                    {
-                        List<PostReplyResponse> _result = _postService.SavePostReplys(_models);
-                        //返回结果
-                        result = ApiResponse.Success(_result.Where(p => p.Result), _result.Where(p => !p.Result));
-                    }
-                    else
-                    {
-                        throw new Exception("Please input a request data!");
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    //返回结果
-                    result = ApiResponse.Fail(ex.Message);
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// 提交快递信息
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("postDelivery")]
-        public ApiResponse PostDelivery()
-        {
-            ApiResponse result = new ApiResponse();
-            try
-            {
-                var _jsonData = Request.Content.ReadAsStringAsync().Result;
-
-                if (GlobalConfig.IsApiDebugLog)
-                {
-                    FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
-                }
-
-                var _models = JsonHelper.JsonDeserialize<List<PostDeliverysRequest>>(_jsonData);
-                if (_models != null)
-                {
-                    List<PostDeliverysResponse> _result = _postService.SaveDeliverys(_models);
-                    //返回结果
-                    result = ApiResponse.Success(_result.Where(p => p.Result), _result.Where(p => !p.Result));
-                }
-                else
-                {
-                    throw new Exception("Please input a request data!");
-                }
-            }
-            catch (Exception ex)
-            {
-                //返回结果
-                result = ApiResponse.Fail(ex.Message);
-            }
-            return result;
-        }
-
-        /// <summary>
         /// 更新库存
         /// </summary>
         /// <returns></returns>
@@ -261,12 +181,12 @@ namespace OMS.API.Controllers
         }
 
         /// <summary>
-        /// 提交订单关联信息
+        /// 提交快递信息
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [Route("postDetail")]
-        public ApiResponse PostDetail()
+        [Route("postDelivery")]
+        public ApiResponse PostDelivery()
         {
             ApiResponse result = new ApiResponse();
             try
@@ -278,10 +198,10 @@ namespace OMS.API.Controllers
                     FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
                 }
 
-                var _models = JsonHelper.JsonDeserialize<List<PostDetailRequest>>(_jsonData);
+                var _models = JsonHelper.JsonDeserialize<List<PostDeliverysRequest>>(_jsonData);
                 if (_models != null)
                 {
-                    List<PostDetailResponse> _result = _postService.SaveReplyDetails(_models);
+                    List<PostDeliverysResponse> _result = _postService.SaveDeliverys(_models);
                     //返回结果
                     result = ApiResponse.Success(_result.Where(p => p.Result), _result.Where(p => !p.Result));
                 }
@@ -294,6 +214,132 @@ namespace OMS.API.Controllers
             {
                 //返回结果
                 result = ApiResponse.Fail(ex.Message);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 回复操作状态
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("postReply")]
+        public ApiResponse PostReply()
+        {
+            ApiResponse result = new ApiResponse();
+            using (var db = new ebEntities())
+            {
+                try
+                {
+                    var _jsonData = Request.Content.ReadAsStringAsync().Result;
+
+                    if (GlobalConfig.IsApiDebugLog)
+                    {
+                        FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
+                    }
+
+                    var _models = JsonHelper.JsonDeserialize<List<PostReplyRequest>>(_jsonData);
+                    if (_models != null)
+                    {
+                        List<PostReplyResponse> _result = _postService.SavePostReplys(_models);
+                        //返回结果
+                        result = ApiResponse.Success(_result.Where(p => p.Result), _result.Where(p => !p.Result));
+                    }
+                    else
+                    {
+                        throw new Exception("Please input a request data!");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //返回结果
+                    result = ApiResponse.Fail(ex.Message);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 更新物流状态
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("updateShipmentStatus")]
+        public ApiResponse UpdateShipmentStatus()
+        {
+            ApiResponse result = new ApiResponse();
+            using (var db = new ebEntities())
+            {
+                try
+                {
+                    var _jsonData = Request.Content.ReadAsStringAsync().Result;
+
+                    if (GlobalConfig.IsApiDebugLog)
+                    {
+                        FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
+                    }
+
+                    var _models = JsonHelper.JsonDeserialize<List<UpdateShipmentStatusRequest>>(_jsonData);
+                    if (_models != null)
+                    {
+                        List<UpdateShipmentStatusResponse> _result = _postService.SaveShipmentStatus(_models);
+                        //返回结果
+                        result = ApiResponse.Success(_result.Where(p => p.Result), _result.Where(p => !p.Result));
+                    }
+                    else
+                    {
+                        throw new Exception("Please input a request data!");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //返回结果
+                    result = ApiResponse.Fail(ex.Message);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 更新仓库状态
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("updateWMSStatus")]
+        public ApiResponse UpdateWMSStatus()
+        {
+            ApiResponse result = new ApiResponse();
+            using (var db = new ebEntities())
+            {
+                try
+                {
+                    var _jsonData = Request.Content.ReadAsStringAsync().Result;
+
+                    if (GlobalConfig.IsApiDebugLog)
+                    {
+                        FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
+                    }
+
+                    var _models = JsonHelper.JsonDeserialize<List<UpdateWMSStatusRequest>>(_jsonData);
+                    if (_models != null)
+                    {
+                        List<UpdateWMSStatusResponse> _result = _postService.SaveWMSStatus(_models);
+                        //返回结果
+                        result = ApiResponse.Success(_result.Where(p => p.Result), _result.Where(p => !p.Result));
+                    }
+                    else
+                    {
+                        throw new Exception("Please input a request data!");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    //返回结果
+                    result = ApiResponse.Fail(ex.Message);
+                }
             }
             return result;
         }

@@ -216,6 +216,8 @@
     <Compile Include="Models\Request\ClickCollect\SetStatusToShopArrivedRequest.cs" />
     <Compile Include="Models\Request\Warehouse\GetChangedOrdersRequest.cs" />
     <Compile Include="Models\Request\Warehouse\GetOrdersRequest.cs" />
+    <Compile Include="Models\Request\Warehouse\UpdateWMSStatusRequest.cs" />
+    <Compile Include="Models\Request\Warehouse\UpdateShipmentStatusRequest.cs" />
     <Compile Include="Models\Response\ClickCollect\GetOrderItemsResponse.cs" />
     <Compile Include="Models\Response\ClickCollect\GetOrdersResponse.cs" />
     <Compile Include="Models\Response\ClickCollect\CanceledItemHandleResponse.cs" />
@@ -226,6 +228,8 @@
     <Compile Include="Models\Request\Warehouse\PostInventoryRequest.cs" />
     <Compile Include="Models\Request\Warehouse\PostReplyRequest.cs" />
     <Compile Include="Models\Response\PageResponse.cs" />
+    <Compile Include="Models\Response\Warehouse\UpdateWMSStatusResponse.cs" />
+    <Compile Include="Models\Response\Warehouse\UpdateShipmentStatusResponse.cs" />
     <Compile Include="Models\Response\Warehouse\PostDetailResponse.cs" />
     <Compile Include="Models\Response\Warehouse\PostInventoryResponse.cs" />
     <Compile Include="Models\Response\Warehouse\PostReplyResponse.cs" />

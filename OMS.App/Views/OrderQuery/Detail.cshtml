@@ -48,7 +48,7 @@
                             <th>@ViewBag.LanguagePack["orderquery_detail_order_customer"]</th>
                             <td>@_Order.PlatformUserName</td>
                             <th>@ViewBag.LanguagePack["orderquery_detail_platformstatus"]</th>
-                            <td>@Html.Raw(OMS.App.Helper.OrderHelper.GetECommerceStatusDisplay(_Order.PlatformType, _Order.EBStatus))</td>
+                            <td>@_Order.EBStatus</td>
                             <th>@ViewBag.LanguagePack["orderquery_detail_order_status"]</th>
                             <td colspan="3">@Html.Raw(OMS.App.Helper.OrderHelper.GetOrderStatusDisplay(_Order.Status, true))</td>
                             @*<th>@ViewBag.LanguagePack["orderquery_detail_point_amount"]</th>

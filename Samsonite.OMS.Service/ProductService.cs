@@ -628,7 +628,7 @@ namespace Samsonite.OMS.Service
 
         /// <summary>
         /// WMS推送库存时,计算当前时刻WMS还未获取的订单库存数
-        /// 1.产品状态pedding和received
+        /// 1.received
         /// 2.仓库状态picked之前的订单
         /// 3.非错误普通订单
         /// </summary>
@@ -637,7 +637,7 @@ namespace Samsonite.OMS.Service
             Dictionary<string, int> _result = new Dictionary<string, int>();
             using (var db = new ebEntities())
             {
-                List<int> _statusList = new List<int>() { (int)ProductStatus.Pending, (int)ProductStatus.Received };
+                List<int> _statusList = new List<int>() { (int)ProductStatus.Received };
                 List<OrderDetail> objOrderDetail_List = db.OrderDetail.Where(p => _statusList.Contains(p.Status) && p.ShippingStatus < (int)WarehouseProcessStatus.Picked && !p.IsError && !p.IsDelete && p.SKU != "" && !(p.IsSetOrigin && p.IsSet) && !p.IsExchangeNew).ToList();
                 List<string> Skus = objOrderDetail_List.GroupBy(p => p.SKU).Select(o => o.Key).ToList();
                 foreach (string _o in Skus)

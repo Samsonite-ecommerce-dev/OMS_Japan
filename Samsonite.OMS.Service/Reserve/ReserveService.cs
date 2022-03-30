@@ -21,7 +21,7 @@ namespace Samsonite.OMS.Service.Reserve
             CommonResult _result = new CommonResult();
             using (var db = new ebEntities())
             {
-                List<int> _statusList = new List<int>() { (int)ProductStatus.Pending, (int)ProductStatus.Received };
+                List<int> _statusList = new List<int>() { (int)ProductStatus.Received };
                 var objOrderDetail_List = db.OrderDetail.Where(p => p.IsReservation && p.IsStop && _statusList.Contains(p.Status) && p.ReservationDate <= DateTime.Today).ToList();
                 foreach (var item in objOrderDetail_List)
                 {

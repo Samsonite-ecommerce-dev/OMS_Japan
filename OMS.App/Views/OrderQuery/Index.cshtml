@@ -227,12 +227,6 @@
                         <td>
                             <input id="CouponCode" name="CouponCode" type="text" class="easyui-textbox input-large" />
                         </td>
-                        @*<th>
-                                @ViewBag.LanguagePack["orderquery_index_search_point_amount"]
-                            </th>
-                            <td>
-                                <input id="PointAmount" name="PointAmount" type="checkbox" value="1" />
-                            </td>*@
                     </tr>
                 </tbody>
             </table>
@@ -326,12 +320,6 @@
                 },
                 multiple: true
             });
-            ////订单类型选项
-            //$('#OrderType').combobox({
-            //    onChange: function (value) {
-            //        alert(value);
-            //    }
-            //});
             //工具栏
             easyUIExtend.Grid.Toolbar($('#toolbar'), {
                 powerTools: ('@ViewBag.FunctionPower').split(',')
@@ -513,8 +501,7 @@
                 is_gift: ($('#IsGift').prop("checked")) ? 1 : 0,
                 is_monogram: ($('#IsMonogram').prop("checked")) ? 1 : 0,
                 promotion_name: $('#PromotionName').val(),
-                coupon_code: $('#CouponCode').val(),
-                //point_amount: ($('#PointAmount').prop("checked")) ? 1 : 0
+                coupon_code: $('#CouponCode').val()
             });
         }
 

@@ -245,7 +245,7 @@ namespace Samsonite.OMS.Service
                             var objExistCancelOrder = db.OrderCancel.Where(o => o.SubOrderNo == objOrderDetail.SubOrderNo && o.RequestId == objClaim.RequestId).FirstOrDefault();
                             if (objExistCancelOrder == null)
                             {
-                                List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Pending, (int)ProductStatus.Received, (int)ProductStatus.InDelivery, (int)ProductStatus.ReceivedGoods };
+                                List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing, (int)ProductStatus.ReceivedGoods };
                                 if (!objAllowStatus.Contains(objOrderDetail.ProductStatus))
                                 {
                                     throw new Exception($"Sub order No.:{objOrderDetail.SubOrderNo} Status is not correct, it can not be cancel.");
@@ -263,7 +263,7 @@ namespace Samsonite.OMS.Service
                                 //1.是否处于pending/Received
                                 //2.是否在生成D/N(仓库状态在ToWMS)之前
                                 bool _IsSystemCancel = false;
-                                if (objOrderDetail.ProductStatus == (int)ProductStatus.Pending || objOrderDetail.ProductStatus == (int)ProductStatus.Received)
+                                if (objOrderDetail.ProductStatus == (int)ProductStatus.Received)
                                 {
                                     if (objOrderDetail.ShippingStatus < (int)WarehouseProcessStatus.ToWMS)
                                     {
@@ -871,7 +871,7 @@ namespace Samsonite.OMS.Service
                                 throw new Exception($"Sub order No.:{objOrderDetail.SubOrderNo} is not a COD order, only COD order allow to reject.");
                             }
 
-                            List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Pending, (int)ProductStatus.Received, (int)ProductStatus.InDelivery };
+                            List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing };
                             if (!objAllowStatus.Contains(objOrderDetail.ProductStatus))
                             {
                                 throw new Exception($"Sub order No.:{objOrderDetail.SubOrderNo} Status is not correct, it can not be reject.");
@@ -957,7 +957,7 @@ namespace Samsonite.OMS.Service
             if (objDB == null) objDB = new ebEntities();
             try
             {
-                if (objView_OrderDetail.ProductStatus == (int)ProductStatus.Pending)
+                if (objView_OrderDetail.ProductStatus == (int)ProductStatus.Received)
                 {
                     //更新状态
                     var _result = objDB.Database.ExecuteSqlCommand("update OrderDetail set Status={0},EditDate={1} where OrderNo={2} and SubOrderNo={3}", (int)ProductStatus.Close, DateTime.Now, objView_OrderDetail.OrderNo, objView_OrderDetail.SubOrderNo);
@@ -984,48 +984,31 @@ namespace Samsonite.OMS.Service
         }
 
         /// <summary>
-        /// 订单状态从未处理到已接收
+        /// 订单状态从仓库处理中到已发货
         /// </summary>
         /// <param name="objView_OrderDetail"></param>
-        /// <param name="objDelivery"></param>
+        /// <param name="objRemark"></param>
         /// <param name="objDB"></param>
-        public static void OrderStatus_PendingToReceived(View_OrderDetail objView_OrderDetail, Deliverys objDelivery, ebEntities objDB = null)
+        public static void OrderStatus_ProcessingToInDelivery(View_OrderDetail objView_OrderDetail, string objRemark, ebEntities objDB = null)
         {
             if (objDB == null) objDB = new ebEntities();
             try
             {
-                if (objView_OrderDetail.ProductStatus == (int)ProductStatus.Pending)
+                if (objView_OrderDetail.ProductStatus == (int)ProductStatus.Processing)
                 {
-                    //套装子订单才插入快递信息,套装主订单不写入
-                    if (!(objView_OrderDetail.IsSetOrigin && objView_OrderDetail.IsSet))
-                    {
-                        //判断是否存在,如果存在就更新,不存在就插入
-                        var objExistsDelivery = objDB.Deliverys.Where(o => o.OrderNo == objDelivery.OrderNo && o.SubOrderNo == objDelivery.SubOrderNo && o.MallSapCode == objDelivery.MallSapCode).SingleOrDefault();
-                        if (objExistsDelivery != null)
-                        {
-                            objExistsDelivery.ExpressId = objDelivery.ExpressId;
-                            objExistsDelivery.ExpressName = objDelivery.ExpressName;
-                            objExistsDelivery.InvoiceNo = objDelivery.InvoiceNo;
-                        }
-                        else
-                        {
-                            objDB.Deliverys.Add(objDelivery);
-                        }
-                        objDB.SaveChanges();
-                    }
                     //更新状态
-                    var _result = objDB.Database.ExecuteSqlCommand("update OrderDetail set Status={0},EditDate={1} where OrderNo={2} and SubOrderNo={3}", (int)ProductStatus.Received, DateTime.Now, objView_OrderDetail.OrderNo, objView_OrderDetail.SubOrderNo);
+                    var _result = objDB.Database.ExecuteSqlCommand("update OrderDetail set Status={0},EditDate={1} where OrderNo={2} and SubOrderNo={3}", (int)ProductStatus.InDelivery, DateTime.Now, objView_OrderDetail.OrderNo, objView_OrderDetail.SubOrderNo);
                     if (_result > 0)
                     {
                         //记录订单状态
                         objDB.OrderLog.Add(new OrderLog
                         {
-                            Msg = "Get the Tracking Number from Platform",
-                            OrderNo = objDelivery.OrderNo,
-                            SubOrderNo = objDelivery.SubOrderNo,
-                            CreateDate = DateTime.Now,
+                            OrderNo = objView_OrderDetail.OrderNo,
+                            SubOrderNo = objView_OrderDetail.SubOrderNo,
                             OriginStatus = objView_OrderDetail.ProductStatus,
-                            NewStatus = (int)ProductStatus.Received
+                            NewStatus = (int)ProductStatus.InDelivery,
+                            Msg = objRemark,
+                            CreateDate = DateTime.Now
                         });
                         objDB.SaveChanges();
                     }
@@ -1045,9 +1028,9 @@ namespace Samsonite.OMS.Service
         /// 商品已经到达门店(ClickCollect)
         /// </summary>
         /// <param name="objView_OrderDetail"></param>
-        /// <param name="objMsg"></param>
+        /// <param name="objRemark"></param>
         /// <param name="objDB"></param>
-        public static void OrderStatus_InDeliveryToReceivedGoods(View_OrderDetail objView_OrderDetail, string objMsg, ebEntities objDB = null)
+        public static void OrderStatus_InDeliveryToReceivedGoods(View_OrderDetail objView_OrderDetail, string objRemark, ebEntities objDB = null)
         {
             if (objDB == null) objDB = new ebEntities();
             try
@@ -1061,13 +1044,14 @@ namespace Samsonite.OMS.Service
                         //记录订单状态
                         objDB.OrderLog.Add(new OrderLog
                         {
-                            Msg = objMsg,
+
                             OrderNo = objView_OrderDetail.OrderNo,
                             SubOrderNo = objView_OrderDetail.SubOrderNo,
-                            CreateDate = DateTime.Now,
                             UserId = UserLoginService.GetCurrentUserID,
                             OriginStatus = objView_OrderDetail.ProductStatus,
-                            NewStatus = (int)ProductStatus.ReceivedGoods
+                            NewStatus = (int)ProductStatus.ReceivedGoods,
+                            Msg = objRemark,
+                            CreateDate = DateTime.Now
                         });
                         objDB.SaveChanges();
                     }
@@ -1087,9 +1071,9 @@ namespace Samsonite.OMS.Service
         /// 客户已经取走商品(ClickCollect)
         /// </summary>
         /// <param name="objView_OrderDetail"></param>
-        /// <param name="objMsg"></param>
+        /// <param name="objRemark"></param>
         /// <param name="objDB"></param>
-        public static void OrderStatus_ReceivedGoodsToDelivered(View_OrderDetail objView_OrderDetail, string objMsg, ebEntities objDB = null)
+        public static void OrderStatus_ReceivedGoodsToDelivered(View_OrderDetail objView_OrderDetail, string objRemark, ebEntities objDB = null)
         {
             if (objDB == null) objDB = new ebEntities();
             try
@@ -1103,13 +1087,14 @@ namespace Samsonite.OMS.Service
                         //记录订单状态
                         objDB.OrderLog.Add(new OrderLog
                         {
-                            Msg = objMsg,
+
                             OrderNo = objView_OrderDetail.OrderNo,
                             SubOrderNo = objView_OrderDetail.SubOrderNo,
-                            CreateDate = DateTime.Now,
                             UserId = UserLoginService.GetCurrentUserID,
                             OriginStatus = objView_OrderDetail.ProductStatus,
-                            NewStatus = (int)ProductStatus.Delivered
+                            NewStatus = (int)ProductStatus.Delivered,
+                            Msg = objRemark,
+                            CreateDate = DateTime.Now
                         });
                         objDB.SaveChanges();
                         //修改换货记录里面的状态
@@ -1133,9 +1118,9 @@ namespace Samsonite.OMS.Service
         /// 订单状态已处理到发货完成
         /// </summary>
         /// <param name="objView_OrderDetail"></param>
-        /// <param name="objMsg"></param>
+        /// <param name="objRemark"></param>
         /// <param name="objDB"></param>
-        public static void OrderStatus_InDeliveryToDelivered(View_OrderDetail objView_OrderDetail, string objMsg, ebEntities objDB = null)
+        public static void OrderStatus_InDeliveryToDelivered(View_OrderDetail objView_OrderDetail, string objRemark, ebEntities objDB = null)
         {
             if (objDB == null) objDB = new ebEntities();
             try
@@ -1149,13 +1134,14 @@ namespace Samsonite.OMS.Service
                         //记录订单状态
                         objDB.OrderLog.Add(new OrderLog
                         {
-                            Msg = objMsg,
+
                             OrderNo = objView_OrderDetail.OrderNo,
                             SubOrderNo = objView_OrderDetail.SubOrderNo,
-                            CreateDate = DateTime.Now,
                             UserId = UserLoginService.GetCurrentUserID,
                             OriginStatus = objView_OrderDetail.ProductStatus,
-                            NewStatus = (int)ProductStatus.Delivered
+                            NewStatus = (int)ProductStatus.Delivered,
+                            Msg = objRemark,
+                            CreateDate = DateTime.Now,
                         });
                         objDB.SaveChanges();
                         //判断产品是否已经全部收货,如果全部为收货,就设置主订单状态为 Complete

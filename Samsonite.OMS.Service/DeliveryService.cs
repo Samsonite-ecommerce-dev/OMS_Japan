@@ -69,7 +69,7 @@ namespace Samsonite.OMS.Service
                     //判断订单是否存在
                     if (objOrderDetail != null)
                     {
-                        if (objOrderDetail.ProductStatus == (int)ProductStatus.Pending || objOrderDetail.ProductStatus == (int)ProductStatus.Received || objOrderDetail.ProductStatus == (int)ProductStatus.Processing)
+                        if (objOrderDetail.ProductStatus == (int)ProductStatus.Received || objOrderDetail.ProductStatus == (int)ProductStatus.Processing)
                         {
                             //匹配快递公司,如果匹配不到，则ExpressId设置为0
                             var objExpressCompany = db.ExpressCompany.Where(o => o.ExpressName.Contains(item.ExpressName) || o.Code == deliveryCode).FirstOrDefault();
@@ -199,7 +199,7 @@ namespace Samsonite.OMS.Service
                             db.Deliverys.Add(delivery);
                             db.SaveChanges();
                             //修改产品状态
-                            var _result = db.Database.ExecuteSqlCommand("update OrderDetail set Status={2},EditDate={3} where OrderNo={0} and SubOrderNo={1}", view_OrderDetail.OrderNo, view_OrderDetail.SubOrderNo, (int)ProductStatus.InDelivery, DateTime.Now);
+                            var _result = db.Database.ExecuteSqlCommand("update OrderDetail set Status={2},EditDate={3} where OrderNo={0} and SubOrderNo={1}", view_OrderDetail.OrderNo, view_OrderDetail.SubOrderNo, (int)ProductStatus.Processing, DateTime.Now);
                             if (_result > 0)
                             {
                                 //记录订单状态
@@ -210,7 +210,7 @@ namespace Samsonite.OMS.Service
                                     SubOrderNo = delivery.SubOrderNo,
                                     CreateDate = DateTime.Now,
                                     OriginStatus = view_OrderDetail.ProductStatus,
-                                    NewStatus = (int)ProductStatus.InDelivery
+                                    NewStatus = (int)ProductStatus.Processing
                                 });
                                 db.SaveChanges();
                             }

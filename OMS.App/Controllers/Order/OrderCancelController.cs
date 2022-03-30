@@ -330,7 +330,7 @@ namespace OMS.App.Controllers
                                     }
 
                                     //判断在发货前和待处理之后才允许取消信息
-                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Pending, (int)ProductStatus.Received, (int)ProductStatus.InDelivery, (int)ProductStatus.ReceivedGoods };
+                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.InDelivery, (int)ProductStatus.ReceivedGoods };
                                     if (!objAllowStatus.Contains(objOrderDetail.Status))
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordercancel_edit_message_state_no_allow"]));
@@ -355,7 +355,7 @@ namespace OMS.App.Controllers
                                     //判断是否是内部取消
                                     //1.是否处于pending/Received
                                     //2.是否在生成D/N(仓库状态在ToWMS)之前
-                                    if (objOrderDetail.Status == (int)ProductStatus.Pending || objOrderDetail.Status == (int)ProductStatus.Received)
+                                    if (objOrderDetail.Status == (int)ProductStatus.Received)
                                     {
                                         if (objOrderDetail.ShippingStatus < (int)WarehouseProcessStatus.ToWMS)
                                         {

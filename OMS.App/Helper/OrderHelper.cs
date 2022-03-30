@@ -289,7 +289,7 @@ namespace OMS.App.Helper
             var _LanguagePack = LanguageService.Get();
 
             List<DefineEnum> _result = new List<DefineEnum>();
-            _result.Add(new DefineEnum() { ID = (int)ProductStatus.Pending, Display = _LanguagePack["common_productstatus_nopay"], Css = "color_warning" });
+            //_result.Add(new DefineEnum() { ID = (int)ProductStatus.Pending, Display = _LanguagePack["common_productstatus_nopay"], Css = "color_warning" });
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.Received, Display = _LanguagePack["common_productstatus_new"], Css = "color_default" });
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.Processing, Display = _LanguagePack["common_productstatus_processing"], Css = "color_primary" });
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.InDelivery, Display = _LanguagePack["common_productstatus_in_delivery"], Css = "color_info" });
@@ -308,7 +308,7 @@ namespace OMS.App.Helper
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.Modify, Display = _LanguagePack["common_productstatus_modify"], Css = "color_success" });
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.Reject, Display = _LanguagePack["common_productstatus_reject"], Css = "color_danger" });
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.RejectComplete, Display = _LanguagePack["common_productstatus_reject_complete"], Css = "color_danger" });
-            //_result.Add(new DefineEnum() { ID = (int)ProductStatus.Close, Display = _LanguagePack["common_productstatus_close"], Css = "color_danger" });
+            _result.Add(new DefineEnum() { ID = (int)ProductStatus.Close, Display = _LanguagePack["common_productstatus_close"], Css = "color_danger" });
             _result.Add(new DefineEnum() { ID = (int)ProductStatus.Complete, Display = _LanguagePack["common_productstatus_complete"], Css = "color_success" });
             return _result;
         }
@@ -320,7 +320,7 @@ namespace OMS.App.Helper
         public static List<object[]> ProductStatusObject()
         {
             List<object[]> _result = new List<object[]>();
-            List<int> _PL = new List<int>() { (int)ProductStatus.Pending, (int)ProductStatus.Close, (int)ProductStatus.Received, (int)ProductStatus.InDelivery, (int)ProductStatus.Delivered, (int)ProductStatus.Cancel, (int)ProductStatus.Return, (int)ProductStatus.Exchange, (int)ProductStatus.Modify, (int)ProductStatus.Reject };
+            List<int> _PL = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing, (int)ProductStatus.InDelivery, (int)ProductStatus.Delivered, (int)ProductStatus.Cancel, (int)ProductStatus.Return, (int)ProductStatus.Exchange, (int)ProductStatus.Modify, (int)ProductStatus.Reject };
             foreach (var _o in ProductStatusReflect().Where(p => _PL.Contains(p.ID)).OrderBy(p => p.ID))
             {
                 _result.Add(new object[] { _o.ID, _o.Display });

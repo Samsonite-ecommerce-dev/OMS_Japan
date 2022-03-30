@@ -28,10 +28,10 @@ namespace Samsonite.OMS.DTO
         /// 已关闭
         /// </summary>
         Close = -10,
-        /// <summary>
-        /// 待处理 
-        /// </summary>
-        Pending = -1,
+        ///// <summary>
+        ///// 待处理 
+        ///// </summary>
+        //Pending = -1,
         /// <summary>
         /// 新商品
         /// </summary>

@@ -177,13 +177,13 @@ namespace OMS.App.Controllers
                 if (_product_status != null)
                 {
                     List<int> _psList = new List<int>();
-                    if (_product_status.Contains((int)ProductStatus.Pending))
-                    {
-                        _psList.Add((int)ProductStatus.Pending);
-                    }
                     if (_product_status.Contains((int)ProductStatus.Received))
                     {
                         _psList.Add((int)ProductStatus.Received);
+                    }
+                    if (_product_status.Contains((int)ProductStatus.Processing))
+                    {
+                        _psList.Add((int)ProductStatus.Processing);
                     }
                     if (_product_status.Contains((int)ProductStatus.InDelivery))
                     {
@@ -441,7 +441,7 @@ namespace OMS.App.Controllers
             string _promotion_name = VariableHelper.SaferequestStr(Request.Form["PromotionName"]);
             string _coupon_code = VariableHelper.SaferequestStr(Request.Form["CouponCode"]);
 
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //查询条件
                 List<String> _SqlWhere = new List<string>();
@@ -524,13 +524,13 @@ namespace OMS.App.Controllers
                 if (_product_status != null)
                 {
                     List<int> _psList = new List<int>();
-                    if (_product_status.Contains((int)ProductStatus.Pending))
-                    {
-                        _psList.Add((int)ProductStatus.Pending);
-                    }
                     if (_product_status.Contains((int)ProductStatus.Received))
                     {
                         _psList.Add((int)ProductStatus.Received);
+                    }
+                    if (_product_status.Contains((int)ProductStatus.Processing))
+                    {
+                        _psList.Add((int)ProductStatus.Processing);
                     }
                     if (_product_status.Contains((int)ProductStatus.InDelivery))
                     {
@@ -689,88 +689,86 @@ namespace OMS.App.Controllers
                 dt.Columns.Add(_LanguagePack["employeeorder_index_product_shipping_status"]);
                 dt.Columns.Add(_LanguagePack["employeeorder_index_product_is_exchange_new"]);
                 dt.Columns.Add(_LanguagePack["employeeorder_index_product_gift"]);
-                dt.Columns.Add(_LanguagePack["employeeorder_index_product_dn"]);
                 //读取数据
                 DataRow _dr = null;
-                List<dynamic> _list = db.Fetch<dynamic>("select o.Id,o.OrderNo,o.MallName,o.MallSapCode,o.OrderType,o.OrderAmount,o.PaymentAmount As OrderPaymentAmount,o.PaymentType,o.DeliveryFee,o.BalanceAmount,o.PointAmount,o.OrderSource,o.ShippingMethod,isnull(c.Name,'')As UserName,isnull(c.Email,'')As UserEmail,oe.ReceiveTel,oe.ReceiveCel,oe.ReceiveZipcode,oe.ReceiveAddr,oe.[Receive],o.[Status],o.PaymentDate,o.CreateDate as OrderTime,od.SubOrderNo,od.SKU,od.ProductName,od.Quantity,od.CancelQuantity,od.ReturnQuantity,od.ExchangeQuantity,RejectQuantity,od.SupplyPrice,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.ReservationDate,od.ShippingStatus,od.[Status] As ProductStatus,od.IsExchangeNew,od.CreateDate,('') as Gifts,Isnull(ds.InvoiceNo,'') as InvoiceNo,('') as DeliveryNo from OrderDetail as od inner join [order] as o on od.OrderNo =o.OrderNo inner join OrderReceive as oe on od.SubOrderNo = oe.SubOrderNo left join Deliverys as ds on od.SubOrderNo=ds.SubOrderNo left join Customer as c on o.CustomerNo = c.CustomerNo " + ((_SqlWhere.Count > 0) ? " where " + string.Join(" and ", _SqlWhere) : "") + " order by o.CreateDate desc");
-
-                //获取更新的地址信息
+                var _list = db.Database.SqlQuery<OrderQueryExport>("select o.Id,o.OrderNo,o.MallName,o.MallSapCode,o.OrderType,o.OrderAmount,o.PaymentAmount As OrderPaymentAmount,o.PaymentType,o.DeliveryFee,o.BalanceAmount,o.PointAmount,o.OrderSource,o.ShippingMethod,o.PaymentDate,isnull(c.Name,'')As UserName,isnull(c.Email,'')As UserEmail,o.[Status],o.CreateDate as OrderTime,oe.[Receive],oe.ReceiveTel,oe.ReceiveCel,oe.ReceiveZipcode,oe.ReceiveAddr,oe.Province as ReceiveProvince,oe.City as ReceiveCity,oe.District as ReceiveDistrict,od.SubOrderNo,od.SKU,od.ProductName,od.RRPPrice,od.SupplyPrice,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.Quantity,od.CancelQuantity,od.ReturnQuantity,od.ExchangeQuantity,od.RejectQuantity,od.ReservationDate,od.ShippingStatus,od.[Status] As ProductStatus,od.IsExchangeNew,od.CreateDate,('') as Gifts,Isnull(ds.InvoiceNo,'') as InvoiceNo from OrderDetail as od inner join [order] as o on od.OrderNo =o.OrderNo inner join OrderReceive as oe on od.SubOrderNo = oe.SubOrderNo left join Deliverys as ds on od.SubOrderNo=ds.SubOrderNo left join Customer as c on o.CustomerNo = c.CustomerNo " + ((_SqlWhere.Count > 0) ? " where " + string.Join(" and ", _SqlWhere) : "") + " order by o.CreateDate desc");
                 List<string> _Orders = _list.Select(p => "'" + (string)p.OrderNo + "'").ToList();
-                List<OrderModify> objOrderModify_List = new List<OrderModify>();
-                List<OrderGift> objOrderGift_List = new List<OrderGift>();
+                var _orderNos = _list.GroupBy(p => p.OrderNo).Select(o => o.Key).ToList();
+                List<OrderModify> orderModifies = new List<OrderModify>();
+                List<OrderGift> orderGifts = new List<OrderGift>();
                 if (_Orders.Count > 0)
                 {
-                    objOrderModify_List = db.Fetch<OrderModify>($"select Id,OrderNo,SubOrderNo,CustomerName,Tel,Province,City,District,Addr from OrderModify where OrderNo in ({string.Join(",", _Orders)}) and Status={(int)ProcessStatus.ModifyComplete}");
+                    //获取更新的地址信息
+                    orderModifies = db.OrderModify.Where(p => _orderNos.Contains(p.OrderNo) && p.Status == (int)ProcessStatus.ModifyComplete).ToList();
                     //读取赠品
-                    objOrderGift_List = db.Fetch<OrderGift>($"select OrderNo,SubOrderNo,Sku,Quantity from OrderGift where OrderNo in ({string.Join(",", _Orders)})");
+                    orderGifts = db.OrderGift.Where(p => _orderNos.Contains(p.OrderNo)).ToList();
                 }
 
-                foreach (dynamic _dy in _list)
+                foreach (var dy in _list)
                 {
                     //读取最新订单收货信息
-                    var objOrderModify = objOrderModify_List.Where(p => p.OrderNo == _dy.OrderNo && p.SubOrderNo == _dy.SubOrderNo).OrderByDescending(p => p.Id).FirstOrDefault();
+                    var objOrderModify = orderModifies.Where(p => p.OrderNo == dy.OrderNo && p.SubOrderNo == dy.SubOrderNo).OrderByDescending(p => p.Id).FirstOrDefault();
                     if (objOrderModify != null)
                     {
-                        _dy.Receive = objOrderModify.CustomerName;
-                        _dy.ReceiveTel = objOrderModify.Tel;
-                        _dy.ReceiveCel = objOrderModify.Mobile;
-                        _dy.ReceiveAddr = objOrderModify.Addr;
+                        dy.Receive = objOrderModify.CustomerName;
+                        dy.ReceiveTel = objOrderModify.Tel;
+                        dy.ReceiveCel = objOrderModify.Mobile;
+                        dy.ReceiveAddr = objOrderModify.Addr;
                     }
                     //赠品
-                    var objOrderGifts = objOrderGift_List.Where(p => p.SubOrderNo == _dy.SubOrderNo).ToList();
+                    var objOrderGifts = orderGifts.Where(p => p.SubOrderNo == dy.SubOrderNo).ToList();
                     foreach (var _gf in objOrderGifts)
                     {
-                        if (string.IsNullOrEmpty(_dy.Gifts))
+                        if (string.IsNullOrEmpty(dy.Gifts))
                         {
-                            _dy.Gifts = $"{_gf.Sku}*{_gf.Quantity}";
+                            dy.Gifts = $"{_gf.Sku}*{_gf.Quantity}";
                         }
                         else
                         {
-                            _dy.Gifts += $",{_gf.Sku}*{_gf.Quantity}";
+                            dy.Gifts += $",{_gf.Sku}*{_gf.Quantity}";
                         }
                     }
 
                     //Employee Name和Emplyee Email需要解密出来
-                    string _employeeName = EncryptionBase.DecryptString(_dy.UserName);
-                    string _employeeEmail = EncryptionBase.DecryptString(_dy.UserEmail);
+                    string _employeeName = EncryptionBase.DecryptString(dy.UserName);
+                    string _employeeEmail = EncryptionBase.DecryptString(dy.UserEmail);
                     //数据解密并脱敏
-                    EncryptionFactory.Create(_dy, new string[] { "UserName", "UserEmail", "Receive", "ReceiveTel", "ReceiveCel", "ReceiveAddr" }).HideSensitive();
+                    EncryptionFactory.Create(dy, new string[] { "UserName", "UserEmail", "Receive", "ReceiveTel", "ReceiveCel", "ReceiveAddr" }).HideSensitive();
                     //重新赋值
-                    _dy.UserName = _employeeName;
-                    _dy.UserEmail = _employeeEmail;
+                    dy.UserName = _employeeName;
+                    dy.UserEmail = _employeeEmail;
 
                     _dr = dt.NewRow();
-                    _dr[0] = _dy.OrderNo;
-                    _dr[1] = _dy.SubOrderNo;
-                    _dr[2] = _dy.MallSapCode;
-                    _dr[3] = _dy.MallName;
-                    _dr[4] = OrderHelper.GetOrderTypeDisplay(_dy.OrderType);
-                    _dr[5] = OrderHelper.GetShippingMethodDisplay(_dy.ShippingMethod);
-                    _dr[6] = VariableHelper.FormateMoney(_dy.OrderAmount);
-                    _dr[7] = VariableHelper.FormateMoney(_dy.OrderPaymentAmount);
-                    _dr[8] = _dy.UserName;
-                    _dr[9] = _dy.UserEmail;
-                    _dr[10] = _dy.Receive;
-                    _dr[11] = _dy.ReceiveTel;
-                    _dr[12] = _dy.ReceiveZipcode;
-                    _dr[13] = _dy.ReceiveAddr;
-                    _dr[14] = OrderHelper.GetPaymentTypeDisplay(_dy.PaymentType);
-                    _dr[15] = VariableHelper.FormateTime(_dy.PaymentDate, "yyyy-MM-dd HH:mm:ss");
-                    _dr[16] = _dy.OrderTime.ToString("yyyy-MM-dd HH:mm:ss");
-                    _dr[17] = _dy.SKU;
-                    _dr[18] = _dy.ProductName;
-                    _dr[19] = VariableHelper.FormateMoney(_dy.SupplyPrice);
-                    _dr[20] = VariableHelper.FormateMoney(_dy.SellingPrice);
-                    _dr[21] = string.Format("{0}/{1}/{2}/{3}/{4}", _dy.Quantity, _dy.CancelQuantity, _dy.ReturnQuantity, _dy.ExchangeQuantity, _dy.RejectQuantity);
-                    _dr[22] = VariableHelper.FormateMoney(_dy.PaymentAmount);
-                    _dr[23] = VariableHelper.FormateMoney(Math.Round(_dy.ActualPaymentAmount, 0));
-                    _dr[24] = _dy.InvoiceNo;
-                    _dr[25] = VariableHelper.FormateTime(_dy.ReservationDate, "yyyy-MM-dd HH:mm:ss");
-                    _dr[26] = OrderHelper.GetProductStatusDisplay(_dy.ProductStatus, false);
-                    _dr[27] = OrderHelper.GetWarehouseProcessStatusDisplay(_dy.ShippingStatus);
-                    _dr[28] = (_dy.IsExchangeNew) ? 1 : 0;
-                    _dr[29] = _dy.Gifts;
-                    _dr[30] = _dy.DeliveryNo;
+                    _dr[0] = dy.OrderNo;
+                    _dr[1] = dy.SubOrderNo;
+                    _dr[2] = dy.MallSapCode;
+                    _dr[3] = dy.MallName;
+                    _dr[4] = OrderHelper.GetOrderTypeDisplay(dy.OrderType);
+                    _dr[5] = OrderHelper.GetShippingMethodDisplay(dy.ShippingMethod);
+                    _dr[6] = VariableHelper.FormateMoney(dy.OrderAmount);
+                    _dr[7] = VariableHelper.FormateMoney(dy.OrderPaymentAmount);
+                    _dr[8] = dy.UserName;
+                    _dr[9] = dy.UserEmail;
+                    _dr[10] = dy.Receive;
+                    _dr[11] = dy.ReceiveTel;
+                    _dr[12] = dy.ReceiveZipcode;
+                    _dr[13] = dy.ReceiveAddr;
+                    _dr[14] = OrderHelper.GetPaymentTypeDisplay(dy.PaymentType);
+                    _dr[15] = VariableHelper.FormateTime(dy.PaymentDate, "yyyy-MM-dd HH:mm:ss");
+                    _dr[16] = dy.OrderTime.ToString("yyyy-MM-dd HH:mm:ss");
+                    _dr[17] = dy.SKU;
+                    _dr[18] = dy.ProductName;
+                    _dr[19] = VariableHelper.FormateMoney(dy.SupplyPrice);
+                    _dr[20] = VariableHelper.FormateMoney(dy.SellingPrice);
+                    _dr[21] = string.Format("{0}/{1}/{2}/{3}/{4}", dy.Quantity, dy.CancelQuantity, dy.ReturnQuantity, dy.ExchangeQuantity, dy.RejectQuantity);
+                    _dr[22] = VariableHelper.FormateMoney(dy.PaymentAmount);
+                    _dr[23] = VariableHelper.FormateMoney(Math.Round(dy.ActualPaymentAmount, 0));
+                    _dr[24] = dy.InvoiceNo;
+                    _dr[25] = VariableHelper.FormateTime(dy.ReservationDate, "yyyy-MM-dd HH:mm:ss");
+                    _dr[26] = OrderHelper.GetProductStatusDisplay(dy.ProductStatus, false);
+                    _dr[27] = OrderHelper.GetWarehouseProcessStatusDisplay(dy.ShippingStatus);
+                    _dr[28] = (dy.IsExchangeNew) ? 1 : 0;
+                    _dr[29] = dy.Gifts;
                     dt.Rows.Add(_dr);
                 }
 

@@ -49,46 +49,19 @@ namespace Test
 
         public static void Test()
         {
-            ImportDWOrders();
-            //ImportDWOrdersFromFtp();
+            //ImportDWOrders();
             //ImportDWClaimOrders();
             //ImportDWProducts();
             //PushDWPrices();
-            //PushDN();
             //PushOrderDetail();
             //getOrders();
-            //GetTrackingNumbers();
-            //GetTrackingNumbers_Document();
-            //GetDocument();
             //SendInventory();
             //SendPrice();
-            //GetExpress();
-            //SetReadyToShip();
-            //GetLabelForTest("XZ90000011897");
-            //CreateTrackingNumberForOrder();
-            //GetTrackingTraceForTest();
+            ExpressPickUp();
             //GetExpressFromPlatform();
             //PosLog();
 
-            //AssignShippingTest();
-
             Console.ReadKey();
-        }
-        public static void GetLabelForTest(string invoiceNo)
-        {
-            TumiAPI TumiAPI = TumiAPIClient();
-            GetLabelForTestMethod(invoiceNo);
-        }
-
-        private static void GetLabelForTestMethod(string InvoiceNo)
-        {
-            var objExpressCompany = SingPostConfig.expressCompany;
-            SingPostAPI api = new SingPostAPI(SingPostConfig.CustomerID, objExpressCompany.APIClientID, objExpressCompany.AppClientSecret, objExpressCompany.AccessToken, SingPostConfig.Account_Number);
-            var dateFolder = DateTime.Now.ToString("yyyy-MM");
-            var shippingLabelPath = $"{SingPostConfig.docPhysicalFilePath}{dateFolder}/ShippingLabel/";
-            if (!Directory.Exists(shippingLabelPath)) Directory.CreateDirectory(shippingLabelPath);
-            //api.PrintShipmentDocuments(InvoiceNo, false, shippingLabelPath, $"{InvoiceNo}_label");
-
         }
 
         public static void getOrders()
@@ -96,23 +69,6 @@ namespace Test
             TumiAPI objTumiAPI = TumiAPIClient();
             var result = objTumiAPI.GetOrders();
             Console.WriteLine(result.Count);
-        }
-
-        public static void GetDocument()
-        {
-            TumiAPI TumiAPI = TumiAPIClient();
-            using (var db = new ebEntities())
-            {
-                SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
-                List<string> _OrderNos = new List<string>() { "SS00046323" };
-                List<View_OrderDetail> objView_OrderDetails = db.View_OrderDetail.Where(p => _OrderNos.Contains(p.OrderNo) && !(p.IsSetOrigin && p.IsSet)).ToList();
-                foreach (var _d in objView_OrderDetails)
-                {
-                    Deliverys objDeliverys = db.Deliverys.Where(p => p.OrderNo == _d.OrderNo && p.SubOrderNo == _d.SubOrderNo).SingleOrDefault();
-                    objSpeedPostExtend.GetDocument(_d, objDeliverys.InvoiceNo);
-                }
-            }
-            Console.WriteLine("over");
         }
 
         public static void ImportDWOrders()
@@ -168,17 +124,6 @@ namespace Test
             //List<TradeDto> _list = objTumiAPI.GetTrades();
             //var x = CommonBaseService.SaveTrades(_list);
             //Console.WriteLine(x.SuccessRecord);
-        }
-
-        public static void ImportDWOrdersFromFtp()
-        {
-            TumiAPI objTumiAPI = TumiAPIClient();
-            var x = objTumiAPI.GetOrders();
-            var result = ECommerceBaseService.SaveTrades(x);
-            foreach (var item in result.ResultData)
-            {
-                Console.WriteLine($"OrderNo:{item.Data.OrderNo},Result:{item.Result}");
-            }
         }
 
         public static void ImportDWClaimOrders()
@@ -370,6 +315,23 @@ namespace Test
             }
         }
 
+        public static void ExpressPickUp()
+        {
+            using (var db = new ebEntities())
+            {
+                string _OrderNo = "TUSG00010608";
+                List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();
+                foreach (var _o in objView_OrderDetail_List.Where(p=>p.SubOrderNo== "TUSG00010608_1"))
+                {
+                    if (_o.ProductStatus == (int)ProductStatus.Processing)
+                    {
+                        OrderService.OrderStatus_ProcessingToInDelivery(_o, "The express company had picked it up", db);
+                    }
+                }
+                Console.WriteLine("ok");
+            }
+        }
+
         public static void GetExpressFromPlatform()
         {
             using (var db = new ebEntities())
@@ -430,41 +392,6 @@ namespace Test
                 {
                     Console.WriteLine("Time is null!");
                 }
-            }
-        }
-
-        public static void AssignShippingTest()
-        {
-            try
-            {
-                var objExpressCompany = SingPostConfig.expressCompany;
-                SingPostAPI api = new SingPostAPI(SingPostConfig.CustomerID, objExpressCompany.APIClientID, objExpressCompany.AppClientSecret, objExpressCompany.AccessToken, SingPostConfig.Account_Number);
-                string serviceCode = ServiceCode.IWCNDD.ToString();
-                var cls = api.GetAvailableCollections(serviceCode);
-                foreach (var y in cls.data.CollectionRequest.CollectionSlots)
-                {
-                    Console.WriteLine($"{y.CollectionDate} {y.CollectionTimeFrom}-{y.CollectionTimeTo}");
-                }
-
-                //collectionSlot _clSlot = new collectionSlot()
-                //{
-                //    CollectionDate = "2018-06-29",
-                //    CollectionTimeFrom = "09:00",
-                //    CollectionTimeTo = "18:00"
-                //};
-                //var resp = SpeedPostExtend.AssignShipping("XZ90000013781");
-                //if (resp.data != null)
-                //{
-                //    // 成功无操作
-                //}
-                //else
-                //{
-                //    throw new Exception($"{resp.code}:{resp.message}");
-                //}
-            }
-            catch (Exception ex)
-            {
-                throw ex;
             }
         }
     }

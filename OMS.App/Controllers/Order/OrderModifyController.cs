@@ -270,7 +270,7 @@ namespace OMS.App.Controllers
                                     }
 
                                     //判断在发货前和待处理之后才允许编辑信息
-                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Pending, (int)ProductStatus.Received, (int)ProductStatus.InDelivery };
+                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing };
                                     if (!objAllowStatus.Contains(objOrderDetail.Status))
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordermodify_edit_message_state_no_allow"]));
@@ -279,7 +279,7 @@ namespace OMS.App.Controllers
                                     {
                                         //只有Demandware的订单在Pedding状态允许编辑,其它订单都不允许
                                         //注:Tumi/Micros订单需要修改错误的邮编等信息,从而解决因为错误的收货信息而无法在Singpost申请快递号的问题
-                                        if (objOrderDetail.Status == (int)ProductStatus.Pending)
+                                        if (objOrderDetail.Status == (int)ProductStatus.Received)
                                         {
                                             if (objOrder.PlatformType == (int)PlatformType.TUMI_Japan || objOrder.PlatformType == (int)PlatformType.Micros_Japan)
                                             {
@@ -291,12 +291,6 @@ namespace OMS.App.Controllers
                                                 throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordermodify_edit_message_state_no_allow"]));
                                             }
                                         }
-                                    }
-
-                                    //packed之后不允许在modify
-                                    if (objOrderDetail.ShippingStatus >= (int)WarehouseProcessStatus.Packed)
-                                    {
-                                        throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordermodify_edit_message_state_no_allow"]));
                                     }
 
                                     //查询是否已经存在未处理完成的修改记录,如果存在则不再重复插入

@@ -55,6 +55,162 @@ namespace Samsonite.OMS.DTO
         public string ReceiveAddr { get; set; }
     }
 
+    public class OrderQueryDetail
+    {
+        public Int64 Id { get; set; }
+
+        public string OrderNo { get; set; }
+
+        public string SubOrderNo { get; set; }
+
+        public string SKU { get; set; }
+
+        public string ProductName { get; set; }
+
+        public decimal RRPPrice { get; set; }
+
+        public decimal SellingPrice { get; set; }
+
+        public decimal PaymentAmount { get; set; }
+
+        public decimal ActualPaymentAmount { get; set; }
+
+        public int Status { get; set; }
+
+        public int Quantity { get; set; }
+
+        public int CancelQuantity { get; set; }
+
+        public int ReturnQuantity { get; set; }
+
+        public int ExchangeQuantity { get; set; }
+
+        public int RejectQuantity { get; set; }
+
+        public int ShippingStatus { get; set; }
+
+        public bool IsReservation { get; set; }
+
+        public DateTime? ReservationDate { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public bool IsSet { get; set; }
+
+        public bool IsSetOrigin { get; set; }
+
+        public bool IsPre { get; set; }
+
+        public bool IsUrgent { get; set; }
+
+        public bool IsExchangeNew { get; set; }
+
+        public bool IsError { get; set; }
+
+        public bool IsDelete { get; set; }
+
+        public string InvoiceNo { get; set; }
+
+        public string Collection { get; set; }
+
+        public int IsMonogram { get; set; }
+    }
+
+    public class OrderQueryExport
+    {
+        public Int64 Id { get; set; }
+
+        public string OrderNo { get; set; }
+
+        public string MallName { get; set; }
+
+        public string MallSapCode { get; set; }
+
+        public int OrderType { get; set; }
+
+        public decimal OrderAmount { get; set; }
+
+        public decimal OrderPaymentAmount { get; set; }
+
+        public int PaymentType { get; set; }
+
+        public decimal DeliveryFee { get; set; }
+
+        public decimal BalanceAmount { get; set; }
+
+        public decimal PointAmount { get; set; }
+
+        public int OrderSource { get; set; }
+
+        public int ShippingMethod { get; set; }
+
+        public DateTime? PaymentDate { get; set; }
+
+        public string UserName { get; set; }
+
+        public string UserEmail { get; set; }
+
+        public int Status { get; set; }
+
+        public DateTime OrderTime { get; set; }
+
+        public string Receive { get; set; }
+
+        public string ReceiveTel { get; set; }
+
+        public string ReceiveCel { get; set; }
+
+        public string ReceiveZipcode { get; set; }
+
+        public string ReceiveProvince { get; set; }
+
+        public string ReceiveCity { get; set; }
+
+        public string ReceiveDistrict { get; set; }
+
+        public string ReceiveAddr { get; set; }
+
+        public string SubOrderNo { get; set; }
+
+        public string SKU { get; set; }
+
+        public string ProductName { get; set; }
+
+        public decimal RRPPrice { get; set; }
+
+        public decimal SupplyPrice { get; set; }
+
+        public decimal SellingPrice { get; set; }
+
+        public decimal PaymentAmount { get; set; }
+
+        public decimal ActualPaymentAmount { get; set; }
+
+        public int Quantity { get; set; }
+
+        public int CancelQuantity { get; set; }
+
+        public int ReturnQuantity { get; set; }
+
+        public int ExchangeQuantity { get; set; }
+
+        public int RejectQuantity { get; set; }
+
+        public DateTime? ReservationDate { get; set; }
+
+        public int ShippingStatus { get; set; }
+
+        public int ProductStatus { get; set; }
+
+        public bool IsExchangeNew { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public string Gifts { get; set; }
+
+        public string InvoiceNo { get; set; }
+    }
+
     public class WHOrderDetailQuery
     {
         /// <summary>

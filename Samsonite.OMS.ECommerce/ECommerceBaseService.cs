@@ -143,15 +143,6 @@ namespace Samsonite.OMS.ECommerce
                                 db.Database.ExecuteSqlCommand("update [Order] set EBStatus={0} where Id={1}", t.Order.EBStatus, objView_OrderDetail.Id);
                             }
 
-                            //更新联系方式
-                            //注:Lazada平台有可能会丢失联系方式问题
-                            if (objView_OrderDetail.ProductStatus == (int)ProductStatus.Pending)
-                            {
-                                //数据加密
-                                EncryptionFactory.Create(t.Receive).Encrypt();
-                                db.Database.ExecuteSqlCommand("update OrderReceive set ReceiveTel={0},ReceiveCel={1} where OrderId={2}", t.Receive.ReceiveTel, t.Receive.ReceiveCel, objView_OrderDetail.Id);
-                            }
-
                             //更新平台子订单状态,如果是套装,则需要同步更新套装子产品的状态
                             if (objView_OrderDetail.ProductEBStatus != t.OrderDetail.EBStatus)
                             {

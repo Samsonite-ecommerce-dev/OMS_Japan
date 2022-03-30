@@ -51,10 +51,6 @@
                             <td>@_Order.EBStatus</td>
                             <th>@ViewBag.LanguagePack["orderquery_detail_order_status"]</th>
                             <td colspan="3">@Html.Raw(OMS.App.Helper.OrderHelper.GetOrderStatusDisplay(_Order.Status, true))</td>
-                            @*<th>@ViewBag.LanguagePack["orderquery_detail_point_amount"]</th>
-                                <td>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_Order.PointAmount)</td>*@
-                            @*<th>@ViewBag.LanguagePack["orderquery_detail_promotional_point"]</th>
-                                <td>@_Order.Point</td>*@
                         </tr>
                         <tr>
                             <th>@ViewBag.LanguagePack["orderquery_detail_order_remark"]</th>

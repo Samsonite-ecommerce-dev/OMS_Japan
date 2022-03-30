@@ -2131,10 +2131,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
             string _result = string.Empty;
             switch (objProductStatus)
             {
-                //pending状态给DW是默认改成Received
-                case (int)ProductStatus.Pending:
-                    _result = "Received";
-                    break;
                 case (int)ProductStatus.Received:
                     _result = "Received";
                     break;

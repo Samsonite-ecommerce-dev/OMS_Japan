@@ -31,10 +31,10 @@ namespace Test
 
         public static void Test()
         {
-            APIGetOrders();
+            //APIGetOrders();
             //APIGetChangedOrders();
             //APIPostInventory();
-            //APIPostDelivery();
+            APIPostDelivery();
             //APIPostReply();
             //APIUpdateWMSStatus();
             //APIUpdateShipmentStatus();
@@ -275,12 +275,12 @@ namespace Test
                 new PostDeliverysRequest
                 {
                     MallCode="1234567",
-                    OrderNo = "TUSG00010508",
-                    SubOrderNo="TUSG00010508_2",
+                    OrderNo = "TUSG00010608",
+                    SubOrderNo="TUSG00010608_1",
                     Sku="",
                     DeliveryCode="",
                     Company="STO",
-                    DeliveryNo="409472272777",
+                    DeliveryNo="409472272771",
                     Packages=1,
                     Type="",
                     ReceiveCost=0,
@@ -351,8 +351,8 @@ namespace Test
                 new PostReplyRequest()
                 {
                     MallCode="1234567",
-                    OrderNo = "TUSG00010610",
-                    SubOrderNo="TUSG00010610_1",
+                    OrderNo = "TUSG00010608",
+                    SubOrderNo="TUSG00010608_1",
                     Type=0,
                     ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
                     ReplyState=(int)WarehouseStatus.DealSuccessful,
@@ -361,8 +361,8 @@ namespace Test
                 new PostReplyRequest()
                 {
                     MallCode="1234567",
-                    OrderNo = "TUSG00010508",
-                    SubOrderNo="TUSG00010508_2",
+                    OrderNo = "TUSG00010608",
+                    SubOrderNo="TUSG00010608_2",
                     Type=0,
                     ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
                     ReplyState=(int)WarehouseStatus.DealSuccessful,

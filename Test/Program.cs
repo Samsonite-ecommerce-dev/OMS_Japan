@@ -32,8 +32,8 @@ namespace Test
         static void Main(string[] args)
         {
             //TestApiMicros.Test();
-            //TestApiTumi.Test();
-            TestApi.Test();
+            TestApiTumi.Test();
+            //TestApi.Test();
             //DeBug();
             //PDFToImage();
             //CreateQRImg();

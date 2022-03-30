@@ -255,13 +255,13 @@ namespace OMS.App.Controllers
                 if (_product_status != null)
                 {
                     List<int> _psList = new List<int>();
-                    if (_product_status.Contains((int)ProductStatus.Pending))
-                    {
-                        _psList.Add((int)ProductStatus.Pending);
-                    }
                     if (_product_status.Contains((int)ProductStatus.Received))
                     {
                         _psList.Add((int)ProductStatus.Received);
+                    }
+                    if (_product_status.Contains((int)ProductStatus.Processing))
+                    {
+                        _psList.Add((int)ProductStatus.Processing);
                     }
                     if (_product_status.Contains((int)ProductStatus.InDelivery))
                     {
@@ -382,11 +382,6 @@ namespace OMS.App.Controllers
                     _SqlWhere.Add("(select count(*) from OrderDetailAdjustment where [order].OrderNo=OrderDetailAdjustment.OrderNo and OrderDetailAdjustment.CouponId like '%" + _coupon_code + "%')>0");
                 }
 
-                //if (_point_amount > 0)
-                //{
-                //    _SqlWhere.Add("[Order].PointAmount>0");
-                //}
-
                 //过滤套装原始订单
                 _SqlWhere.Add("OrderDetail.IsSetOrigin=0");
                 //过滤无效的订单
@@ -487,16 +482,16 @@ namespace OMS.App.Controllers
 
             ContentResult _result = new ContentResult();
             Int64 _ID = VariableHelper.SaferequestInt64(Request.QueryString["ID"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //不显示套装原订单和已删除的订单
                 StringBuilder objStr = new StringBuilder();
-                List<dynamic> objOrderDetail_List = db.Fetch<dynamic>("select d.Id,d.OrderNo,d.SubOrderNo,d.IsError,d.IsReservation,d.IsSet,d.IsSetOrigin,d.IsPre,d.IsUrgent,d.IsExchangeNew,d.IsDelete,d.SKU,d.ProductName,d.RRPPrice,d.SellingPrice,d.Quantity,d.ActualPaymentAmount,d.Status,d.CancelQuantity, d.ReturnQuantity,d.ExchangeQuantity,d.RejectQuantity,d.PaymentAmount,d.ShippingStatus,d.ReservationDate,d.CreateDate,o.CreateDate as OrderTime,isnull(ds.InvoiceNo,'')As InvoiceNo,isnull((select GroupDesc from Product as p where p.sku=d.sku),'') as [collection],isnull((select count(*) from OrderValueAddedService as vas where vas.SubOrderNo=d.SubOrderNo and vas.Type=" + (int)ValueAddedServicesType.Monogram + "),0) as IsMonogram from OrderDetail as d inner join [Order] as o on d.OrderNo=o.OrderNo left join Deliverys as ds on ds.SubOrderNo=d.SubOrderNo where d.OrderId=@0 and d.IsSetOrigin=0 and d.IsDelete=0 order by d.SetCode asc,d.Id asc", _ID);
-                string _orderNo = objOrderDetail_List.FirstOrDefault().OrderNo;
+                var _list = db.Database.SqlQuery<OrderQueryDetail>("select d.Id, d.OrderNo, d.SubOrderNo, d.SKU, d.ProductName, d.RRPPrice, d.SellingPrice, d.PaymentAmount, d.ActualPaymentAmount, d.Status, d.Quantity, d.CancelQuantity, d.ReturnQuantity, d.ExchangeQuantity, d.RejectQuantity, d.ShippingStatus, d.IsReservation, d.ReservationDate, d.CreateDate, d.IsError, d.IsSet, d.IsSetOrigin, d.IsPre, d.IsUrgent, d.IsExchangeNew, d.IsDelete, isnull(ds.InvoiceNo, '')As InvoiceNo, isnull((select GroupDesc from Product as p where p.sku = d.sku), '') as [collection], isnull((select count(*) from OrderValueAddedService as vas where vas.SubOrderNo = d.SubOrderNo and vas.Type = " + (int)ValueAddedServicesType.Monogram + "),0) as IsMonogram from OrderDetail as d inner join[Order] as o on d.OrderNo = o.OrderNo left join Deliverys as ds on ds.SubOrderNo = d.SubOrderNo where d.OrderId ={0} and d.IsSetOrigin = 0 and d.IsDelete = 0 order by d.SetCode asc, d.Id asc", _ID);
+                string _orderNo = _list.FirstOrDefault().OrderNo;
                 //获取赠品信息
-                List<OrderGift> objOrderGift_List = db.Fetch<OrderGift>("select * from OrderGift where OrderNo=@0", _orderNo);
+                List<OrderGift> orderGifts = db.OrderGift.Where(p => p.OrderNo == _orderNo).ToList();
                 //获取文档信息
-                List<DeliverysDocument> objDeliverysDocument_List = db.Fetch<DeliverysDocument>("select * from DeliverysDocument where OrderNo=@0 and DocumentType=@1", _orderNo, (int)ECommerceDocumentType.ShippingDoc);
+                List<DeliverysDocument> deliverysDocuments = db.DeliverysDocument.Where(p => p.OrderNo == _orderNo && p.DocumentType == (int)ECommerceDocumentType.ShippingDoc).ToList();
                 objStr.Append("<table class=\"common_table\">");
                 objStr.Append("<tr>");
                 objStr.AppendFormat("<th>{0}</th>", _LanguagePack["orderquery_index_outerID"]);
@@ -512,13 +507,13 @@ namespace OMS.App.Controllers
                 objStr.AppendFormat("<th>{0}</th>", _LanguagePack["orderquery_index_express"]);
                 //objStr.AppendFormat("<th>{0}</th>", _LanguagePack["orderquery_index_product_sendtime"]);
                 objStr.Append("</tr>");
-                foreach (var _dy in objOrderDetail_List)
+                foreach (var dy in _list)
                 {
                     //赠品
-                    List<OrderGift> _Gifts = objOrderGift_List.Where(p => p.SubOrderNo == _dy.SubOrderNo).ToList();
+                    List<OrderGift> _Gifts = orderGifts.Where(p => p.SubOrderNo == dy.SubOrderNo).ToList();
                     //文档
-                    DeliverysDocument _Doc = objDeliverysDocument_List.Where(p => p.SubOrderNo == _dy.SubOrderNo).FirstOrDefault();
-                    if (_dy.Id == objOrderDetail_List.LastOrDefault().Id && _Gifts.Count == 0)
+                    DeliverysDocument _Doc = deliverysDocuments.Where(p => p.SubOrderNo == dy.SubOrderNo).FirstOrDefault();
+                    if (dy.Id == _list.LastOrDefault().Id && _Gifts.Count == 0)
                     {
                         objStr.Append("<tr class=\"last\">");
                     }
@@ -526,23 +521,23 @@ namespace OMS.App.Controllers
                     {
                         objStr.Append("<tr>");
                     }
-                    objStr.AppendFormat("<td class=\"textalign_left\">{0}{1}</td>", _dy.SubOrderNo, OrderHelper.GetOrderNatureLabel(new OrderHelper.OrderNature() { IsReservation = _dy.IsReservation, IsPre = _dy.IsPre, IsUrgent = _dy.IsUrgent, IsSet = _dy.IsSet, IsSetOrigin = _dy.IsSetOrigin, IsExchangeNew = _dy.IsExchangeNew, IsMonogram = (_dy.IsMonogram > 0), IsError = _dy.IsError }));
-                    objStr.AppendFormat("<td>{0}</td>", _dy.SKU);
-                    objStr.AppendFormat("<td class=\"textalign_left\" style=\"width:20%;\"><label class=\"font-bold\">{0}</label><br/>{1}</td>", _dy.collection, _dy.ProductName);
-                    objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(_dy.RRPPrice));
-                    objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(_dy.SellingPrice));
-                    objStr.AppendFormat("<td>{0}/<label class=\"color_danger\">{1}</label>/<label class=\"color_primary\">{2}</label>/<label class=\"color_info\">{3}</label>/<label class=\"color_warning\">{4}</label></td>", _dy.Quantity, _dy.CancelQuantity, _dy.ReturnQuantity, _dy.ExchangeQuantity, _dy.RejectQuantity);
-                    objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(_dy.PaymentAmount));
-                    objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(OrderHelper.MathRound(_dy.ActualPaymentAmount)));
-                    objStr.AppendFormat("<td>{0}</td>", OrderHelper.GetProductStatusDisplay(_dy.Status, true));
-                    objStr.AppendFormat("<td>{0}</td>", OrderHelper.GetWarehouseProcessStatusDisplay(_dy.ShippingStatus, true));
-                    objStr.AppendFormat("<td>{0}{1}</td>", _dy.InvoiceNo, (_Doc != null) ? $"<a href=\"" + Url.Action("DocumentDetail", "OrderQuery") + "?id=" + _dy.Id + "\" target=\"_blank\"><i class=\"fa fa-print color_success\"></i></a>" : "");
-                    //objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateTime(_dy.ReservationDate, "yyyy-MM-dd"));
+                    objStr.AppendFormat("<td class=\"textalign_left\">{0}{1}</td>", dy.SubOrderNo, OrderHelper.GetOrderNatureLabel(new OrderHelper.OrderNature() { IsReservation = dy.IsReservation, IsPre = dy.IsPre, IsUrgent = dy.IsUrgent, IsSet = dy.IsSet, IsSetOrigin = dy.IsSetOrigin, IsExchangeNew = dy.IsExchangeNew, IsMonogram = (dy.IsMonogram > 0), IsError = dy.IsError }));
+                    objStr.AppendFormat("<td>{0}</td>", dy.SKU);
+                    objStr.AppendFormat("<td class=\"textalign_left\" style=\"width:20%;\"><label class=\"font-bold\">{0}</label><br/>{1}</td>", dy.Collection, dy.ProductName);
+                    objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(dy.RRPPrice));
+                    objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(dy.SellingPrice));
+                    objStr.AppendFormat("<td>{0}/<label class=\"color_danger\">{1}</label>/<label class=\"color_primary\">{2}</label>/<label class=\"color_info\">{3}</label>/<label class=\"color_warning\">{4}</label></td>", dy.Quantity, dy.CancelQuantity, dy.ReturnQuantity, dy.ExchangeQuantity, dy.RejectQuantity);
+                    objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(dy.PaymentAmount));
+                    objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(OrderHelper.MathRound(dy.ActualPaymentAmount)));
+                    objStr.AppendFormat("<td>{0}</td>", OrderHelper.GetProductStatusDisplay(dy.Status, true));
+                    objStr.AppendFormat("<td>{0}</td>", OrderHelper.GetWarehouseProcessStatusDisplay(dy.ShippingStatus, true));
+                    objStr.AppendFormat("<td>{0}{1}</td>", dy.InvoiceNo, (_Doc != null) ? $"<a href=\"" + Url.Action("DocumentDetail", "OrderQuery") + "?id=" + dy.Id + "\" target=\"_blank\"><i class=\"fa fa-print color_success\"></i></a>" : "");
+                    //objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateTime(dy.ReservationDate, "yyyy-MM-dd"));
                     objStr.Append("</tr>");
                     //赠品
                     foreach (var _gf in _Gifts)
                     {
-                        if (_dy.Id == objOrderDetail_List.LastOrDefault().Id && _gf.ID == _Gifts.LastOrDefault().ID)
+                        if (dy.Id == _list.LastOrDefault().Id && _gf.ID == _Gifts.LastOrDefault().ID)
                         {
                             objStr.Append("<tr class=\"last\">");
                         }
@@ -862,9 +857,8 @@ namespace OMS.App.Controllers
             int _is_monogram = VariableHelper.SaferequestInt(Request.Form["IsMonogram"]);
             string _promotion_name = VariableHelper.SaferequestStr(Request.Form["PromotionName"]);
             string _coupon_code = VariableHelper.SaferequestStr(Request.Form["CouponCode"]);
-            //int _point_amount = VariableHelper.SaferequestInt(Request.Form["PointAmount"]);
 
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //查询条件
                 List<String> _SqlWhere = new List<string>();
@@ -980,13 +974,13 @@ namespace OMS.App.Controllers
                 if (_product_status != null)
                 {
                     List<int> _psList = new List<int>();
-                    if (_product_status.Contains((int)ProductStatus.Pending))
-                    {
-                        _psList.Add((int)ProductStatus.Pending);
-                    }
                     if (_product_status.Contains((int)ProductStatus.Received))
                     {
                         _psList.Add((int)ProductStatus.Received);
+                    }
+                    if (_product_status.Contains((int)ProductStatus.Processing))
+                    {
+                        _psList.Add((int)ProductStatus.Processing);
                     }
                     if (_product_status.Contains((int)ProductStatus.InDelivery))
                     {
@@ -1107,11 +1101,6 @@ namespace OMS.App.Controllers
                     _SqlWhere.Add("(select count(*) from OrderDetailAdjustment where o.OrderNo=OrderDetailAdjustment.OrderNo and OrderDetailAdjustment.CouponId like '%" + _coupon_code + "%')>0");
                 }
 
-                //if (_point_amount > 0)
-                //{
-                //    _SqlWhere.Add("o.PointAmount>0");
-                //}
-
                 //过滤套装原始订单
                 _SqlWhere.Add("od.IsSetOrigin=0");
                 //过滤无效的订单
@@ -1126,8 +1115,6 @@ namespace OMS.App.Controllers
                 dt.Columns.Add(_LanguagePack["orderquery_index_shippingmethod"]);
                 dt.Columns.Add(_LanguagePack["orderquery_index_order_amount"]);
                 dt.Columns.Add(_LanguagePack["orderquery_index_order_payment_amount"]);
-                //dt.Columns.Add(_LanguagePack["orderquery_index_order_point_amount"]);
-                //dt.Columns.Add(_LanguagePack["orderquery_index_order_inisis_amount"]);
                 dt.Columns.Add(_LanguagePack["orderquery_index_customer_name"]);
                 dt.Columns.Add(_LanguagePack["orderquery_index_receiver"]);
                 dt.Columns.Add(_LanguagePack["orderquery_index_customer_tel"]);
@@ -1152,84 +1139,81 @@ namespace OMS.App.Controllers
                 dt.Columns.Add(_LanguagePack["orderquery_index_product_shipping_status"]);
                 dt.Columns.Add(_LanguagePack["orderquery_index_product_is_exchange_new"]);
                 dt.Columns.Add(_LanguagePack["orderquery_index_product_gift"]);
-                dt.Columns.Add(_LanguagePack["orderquery_index_product_dn"]);
                 //读取数据
                 DataRow _dr = null;
-                List<dynamic> _list = db.Fetch<dynamic>("select o.Id,o.OrderNo,o.MallName,o.MallSapCode,o.OrderType,o.OrderAmount,o.PaymentAmount As OrderPaymentAmount,o.PaymentType,o.DeliveryFee,o.BalanceAmount,o.PointAmount,o.OrderSource,o.ShippingMethod,isnull(c.Name,'')As UserName,oe.ReceiveTel,oe.ReceiveCel,oe.ReceiveZipcode,oe.ReceiveAddr,oe.Province as ReceiveProvince,oe.City as ReceiveCity,oe.District as ReceiveDistrict,oe.[Receive],o.[Status],o.PaymentDate,o.CreateDate as OrderTime,od.SubOrderNo,od.SKU,od.ProductName,od.Quantity,od.CancelQuantity,od.ReturnQuantity,od.ExchangeQuantity,od.RejectQuantity,od.RRPPrice,od.SupplyPrice,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.ReservationDate,od.ShippingStatus,od.[Status] As ProductStatus,od.IsExchangeNew,od.CreateDate,('') as Gifts,Isnull(ds.InvoiceNo,'') as InvoiceNo,('') as DeliveryNo from OrderDetail as od inner join [order] as o on od.OrderNo =o.OrderNo inner join OrderReceive as oe on od.SubOrderNo = oe.SubOrderNo left join Deliverys as ds on od.SubOrderNo=ds.SubOrderNo left join Customer as c on o.CustomerNo = c.CustomerNo " + ((_SqlWhere.Count > 0) ? " where " + string.Join(" and ", _SqlWhere) : "") + " order by o.CreateDate desc");
+                var _list = db.Database.SqlQuery<OrderQueryExport>("select o.Id,o.OrderNo,o.MallName,o.MallSapCode,o.OrderType,o.OrderAmount,o.PaymentAmount As OrderPaymentAmount,o.PaymentType,o.DeliveryFee,o.BalanceAmount,o.PointAmount,o.OrderSource,o.ShippingMethod,o.PaymentDate,isnull(c.Name,'')As UserName,o.[Status],o.CreateDate as OrderTime,oe.[Receive],oe.ReceiveTel,oe.ReceiveCel,oe.ReceiveZipcode,oe.ReceiveAddr,oe.Province as ReceiveProvince,oe.City as ReceiveCity,oe.District as ReceiveDistrict,od.SubOrderNo,od.SKU,od.ProductName,od.RRPPrice,od.SupplyPrice,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.Quantity,od.CancelQuantity,od.ReturnQuantity,od.ExchangeQuantity,od.RejectQuantity,od.ReservationDate,od.ShippingStatus,od.[Status] As ProductStatus,od.IsExchangeNew,od.CreateDate,('') as Gifts,Isnull(ds.InvoiceNo,'') as InvoiceNo from OrderDetail as od inner join [order] as o on od.OrderNo =o.OrderNo inner join OrderReceive as oe on od.SubOrderNo = oe.SubOrderNo left join Deliverys as ds on od.SubOrderNo=ds.SubOrderNo left join Customer as c on o.CustomerNo = c.CustomerNo " + ((_SqlWhere.Count > 0) ? " where " + string.Join(" and ", _SqlWhere) : "") + " order by o.CreateDate desc");
                 List<string> _Orders = _list.Select(p => "'" + (string)p.OrderNo + "'").ToList();
-                List<OrderModify> objOrderModify_List = new List<OrderModify>();
-                List<OrderGift> objOrderGift_List = new List<OrderGift>();
+                var _orderNos = _list.GroupBy(p => p.OrderNo).Select(o => o.Key).ToList();
+                List<OrderModify> orderModifies = new List<OrderModify>();
+                List<OrderGift> orderGifts = new List<OrderGift>();
                 if (_Orders.Count > 0)
                 {
                     //获取更新的地址信息
-                    objOrderModify_List = db.Fetch<OrderModify>($"select Id,OrderNo,SubOrderNo,CustomerName,Tel,Province,City,District,Addr from OrderModify where OrderNo in ({string.Join(",", _Orders)}) and Status={(int)ProcessStatus.ModifyComplete}");
+                    orderModifies = db.OrderModify.Where(p => _orderNos.Contains(p.OrderNo) && p.Status == (int)ProcessStatus.ModifyComplete).ToList();
                     //读取赠品
-                    objOrderGift_List = db.Fetch<OrderGift>($"select OrderNo,SubOrderNo,Sku,Quantity from OrderGift where OrderNo in ({string.Join(",", _Orders)})");
+                    orderGifts = db.OrderGift.Where(p => _orderNos.Contains(p.OrderNo)).ToList();
                 }
 
-                foreach (dynamic _dy in _list)
+                foreach (var dy in _list)
                 {
                     //读取最新订单收货信息
-                    var objOrderModify = objOrderModify_List.Where(p => p.OrderNo == _dy.OrderNo && p.SubOrderNo == _dy.SubOrderNo).OrderByDescending(p => p.Id).FirstOrDefault();
+                    var objOrderModify = orderModifies.Where(p => p.OrderNo == dy.OrderNo && p.SubOrderNo == dy.SubOrderNo).OrderByDescending(p => p.Id).FirstOrDefault();
                     if (objOrderModify != null)
                     {
-                        _dy.Receive = objOrderModify.CustomerName;
-                        _dy.ReceiveTel = objOrderModify.Tel;
-                        _dy.ReceiveCel = objOrderModify.Mobile;
-                        _dy.ReceiveAddr = objOrderModify.Addr;
+                        dy.Receive = objOrderModify.CustomerName;
+                        dy.ReceiveTel = objOrderModify.Tel;
+                        dy.ReceiveCel = objOrderModify.Mobile;
+                        dy.ReceiveAddr = objOrderModify.Addr;
                     }
                     //赠品
-                    var objOrderGifts = objOrderGift_List.Where(p => p.SubOrderNo == _dy.SubOrderNo).ToList();
+                    var objOrderGifts = orderGifts.Where(p => p.SubOrderNo == dy.SubOrderNo).ToList();
                     foreach (var _gf in objOrderGifts)
                     {
-                        if (string.IsNullOrEmpty(_dy.Gifts))
+                        if (string.IsNullOrEmpty(dy.Gifts))
                         {
-                            _dy.Gifts = $"{_gf.Sku}*{_gf.Quantity}";
+                            dy.Gifts = $"{_gf.Sku}*{_gf.Quantity}";
                         }
                         else
                         {
-                            _dy.Gifts += $",{_gf.Sku}*{_gf.Quantity}";
+                            dy.Gifts += $",{_gf.Sku}*{_gf.Quantity}";
                         }
                     }
 
                     //数据解密并脱敏
-                    EncryptionFactory.Create(_dy, new string[] { "UserName", "Receive", "ReceiveTel", "ReceiveCel", "ReceiveAddr" }).HideSensitive();
+                    EncryptionFactory.Create(dy, new string[] { "UserName", "Receive", "ReceiveTel", "ReceiveCel", "ReceiveAddr" }).HideSensitive();
 
                     _dr = dt.NewRow();
-                    _dr[0] = _dy.OrderNo;
-                    _dr[1] = _dy.SubOrderNo;
-                    _dr[2] = _dy.MallSapCode;
-                    _dr[3] = _dy.MallName;
-                    _dr[4] = OrderHelper.GetOrderTypeDisplay(_dy.OrderType);
-                    _dr[5] = OrderHelper.GetShippingMethodDisplay(_dy.ShippingMethod);
-                    _dr[6] = VariableHelper.FormateMoney(_dy.OrderAmount);
-                    _dr[7] = VariableHelper.FormateMoney(_dy.OrderPaymentAmount);
-                    //_dr[6] = (_dy.OrderPaymentAmount - _dy.DeliveryFee > 0) ? VariableHelper.FormateMoney(OrderHelper.MathRound((_dy.PointAmount * _dy.ActualPaymentAmount / (_dy.OrderPaymentAmount - _dy.DeliveryFee)))) : VariableHelper.FormateMoney(_dy.PointAmount);
-                    //_dr[7] = VariableHelper.FormateMoney(_dy.BalanceAmount);
-                    _dr[8] = _dy.UserName;
-                    _dr[9] = _dy.Receive;
-                    _dr[10] = _dy.ReceiveTel;
-                    _dr[11] = _dy.ReceiveCel;
-                    _dr[12] = _dy.ReceiveZipcode;
-                    _dr[13] = _dy.ReceiveAddr;
-                    _dr[14] = OrderHelper.GetPaymentTypeDisplay(_dy.PaymentType);
-                    _dr[15] = VariableHelper.FormateTime(_dy.PaymentDate, "yyyy-MM-dd HH:mm:ss");
+                    _dr[0] = dy.OrderNo;
+                    _dr[1] = dy.SubOrderNo;
+                    _dr[2] = dy.MallSapCode;
+                    _dr[3] = dy.MallName;
+                    _dr[4] = OrderHelper.GetOrderTypeDisplay(dy.OrderType);
+                    _dr[5] = OrderHelper.GetShippingMethodDisplay(dy.ShippingMethod);
+                    _dr[6] = VariableHelper.FormateMoney(dy.OrderAmount);
+                    _dr[7] = VariableHelper.FormateMoney(dy.OrderPaymentAmount);
+                    _dr[8] = dy.UserName;
+                    _dr[9] = dy.Receive;
+                    _dr[10] = dy.ReceiveTel;
+                    _dr[11] = dy.ReceiveCel;
+                    _dr[12] = dy.ReceiveZipcode;
+                    _dr[13] = dy.ReceiveAddr;
+                    _dr[14] = OrderHelper.GetPaymentTypeDisplay(dy.PaymentType);
+                    _dr[15] = VariableHelper.FormateTime(dy.PaymentDate, "yyyy-MM-dd HH:mm:ss");
                     //_dr[16] = OrderHelper.GetOrderSourceDisplay(_dy.OrderSource);
-                    _dr[16] = _dy.OrderTime.ToString("yyyy-MM-dd HH:mm:ss");
-                    _dr[17] = _dy.SKU;
-                    _dr[18] = _dy.ProductName;
-                    _dr[19] = VariableHelper.FormateMoney(_dy.RRPPrice);
-                    _dr[20] = VariableHelper.FormateMoney(_dy.SellingPrice);
-                    _dr[21] = string.Format("{0}/{1}/{2}/{3}/{4}", _dy.Quantity, _dy.CancelQuantity, _dy.ReturnQuantity, _dy.ExchangeQuantity, _dy.RejectQuantity);
-                    _dr[22] = VariableHelper.FormateMoney(_dy.PaymentAmount);
-                    _dr[23] = VariableHelper.FormateMoney(OrderHelper.MathRound(_dy.ActualPaymentAmount));
-                    _dr[24] = _dy.InvoiceNo;
-                    _dr[25] = VariableHelper.FormateTime(_dy.ReservationDate, "yyyy-MM-dd HH:mm:ss");
-                    _dr[26] = OrderHelper.GetProductStatusDisplay(_dy.ProductStatus, false);
-                    _dr[27] = OrderHelper.GetWarehouseProcessStatusDisplay(_dy.ShippingStatus);
-                    _dr[28] = (_dy.IsExchangeNew) ? 1 : 0;
-                    _dr[29] = _dy.Gifts;
-                    _dr[30] = _dy.DeliveryNo;
+                    _dr[16] = dy.OrderTime.ToString("yyyy-MM-dd HH:mm:ss");
+                    _dr[17] = dy.SKU;
+                    _dr[18] = dy.ProductName;
+                    _dr[19] = VariableHelper.FormateMoney(dy.RRPPrice);
+                    _dr[20] = VariableHelper.FormateMoney(dy.SellingPrice);
+                    _dr[21] = string.Format("{0}/{1}/{2}/{3}/{4}", dy.Quantity, dy.CancelQuantity, dy.ReturnQuantity, dy.ExchangeQuantity, dy.RejectQuantity);
+                    _dr[22] = VariableHelper.FormateMoney(dy.PaymentAmount);
+                    _dr[23] = VariableHelper.FormateMoney(OrderHelper.MathRound(dy.ActualPaymentAmount));
+                    _dr[24] = dy.InvoiceNo;
+                    _dr[25] = VariableHelper.FormateTime(dy.ReservationDate, "yyyy-MM-dd HH:mm:ss");
+                    _dr[26] = OrderHelper.GetProductStatusDisplay(dy.ProductStatus, false);
+                    _dr[27] = OrderHelper.GetWarehouseProcessStatusDisplay(dy.ShippingStatus);
+                    _dr[28] = (dy.IsExchangeNew) ? 1 : 0;
+                    _dr[29] = dy.Gifts;
                     dt.Rows.Add(_dr);
                 }
 

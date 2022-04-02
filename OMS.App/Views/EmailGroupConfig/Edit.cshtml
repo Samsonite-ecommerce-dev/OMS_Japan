@@ -22,17 +22,19 @@
                             邮件地址：
                         </th>
                         <td>
-                            <div class="common-list">
-                                <ul>
-                                        @foreach (string _o in _emails)
-                                        {
-                                            <li>
-                                                <i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><input name="MailAddresses" type="text" value="@_o" class="easyui-text input-large" />
-                                            </li>
+                            <p>
+                                <ul id="emails_list" class="common-group-input">
+                                    @foreach (string _o in _emails)
+                                    {
+                                        <li>
+                                            <span class="icon"><i class="fa fa-close color_danger" onclick="del_power($(this))"></i></span><input name="MailAddresses" type="text" value="@_o" class="input-large" />
+                                        </li>
                                     }
                                 </ul>
-                            </div>
-                            <input id="add-button" type="button" value="添加邮件地址" class="btn btn-warning" />
+                            </p>
+                            <p>
+                                <input id="add-button" type="button" value="添加邮件地址" class="btn btn-warning" />
+                            </p>
                         </td>
                     </tr>
                     <tr>
@@ -52,12 +54,18 @@
     <script type="text/javascript">
         $(function () {
             $('#add-button').bind('click', function () {
-                $('.common-list').append('<li><i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><input name="MailAddresses" type="text" class="easyui-text input-large" /></li>');
+                $('#emails_list').append('<li><span class="icon"><i class="fa fa-close color_danger" onclick="del_power($(this))"></i></span><input name="MailAddresses" type="text" class="input-large" /></li>');
             });
         });
 
         function del_power(object) {
-            $o = object.parent().remove();
+            var $emails = $('#emails_list').find('li');
+            if ($emails.length > 1) {
+                $o = object.parent().parent().remove();
+            }
+            else {
+                artDialogExtend.Tips.Alert('请至少保留一个邮箱!', 5);
+            }
         }
     </script>
 }

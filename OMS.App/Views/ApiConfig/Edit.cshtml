@@ -24,8 +24,7 @@
                             <span class="color_danger">*</span>Token：
                         </th>
                         <td>
-                            <input id="Token" name="Token" type="text" class="easyui-textbox input-xlarge" value="@_m.Token" />
-                            <input id="create_token" type="button" class="btn btn-success" value="生成Token" />
+                            <input id="create_token" name="Token" class="easyui-textbox input-xlarge" data-options="buttonText:'生成Token'" value="@_m.Token">
                         </td>
                     </tr>
                     <tr>
@@ -33,21 +32,23 @@
                             IP限制：
                         </th>
                         <td>
-                            <div id="div_ips" class="common-list">
-                                <ul>
+                            <p>
+                                <ul id="ips_list" class="common-group-input">
                                     @if (!string.IsNullOrEmpty(_m.Ips))
                                     {
                                         foreach (string _o in _ips)
                                         {
                                             <li>
-                                                <i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><input name="Ips" type="text" value="@_o" class="easyui-text input-medium" />
+                                                <span class="icon"><i class="fa fa-close color_danger" onclick="del_power($(this))"></i></span><input name="Ips" type="text" value="@_o" class="easyui-text input-medium" />
                                             </li>
                                         }
                                     }
                                 </ul>
-                            </div>
-                            <input id="add-button" type="button" value="添加IP" class="btn btn-warning" />
-                            <span class="label-info">允许添加类似192.168.*.*来限制IP段</span>
+                            </p>
+                            <p>
+                                <input id="add-button" type="button" value="添加IP" class="btn btn-warning" />
+                                <span class="label-info">允许添加类似192.168.*.*来限制IP段</span>
+                            </p>
                         </td>
                     </tr>
                     <tr>
@@ -103,13 +104,15 @@
 @section scripts {
     <script type="text/javascript">
         $(function () {
-            $('#create_token').bind('click', function () {
-                var _token = commonJs.CreateKey(32);
-                $('#Token').textbox('setValue', _token);
+            $("#create_token").textbox({
+                onClickButton: function () {
+                    var _token = commonJs.CreateKey(32);
+                    $("#create_token").textbox('setValue', _token);
+                }
             });
 
             $('#add-button').bind('click', function () {
-                $('#div_ips').append('<li><i class="fa fa-close color_danger pointer" onclick="del_power($(this))"></i><input name="Ips" type="text" class="easyui-text input-medium" /></li>');
+                $('#ips_list').append('<li><span class="icon"><i class="fa fa-close color_danger" onclick="del_power($(this))"></i></span><input name="Ips" type="text" class="input-medium" value="" /></li>');
             });
 
             $('.common-list').find('input[type=checkbox][name=selectAll]').bind('click', function () {
@@ -121,7 +124,13 @@
         });
 
         function del_power(object) {
-            $o = object.parent().remove();
+            var $ips = $('#ips_list').find('li');
+            if ($ips.length > 1) {
+                $o = object.parent().parent().remove();
+            }
+            else {
+                artDialogExtend.Tips.Alert('请至少保留一个IP!', 5);
+            }
         }
     </script>
 }

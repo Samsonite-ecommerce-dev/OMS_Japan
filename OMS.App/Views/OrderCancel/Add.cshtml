@@ -25,7 +25,6 @@
                         <th>@ViewBag.LanguagePack["ordercancel_edit_price"]</th>
                         <th>@ViewBag.LanguagePack["ordercancel_edit_cancel_quantity"]</th>
                         <th>@ViewBag.LanguagePack["ordercancel_edit_actual_payment"]</th>
-                        @*<th>@ViewBag.LanguagePack["ordercancel_edit_point_payment"]</th>*@
                         <th>@ViewBag.LanguagePack["ordercancel_edit_refund_amount"]</th>
                         <th>@ViewBag.LanguagePack["ordercancel_edit_state"]</th>
                         <th>@ViewBag.LanguagePack["ordercancel_edit_shipping_state"]</th>
@@ -68,9 +67,6 @@
                             <td>
                                 @Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_O.ActualPaymentAmount))
                             </td>
-                            @*<td>
-                                    <input id="RefundPoint_@t" name="RefundPoint" type="text" class="easyui-numberbox input-small" value="0" data-options="min:0,max:@_Order.PointAmount,precision:@_AmountAccuracy,disabled:true" />
-                                </td>*@
                             <td>
                                 <input id="RefundAmount_@t" name="RefundAmount" type="text" class="easyui-numberbox input-small" value="0" data-options="min:0,max:@((_IsCOD)?0:_O.ActualPaymentAmount),precision:@_AmountAccuracy,disabled:true,readonly:true" />
                             </td>
@@ -163,9 +159,6 @@
                             @ViewBag.LanguagePack["ordercancel_edit_total_return_money"]：
                         </th>
                         <td colspan="3">
-                            @*@ViewBag.LanguagePack["ordercancel_edit_total_return_point"]
-                (<span class="color_primary" id="total_point">0</span>)
-                <br />*@
                             @ViewBag.LanguagePack["ordercancel_edit_total_return_delivery"]
                             (<span class="color_primary" id="total_delivery">0</span>)
                             <br />
@@ -215,14 +208,12 @@
                 if ($(this).prop("checked")) {
                     //设置控件有效
                     $('#Quantity_' + _t).combobox({ disabled: false });
-                    //$('#RefundPoint_' + _t).numberbox({ disabled: false });
                     $('#RefundAmount_' + _t).numberbox({ disabled: false });
                     var _quantity = parseInt($('#Quantity_' + _t).combobox("getValue"));
                     ResetRefund(_t, _quantity);
                 }
                 else {
                     $('#Quantity_' + _t).combobox({ disabled: true });
-                    //$('#RefundPoint_' + _t).numberbox({ disabled: true });
                     $('#RefundAmount_' + _t).numberbox({ disabled: true });
                     ResetRefund(_t, 0);
                 }
@@ -237,15 +228,6 @@
                     }
                 });
             }
-
-            //var _o = $('.common_table1').find('input[name=RefundPoint]');
-            //for (var i = 0; i < _o.length; i++) {
-            //    $('#RefundPoint_' + i).numberbox({
-            //        onChange: function () {
-            //            ResetTotalReturn();
-            //        }
-            //    });
-            //}
 
             var _o = $('.common_table1').find('input[name=RefundAmount]');
             for (var i = 0; i < _o.length; i++) {
@@ -279,7 +261,6 @@
         function ResetRefund(id, quantity) {
             var _perpoint = parseFloat($('#hidden_perPonitAmount_' + id).val());
             var _perpay = parseFloat($('#hidden_perPaymentAmount_' + id).val());
-            //$('#RefundPoint_' + id).numberbox('setValue', (quantity * _perpoint).toFixed(2));
             $('#RefundAmount_' + id).numberbox('setValue', (quantity * (_perpay - _perpoint)).toFixed(2));
         }
 
@@ -290,7 +271,6 @@
             var _total_amount = 0;
             for (var k = 0; k < $check.length; k++) {
                 var _t = $check.eq(k).parent().parent().attr("id");
-                //_total_point += parseFloat($('#RefundPoint_' + _t).numberbox('getValue'));
                 _total_amount += parseFloat($('#RefundAmount_' + _t).numberbox('getValue'));
             }
             var _express = 0;
@@ -299,7 +279,6 @@
             }
             $('#total_delivery').html(commonJs.formatCurrency(_express));
             var _return_money = _total_amount + _express;
-            //$('#total_point').html(commonJs.formatCurrency(_total_point));
             $('#total_amount').html("<label class=\"color_primary\">" + commonJs.formatCurrency(_total_amount) + "</label>" + "+<label class=\"color_warning\">" + commonJs.formatCurrency(_express) + "</label>=<label class=\"color_success\">" + commonJs.formatCurrency(_return_money) + "</label>");
         }
     </script>

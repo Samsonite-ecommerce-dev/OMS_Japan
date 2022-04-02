@@ -59,7 +59,7 @@
                             <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_edit_return_quantity"]：
                         </th>
                         <td>
-                            <select id="Quantity" name="Quantity" class="easyui-combobox">
+                            <select id="Quantity" name="Quantity" class="easyui-combobox input-mini">
                                 @for (int i = (_Effect_Quantity + _m.Quantity); i > 0; i--)
                                 {
                                     if (_m.Quantity == i)
@@ -90,12 +90,6 @@
                         </td>
                     </tr>
                     <tr>
-                        @*<th>
-                                <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_edit_return_point"]：
-                            </th>
-                            <td>
-                                <input id="RefundPoint" name="RefundPoint" type="text" class="easyui-numberbox input-medium" value="@_m.RefundPoint" data-options="min:0,max:@_m.RefundPoint,precision:@_AmountAccuracy" />
-                            </td>*@
                         <th>
                             <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_edit_return_amount"]：
                         </th>

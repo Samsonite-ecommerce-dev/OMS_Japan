@@ -17,7 +17,7 @@
     <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
     <div class="main_complex_search">
         <form id="SearchForm" action="@Url.Action("ExportExcel", "OrderQuery")" method="post">
-            <div class="title">@ViewBag.LanguagePack["orderquery_index_search"]<i id="search_oper" class="fa fa-chevron-down color_success"></i></div>
+            <div class="title">@ViewBag.LanguagePack["orderquery_index_search"]<i id="search_icon" class="fa fa-chevron-down color_success"></i></div>
             <table class="table">
                 <tbody>
                     <tr>
@@ -207,7 +207,7 @@
                         <th>@ViewBag.LanguagePack["orderquery_index_search_order_nature"]</th>
                         <td>
                             <input id="OrderReserve" name="OrderReserve" type="checkbox" value="1" />
-                                <label for="OrderReserve">@ViewBag.LanguagePack["orderquery_index_search_order_booking"]</label>
+                            <label for="OrderReserve">@ViewBag.LanguagePack["orderquery_index_search_order_booking"]</label>
                             <input id="IsBundle" name="IsBundle" type="checkbox" value="1" />
                             <label for="IsBundle">@ViewBag.LanguagePack["orderquery_index_search_order_set"]</label>
                             <input id="IsGift" name="IsGift" type="checkbox" value="1" />
@@ -230,7 +230,10 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="bottom"><input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" /></div>
+            <div class="bottom">
+                <input id="SearchButton" type="button" value="@ViewBag.LanguagePack["common_search"]" class="btn btn-info" />
+                <input id="SeniorSearchButton" type="button" value="@ViewBag.LanguagePack["common_senior_search"]" class="btn btn-success" />
+            </div>
         </form>
     </div>
     <div class="main_list">
@@ -295,8 +298,8 @@
                         @ViewBag.LanguagePack["orderquery_index_paytime"]
                     </th>
                     @*<th data-options="field:'s15',align:'center'">
-            @ViewBag.LanguagePack["orderquery_index_source"]
-        </th>*@
+                            @ViewBag.LanguagePack["orderquery_index_source"]
+                        </th>*@
                     <th data-options="field:'s16',align:'left'">
                         @ViewBag.LanguagePack["orderquery_index_ordertime"]
                     </th>
@@ -344,22 +347,14 @@
                 detail_url: '@Url.Action("Index_Message_Detail", "OrderQuery")'
             });
             //搜索
-            $('#search_oper').bind('click', function () {
-                var $this = $(this);
-                var $searchT = $('.main_complex_search').find('tr[class=display_none]');
-                for (var t = 0; t < $searchT.length; t++) {
-                    if ($searchT.eq(t).css("display") == 'none') {
-                        $this.attr("class", "fa fa-chevron-up color_success");
-                        $searchT.eq(t).show();
-                    }
-                    else {
-                        $this.attr("class", "fa fa-chevron-down color_success");
-                        $searchT.eq(t).fadeOut(300);
-                    }
-                }
+            $('#search_icon').bind('click', function () {
+                SeniorSearchBox();
             });
             $('#SearchButton').bind('click', function () {
                 GridSearch();
+            });
+            $('#SeniorSearchButton').bind('click', function () {
+                SeniorSearchBox();
             });
             //操作
             $('#toolbar').find('#edit').bind('click', function () {
@@ -470,6 +465,24 @@
                 }
             });
         });
+
+        function SeniorSearchBox() {
+            var $searchIcon = $('#search_icon');
+            var $seniorSearchButton = $('#SeniorSearchButton');
+            var $searchT = $('.main_complex_search').find('tr[class=display_none]');
+            for (var t = 0; t < $searchT.length; t++) {
+                if ($searchT.eq(t).css("display") == 'none') {
+                    $searchIcon.attr("class", "fa fa-chevron-up color_success");
+                    $seniorSearchButton.attr("class", "btn btn-warning");
+                    $searchT.eq(t).show();
+                }
+                else {
+                    $searchIcon.attr("class", "fa fa-chevron-down color_success");
+                    $seniorSearchButton.attr("class", "btn btn-success");
+                    $searchT.eq(t).fadeOut(300);
+                }
+            }
+        }
 
         function GridSearch() {
             easyUIExtend.Grid.Search($('#dg'), {

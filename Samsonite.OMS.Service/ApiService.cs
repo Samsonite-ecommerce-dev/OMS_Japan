@@ -178,6 +178,49 @@ namespace Samsonite.OMS.Service
                 },
                 RootID = 2
             });
+            //平台接口
+            _result.Add(new InterfaceGroupDto()
+            {
+                GroupID = 3,
+                GroupName = "Platform",
+                ControllerName = APIType.Platform.ToString(),
+                Interfaces = new List<InterfaceDto>()
+                {
+                    new InterfaceDto()
+                    {
+                         ID=301,
+                         RouteGroup="store",
+                         InterfaceName="Get Stores",
+                         ActionName="GetStores",
+                         SeqNumber=1
+                    },
+                    new InterfaceDto()
+                    {
+                         ID=311,
+                         RouteGroup="order",
+                         InterfaceName="add Orders",
+                         ActionName="AddOrders",
+                         SeqNumber=2
+                    },
+                    new InterfaceDto()
+                    {
+                         ID=312,
+                         RouteGroup="order",
+                         InterfaceName="Get Orders Detail",
+                         ActionName="GetOrdersDetail",
+                         SeqNumber=3
+                    },
+                    new InterfaceDto()
+                    {
+                         ID=321,
+                         RouteGroup="inventory",
+                         InterfaceName="Get Inventorys",
+                         ActionName="GetInventorys",
+                         SeqNumber=4
+                    }
+                },
+                RootID = 3
+            });
 
             return _result;
         }

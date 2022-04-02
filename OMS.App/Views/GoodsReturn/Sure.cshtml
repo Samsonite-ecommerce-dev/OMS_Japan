@@ -84,12 +84,6 @@
                         </td>
                     </tr>
                     <tr>
-                        @*<th>
-                                <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_sure_refund_point"]：
-                            </th>
-                            <td>
-                                <input id="RefundPoint" name="RefundPoint" type="text" class="easyui-numberbox input-medium" value="@_m.RefundPoint" data-options="min:0,precision:@_AmountAccuracy" />
-                            </td>*@
                         <th>
                             <span class="color_danger">*</span>@ViewBag.LanguagePack["goodsreturn_sure_refund_payment"]：
                         </th>
@@ -116,9 +110,6 @@
                             @ViewBag.LanguagePack["goodsreturn_sure_refund_total_refund"]：
                         </th>
                         <td colspan="3">
-                            @*@ViewBag.LanguagePack["goodsreturn_sure_refund_total_refund_point"]
-                                (<span class="color_primary" id="total_point">0</span>)
-                                <br />*@
                             @ViewBag.LanguagePack["goodsreturn_sure_refund_total_refund_amount"]
                             (<span id="total_amount">0</span>)
                         </td>
@@ -183,12 +174,6 @@
             //初始化计算总退款金额
             ResetTotalReturn();
 
-            //$('#RefundPoint').numberbox({
-            //    onChange: function () {
-            //        ResetTotalReturn();
-            //    }
-            //});
-
             $('#RefundAmount').numberbox({
                 onChange: function () {
                     ResetTotalReturn();
@@ -209,12 +194,10 @@
         });
 
         function ResetTotalReturn() {
-            //var _refund_point = parseFloat($('#RefundPoint').numberbox('getValue'));
             var _refund_amount = parseFloat($('#RefundAmount').numberbox('getValue'));
             var _refund_express = parseFloat($('#RefundExpress').numberbox('getValue'));
             var _reduce_express_fee = parseFloat($('#ReduceExpressFee').numberbox('getValue'));
             var _total_refund = _refund_amount + _refund_express - _reduce_express_fee;
-            //$('#total_point').html(commonJs.formatCurrency(_refund_point));
             $('#total_amount').html("<label class=\"color_primary\">" + commonJs.formatCurrency(_refund_amount) + "</label>+<label class=\"color_warning\">" + commonJs.formatCurrency(_refund_express) + "</label>-<label class=\"color_danger\">" + commonJs.formatCurrency(_reduce_express_fee) + "</label>=<label class=\"color_success\">" + commonJs.formatCurrency(_total_refund) + "</label>");
         }
     </script>

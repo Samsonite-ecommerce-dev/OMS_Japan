@@ -467,6 +467,10 @@ td, th {
     border-style: solid;
 }
 
+.main_complex_search .bottom input[type=button] {
+    margin: 0 7px;
+}
+
 .main_bar{
     border-radius:5px;
     border: 1px #d4d4d4 solid;
@@ -1047,4 +1051,138 @@ td, th {
 .select_icon dd a:hover{
     font-size:24px;
     background-color: #21bcb5;
+}
+
+/*common-group-input*/
+.common-group-input {
+    margin: 0px 3px;
+    padding-bottom: 25px;
+}
+
+.common-group-input li {
+    display: block;
+    line-height: 26px;
+    padding: 5px 0;
+    clear: left;
+}
+
+/*common-group-input icon*/
+.common-group-input li span.icon {
+    float: left;
+    border: 1px #d4d4d4 solid;
+    border-radius: 5px 0 0 5px;
+    border-right: none;
+    line-height: 28px;
+    width: 25px;
+    text-align: center;
+}
+
+.common-group-input li span.icon i {
+    cursor: pointer;
+}
+
+/*common-group-input text*/
+.common-group-input li span.text {
+    float: left;
+    border: 1px #d4d4d4 solid;
+    border-radius: 5px 0 0 5px;
+    border-right: none;
+    line-height: 28px;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+    width: 60px;
+    text-align: right;
+    padding-right: 10px;
+    color: #fff;
+}
+
+.common-group-input li input[type=text] {
+    float: left;
+    border: 1px #d4d4d4 solid;
+    border-radius: 0 5px 5px 0;
+    border-left: none;
+    outline-style: none;
+    resize: none;
+    white-space: normal;
+    line-height: 28px;
+    margin: 0;
+    padding: 0 0 0 5px;
+}
+
+/*group-input-button*/
+.group-input-button {
+}
+
+.group-input-button input[type=text] {
+    float: left;
+    border: 1px #d4d4d4 solid;
+    border-radius: 5px 0 0 5px;
+    outline-style: none;
+    resize: none;
+    white-space: normal;
+    line-height: 28px;
+    padding: 0 0 0 5px;
+    margin: 0;
+}
+
+.group-input-button input[type=button] {
+    float: left;
+    line-height: 28px;
+    border-radius: 0 5px 5px 0;
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 0 5px;
+    font-size: 14px;
+    font-weight: normal;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+}
+
+/*group-button-input*/
+.group-button-input {
+}
+
+.group-button-input input[type=button] {
+    float: left;
+    line-height: 28px;
+    border-radius: 5px 0 0 5px;
+    display: inline-block;
+    margin-bottom: 0;
+    padding: 0 5px;
+    font-size: 14px;
+    font-weight: normal;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+}
+
+.group-button-input input[type=text] {
+    float: left;
+    border: 1px #d4d4d4 solid;
+    border-radius: 0 5px 5px 0;
+    outline-style: none;
+    resize: none;
+    white-space: normal;
+    line-height: 28px;
+    padding: 0 0 0 5px;
+    margin: 0;
 }

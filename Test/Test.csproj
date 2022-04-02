@@ -113,7 +113,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestApi.cs" />
+    <Compile Include="TestWebAPI.cs" />
     <Compile Include="TestApiMicros.cs" />
     <Compile Include="TestApiTumi.cs" />
   </ItemGroup>

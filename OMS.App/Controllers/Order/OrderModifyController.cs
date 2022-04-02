@@ -587,11 +587,11 @@ namespace OMS.App.Controllers
                             throw new Exception(_LanguagePack["common_data_need_one"]);
                         }
 
-                        string[] _IDs_Array = _IDs.Split(',');
+                        var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
                         object[] _r = new object[2];
-                        foreach (string _str in _IDs_Array)
+                        foreach (var id in _IdArrays)
                         {
-                            _r = OrderModifyProcessService.Delete(VariableHelper.SaferequestInt64(_str), db);
+                            _r = OrderModifyProcessService.Delete(id, db);
                             if (!Convert.ToBoolean(_r[0]))
                             {
                                 throw new Exception(_r[1].ToString());
@@ -637,8 +637,9 @@ namespace OMS.App.Controllers
                 }
                 else
                 {
-                    var objView_OrderModify_List = db.Database.SqlQuery<View_OrderModify>("select * from View_OrderModify where Id in (" + _IDs + ") and Type={0}", (int)OrderChangeType.Modify).ToList();
-                    if (objView_OrderModify_List.Count() > 0)
+                    var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
+                    var objView_OrderModify_List = db.View_OrderModify.Where(p => _IdArrays.Contains(p.Id) && p.Type == (int)OrderChangeType.Modify).ToList();
+                    if (objView_OrderModify_List.Count > 0)
                     {
                         ViewBag.IDs = string.Join(",", objView_OrderModify_List.Select(p => p.Id).ToList());
                         foreach (View_OrderModify objView_OrderModify in objView_OrderModify_List)
@@ -680,11 +681,11 @@ namespace OMS.App.Controllers
                             throw new Exception(_LanguagePack["common_data_need_one"]);
                         }
 
-                        string[] _IDs_Array = _IDs.Split(',');
+                        var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
                         object[] _r = new object[2];
-                        foreach (string _str in _IDs_Array)
+                        foreach (var id in _IdArrays)
                         {
-                            _r = OrderModifyProcessService.ManualInterference(VariableHelper.SaferequestInt64(_str), (_Result == 1), _Remark, db);
+                            _r = OrderModifyProcessService.ManualInterference(id, (_Result == 1), _Remark, db);
                             if (!Convert.ToBoolean(_r[0]))
                             {
                                 throw new Exception(_r[1].ToString());

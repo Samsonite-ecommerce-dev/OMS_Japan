@@ -259,9 +259,9 @@ namespace OMS.API.Implments.Warehouse
                 if (string.IsNullOrEmpty(request.OrderBy)) request.OrderBy = "DESC";
                 bool _isASC = (request.OrderBy.ToUpper() == "ASC");
                 //查询
-                var _list = db.OrderChangeRecord.Where(p => p.AddDate >= startDate && p.AddDate <= endDate && !p.IsDelete).AsQueryable();
+                var _list = db.OrderChangeRecord.AsQueryable().Where(p => p.AddDate >= startDate && p.AddDate <= endDate && !p.IsDelete);
                 //获取分页集合
-                var _pageView = _entityRepository.GetPage(request.PageIndex, request.PageSize, _list.AsQueryable().AsNoTracking(), p => p.Id, _isASC);
+                var _pageView = _entityRepository.GetPage(request.PageIndex, request.PageSize, _list.AsNoTracking(), p => p.Id, _isASC);
                 long _totalRecord = _pageView.TotalItems;
                 int _totalPage = PagerHelper.CountTotalPage((int)_totalRecord, request.PageSize);
                 //循环

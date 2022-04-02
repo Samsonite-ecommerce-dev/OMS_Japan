@@ -250,7 +250,6 @@ namespace OMS.App.Controllers
             int _PickUpTimeInterval = VariableHelper.SaferequestInt(Request.Form["PickUpTimeInterval"]);
             string _SelectIDs = Request.Form["SelectID"];
             string _Quantitys = Request.Form["Quantity"];
-            //string _RefundPoints = Request.Form["RefundPoint"];
             string _RefundAmounts = Request.Form["RefundAmount"];
             string _ShippingCompanys = Request.Form["ShippingCompany"];
             string _ShippingNos = Request.Form["ShippingNo"];
@@ -285,7 +284,6 @@ namespace OMS.App.Controllers
                             //要退货的子订单
                             string[] _SelectID_Array = _SelectIDs.Split(',');
                             string[] _Quantity_Array = _Quantitys.Split(',');
-                            //string[] _RefundPoint_Array = _RefundPoints.Split(',');
                             string[] _RefundAmount_Array = _RefundAmounts.Split(',');
                             string[] _ShippingCompany_Array = _ShippingCompanys.Split(',');
                             string[] _ShippingNo_Array = _ShippingNos.Split(',');
@@ -313,15 +311,6 @@ namespace OMS.App.Controllers
                             }
                             for (int t = 0; t < _Select_Length; t++)
                             {
-                                ////Demandware,Tumi和Micros的订单需要上传快递号
-                                //if (objOrder.PlatformType == (int)PlatformType.DEMANDWARE_Singapore || objOrder.PlatformType == (int)PlatformType.TUMI_Singapore || objOrder.PlatformType == (int)PlatformType.Micros_Singapore)
-                                //{
-                                //    if (string.IsNullOrEmpty(_ShippingNo_Array[t]))
-                                //    {
-                                //        throw new Exception(_LanguagePack["goodsreturn_edit_message_no_shippingno"]);
-                                //    }
-                                //}
-
                                 Int64 _id = VariableHelper.SaferequestInt64(_SelectID_Array[t]);
                                 _Quantity = VariableHelper.SaferequestPage(_Quantity_Array[t]);
                                 //平摊快递费(按照退货订单数平摊)
@@ -395,7 +384,6 @@ namespace OMS.App.Controllers
                                         AcceptRemark = string.Empty,
                                         RefundUserId = 0,
                                         RefundAmount = VariableHelper.SaferequestDecimal(_RefundAmount_Array[t]),
-                                        //RefundPoint = VariableHelper.SaferequestDecimal(_RefundPoint_Array[t]),
                                         RefundPoint = 0,
                                         RefundExpress = _Avag_ExpressFee,
                                         RefundSurcharge = _Avag_SurchargeFee,
@@ -451,29 +439,6 @@ namespace OMS.App.Controllers
                                 else
                                 {
                                     throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["common_data_no_exsit"]));
-                                }
-
-                                //如果是Tumi和Micros的订单需要推送ReadyToShip
-                                if (objOrder.PlatformType == (int)PlatformType.TUMI_Japan || objOrder.PlatformType == (int)PlatformType.Micros_Japan)
-                                {
-                                    //由于客户自取或者从店铺去取等方式,可能不需要申请快递号
-                                    if (!string.IsNullOrEmpty(_ShippingNo_Array[t]))
-                                    {
-                                        //取货时间
-                                        string[] _clSlot = new string[] { VariableHelper.SaferequestTime(_PickUpTime).ToString("yyyy-MM-dd"), (_PickUpTimeInterval == 1) ? "13:00" : "09:00", (_PickUpTimeInterval == 1) ? "18:00" : "13:00" };
-                                        //AssignShipping
-                                        SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
-                                        var resp = objSpeedPostExtend.AssignShipping(new string[] { _ShippingNo_Array[t] }, _clSlot);
-                                        if (resp.data != null)
-                                        {
-                                            //下载快递信息相关文档
-                                            objSpeedPostExtend.GetDocument(db.View_OrderDetail.Where(p => p.OrderNo == objOrderDetail.OrderNo && p.SubOrderNo == objOrderDetail.SubOrderNo).SingleOrDefault(), _ShippingNo_Array[t], true, objOrderReturn.Id);
-                                        }
-                                        else
-                                        {
-                                            throw new Exception(_LanguagePack["goodsreturn_edit_message_collectionslots_not_available"]);
-                                        }
-                                    }
                                 }
                             }
                             db.SaveChanges();
@@ -625,7 +590,6 @@ namespace OMS.App.Controllers
             JsonResult _result = new JsonResult();
             Int64 _ID = VariableHelper.SaferequestInt64(Request.Form["ID"]);
             int _Quantity = VariableHelper.SaferequestInt(Request.Form["Quantity"]);
-            //decimal _RefundPoint = VariableHelper.SaferequestDecimal(Request.Form["RefundPoint"]);
             decimal _RefundAmount = VariableHelper.SaferequestDecimal(Request.Form["RefundAmount"]);
             decimal _ExpressFee = VariableHelper.SaferequestDecimal(Request.Form["ExpressFee"]);
             decimal _ReduceExpressFee = VariableHelper.SaferequestDecimal(Request.Form["ReduceExpressFee"]);
@@ -651,15 +615,6 @@ namespace OMS.App.Controllers
                             View_OrderDetail objOrderDetail = db.View_OrderDetail.Where(p => p.SubOrderNo == objView_OrderReturn.SubOrderNo).SingleOrDefault();
                             if (objOrderDetail != null)
                             {
-                                //Tumi/Micros的订单需要上传快递号
-                                if (objOrderDetail.PlatformType == (int)PlatformType.TUMI_Japan || objOrderDetail.PlatformType == (int)PlatformType.Micros_Japan)
-                                {
-                                    if (string.IsNullOrEmpty(_ShippingNo))
-                                    {
-                                        throw new Exception(_LanguagePack["goodsreturn_edit_message_no_shippingno"]);
-                                    }
-                                }
-
                                 //计算有效数量
                                 int _Effect_Quantity = objOrderDetail.Quantity - objOrderDetail.CancelQuantity - objOrderDetail.ReturnQuantity - objOrderDetail.ExchangeQuantity - objOrderDetail.RejectQuantity + objView_OrderReturn.Quantity;
                                 if (_Quantity > _Effect_Quantity)
@@ -684,7 +639,6 @@ namespace OMS.App.Controllers
                                     if (objOrderReturn != null)
                                     {
                                         objOrderReturn.Quantity = _Quantity;
-                                        //objOrderReturn.RefundPoint = _RefundPoint;
                                         objOrderReturn.RefundAmount = _RefundAmount;
                                         objOrderReturn.RefundExpress = _ExpressFee;
                                         objOrderReturn.RefundSurcharge = _ReduceExpressFee;
@@ -766,11 +720,11 @@ namespace OMS.App.Controllers
                             throw new Exception(_LanguagePack["common_data_need_one"]);
                         }
 
-                        string[] _IDs_Array = _IDs.Split(',');
+                        var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
                         object[] _r = new object[2];
-                        foreach (string _str in _IDs_Array)
+                        foreach (var id in _IdArrays)
                         {
-                            _r = OrderReturnProcessService.Delete(VariableHelper.SaferequestInt64(_str), db);
+                            _r = OrderReturnProcessService.Delete(id, db);
                             if (!Convert.ToBoolean(_r[0]))
                             {
                                 throw new Exception(_r[1].ToString());
@@ -862,13 +816,13 @@ namespace OMS.App.Controllers
                         throw new Exception(_LanguagePack["common_data_need_one"]);
                     }
 
-                    string[] _IDs_Array = _IDs.Split(',');
+                    var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
                     object[] _r = new object[2];
-                    foreach (string _str in _IDs_Array)
+                    foreach (var id in _IdArrays)
                     {
                         try
                         {
-                            _r = OrderReturnProcessService.RefundSure(VariableHelper.SaferequestInt64(_str), ((Request.Form["RefundPoint"] != null) ? _RefundPoint : null), ((Request.Form["RefundAmount"] != null) ? _RefundAmount : null), ((Request.Form["RefundExpress"] != null) ? _RefundExpress : null), ((Request.Form["ReduceExpressFee"] != null) ? _ReduceExpressFee : null), ((Request.Form["CollectType"] != null) ? _CollectType : null), _Remark, db);
+                            _r = OrderReturnProcessService.RefundSure(id, ((Request.Form["RefundPoint"] != null) ? _RefundPoint : null), ((Request.Form["RefundAmount"] != null) ? _RefundAmount : null), ((Request.Form["RefundExpress"] != null) ? _RefundExpress : null), ((Request.Form["ReduceExpressFee"] != null) ? _ReduceExpressFee : null), ((Request.Form["CollectType"] != null) ? _CollectType : null), _Remark, db);
                             if (!Convert.ToBoolean(_r[0]))
                             {
                                 throw new Exception(_r[1].ToString());
@@ -923,8 +877,9 @@ namespace OMS.App.Controllers
                 }
                 else
                 {
-                    var objView_OrderReturn_List = db.Database.SqlQuery<View_OrderReturn>("select * from View_OrderReturn where Id in (" + _IDs + ") and Type={0}", (int)OrderChangeType.Return).ToList();
-                    if (objView_OrderReturn_List.Count() > 0)
+                    var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
+                    var objView_OrderReturn_List = db.View_OrderReturn.Where(p => _IdArrays.Contains(p.Id) && p.Type == (int)OrderChangeType.Return).ToList();
+                    if (objView_OrderReturn_List.Count > 0)
                     {
                         ViewBag.IDs = string.Join(",", objView_OrderReturn_List.Select(p => p.Id).ToList());
                         foreach (View_OrderReturn objView_OrderReturn in objView_OrderReturn_List)
@@ -966,11 +921,11 @@ namespace OMS.App.Controllers
                             throw new Exception(_LanguagePack["common_data_need_one"]);
                         }
 
-                        string[] _IDs_Array = _IDs.Split(',');
+                        var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
                         object[] _r = new object[2];
-                        foreach (string _str in _IDs_Array)
+                        foreach (var id in _IdArrays)
                         {
-                            _r = OrderReturnProcessService.ManualInterference(VariableHelper.SaferequestInt64(_str), (_Result == 1), _Remark, db);
+                            _r = OrderReturnProcessService.ManualInterference(id, (_Result == 1), _Remark, db);
                             if (!Convert.ToBoolean(_r[0]))
                             {
                                 throw new Exception(_r[1].ToString());

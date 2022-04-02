@@ -57,8 +57,8 @@ namespace Test
             //getOrders();
             //SendInventory();
             //SendPrice();
-            ExpressPickUp();
-            //GetExpressFromPlatform();
+            //ExpressPickUp();
+            GetExpressFromPlatform();
             //PosLog();
 
             Console.ReadKey();
@@ -339,7 +339,7 @@ namespace Test
                 TumiAPI objTumiAPI = TumiAPIClient();
                 //objTumiAPI.GetExpressFromPlatform();
 
-                string _OrderNo = "DEVSG00004601";
+                string _OrderNo = "TUSG00010508";
                 List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();
                 foreach (var _o in objView_OrderDetail_List)
                 {

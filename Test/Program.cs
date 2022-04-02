@@ -32,8 +32,13 @@ namespace Test
         static void Main(string[] args)
         {
             //TestApiMicros.Test();
-            TestApiTumi.Test();
-            //TestApi.Test();
+            //TestApiTumi.Test();
+
+            //---api---
+            //(new TestWebAPI()).TestWarehouse();
+            //(new TestWebAPI()).TestClickCollect();
+            (new TestWebAPI()).TestPlatform();
+
             //DeBug();
             //PDFToImage();
             //CreateQRImg();

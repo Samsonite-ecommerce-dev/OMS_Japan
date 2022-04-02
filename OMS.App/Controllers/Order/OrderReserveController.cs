@@ -158,8 +158,9 @@ namespace OMS.App.Controllers
                 }
                 else
                 {
-                    var objOrderDetail_List = db.Database.SqlQuery<OrderDetail>("select * from OrderDetail where Id in (" + _IDs + ") and IsReservation=1");
-                    if (objOrderDetail_List.Count<OrderDetail>() > 0)
+                    var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
+                    var objOrderDetail_List = db.OrderDetail.Where(p => _IdArrays.Contains(p.Id) && p.IsReservation).ToList();
+                    if (objOrderDetail_List.Count > 0)
                     {
                         ViewBag.IDs = string.Join(",", objOrderDetail_List.Select(p => p.Id).ToList());
                         ViewBag.ReservationDate = objOrderDetail_List.FirstOrDefault().ReservationDate;

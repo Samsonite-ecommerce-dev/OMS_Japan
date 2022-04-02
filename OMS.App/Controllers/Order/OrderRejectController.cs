@@ -227,7 +227,7 @@ namespace OMS.App.Controllers
                                     }
 
                                     //判断在发货前和待处理之后才能进行拒收
-                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.InDelivery };
+                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing };
                                     if (!objAllowStatus.Contains(objOrderDetail.Status))
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["orderreject_edit_message_state_no_allow"]));

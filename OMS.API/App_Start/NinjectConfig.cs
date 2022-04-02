@@ -32,6 +32,10 @@ namespace OMS.API
             //ClickCollect
             Kernel.Bind<Interface.ClickCollect.IQueryService>().To<Implments.ClickCollect.QueryService>();
             Kernel.Bind<Interface.ClickCollect.IPostService>().To<Implments.ClickCollect.PostService>();
+
+            //Platform
+            Kernel.Bind<Interface.Platform.IQueryService>().To<Implments.Platform.QueryService>();
+            //Kernel.Bind<Interface.Platform.IPostService>().To<Implments.Platform.PostService>();
         }
     }
 

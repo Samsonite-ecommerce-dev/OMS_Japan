@@ -192,14 +192,17 @@
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ClickCollectController.cs" />
+    <Compile Include="Controllers\PlatformController.cs" />
     <Compile Include="Controllers\WarehouseController.cs" />
     <Compile Include="Implments\ClickCollect\PostService.cs" />
     <Compile Include="Implments\ClickCollect\QueryService.cs" />
+    <Compile Include="Implments\Platform\QueryService.cs" />
     <Compile Include="Implments\Warehouse\PostService.cs" />
     <Compile Include="Implments\Warehouse\QueryService.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Interface\ClickCollect\IPostService.cs" />
     <Compile Include="Interface\ClickCollect\IQueryService.cs" />
+    <Compile Include="Interface\Platform\IQueryService.cs" />
     <Compile Include="Models\ApiRequest.cs" />
     <Compile Include="Models\ApiResponse.cs" />
     <Compile Include="Models\AuthorizeModel.cs" />
@@ -214,6 +217,9 @@
     <Compile Include="Models\Request\ClickCollect\SetStatusToDeliveredRequest.cs" />
     <Compile Include="Models\Request\ClickCollect\CanceledItemHandleRequest.cs" />
     <Compile Include="Models\Request\ClickCollect\SetStatusToShopArrivedRequest.cs" />
+    <Compile Include="Models\Request\Platform\GetOrdersDetailRequest.cs" />
+    <Compile Include="Models\Request\Platform\GetInventorysRequest.cs" />
+    <Compile Include="Models\Request\Platform\GetStoresRequest.cs" />
     <Compile Include="Models\Request\Warehouse\GetChangedOrdersRequest.cs" />
     <Compile Include="Models\Request\Warehouse\GetOrdersRequest.cs" />
     <Compile Include="Models\Request\Warehouse\UpdateWMSStatusRequest.cs" />
@@ -223,6 +229,9 @@
     <Compile Include="Models\Response\ClickCollect\CanceledItemHandleResponse.cs" />
     <Compile Include="Models\Response\ClickCollect\SetStatusToDeliveredResponse.cs" />
     <Compile Include="Models\Response\ClickCollect\SetStatusToShopArrivedResponse.cs" />
+    <Compile Include="Models\Response\Platform\GetOrdersDetailResponse.cs" />
+    <Compile Include="Models\Response\Platform\GetInventorysResponse.cs" />
+    <Compile Include="Models\Response\Platform\GetStoresResponse.cs" />
     <Compile Include="Models\Response\Warehouse\OrderQueryModel.cs" />
     <Compile Include="Models\Request\Warehouse\PostDeliverysRequest.cs" />
     <Compile Include="Models\Request\Warehouse\PostInventoryRequest.cs" />

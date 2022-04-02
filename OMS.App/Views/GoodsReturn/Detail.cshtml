@@ -78,9 +78,6 @@
                             @ViewBag.LanguagePack["goodsreturn_detail_refund_total_refund"]：
                         </th>
                         <td colspan="3">
-                            @*@ViewBag.LanguagePack["goodsreturn_detail_refund_point"]
-                                (<span class="color_primary">@Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_m.RefundPoint))</span>)
-                                <br />*@
                             @ViewBag.LanguagePack["goodsreturn_detail_refund_payment"]
                             (<span class="color_primary">@Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_m.RefundAmount))</span>)
                             <br />
@@ -90,25 +87,6 @@
                             @ViewBag.LanguagePack["goodsreturn_detail_refund_express_surcharge"]
                             (<span class="color_primary">@Samsonite.Utility.Common.VariableHelper.FormateMoney(OMS.App.Helper.OrderHelper.MathRound(_m.RefundSurcharge))</span>)
                         </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            @ViewBag.LanguagePack["goodsreturn_detail_pickup_time"]：
-                        </th>
-                        <td colspan="3">
-                            @if (!string.IsNullOrEmpty(_m.ShippingPickUpDay))
-                            {
-                                @_m.ShippingPickUpDay
-                                if (_m.ShippingPickUpTimeType == 1)
-                                {
-                                    <label>13:00-18:00</label>
-                                }
-                                else
-                                {
-                                    <label>09:00-13:00</label>
-                                }
-                            }
-</td>
                     </tr>
                     <tr>
                         <th>

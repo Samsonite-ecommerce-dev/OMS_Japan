@@ -460,7 +460,7 @@ namespace Samsonite.OMS.Service
         }
 
         /// <summary>
-        /// 处理退货订单
+        /// 退货订单
         /// </summary>
         /// <param name="objClaim"></param>
         /// <param name="objOrderDetail"></param>
@@ -584,7 +584,7 @@ namespace Samsonite.OMS.Service
         }
 
         /// <summary>
-        /// 处理换货
+        /// 换货订单
         /// </summary>
         /// <param name="objClaim"></param>
         /// <param name="objOrderDetail"></param>

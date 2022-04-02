@@ -12,6 +12,7 @@ using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.Utility.Common;
+
 using OMS.App.Helper;
 
 namespace OMS.App.Controllers
@@ -228,7 +229,6 @@ namespace OMS.App.Controllers
 
             string _SelectIDs = Request.Form["SelectID"];
             string _Quantitys = Request.Form["Quantity"];
-            //string _RefundPoints = Request.Form["RefundPoint"];
             string _RefundAmounts = Request.Form["RefundAmount"];
 
             using (var db = new ebEntities())
@@ -256,7 +256,6 @@ namespace OMS.App.Controllers
                             //要取消的子订单
                             string[] _SelectID_Array = _SelectIDs.Split(',');
                             string[] _Quantity_Array = _Quantitys.Split(',');
-                            //string[] _RefundPoint_Array = _RefundPoints.Split(',');
                             string[] _RefundAmount_Array = _RefundAmounts.Split(',');
                             int _Select_Length = _SelectID_Array.Length;
                             int _Quantity = 0;
@@ -299,13 +298,11 @@ namespace OMS.App.Controllers
                                 if (_IsCOD)
                                 {
                                     _RefundAmount = 0;
-                                    //_RefundPoint = 0;
                                     _Avag_ExpressFee = 0;
                                 }
                                 else
                                 {
                                     _RefundAmount = VariableHelper.SaferequestDecimal(_RefundAmount_Array[t]);
-                                    //_RefundPoint= VariableHelper.SaferequestInt(_RefundPoint_Array[t]);
                                     //平摊快递费(按照退货订单数平摊)
                                     if (t == _Select_Length - 1)
                                     {
@@ -330,7 +327,7 @@ namespace OMS.App.Controllers
                                     }
 
                                     //判断在发货前和待处理之后才允许取消信息
-                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.InDelivery, (int)ProductStatus.ReceivedGoods };
+                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing, (int)ProductStatus.ReceivedGoods };
                                     if (!objAllowStatus.Contains(objOrderDetail.Status))
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordercancel_edit_message_state_no_allow"]));
@@ -353,18 +350,10 @@ namespace OMS.App.Controllers
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordercancel_edit_message_quantity_error"]));
                                     }
                                     //判断是否是内部取消
-                                    //1.是否处于pending/Received
-                                    //2.是否在生成D/N(仓库状态在ToWMS)之前
+                                    //1.是否处于Received
                                     if (objOrderDetail.Status == (int)ProductStatus.Received)
                                     {
-                                        if (objOrderDetail.ShippingStatus < (int)WarehouseProcessStatus.ToWMS)
-                                        {
-                                            _IsSystemCancel = true;
-                                        }
-                                        else
-                                        {
-                                            _IsSystemCancel = false;
-                                        }
+                                        _IsSystemCancel = true;
                                     }
                                     else
                                     {
@@ -571,11 +560,11 @@ namespace OMS.App.Controllers
                             throw new Exception(_LanguagePack["common_data_need_one"]);
                         }
 
-                        string[] _IDs_Array = _IDs.Split(',');
+                        var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
                         object[] _r = new object[2];
-                        foreach (string _str in _IDs_Array)
+                        foreach (var id in _IdArrays)
                         {
-                            _r = OrderCancelProcessService.Delete(VariableHelper.SaferequestInt64(_str), db);
+                            _r = OrderCancelProcessService.Delete(id, db);
                             if (!Convert.ToBoolean(_r[0]))
                             {
                                 throw new Exception(_r[1].ToString());
@@ -644,7 +633,6 @@ namespace OMS.App.Controllers
 
             JsonResult _result = new JsonResult();
             string _IDs = VariableHelper.SaferequestStr(Request.Form["ID"]);
-            //decimal? _RefundPoint = VariableHelper.SaferequestDecimal(Request.Form["Refundpoint"]);
             decimal? _RefundAmount = VariableHelper.SaferequestDecimal(Request.Form["RefundAmount"]);
             decimal? _RefundExpress = VariableHelper.SaferequestDecimal(Request.Form["RefundExpress"]);
             string _Remark = VariableHelper.SaferequestEditor(Request.Form["Remark"]);
@@ -659,13 +647,13 @@ namespace OMS.App.Controllers
                         throw new Exception(_LanguagePack["common_data_need_one"]);
                     }
 
-                    string[] _IDs_Array = _IDs.Split(',');
+                    var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
                     object[] _r = new object[2];
-                    foreach (string _str in _IDs_Array)
+                    foreach (var id in _IdArrays)
                     {
                         try
                         {
-                            _r = OrderCancelProcessService.RefundSure(VariableHelper.SaferequestInt64(_str), 0, ((Request.Form["RefundAmount"] != null) ? _RefundAmount : null), ((Request.Form["RefundExpress"] != null) ? _RefundExpress : null), _Remark, db);
+                            _r = OrderCancelProcessService.RefundSure(id, 0, ((Request.Form["RefundAmount"] != null) ? _RefundAmount : null), ((Request.Form["RefundExpress"] != null) ? _RefundExpress : null), _Remark, db);
                             if (!Convert.ToBoolean(_r[0]))
                             {
                                 throw new Exception(_r[1].ToString());
@@ -720,8 +708,9 @@ namespace OMS.App.Controllers
                 }
                 else
                 {
-                    var objView_OrderCancel_List = db.Database.SqlQuery<View_OrderCancel>("select * from View_OrderCancel where Id in (" + _IDs + ") and Type={0}", (int)OrderChangeType.Cancel).ToList();
-                    if (objView_OrderCancel_List.Count() > 0)
+                    var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
+                    var objView_OrderCancel_List = db.View_OrderCancel.Where(p => _IdArrays.Contains(p.Id) && p.Type == (int)OrderChangeType.Cancel).ToList();
+                    if (objView_OrderCancel_List.Count > 0)
                     {
                         ViewBag.IDs = string.Join(",", objView_OrderCancel_List.Select(p => p.Id).ToList());
                         foreach (View_OrderCancel objView_OrderCancel in objView_OrderCancel_List)
@@ -763,11 +752,11 @@ namespace OMS.App.Controllers
                             throw new Exception(_LanguagePack["common_data_need_one"]);
                         }
 
-                        string[] _IDs_Array = _IDs.Split(',');
+                        var _IdArrays = VariableHelper.SaferequestInt64Array(_IDs);
                         object[] _r = new object[2];
-                        foreach (string _str in _IDs_Array)
+                        foreach (var id in _IdArrays)
                         {
-                            _r = OrderCancelProcessService.ManualInterference(VariableHelper.SaferequestInt64(_str), (_Result == 1), _Remark, db);
+                            _r = OrderCancelProcessService.ManualInterference(id, (_Result == 1), _Remark, db);
                             if (!Convert.ToBoolean(_r[0]))
                             {
                                 throw new Exception(_r[1].ToString());

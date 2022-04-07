@@ -587,12 +587,20 @@
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="DifferenceAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="ExpressAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
-          <Property Name="AcceptUserId" Type="int" Nullable="false" />
-          <Property Name="AcceptUserDate" Type="datetime" />
-          <Property Name="AcceptRemark" Type="nvarchar" MaxLength="500" />
           <Property Name="FromApi" Type="bit" Nullable="false" />
           <Property Name="ReturnDetailId" Type="bigint" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="ShippingCompany" Type="nvarchar" MaxLength="50" />
+          <Property Name="ShippingNo" Type="nvarchar" MaxLength="50" />
+          <Property Name="RequestId" Type="varchar" MaxLength="100" />
+          <Property Name="CustomerName" Type="nvarchar" MaxLength="512" />
+          <Property Name="Addr" Type="nvarchar" MaxLength="2000" />
+          <Property Name="Tel" Type="nvarchar" MaxLength="512" />
+          <Property Name="Mobile" Type="nvarchar" MaxLength="512" />
+          <Property Name="Zipcode" Type="nvarchar" MaxLength="50" />
+          <Property Name="AcceptUserId" Type="int" Nullable="false" />
+          <Property Name="AcceptUserDate" Type="datetime" />
+          <Property Name="AcceptRemark" Type="nvarchar" MaxLength="500" />
           <Property Name="SendUserId" Type="int" Nullable="false" />
           <Property Name="SendUserDate" Type="datetime" />
           <Property Name="SendRemark" Type="nvarchar" MaxLength="500" />
@@ -2077,6 +2085,14 @@
           <Property Name="Reason" Type="int" Nullable="false" />
           <Property Name="DifferenceAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="ExpressAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="RequestId" Type="varchar" MaxLength="100" />
+          <Property Name="CustomerName" Type="nvarchar" MaxLength="512" />
+          <Property Name="Addr" Type="nvarchar" MaxLength="2000" />
+          <Property Name="Tel" Type="nvarchar" MaxLength="512" />
+          <Property Name="Mobile" Type="nvarchar" MaxLength="512" />
+          <Property Name="Zipcode" Type="nvarchar" MaxLength="50" />
+          <Property Name="ShippingCompany" Type="nvarchar" MaxLength="50" />
+          <Property Name="ShippingNo" Type="nvarchar" MaxLength="50" />
         </EntityType>
         <!--生成过程中发现错误:
 警告 6002: 表/视图“OMS_Japan.dbo.View_OrderModify”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
@@ -2929,7 +2945,15 @@
     [View_OrderExchange].[DetailId] AS [DetailId], 
     [View_OrderExchange].[Reason] AS [Reason], 
     [View_OrderExchange].[DifferenceAmount] AS [DifferenceAmount], 
-    [View_OrderExchange].[ExpressAmount] AS [ExpressAmount]
+    [View_OrderExchange].[ExpressAmount] AS [ExpressAmount], 
+    [View_OrderExchange].[RequestId] AS [RequestId], 
+    [View_OrderExchange].[CustomerName] AS [CustomerName], 
+    [View_OrderExchange].[Addr] AS [Addr], 
+    [View_OrderExchange].[Tel] AS [Tel], 
+    [View_OrderExchange].[Mobile] AS [Mobile], 
+    [View_OrderExchange].[Zipcode] AS [Zipcode], 
+    [View_OrderExchange].[ShippingCompany] AS [ShippingCompany], 
+    [View_OrderExchange].[ShippingNo] AS [ShippingNo]
     FROM [dbo].[View_OrderExchange] AS [View_OrderExchange]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="View_OrderModify" EntityType="Self.View_OrderModify" store:Type="Views" store:Schema="dbo">
@@ -3817,12 +3841,20 @@
           <Property Name="Quantity" Type="Int32" Nullable="false" />
           <Property Name="DifferenceAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
           <Property Name="ExpressAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
-          <Property Name="AcceptUserId" Type="Int32" Nullable="false" />
-          <Property Name="AcceptUserDate" Type="DateTime" Precision="3" />
-          <Property Name="AcceptRemark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="FromApi" Type="Boolean" Nullable="false" />
           <Property Name="ReturnDetailId" Type="Int64" Nullable="false" />
           <Property Name="Status" Type="Int32" Nullable="false" />
+          <Property Name="ShippingCompany" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ShippingNo" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="RequestId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CustomerName" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="Addr" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="Tel" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="Mobile" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="Zipcode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="AcceptUserId" Type="Int32" Nullable="false" />
+          <Property Name="AcceptUserDate" Type="DateTime" Precision="3" />
+          <Property Name="AcceptRemark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="SendUserId" Type="Int32" Nullable="false" />
           <Property Name="SendUserDate" Type="DateTime" Precision="3" />
           <Property Name="SendRemark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
@@ -5287,6 +5319,14 @@
           <Property Name="Reason" Type="Int32" Nullable="false" />
           <Property Name="DifferenceAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
           <Property Name="ExpressAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="RequestId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="CustomerName" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="Addr" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="Tel" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="Mobile" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="Zipcode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ShippingCompany" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="ShippingNo" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="View_OrderModify">
           <Key>
@@ -6214,12 +6254,20 @@
                 <ScalarProperty Name="SendRemark" ColumnName="SendRemark" />
                 <ScalarProperty Name="SendUserDate" ColumnName="SendUserDate" />
                 <ScalarProperty Name="SendUserId" ColumnName="SendUserId" />
-                <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="ReturnDetailId" ColumnName="ReturnDetailId" />
-                <ScalarProperty Name="FromApi" ColumnName="FromApi" />
                 <ScalarProperty Name="AcceptRemark" ColumnName="AcceptRemark" />
                 <ScalarProperty Name="AcceptUserDate" ColumnName="AcceptUserDate" />
                 <ScalarProperty Name="AcceptUserId" ColumnName="AcceptUserId" />
+                <ScalarProperty Name="Zipcode" ColumnName="Zipcode" />
+                <ScalarProperty Name="Mobile" ColumnName="Mobile" />
+                <ScalarProperty Name="Tel" ColumnName="Tel" />
+                <ScalarProperty Name="Addr" ColumnName="Addr" />
+                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
+                <ScalarProperty Name="RequestId" ColumnName="RequestId" />
+                <ScalarProperty Name="ShippingNo" ColumnName="ShippingNo" />
+                <ScalarProperty Name="ShippingCompany" ColumnName="ShippingCompany" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ReturnDetailId" ColumnName="ReturnDetailId" />
+                <ScalarProperty Name="FromApi" ColumnName="FromApi" />
                 <ScalarProperty Name="ExpressAmount" ColumnName="ExpressAmount" />
                 <ScalarProperty Name="DifferenceAmount" ColumnName="DifferenceAmount" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
@@ -7451,6 +7499,14 @@
           <EntitySetMapping Name="View_OrderExchange">
             <EntityTypeMapping TypeName="Samsonite.OMS.Database.View_OrderExchange">
               <MappingFragment StoreEntitySet="View_OrderExchange">
+                <ScalarProperty Name="ShippingNo" ColumnName="ShippingNo" />
+                <ScalarProperty Name="ShippingCompany" ColumnName="ShippingCompany" />
+                <ScalarProperty Name="Zipcode" ColumnName="Zipcode" />
+                <ScalarProperty Name="Mobile" ColumnName="Mobile" />
+                <ScalarProperty Name="Tel" ColumnName="Tel" />
+                <ScalarProperty Name="Addr" ColumnName="Addr" />
+                <ScalarProperty Name="CustomerName" ColumnName="CustomerName" />
+                <ScalarProperty Name="RequestId" ColumnName="RequestId" />
                 <ScalarProperty Name="ExpressAmount" ColumnName="ExpressAmount" />
                 <ScalarProperty Name="DifferenceAmount" ColumnName="DifferenceAmount" />
                 <ScalarProperty Name="Reason" ColumnName="Reason" />

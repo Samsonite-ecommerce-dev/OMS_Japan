@@ -288,6 +288,10 @@
       <Project>{ddcc579d-1ec7-466f-acc4-3256827ec1eb}</Project>
       <Name>Samsonite.OMS.DTO</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Samsonite.OMS.ECommerce\Samsonite.OMS.ECommerce.csproj">
+      <Project>{b65f1012-8eb2-41f3-8d3f-549caffd217d}</Project>
+      <Name>Samsonite.OMS.ECommerce</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Samsonite.OMS.Encryption\Samsonite.OMS.Encryption.csproj">
       <Project>{2e8a2b63-5472-422f-80eb-a5ab513b7e7b}</Project>
       <Name>Samsonite.OMS.Encryption</Name>

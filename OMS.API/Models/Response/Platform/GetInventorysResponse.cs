@@ -7,16 +7,19 @@ namespace OMS.API.Models.Platform
 {
     public class GetInventorysResponse : PageResponse
     {
+        [JsonProperty(PropertyName = "mall_sap_code")]
+        public string MallSapCode { get; set; }
+
         [JsonProperty(PropertyName = "list_id")]
         public string ListId { get; set; }
 
-        [JsonProperty(PropertyName = "default-instock")]
+        [JsonProperty(PropertyName = "default_instock")]
         public bool DefaultInstock { get; set; }
 
         [JsonProperty(PropertyName = "description")]
         public string Description { get; set; }
 
-        [JsonProperty(PropertyName = "use-bundle-inventory-only")]
+        [JsonProperty(PropertyName = "use_bundle_inventory_only")]
         public bool UseBundleInventoryOnly { get; set; }
 
         /// <summary>
@@ -42,7 +45,7 @@ namespace OMS.API.Models.Platform
             /// <summary>
             /// 当前时间
             /// </summary>
-            [JsonProperty(PropertyName = "allocation-timestamp")]
+            [JsonProperty(PropertyName = "allocation_timestamp")]
             public string Timestamp { get; set; }
         }
     }

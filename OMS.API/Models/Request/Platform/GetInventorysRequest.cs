@@ -8,7 +8,7 @@ namespace OMS.API.Models.Platform
         /// <summary>
         /// 店铺SAP Code
         /// </summary>
-        public string MallSapCode { get; set; }
+        public string StoreSapCode { get; set; }
 
         /// <summary>
         /// Demandware的产品集合

@@ -27,12 +27,20 @@ namespace Samsonite.OMS.Database
         public int Quantity { get; set; }
         public decimal DifferenceAmount { get; set; }
         public decimal ExpressAmount { get; set; }
-        public int AcceptUserId { get; set; }
-        public Nullable<System.DateTime> AcceptUserDate { get; set; }
-        public string AcceptRemark { get; set; }
         public bool FromApi { get; set; }
         public long ReturnDetailId { get; set; }
         public int Status { get; set; }
+        public string ShippingCompany { get; set; }
+        public string ShippingNo { get; set; }
+        public string RequestId { get; set; }
+        public string CustomerName { get; set; }
+        public string Addr { get; set; }
+        public string Tel { get; set; }
+        public string Mobile { get; set; }
+        public string Zipcode { get; set; }
+        public int AcceptUserId { get; set; }
+        public Nullable<System.DateTime> AcceptUserDate { get; set; }
+        public string AcceptRemark { get; set; }
         public int SendUserId { get; set; }
         public Nullable<System.DateTime> SendUserDate { get; set; }
         public string SendRemark { get; set; }

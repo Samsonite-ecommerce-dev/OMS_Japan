@@ -8,11 +8,11 @@ namespace OMS.API.Models.Platform
         /// <summary>
         /// 店铺SAP Code
         /// </summary>
-        public string MallSapCode { get; set; }
+        public string StoreSapCode { get; set; }
 
         /// <summary>
         /// 订单号集合
         /// </summary>
-        public List<string> OrderNos { get; set; }
+        public string OrderNos { get; set; }
     }
 }

@@ -17,6 +17,7 @@ namespace Samsonite.OMS.Encryption
             _result.Add(typeof(OrderReceive), typeof(OrderReceiveEncryption));
             _result.Add(typeof(OrderModify), typeof(OrderModifyEncryption));
             _result.Add(typeof(OrderReturn), typeof(OrderReturnEncryption));
+            _result.Add(typeof(OrderExchange), typeof(OrderExchangeEncryption));
             _result.Add(typeof(OrderBilling), typeof(OrderBillingEncryption));
             _result.Add(typeof(UserEmployee), typeof(UserEmployeeEncryption));
             _result.Add(typeof(View_OrderModify), typeof(View_OrderModifyEncryption));

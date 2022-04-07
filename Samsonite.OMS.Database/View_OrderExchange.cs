@@ -53,5 +53,13 @@ namespace Samsonite.OMS.Database
         public int Reason { get; set; }
         public decimal DifferenceAmount { get; set; }
         public decimal ExpressAmount { get; set; }
+        public string RequestId { get; set; }
+        public string CustomerName { get; set; }
+        public string Addr { get; set; }
+        public string Tel { get; set; }
+        public string Mobile { get; set; }
+        public string Zipcode { get; set; }
+        public string ShippingCompany { get; set; }
+        public string ShippingNo { get; set; }
     }
 }

@@ -430,7 +430,8 @@ namespace Test
             //访问接口
             Console.WriteLine("Begin to run Platform interface...");
             //this.PlatformGetStores();
-            this.PlatformGetInventorys();
+            this.PlatformGetOrdersDetail();
+            //this.PlatformGetInventorys();
             Console.WriteLine("Run Platform interface finished...");
 
             Console.ReadKey();
@@ -461,6 +462,30 @@ namespace Test
             }
         }
 
+        private void PlatformGetOrdersDetail()
+        {
+            try
+            {
+                IDictionary<string, string> objParams = new Dictionary<string, string>();
+                //默认参数
+                objParams.Add("userid", this.appId);
+                objParams.Add("version", this.version);
+                objParams.Add("format", this.format);
+                objParams.Add("method", this.method);
+                objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
+                //传递参数
+                objParams.Add("storeSapCode", "1234567");
+                objParams.Add("orderNos", "TUSG00010808");
+                objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
+                //执行请求
+                this.DoGet($"{this.localSite}/api/platform/order/details", objParams);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
         private void PlatformGetInventorys()
         {
             try
@@ -473,7 +498,7 @@ namespace Test
                 objParams.Add("method", this.method);
                 objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
                 //传递参数
-                objParams.Add("mallSapCode", "1234567");
+                objParams.Add("storeSapCode", "1234567");
                 objParams.Add("productIds", "tu-142622-1596,tu-142623-9653");
                 objParams.Add("pageindex", "1");
                 //objParams.Add("pagesize", "50");

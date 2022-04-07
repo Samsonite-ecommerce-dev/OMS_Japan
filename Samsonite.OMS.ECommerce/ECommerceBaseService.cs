@@ -9,7 +9,6 @@ using Samsonite.OMS.DTO;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.ECommerce.Dto;
 using Samsonite.OMS.Service.AppConfig;
-using Samsonite.OMS.Encryption;
 
 namespace Samsonite.OMS.ECommerce
 {

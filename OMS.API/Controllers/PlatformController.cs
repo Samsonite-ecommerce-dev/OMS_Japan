@@ -77,10 +77,20 @@ namespace OMS.API.Controllers
 
             try
             {
+                if (string.IsNullOrEmpty(request.StoreSapCode))
+                {
+                    throw new Exception("Please input a store sap code!");
+                }
+
+                if (string.IsNullOrEmpty(request.OrderNos))
+                {
+                    throw new Exception("Please input at least one order No.!");
+                }
+
                 var _res = _queryService.GetOrdersDetail(request);
                 //返回信息
                 result.Code = (int)ApiResultCode.Success;
-                result.SuccessfulData = _res.Stores;
+                result.SuccessfulData = _res.Orders;
             }
             catch (Exception ex)
             {
@@ -111,6 +121,11 @@ namespace OMS.API.Controllers
 
             try
             {
+                if (string.IsNullOrEmpty(request.StoreSapCode))
+                {
+                    throw new Exception("Please input a store sap code!");
+                }
+
                 var _res = _queryService.GetInventorys(request);
                 //返回信息
                 result.Code = (int)ApiResultCode.Success;

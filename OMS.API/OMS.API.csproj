@@ -196,19 +196,20 @@
     <Compile Include="Controllers\WarehouseController.cs" />
     <Compile Include="Implments\ClickCollect\PostService.cs" />
     <Compile Include="Implments\ClickCollect\QueryService.cs" />
+    <Compile Include="Implments\Platform\PostService.cs" />
     <Compile Include="Implments\Platform\QueryService.cs" />
     <Compile Include="Implments\Warehouse\PostService.cs" />
     <Compile Include="Implments\Warehouse\QueryService.cs" />
     <Compile Include="Controllers\BaseApiController.cs" />
     <Compile Include="Interface\ClickCollect\IPostService.cs" />
     <Compile Include="Interface\ClickCollect\IQueryService.cs" />
+    <Compile Include="Interface\Platform\IPostService.cs" />
     <Compile Include="Interface\Platform\IQueryService.cs" />
     <Compile Include="Models\ApiRequest.cs" />
     <Compile Include="Models\ApiResponse.cs" />
     <Compile Include="Models\AuthorizeModel.cs" />
     <Compile Include="Models\Enum\ApiResultCode.cs" />
     <Compile Include="Models\Enum\ApiEnum.cs" />
-    <Compile Include="Models\Enum\Warehouse\PostDetailType.cs" />
     <Compile Include="Models\Enum\Warehouse\ReplyType.cs" />
     <Compile Include="Interface\Warehouse\IPostService.cs" />
     <Compile Include="Interface\Warehouse\IQueryService.cs" />
@@ -219,6 +220,7 @@
     <Compile Include="Models\Request\ClickCollect\SetStatusToShopArrivedRequest.cs" />
     <Compile Include="Models\Request\Platform\GetOrdersDetailRequest.cs" />
     <Compile Include="Models\Request\Platform\GetInventorysRequest.cs" />
+    <Compile Include="Models\Request\Platform\PostOrdersRequest.cs" />
     <Compile Include="Models\Request\Platform\GetStoresRequest.cs" />
     <Compile Include="Models\Request\Warehouse\GetChangedOrdersRequest.cs" />
     <Compile Include="Models\Request\Warehouse\GetOrdersRequest.cs" />
@@ -232,6 +234,7 @@
     <Compile Include="Models\Response\Platform\GetOrdersDetailResponse.cs" />
     <Compile Include="Models\Response\Platform\GetInventorysResponse.cs" />
     <Compile Include="Models\Response\Platform\GetStoresResponse.cs" />
+    <Compile Include="Models\Response\Platform\PostOrdersResponse.cs" />
     <Compile Include="Models\Response\Warehouse\OrderQueryModel.cs" />
     <Compile Include="Models\Request\Warehouse\PostDeliverysRequest.cs" />
     <Compile Include="Models\Request\Warehouse\PostInventoryRequest.cs" />
@@ -239,7 +242,6 @@
     <Compile Include="Models\Response\PageResponse.cs" />
     <Compile Include="Models\Response\Warehouse\UpdateWMSStatusResponse.cs" />
     <Compile Include="Models\Response\Warehouse\UpdateShipmentStatusResponse.cs" />
-    <Compile Include="Models\Response\Warehouse\PostDetailResponse.cs" />
     <Compile Include="Models\Response\Warehouse\PostInventoryResponse.cs" />
     <Compile Include="Models\Response\Warehouse\PostReplyResponse.cs" />
     <Compile Include="Global.asax.cs">
@@ -249,7 +251,6 @@
     <Compile Include="Models\Response\Warehouse\GetChangedOrdersResponse.cs" />
     <Compile Include="Models\Response\Warehouse\GetOrdersResponse.cs" />
     <Compile Include="Models\Response\Warehouse\PostDeliverysResponse.cs" />
-    <Compile Include="Models\Request\Warehouse\PostDetailRequest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="Utils\APIHelper.cs" />

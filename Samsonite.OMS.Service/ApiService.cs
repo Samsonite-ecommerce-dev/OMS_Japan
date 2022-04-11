@@ -198,8 +198,8 @@ namespace Samsonite.OMS.Service
                     {
                          ID=311,
                          RouteGroup="order",
-                         InterfaceName="add Orders",
-                         ActionName="AddOrders",
+                         InterfaceName="Post Orders",
+                         ActionName="PostOrders",
                          SeqNumber=2
                     },
                     new InterfaceDto()

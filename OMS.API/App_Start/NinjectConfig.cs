@@ -35,7 +35,7 @@ namespace OMS.API
 
             //Platform
             Kernel.Bind<Interface.Platform.IQueryService>().To<Implments.Platform.QueryService>();
-            //Kernel.Bind<Interface.Platform.IPostService>().To<Implments.Platform.PostService>();
+            Kernel.Bind<Interface.Platform.IPostService>().To<Implments.Platform.PostService>();
         }
     }
 

@@ -7,7 +7,7 @@ namespace OMS.API.Models.Platform
 {
     public class GetInventorysResponse : PageResponse
     {
-        [JsonProperty(PropertyName = "mall_sap_code")]
+        [JsonProperty(PropertyName = "store_id")]
         public string MallSapCode { get; set; }
 
         [JsonProperty(PropertyName = "list_id")]

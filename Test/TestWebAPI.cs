@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using NPOI.OpenXml4Net.OPC.Internal;
 using OMS.API.Models;
+using OMS.API.Models.Platform;
 using OMS.API.Models.Warehouse;
 using OMS.API.Utils;
 using Samsonite.OMS.DTO;
@@ -430,6 +431,7 @@ namespace Test
             //访问接口
             Console.WriteLine("Begin to run Platform interface...");
             //this.PlatformGetStores();
+            //this.PlatformPostOrders();
             this.PlatformGetOrdersDetail();
             //this.PlatformGetInventorys();
             Console.WriteLine("Run Platform interface finished...");
@@ -455,6 +457,66 @@ namespace Test
                 objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
                 //执行请求
                 this.DoGet($"{this.localSite}/api/platform/stores/get", objParams);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        private void PlatformPostOrders()
+        {
+            try
+            {
+                IDictionary<string, string> objParams = new Dictionary<string, string>();
+                //默认参数
+                objParams.Add("userid", this.appId);
+                objParams.Add("version", this.version);
+                objParams.Add("format", this.format);
+                objParams.Add("method", this.method);
+                objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
+                //传递参数
+                objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
+                //物流信息
+                List<PostOrdersRequest> postData = new List<PostOrdersRequest>() {
+                    new PostOrdersRequest()
+                    {
+                        OrderNo = "TUSG00010508",
+                        MallSapCode="1234567",
+                        OrderDate="2022-03-02T03:37:03.000Z",
+                        CreateBy="storefront",
+                        Currency="SGD",
+                        Taxation="gross",
+                        CustomerInfo=new Customer()
+                        {
+                             CustomerNo="0000479096",
+                              CustomerName="James Pham",
+                               CustomerEmail="james.pham@globee.hk",
+                                BillingAddressInfo=new BillingAddress()
+                                {
+                                     FirstName="James",
+                                      LastName="Pham",
+                                      Address1="123",
+                                      City="SG",
+                                      PostalCode="123456",
+                                      StateCode="SG",
+                                      CountryCode="SG",
+                                      Phone="99999987",
+                                      Email="james.pham@globee.hk"
+                                }
+                        },
+                        StatusInfo=new Status()
+                        {
+                             OrderStatus="NEW",
+                             ShippingStatus="NOT_SHIPPED",
+                             ConfirmationStatus="CONFIRMED",
+                             PaymentStatus="PAID"
+                        },
+                        RemoteHost="118.69.64.234"
+                    }
+                };
+                //执行请求
+                this.DoPost($"{this.localSite}/api/platform/order/post", objParams, postData);
             }
             catch (Exception ex)
             {

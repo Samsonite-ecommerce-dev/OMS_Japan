@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web.Http;
+using System.Linq;
 using Samsonite.Utility.Common;
 
 using OMS.API.Interface.Platform;
@@ -13,9 +14,11 @@ namespace OMS.API.Controllers
     public class PlatformController : BaseApiController
     {
         private IQueryService _queryService;
-        public PlatformController(IQueryService queryService)
+        private IPostService _postService;
+        public PlatformController(IQueryService queryService, IPostService postService)
         {
             this._queryService = queryService;
+            this._postService = postService;
         }
 
         #region store
@@ -61,6 +64,40 @@ namespace OMS.API.Controllers
         #endregion
 
         #region order
+        /// <summary>
+        /// 保存订单
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("order/post")]
+        public ApiResponse PostOrders([FromBody]object request)
+        {
+            ApiResponse result = new ApiResponse();
+
+            //过滤参数
+            string data = VariableHelper.SaferequestNull(request);
+
+            if (GlobalConfig.IsApiDebugLog)
+            {
+                FileLogHelper.WriteLog($"PostJson: {data}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
+            }
+
+            try
+            {
+                var _result = _postService.SaveOrders(data);
+                //返回结果
+                result = ApiResponse.Success(_result.Where(p => p.Result), _result.Where(p => !p.Result));
+            }
+            catch (Exception ex)
+            {
+                //返回信息
+                result.Code = (int)ApiResultCode.Fail;
+                result.Message = ex.Message;
+            }
+            return result;
+        }
+
         /// <summary>
         /// 获取订单详情信息
         /// </summary>

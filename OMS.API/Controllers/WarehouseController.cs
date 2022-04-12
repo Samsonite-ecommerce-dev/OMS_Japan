@@ -142,11 +142,6 @@ namespace OMS.API.Controllers
                 {
                     var res = Request.Content.ReadAsStringAsync().Result;
 
-                    if (GlobalConfig.IsApiDebugLog)
-                    {
-                        FileLogHelper.WriteLog($"PostJson: {res.ToString()}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
-                    }
-
                     var _models = JsonHelper.JsonDeserialize<List<PostInventoryRequest>>(res.ToString());
                     if (_models != null)
                     {
@@ -193,11 +188,6 @@ namespace OMS.API.Controllers
             {
                 var _jsonData = Request.Content.ReadAsStringAsync().Result;
 
-                if (GlobalConfig.IsApiDebugLog)
-                {
-                    FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
-                }
-
                 var _models = JsonHelper.JsonDeserialize<List<PostDeliverysRequest>>(_jsonData);
                 if (_models != null)
                 {
@@ -232,11 +222,6 @@ namespace OMS.API.Controllers
                 try
                 {
                     var _jsonData = Request.Content.ReadAsStringAsync().Result;
-
-                    if (GlobalConfig.IsApiDebugLog)
-                    {
-                        FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
-                    }
 
                     var _models = JsonHelper.JsonDeserialize<List<PostReplyRequest>>(_jsonData);
                     if (_models != null)
@@ -275,11 +260,6 @@ namespace OMS.API.Controllers
                 {
                     var _jsonData = Request.Content.ReadAsStringAsync().Result;
 
-                    if (GlobalConfig.IsApiDebugLog)
-                    {
-                        FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
-                    }
-
                     var _models = JsonHelper.JsonDeserialize<List<UpdateShipmentStatusRequest>>(_jsonData);
                     if (_models != null)
                     {
@@ -316,11 +296,6 @@ namespace OMS.API.Controllers
                 try
                 {
                     var _jsonData = Request.Content.ReadAsStringAsync().Result;
-
-                    if (GlobalConfig.IsApiDebugLog)
-                    {
-                        FileLogHelper.WriteLog($"PostJson: {_jsonData}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
-                    }
 
                     var _models = JsonHelper.JsonDeserialize<List<UpdateWMSStatusRequest>>(_jsonData);
                     if (_models != null)

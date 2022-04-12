@@ -431,8 +431,8 @@ namespace Test
             //访问接口
             Console.WriteLine("Begin to run Platform interface...");
             //this.PlatformGetStores();
-            //this.PlatformPostOrders();
-            this.PlatformGetOrdersDetail();
+            this.PlatformPostOrders();
+            //this.PlatformGetOrdersDetail();
             //this.PlatformGetInventorys();
             Console.WriteLine("Run Platform interface finished...");
 
@@ -477,11 +477,11 @@ namespace Test
                 objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
                 //传递参数
                 objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
-                //物流信息
+                //订单信息
                 List<PostOrdersRequest> postData = new List<PostOrdersRequest>() {
                     new PostOrdersRequest()
                     {
-                        OrderNo = "TUSG00010508",
+                        OrderNo = "TUSG00010608X",
                         MallSapCode="1234567",
                         OrderDate="2022-03-02T03:37:03.000Z",
                         CreateBy="storefront",
@@ -489,21 +489,220 @@ namespace Test
                         Taxation="gross",
                         CustomerInfo=new Customer()
                         {
-                             CustomerNo="0000479096",
-                              CustomerName="James Pham",
-                               CustomerEmail="james.pham@globee.hk",
-                                BillingAddressInfo=new BillingAddress()
+                            CustomerNo="0000479096",
+                            CustomerName="James Pham",
+                            CustomerEmail="james.pham@globee.hk",
+                            BillingAddressInfo=new BillingAddress()
+                            {
+                                    FirstName="James",
+                                    LastName="Pham",
+                                    Address1="123",
+                                    City="SG",
+                                    PostalCode="123456",
+                                    StateCode="SG",
+                                    CountryCode="SG",
+                                    Phone="99999987",
+                                    Email="james.pham@globee.hk"
+                            }
+                        },
+                        Products=new List<Product>()
+                        {
+                            new Product()
+                            {
+                                 NetPrice=1196.26M,
+                                 Tax=83.74M,
+                                 GrossPrice=1280.00M,
+                                 BasePrice=1280.00M,
+                                 LineitemText="19 DEGREE EXT TRIP EXP 4 WHL P/C",
+                                 TaxBasis=1280.00M,
+                                 Position=1,
+                                 ProductId="tu-139686-1041",
+                                 ProductName="19 DEGREE EXT TRIP EXP 4 WHL P/C",
+                                 Quantity=1,
+                                 Unit="",
+                                 TaxRate=0.07F,
+                                 ShipmentId="TUSG00049507",
+                                 Gift=false,
+                                 Sku="0228774D2",
+                                 MonoPatch="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
+                                 MonoTag="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
+                                 ProductStandardPrice=1280M
+                            },
+                            new Product()
+                            {
+                                 NetPrice=915.89M,
+                                 Tax=64.11M,
+                                 GrossPrice=980.00M,
+                                 BasePrice=980.00M,
+                                 LineitemText="ALPHA BRAVO SEARCH BACKPACK",
+                                 TaxBasis=980.00M,
+                                 Position=2,
+                                 ProductId="tu-142480-1596",
+                                 ProductName="ALPHA BRAVO SEARCH BACKPACK",
+                                 Quantity=1,
+                                 Unit="",
+                                 TaxRate=0.07F,
+                                 ShipmentId="TUSG00049507",
+                                 Gift=false,
+                                 Sku="0232789NVY",
+                                 MonoPatch="(6) R (6);blind;Times New Roman Bold, serif; ;",
+                                 GiftCard="test;test;thanh;ProximaNova;tu-1234-5678",
+                                 BonusProductPromotion="{\"bonusProductID\":\"tu-144983-1041\"}",
+                                 ProductStandardPrice=980M
+                            },
+                            new Product()
+                            {
+                                 NetPrice=126.17M,
+                                 Tax=8.83M,
+                                 GrossPrice=135.00M,
+                                 BasePrice=135.00M,
+                                 LineitemText="GWP ALPHA BRAVO MULTI TOOL",
+                                 TaxBasis=135.00M,
+                                 Position=3,
+                                 ProductId="tu-144983-1041",
+                                 ProductName="GWP ALPHA BRAVO MULTI TOOL",
+                                 Quantity=1,
+                                 Unit="",
+                                 TaxRate=0.07F,
+                                 ShipmentId="TUSG00049507",
+                                 Gift=false,
+                                 RelatedProductLineItemUUID="123163069cbe3b0f91e763da0f",
+                                 Sku="0111D",
+                                 PriceAdjustments=new List<PriceAdjustment>()
+                                 {
+                                     new PriceAdjustment()
+                                     {
+                                         NetPrice=-126.17M,
+                                         Tax=-8.83M,
+                                         GrossPrice=-135.00M,
+                                         BasePrice=-135.00M,
+                                         LineitemText="sg-prod-GWP-cardcase",
+                                         TaxBasis=-135.00M,
+                                         PromotionId="sg-prod-GWP-cardcase",
+                                         CampaignId="sg-prod-GWP-cardcase"
+                                     }
+                                 }
+                            }
+                        },
+                        Shippings=new List<Shipping>()
+                        {
+                            new Shipping()
+                            {
+                                NetPrice=0.00M,
+                                Tax=0.00M,
+                                GrossPrice=0.00M,
+                                BasePrice=0.00M,
+                                LineitemText="Shipping",
+                                TaxBasis=0.00M,
+                                ItemId="STANDARD_SHIPPING",
+                                ShipmentId="TUSG00049507",
+                                TaxRate=0.07F
+                            }
+                        },
+                        Shipments=new List<Shipment>()
+                        {
+                            new Shipment()
+                            {
+                                ShipmentId="TUSG00049507",
+                                ShippingStatus="NOT_SHIPPED",
+                                ShippingMethod="2552834",
+                                ShipmentAddressInfo=new ShipmentAddress()
                                 {
-                                     FirstName="James",
-                                      LastName="Pham",
-                                      Address1="123",
-                                      City="SG",
-                                      PostalCode="123456",
-                                      StateCode="SG",
-                                      CountryCode="SG",
-                                      Phone="99999987",
-                                      Email="james.pham@globee.hk"
+                                    FirstName="thanh",
+                                    LastName="pham",
+                                    Address1="Globee",
+                                    City="SG",
+                                    PostalCode="321321",
+                                    StateCode="SG",
+                                    CountryCode="SG",
+                                    Phone="89787667",
+                                    Email="test_globee_thanh2@yopmail.com"
+                                },
+                                Gift=false,
+                                ShipmentTotalsInfo=new ShipmentTotals()
+                                {
+                                    MerchandizeTotal=new TotalChild()
+                                    {
+                                        NetPrice=2238.32M,
+                                        Tax=156.68M,
+                                        GrossPrice=2395.00M
+                                    },
+                                    AdjustedMerchandizeTotal=new TotalChild()
+                                    {
+                                        NetPrice=2112.15M,
+                                        Tax=147.85M,
+                                        GrossPrice=2260.00M
+                                    },
+                                    ShippingTotal=new TotalChild()
+                                    {
+                                        NetPrice=0.00M,
+                                        Tax=0.00M,
+                                        GrossPrice=0.00M
+                                    },
+                                    AdjustedShippingTotal=new TotalChild()
+                                    {
+                                        NetPrice=0.00M,
+                                        Tax=0.00M,
+                                        GrossPrice=0.00M
+                                    },
+                                    ShipmentTotal=new TotalChild()
+                                    {
+                                        NetPrice=2112.15M,
+                                        Tax=147.85M,
+                                        GrossPrice=2260.00M
+                                    }
                                 }
+                            }
+                        },
+                        TotalsInfo = new  Totals
+                        {
+                            MerchandizeTotal=new TotalChild()
+                            {
+                                NetPrice=2238.32M,
+                                Tax=156.68M,
+                                GrossPrice=2395.00M
+                            },
+                            AdjustedMerchandizeTotal=new TotalChild()
+                            {
+                                NetPrice=2112.15M,
+                                Tax=147.85M,
+                                GrossPrice=2260.00M
+                            },
+                            ShippingTotal=new TotalChild()
+                            {
+                                NetPrice=0.00M,
+                                Tax=0.00M,
+                                GrossPrice=0.00M
+                            },
+                            AdjustedShippingTotal=new TotalChild()
+                            {
+                                NetPrice=0.00M,
+                                Tax=0.00M,
+                                GrossPrice=0.00M
+                            },
+                            OrderTotal=new TotalChild()
+                            {
+                                NetPrice=2112.15M,
+                                Tax=147.85M,
+                                GrossPrice=2260.00M
+                            }
+                        },
+                        Payments=new List<Payment>()
+                        {
+                            new Payment()
+                            {
+                                 CreditCardInfo=new CreditCard()
+                                 {
+                                      CardType="MasterCard",
+                                      CardNumber="XXXX-XXXX-XXXX-4444",
+                                      CardHolder="thanh pham",
+                                      ExpirationMonth=3,
+                                      ExpirationYear=2025
+                                 },
+                                 Amount=2260.00M,
+                                 ProcessorId="CYBERSOURCE_CREDIT",
+                                 TransactionId="6463588721256685603012"
+                            }
                         },
                         StatusInfo=new Status()
                         {

@@ -149,7 +149,7 @@ namespace OMS.API.Models.Platform
         public string Unit { get; set; }
 
         [JsonProperty(PropertyName = "tax_rate")]
-        public decimal TaxRate { get; set; }
+        public float TaxRate { get; set; }
 
         [JsonProperty(PropertyName = "shipment_id")]
         public string ShipmentId { get; set; }
@@ -174,7 +174,7 @@ namespace OMS.API.Models.Platform
         public string BonusProductPromotion { get; set; }
 
         [JsonProperty(PropertyName = "product_standard_price")]
-        public string ProductStandardPrice { get; set; }
+        public decimal ProductStandardPrice { get; set; }
 
         [JsonProperty(PropertyName = "related_product_line_item_UUID")]
         public string RelatedProductLineItemUUID { get; set; }
@@ -241,7 +241,7 @@ namespace OMS.API.Models.Platform
         public string ShipmentId { get; set; }
 
         [JsonProperty(PropertyName = "tax_rate")]
-        public decimal TaxRate { get; set; }
+        public float TaxRate { get; set; }
     }
 
     public class Shipment
@@ -364,10 +364,10 @@ namespace OMS.API.Models.Platform
         public string CardHolder { get; set; }
 
         [JsonProperty(PropertyName = "expiration_month")]
-        public string ExpirationMonth { get; set; }
+        public int ExpirationMonth { get; set; }
 
         [JsonProperty(PropertyName = "expiration_year")]
-        public string ExpirationYear { get; set; }
+        public int ExpirationYear { get; set; }
     }
 
     public class TotalChild

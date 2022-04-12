@@ -78,11 +78,6 @@ namespace OMS.API.Controllers
             //过滤参数
             string data = VariableHelper.SaferequestNull(request);
 
-            if (GlobalConfig.IsApiDebugLog)
-            {
-                FileLogHelper.WriteLog($"PostJson: {data}", DateTime.Now.ToString("HH"), this.ControllerContext.ControllerDescriptor.ControllerName);
-            }
-
             try
             {
                 var _result = _postService.SaveOrders(data);

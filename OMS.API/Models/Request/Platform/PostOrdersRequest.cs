@@ -25,6 +25,15 @@ namespace OMS.API.Models.Platform
         [JsonProperty(PropertyName = "taxation")]
         public string Taxation { get; set; }
 
+        [JsonProperty(PropertyName = "loyalty_card_no")]
+        public string LoyaltyCardNo { get; set; }
+
+        [JsonProperty(PropertyName = "order_chanel")]
+        public string OrderChanel { get; set; }
+
+        [JsonProperty(PropertyName = "remark")]
+        public string Remark { get; set; }
+
         [JsonProperty(PropertyName = "customer")]
         public Customer CustomerInfo { get; set; }
 
@@ -79,8 +88,14 @@ namespace OMS.API.Models.Platform
         [JsonProperty(PropertyName = "address2")]
         public string Address2 { get; set; }
 
+        [JsonProperty(PropertyName = "province")]
+        public string Province { get; set; }
+
         [JsonProperty(PropertyName = "city")]
         public string City { get; set; }
+
+        [JsonProperty(PropertyName = "district")]
+        public string District { get; set; }
 
         [JsonProperty(PropertyName = "postal_code")]
         public string PostalCode { get; set; }
@@ -161,23 +176,32 @@ namespace OMS.API.Models.Platform
         [JsonProperty(PropertyName = "sku")]
         public string Sku { get; set; }
 
-        [JsonProperty(PropertyName = "mono_patch")]
-        public string MonoPatch { get; set; }
-
-        [JsonProperty(PropertyName = "mono_tag")]
-        public string MonoTag { get; set; }
-
-        [JsonProperty(PropertyName = "gift_card")]
-        public string GiftCard { get; set; }
-
-        [JsonProperty(PropertyName = "bonus_product_promotion_id")]
-        public string BonusProductPromotion { get; set; }
+        [JsonProperty(PropertyName = "pre_order_delivery_date")]
+        public string PreOrderDeliveryDate { get; set; }
 
         [JsonProperty(PropertyName = "product_standard_price")]
         public decimal ProductStandardPrice { get; set; }
 
-        [JsonProperty(PropertyName = "related_product_line_item_UUID")]
-        public string RelatedProductLineItemUUID { get; set; }
+        [JsonProperty(PropertyName = "bonus_product_promotion_id")]
+        public string BonusProductPromotionIDs { get; set; }
+
+        [JsonProperty(PropertyName = "is_main_product")]
+        public bool IsMainProduct { get; set; }
+
+        [JsonProperty(PropertyName = "related_product_group")]
+        public string RelatedProductGroup { get; set; }
+
+        [JsonProperty(PropertyName = "monogram_patch")]
+        public string MonogramPatch { get; set; }
+
+        [JsonProperty(PropertyName = "monogram_tag")]
+        public string MonogramTag { get; set; }
+
+        [JsonProperty(PropertyName = "included_tag")]
+        public string IncludedTag { get; set; }
+
+        [JsonProperty(PropertyName = "gift_card")]
+        public string GiftCard { get; set; }
         /*******custom********/
 
         [JsonProperty(PropertyName = "price_adjustments")]
@@ -242,6 +266,9 @@ namespace OMS.API.Models.Platform
 
         [JsonProperty(PropertyName = "tax_rate")]
         public float TaxRate { get; set; }
+
+        [JsonProperty(PropertyName = "price_adjustments")]
+        public List<PriceAdjustment> PriceAdjustments { get; set; }
     }
 
     public class Shipment
@@ -279,8 +306,14 @@ namespace OMS.API.Models.Platform
         [JsonProperty(PropertyName = "address2")]
         public string Address2 { get; set; }
 
+        [JsonProperty(PropertyName = "province")]
+        public string Province { get; set; }
+
         [JsonProperty(PropertyName = "city")]
         public string City { get; set; }
+
+        [JsonProperty(PropertyName = "district")]
+        public string District { get; set; }
 
         [JsonProperty(PropertyName = "postal_code")]
         public string PostalCode { get; set; }
@@ -339,6 +372,9 @@ namespace OMS.API.Models.Platform
         [JsonProperty(PropertyName = "method_name")]
         public string MethodName { get; set; }
 
+        [JsonProperty(PropertyName = "inicis_payment_method")]
+        public string InicisPaymentMethod { get; set; }
+
         [JsonProperty(PropertyName = "amount")]
         public decimal Amount { get; set; }
 
@@ -360,7 +396,7 @@ namespace OMS.API.Models.Platform
         [JsonProperty(PropertyName = "card_number")]
         public string CardNumber { get; set; }
 
-        [JsonProperty(PropertyName = "card_holder>")]
+        [JsonProperty(PropertyName = "card_holder")]
         public string CardHolder { get; set; }
 
         [JsonProperty(PropertyName = "expiration_month")]

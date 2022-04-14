@@ -373,7 +373,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                         OrderPayment payment = new OrderPayment();
                         payment.Method = XmlHelper.GetSingleNodeText(node, $"{nsPrefix}custom-method/{nsPrefix}method-name", nsmgr);
                         payment.ProcessorId = XmlHelper.GetSingleNodeText(node, $"{nsPrefix}processor-id", nsmgr);
-                        order.PaymentType = GetPaymentType(payment.ProcessorId);
+                        order.PaymentType = GetPaymentType(payment.Method, payment.ProcessorId);
                         if (order.PaymentType == (int)PayType.CashOnDelivery)
                         {
                             order.PaymentDate = null;
@@ -2076,25 +2076,46 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// 获取支付方式
         /// </summary>
         /// <param name="objValue"></param>
+        /// <param name="objProcessorId"></param>
         /// <returns></returns>
-        private int GetPaymentType(string objValue)
+        public int GetPaymentType(string objValue, string objProcessorId)
         {
             int _result = 0;
-            if (objValue.ToUpper() == "CYBERSOURCE_CREDIT")
+            //如果ProcessorId是CYBERSOURCE_CREDIT,则表示为Cybersource类型的支付方式,但是仍然归属于CYBERSOURCE_CREDIT
+            if (objProcessorId.ToUpper() == "CYBERSOURCE_CREDIT")
             {
                 _result = (int)PayType.CreditCard;
             }
-            else if (objValue.ToUpper().Contains("PAYPAL"))
-            {
-                _result = (int)PayType.PayPal;
-            }
-            else if (objValue.ToUpper().Contains("ATOME"))
-            {
-                _result = (int)PayType.Atome;
-            }
             else
             {
-                _result = (int)PayType.OtherPay;
+                if (objValue.ToUpper() == "COD")
+                {
+                    _result = (int)PayType.CashOnDelivery;
+                }
+                else if (objValue.ToUpper() == "2C2P")
+                {
+                    _result = (int)PayType.CreditCard;
+                }
+                else if (objValue.ToUpper() == "OVER THE COUNTER")
+                {
+                    _result = (int)PayType.OTCPayment;
+                }
+                else if (objValue.ToUpper() == "PAYPAL")
+                {
+                    _result = (int)PayType.PayPal;
+                }
+                else if (objValue.ToUpper() == "CASH")
+                {
+                    _result = (int)PayType.Cash;
+                }
+                else if (objValue.ToUpper() == "ATOME_PAYMENT")
+                {
+                    _result = (int)PayType.Atome;
+                }
+                else
+                {
+                    _result = (int)PayType.OtherPay;
+                }
             }
             return _result;
         }
@@ -2263,7 +2284,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// </summary>
         /// <param name="objStr"></param>
         /// <returns></returns>
-        private ShippingMethodModel GetShippingInfo(string objStr)
+        public  ShippingMethodModel GetShippingInfo(string objStr)
         {
             ShippingMethodModel _result = new ShippingMethodModel()
             {
@@ -2292,24 +2313,17 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// </summary>
         /// <param name="objStr"></param>
         /// <returns></returns>
-        private List<string> GetBonusProductID(string objStr)
+        public List<string> GetBonusProductID(string objStr)
         {
             List<string> _result = new List<string>();
             try
             {
                 if (!string.IsNullOrEmpty(objStr))
                 {
-                    var _bonusProducts = JsonHelper.JsonDeserialize<BonusProduct>(objStr);
-                    if (_bonusProducts != null)
+                    string[] _array = objStr.Split(',');
+                    foreach (var _str in _array)
                     {
-                        if (!string.IsNullOrEmpty(_bonusProducts.bonusProductID))
-                        {
-                            string[] _array = _bonusProducts.bonusProductID.Split(',');
-                            foreach (var _str in _array)
-                            {
-                                _result.Add(_str);
-                            }
-                        }
+                        _result.Add(_str);
                     }
                 }
             }
@@ -2323,11 +2337,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         private class CardBalanceMutations
         {
             public int Points { get; set; }
-        }
-
-        public class BonusProduct
-        {
-            public string bonusProductID { get; set; }
         }
         #endregion
     }

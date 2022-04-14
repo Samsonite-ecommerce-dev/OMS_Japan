@@ -20,6 +20,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -67,6 +68,8 @@ namespace Test
 
 
             //TestSap.Test();
+
+            //TestRemote();
 
             //---WMS---
             //GetInventory();
@@ -172,6 +175,71 @@ namespace Test
                     Console.Write("Configuration information read failed.");
                 }
             }
+        }
+
+        private static void TestRemote()
+        {
+            //20190728.wmv
+            //20191123.wmv
+
+            //20200323.wmv
+            //20200324.wmv
+            //20200325.wmv
+            //20201011.wmv
+            //20201227.wmv
+
+            string url = "http://xxx";
+            DateTime beginDate = Convert.ToDateTime("2021-01-01");
+            DateTime endDate = Convert.ToDateTime("2021-12-31");
+            for (var i = beginDate; i <= endDate; i = i.AddDays(1))
+            {
+                var tmpUrl = $"{url}/{i.ToString("yyyyMMdd")}.wmv";
+                var isExists = RemoteIsExist(tmpUrl);
+
+                if (isExists)
+                {
+                    Console.WriteLine(tmpUrl + ":" + isExists);
+                }
+            }
+            Console.WriteLine("-------------------------------");
+        }
+
+        private static bool RemoteIsExist(string url)
+        {
+            HttpWebRequest req = null;
+            try
+            {
+                req = (HttpWebRequest)WebRequest.Create(url);
+                HttpWebResponse response = (HttpWebResponse)req.GetResponse();
+                if (response.ContentLength != 0)
+                {
+                    return true;
+                }
+                //using (HttpWebResponse response = (HttpWebResponse)req.GetResponse())
+                //{
+                //    using (StreamReader reader = new StreamReader(response.GetResponseStream()))
+                //    {
+                //        string _r = reader.ReadToEnd();
+                //        Console.WriteLine(_r);
+                //    }
+                //    response.Close();
+                //}
+
+            }
+
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                if (req != null)
+                {
+                    req.Abort();
+                }
+            }
+
+            return false;
         }
     }
 }

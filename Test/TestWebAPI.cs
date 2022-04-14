@@ -487,6 +487,9 @@ namespace Test
                         CreateBy="storefront",
                         Currency="SGD",
                         Taxation="gross",
+                        LoyaltyCardNo="5957116960724977",
+                        OrderChanel="PC",
+                        Remark="test...",
                         CustomerInfo=new Customer()
                         {
                             CustomerNo="0000479096",
@@ -497,13 +500,22 @@ namespace Test
                                     FirstName="James",
                                     LastName="Pham",
                                     Address1="123",
-                                    City="SG",
+                                    Province="Hokkaido",
+                                    City="三笠市",
+                                    District="",
                                     PostalCode="123456",
                                     StateCode="SG",
                                     CountryCode="SG",
                                     Phone="99999987",
                                     Email="james.pham@globee.hk"
                             }
+                        },
+                        StatusInfo=new Status()
+                        {
+                             OrderStatus="NEW",
+                             ShippingStatus="NOT_SHIPPED",
+                             ConfirmationStatus="CONFIRMED",
+                             PaymentStatus="PAID"
                         },
                         Products=new List<Product>()
                         {
@@ -524,9 +536,9 @@ namespace Test
                                  ShipmentId="TUSG00049507",
                                  Gift=false,
                                  Sku="0228774D2",
-                                 MonoPatch="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
-                                 MonoTag="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
-                                 ProductStandardPrice=1280M
+                                 ProductStandardPrice=1280M,
+                                 MonogramPatch="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
+                                 MonogramTag="(5) A A;metallicpink;Times New Roman Bold, serif; ;"
                             },
                             new Product()
                             {
@@ -545,9 +557,10 @@ namespace Test
                                  ShipmentId="TUSG00049507",
                                  Gift=false,
                                  Sku="0232789NVY",
-                                 MonoPatch="(6) R (6);blind;Times New Roman Bold, serif; ;",
+                                 PreOrderDeliveryDate="2022-11-12",
+                                 BonusProductPromotionIDs="tu-144983-1041,tu-144983-1042",
+                                 MonogramPatch="(6) R (6);blind;Times New Roman Bold, serif; ;",
                                  GiftCard="test;test;thanh;ProximaNova;tu-1234-5678",
-                                 BonusProductPromotion="{\"bonusProductID\":\"tu-144983-1041\"}",
                                  ProductStandardPrice=980M
                             },
                             new Product()
@@ -566,7 +579,6 @@ namespace Test
                                  TaxRate=0.07F,
                                  ShipmentId="TUSG00049507",
                                  Gift=false,
-                                 RelatedProductLineItemUUID="123163069cbe3b0f91e763da0f",
                                  Sku="0111D",
                                  PriceAdjustments=new List<PriceAdjustment>()
                                  {
@@ -611,7 +623,9 @@ namespace Test
                                     FirstName="thanh",
                                     LastName="pham",
                                     Address1="Globee",
-                                    City="SG",
+                                    Province="Hokkaido",
+                                    City="三笠市",
+                                    District="",
                                     PostalCode="321321",
                                     StateCode="SG",
                                     CountryCode="SG",
@@ -703,13 +717,6 @@ namespace Test
                                  ProcessorId="CYBERSOURCE_CREDIT",
                                  TransactionId="6463588721256685603012"
                             }
-                        },
-                        StatusInfo=new Status()
-                        {
-                             OrderStatus="NEW",
-                             ShippingStatus="NOT_SHIPPED",
-                             ConfirmationStatus="CONFIRMED",
-                             PaymentStatus="PAID"
                         },
                         RemoteHost="118.69.64.234"
                     }

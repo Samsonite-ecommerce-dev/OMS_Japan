@@ -52,6 +52,7 @@
     <Compile Include="Attribute\CustomPropertyAttribute.cs" />
     <Compile Include="ECommerce\DwOrderDetailDto.cs" />
     <Compile Include="ECommerce\PlatformServicePowerDto.cs" />
+    <Compile Include="ECommerce\OrderDto.cs" />
     <Compile Include="EmailDto.cs" />
     <Compile Include="ECommerce\ItemDto.cs" />
     <Compile Include="EmployeeImportDto.cs" />

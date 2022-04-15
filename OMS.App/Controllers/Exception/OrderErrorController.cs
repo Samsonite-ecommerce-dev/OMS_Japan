@@ -381,7 +381,7 @@ namespace OMS.App.Controllers
                                             var ProductPromotionList = PromotionService.GetProductPromotions();
                                             TradeDto t = new TradeDto();
                                             t.Order = objOrder;
-                                            t.OrderDetail = objData;
+                                            //t.OrderDetail = objData;
                                             foreach (var pp in ProductPromotionList.Where(p => (DateTime.Compare(p.BeginDate, t.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, t.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
                                             {
                                                 t = PromotionService.ParseProductPromotion(new List<TradeDto>() { t }, t, pp, _gift_subOrderNo);
@@ -437,7 +437,7 @@ namespace OMS.App.Controllers
                                             var ProductPromotionList = PromotionService.GetProductPromotions();
                                             TradeDto t = new TradeDto();
                                             t.Order = objOrder;
-                                            t.OrderDetail = objData;
+                                            //t.OrderDetail = objData;
                                             foreach (var pp in ProductPromotionList.Where(p => (DateTime.Compare(p.BeginDate, t.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, t.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
                                             {
                                                 t = PromotionService.ParseProductPromotion(new List<TradeDto>() { t }, t, pp);

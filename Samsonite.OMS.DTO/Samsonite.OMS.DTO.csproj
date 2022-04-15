@@ -52,7 +52,7 @@
     <Compile Include="Attribute\CustomPropertyAttribute.cs" />
     <Compile Include="ECommerce\DwOrderDetailDto.cs" />
     <Compile Include="ECommerce\PlatformServicePowerDto.cs" />
-    <Compile Include="ECommerce\OrderDto.cs" />
+    <Compile Include="ECommerce\TradeDto.cs" />
     <Compile Include="EmailDto.cs" />
     <Compile Include="ECommerce\ItemDto.cs" />
     <Compile Include="EmployeeImportDto.cs" />
@@ -94,7 +94,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveDto .cs" />
     <Compile Include="ReportDto.cs" />
-    <Compile Include="ECommerce\TradeDto.cs" />
     <Compile Include="SapDto.cs" />
     <Compile Include="Sap\SapLogEnum.cs" />
     <Compile Include="Sap\SapLogDto.cs" />

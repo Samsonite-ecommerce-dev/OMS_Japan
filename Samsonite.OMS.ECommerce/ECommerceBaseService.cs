@@ -25,30 +25,41 @@ namespace Samsonite.OMS.ECommerce
             CommonResult<OrderResult> _result = new CommonResult<OrderResult>();
             using (var db = new ebEntities())
             {
+                //获取套装列表
+                var productSetList = ProductSetService.GetProductBundles();
                 //获取当前有效的促销列表
-                var ProductPromotionList = PromotionService.GetProductPromotions();
+                var productPromotionList = PromotionService.GetProductPromotions();
                 //注: DW的订单的实际付款金额有效
                 foreach (var t in trades)
                 {
                     try
                     {
-                        View_OrderDetail objView_OrderDetail = new View_OrderDetail();
+                        //View_OrderDetail objView_OrderDetail = new View_OrderDetail();
                         string _ORDER_NO = t.Order.OrderNo;
-                        string _SUB_ORDER_NO = t.OrderDetail.SubOrderNo;
                         bool _IS_NEW_ORDER = false;
                         //判断门店是否存在,不存在则标为错误订单
                         if (string.IsNullOrEmpty(t.Order.MallSapCode))
                         {
-                            t.OrderDetail.IsError = true;
-                            t.OrderDetail.IsDelete = false;
-                            t.OrderDetail.ErrorMsg = $"Name:{t.Order.MallName} Or SapCode {t.Order.MallSapCode} Mall does not exist!";
+                            foreach (var detail in t.OrderDetails)
+                            {
+                                detail.IsError = true;
+                                detail.IsDelete = false;
+                                detail.ErrorMsg = $"Name:{t.Order.MallName} Or SapCode {t.Order.MallSapCode} Mall does not exist!";
+                            }
                         }
-                        //判断是否存在联系方式，不存在则标为错误订单
-                        if (string.IsNullOrEmpty(t.Receive.ReceiveTel) && string.IsNullOrEmpty(t.Receive.ReceiveCel))
+                        //判断是否存在联系方式,不存在则标为错误订单
+                        foreach (var receive in t.OrderReceives)
                         {
-                            t.OrderDetail.IsError = true;
-                            t.OrderDetail.IsDelete = false;
-                            t.OrderDetail.ErrorMsg = $"The contact information does not exist!";
+                            if (string.IsNullOrEmpty(receive.ReceiveTel) && string.IsNullOrEmpty(receive.ReceiveCel))
+                            {
+                                var detailTmp = t.OrderDetails.Where(p => p.SubOrderNo == receive.SubOrderNo).SingleOrDefault();
+                                if (detailTmp != null)
+                                {
+                                    detailTmp.IsError = true;
+                                    detailTmp.IsDelete = false;
+                                    detailTmp.ErrorMsg = $"The contact information does not exist!";
+                                }
+                            }
                         }
 
                         //判断订单是否存在
@@ -58,74 +69,61 @@ namespace Samsonite.OMS.ECommerce
                             //如果是相同店铺订单
                             if (objOrder.MallSapCode == t.Order.MallSapCode)
                             {
-                                //子订单是否存在
-                                objView_OrderDetail = db.View_OrderDetail.Where(p => p.OrderNo == _ORDER_NO && p.SubOrderNo == _SUB_ORDER_NO).SingleOrDefault();
-                                if (objView_OrderDetail != null)
-                                {
-                                    _IS_NEW_ORDER = false;
-                                }
-                                else
-                                {
-                                    _IS_NEW_ORDER = true;
-                                }
+                                _IS_NEW_ORDER = false;
                             }
                             else
                             {
                                 //查看重命名后的的OrderNo是否已经存在
                                 _ORDER_NO = $"{_ORDER_NO}_{t.Order.MallSapCode}";
-                                _SUB_ORDER_NO = _SUB_ORDER_NO.Replace(t.Order.OrderNo + "_", _ORDER_NO + "_");
-                                //子订单是否存在
-                                objView_OrderDetail = db.View_OrderDetail.Where(p => p.OrderNo == _ORDER_NO && p.SubOrderNo == _SUB_ORDER_NO).SingleOrDefault();
-                                if (objView_OrderDetail != null)
+                                //此处只有Order模型会因为内部地址指向而造成赋值问题,会导致OrderNo均被赋值成当前
+                                Order TmpOrder = GenericHelper.TCopyValue<Order>(t.Order);
+                                TmpOrder.OrderNo = _ORDER_NO;
+                                t.Order = TmpOrder;
+                                t.Billing.OrderNo = _ORDER_NO;
+                                foreach (var _o in t.OrderReceives)
                                 {
-                                    _IS_NEW_ORDER = false;
+                                    _o.OrderNo = _ORDER_NO;
+                                    _o.SubOrderNo = RenameSubOrderNo(_o.OrderNo, _o.SubOrderNo, _ORDER_NO);
                                 }
-                                else
+                                foreach (var _o in t.OrderDetails)
                                 {
-                                    //此处只有Order模型会因为内部地址指向而造成赋值问题,会导致OrderNo均被赋值成当前
-                                    Order TmpOrder = GenericHelper.TCopyValue<Order>(t.Order);
-                                    TmpOrder.OrderNo = _ORDER_NO;
-                                    t.Order = TmpOrder;
-                                    t.Billing.OrderNo = _ORDER_NO;
-                                    t.Receive.OrderNo = _ORDER_NO;
-                                    t.Receive.SubOrderNo = _SUB_ORDER_NO;
-                                    t.OrderDetail.OrderNo = _ORDER_NO;
-                                    t.OrderDetail.SubOrderNo = _SUB_ORDER_NO;
-                                    foreach (var _o in t.OrderPaymentDetails)
-                                    {
-                                        _o.OrderNo = _ORDER_NO;
-                                    }
-                                    foreach (var _o in t.DetailAdjustments)
-                                    {
-                                        _o.OrderNo = _ORDER_NO;
-                                        if (!string.IsNullOrEmpty(_o.SubOrderNo))
-                                            _o.SubOrderNo = _SUB_ORDER_NO;
-                                    }
-                                    foreach (var _o in t.OrderShippingAdjustments)
-                                    {
-                                        _o.OrderNo = _ORDER_NO;
-                                    }
-                                    foreach (var _o in t.PaymentGifts)
-                                    {
-                                        _o.OrderNo = _ORDER_NO;
-                                    }
-                                    foreach (var _o in t.Payments)
-                                    {
-                                        _o.OrderNo = _ORDER_NO;
-                                    }
-                                    foreach (var _o in t.OrderGifts)
-                                    {
-                                        _o.OrderNo = _ORDER_NO;
-                                        _o.SubOrderNo = _SUB_ORDER_NO;
-                                    }
-                                    foreach (var _o in t.OrderValueAddedServices)
-                                    {
-                                        _o.OrderNo = _ORDER_NO;
-                                        _o.SubOrderNo = _SUB_ORDER_NO;
-                                    }
+                                    _o.OrderNo = _ORDER_NO;
+                                    _o.SubOrderNo = RenameSubOrderNo(_o.OrderNo, _o.SubOrderNo, _ORDER_NO);
+                                }
+                                foreach (var _o in t.OrderPaymentDetails)
+                                {
+                                    _o.OrderNo = _ORDER_NO;
+                                }
+                                foreach (var _o in t.OrderDetailAdjustments)
+                                {
+                                    _o.OrderNo = _ORDER_NO;
+                                    if (!string.IsNullOrEmpty(_o.SubOrderNo))
+                                        _o.SubOrderNo = RenameSubOrderNo(_o.OrderNo, _o.SubOrderNo, _ORDER_NO);
+                                }
+                                foreach (var _o in t.OrderShippingAdjustments)
+                                {
+                                    _o.OrderNo = _ORDER_NO;
+                                }
+                                foreach (var _o in t.OrderPaymentGifts)
+                                {
+                                    _o.OrderNo = _ORDER_NO;
+                                }
+                                foreach (var _o in t.OrderPayments)
+                                {
+                                    _o.OrderNo = _ORDER_NO;
+                                }
+                                foreach (var _o in t.OrderGifts)
+                                {
+                                    _o.OrderNo = _ORDER_NO;
+                                    _o.SubOrderNo = RenameSubOrderNo(_o.OrderNo, _o.SubOrderNo, _ORDER_NO); ;
+                                }
+                                foreach (var _o in t.OrderValueAddedServices)
+                                {
+                                    _o.OrderNo = _ORDER_NO;
+                                    _o.SubOrderNo = RenameSubOrderNo(_o.OrderNo, _o.SubOrderNo, _ORDER_NO); ;
+                                }
 
-                                    _IS_NEW_ORDER = true;
-                                }
+                                _IS_NEW_ORDER = true;
                             }
                         }
                         else
@@ -137,21 +135,30 @@ namespace Samsonite.OMS.ECommerce
                         if (!_IS_NEW_ORDER)
                         {
                             //更新平台主订单状态
-                            if (objView_OrderDetail.EBStatus != t.Order.EBStatus)
+                            if (objOrder.EBStatus != t.Order.EBStatus)
                             {
-                                db.Database.ExecuteSqlCommand("update [Order] set EBStatus={0} where Id={1}", t.Order.EBStatus, objView_OrderDetail.Id);
+                                objOrder.EBStatus = t.Order.EBStatus;
+                                db.SaveChanges();
                             }
 
                             //更新平台子订单状态,如果是套装,则需要同步更新套装子产品的状态
-                            if (objView_OrderDetail.ProductEBStatus != t.OrderDetail.EBStatus)
+                            var orderDetails = db.OrderDetail.Where(p => p.OrderId == objOrder.Id).ToList();
+                            foreach (var detail in orderDetails)
                             {
-                                if (objView_OrderDetail.IsSet && objView_OrderDetail.IsSetOrigin)
+                                var tmpDetail = t.OrderDetails.Where(p => p.SubOrderNo == detail.SubOrderNo).SingleOrDefault();
+                                if (tmpDetail != null)
                                 {
-                                    db.Database.ExecuteSqlCommand("update OrderDetail set EBStatus={0} where OrderNo={1} and SetCode={2} and IsSet=1", t.OrderDetail.EBStatus, objView_OrderDetail.OrderNo, objView_OrderDetail.SKU);
-                                }
-                                else
-                                {
-                                    db.Database.ExecuteSqlCommand("update OrderDetail set EBStatus={0} where Id={1}", t.OrderDetail.EBStatus, objView_OrderDetail.DetailID);
+                                    if (detail.EBStatus != tmpDetail.EBStatus)
+                                    {
+                                        if (detail.IsSet && detail.IsSetOrigin)
+                                        {
+                                            db.Database.ExecuteSqlCommand("update OrderDetail set EBStatus={0} where OrderNo={1} and SetCode={2} and IsSet=1", tmpDetail.EBStatus, detail.OrderNo, detail.SKU);
+                                        }
+                                        else
+                                        {
+                                            db.Database.ExecuteSqlCommand("update OrderDetail set EBStatus={0} where Id={1}", tmpDetail.EBStatus, detail.Id);
+                                        }
+                                    }
                                 }
                             }
 
@@ -162,7 +169,6 @@ namespace Samsonite.OMS.ECommerce
                                 {
                                     MallSapCode = t.Order.MallSapCode,
                                     OrderNo = t.Order.OrderNo,
-                                    SubOrderNo = t.OrderDetail.SubOrderNo,
                                     CreateTime = t.Order.CreateDate
                                 },
                                 Result = true,
@@ -171,152 +177,154 @@ namespace Samsonite.OMS.ECommerce
                         }
                         else
                         {
-                            if (!string.IsNullOrEmpty(t.OrderDetail.SKU))
+                            foreach (var detail in t.OrderDetails)
                             {
-                                //判断sku是否存在,标为错误订单
-                                Product objProduct = db.Database.SqlQuery<Product>("select top 1 * from Product where (SKU={0} or EAN={0} or ProductID={0})", ProductService.FormatSku(t.OrderDetail.SKU)).SingleOrDefault();
-                                if (objProduct != null)
+                                if (!string.IsNullOrEmpty(detail.SKU))
                                 {
-                                    t.OrderDetail.SKU = objProduct.SKU;
-                                    //设置市场价
-                                    t.OrderDetail.RRPPrice = objProduct.MarketPrice;
-                                    //如果没有设置产品单价,那么取产品库的市场价
-                                    if (t.OrderDetail.SellingPrice == 0)
-                                        t.OrderDetail.SellingPrice = objProduct.MarketPrice;
-                                    t.OrderDetail.ProductId = objProduct.ProductId;
-                                    //如果没有图片,那么取产品库中的图片
-                                    if (string.IsNullOrEmpty(t.OrderDetail.ProductPic))
+                                    //判断sku是否存在,标为错误订单
+                                    Product objProduct = db.Database.SqlQuery<Product>("select top 1 * from Product where (SKU={0} or EAN={0} or ProductID={0})", ProductService.FormatSku(detail.SKU)).SingleOrDefault();
+                                    if (objProduct != null)
                                     {
-                                        t.OrderDetail.ProductPic = objProduct.ImageUrl;
-                                    }
-
-                                    //如果是特殊的订单需要重算总金额
-
-                                    //如果是套装产品
-                                    if (objProduct.IsSet)
-                                    {
-                                        //获取套装列表
-                                        var ProductSetList = ProductSetService.GetProductBundles();
-                                        //解析套装
-                                        //1.SkuMatchCode等于SetName或者SetCode
-                                        //2.有效时间内
-                                        //3.有效店铺
-                                        ProductSetDto objProductSetDto = ProductSetList.Where(p => p.SetCode == t.OrderDetail.SKU).SingleOrDefault();
-                                        if (objProductSetDto != null)
+                                        detail.SKU = objProduct.SKU;
+                                        //设置市场价
+                                        detail.RRPPrice = objProduct.MarketPrice;
+                                        //如果没有设置产品单价,那么取产品库的市场价
+                                        if (detail.SellingPrice == 0)
+                                            detail.SellingPrice = objProduct.MarketPrice;
+                                        detail.ProductId = objProduct.ProductId;
+                                        //如果没有图片,那么取产品库中的图片
+                                        if (string.IsNullOrEmpty(detail.ProductPic))
                                         {
-                                            if (DateTime.Compare(objProductSetDto.StartDate, t.Order.CreateDate) <= 0 && DateTime.Compare(objProductSetDto.EndDate, t.Order.CreateDate) >= 0)
+                                            detail.ProductPic = objProduct.ImageUrl;
+                                        }
+
+                                        //如果是特殊的订单需要重算总金额
+
+                                        //如果是套装产品
+                                        if (objProduct.IsSet)
+                                        {
+
+                                            //解析套装
+                                            //1.SkuMatchCode等于SetName或者SetCode
+                                            //2.有效时间内
+                                            //3.有效店铺
+                                            ProductSetDto objProductSetDto = productSetList.Where(p => p.SetCode == detail.SKU).SingleOrDefault();
+                                            if (objProductSetDto != null)
                                             {
-                                                if (objProductSetDto.Malls.Contains(t.Order.MallSapCode))
+                                                if (DateTime.Compare(objProductSetDto.StartDate, t.Order.CreateDate) <= 0 && DateTime.Compare(objProductSetDto.EndDate, t.Order.CreateDate) >= 0)
                                                 {
-                                                    //设置套装原始订单sku
-                                                    t.OrderDetail.SKU = objProductSetDto.SetCode;
-                                                    t.OrderDetail.SetCode = objProductSetDto.SetCode;
-                                                    var setOrders = ProductSetService.ParseProductBundle(t, objProductSetDto);
-                                                    foreach (var _o in setOrders)
+                                                    if (objProductSetDto.Malls.Contains(t.Order.MallSapCode))
                                                     {
-                                                        //套装原始订单需要解析促销信息
-                                                        if (_o.OrderDetail.IsSet && _o.OrderDetail.IsSetOrigin)
+                                                        //设置套装原始订单sku
+                                                        detail.SKU = objProductSetDto.SetCode;
+                                                        detail.SetCode = objProductSetDto.SetCode;
+                                                        ProductSetService.ParseProductBundle(t, detail, objProductSetDto);
+                                                        foreach (var _o in t.OrderDetails)
                                                         {
-                                                            //员工订单不需要解析促销信息
-                                                            if (_o.OrderDetail.IsEmployee)
-                                                            {
-                                                                OrderService.SaveOrder(_o);
-                                                            }
-                                                            else
-                                                            {
-                                                                //解析促销信息(套装原始订单)
-                                                                //1.有一件产品以及数量相匹配
-                                                                //2.有效时间内
-                                                                //3.有效店铺
-                                                                TradeDto objPromotionTrade = _o;
-                                                                foreach (var pp in ProductPromotionList.Where(p => (DateTime.Compare(p.BeginDate, _o.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, _o.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
-                                                                {
-                                                                    string _gift_subOrderNo = string.Empty;
-                                                                    var _r = setOrders.Where(p => !p.OrderDetail.IsSetOrigin).FirstOrDefault();
-                                                                    if (_r != null)
-                                                                    {
-                                                                        _gift_subOrderNo = _r.OrderDetail.SubOrderNo;
-                                                                    }
-                                                                    objPromotionTrade = PromotionService.ParseProductPromotion(trades.Where(p => p.Order.OrderNo == objPromotionTrade.Order.OrderNo).ToList(), objPromotionTrade, pp, _gift_subOrderNo);
-                                                                }
-                                                                OrderService.SaveOrder(objPromotionTrade);
-                                                            }
+                                                            ////套装原始订单需要解析促销信息
+                                                            //if (_o.OrderDetail.IsSet && _o.OrderDetail.IsSetOrigin)
+                                                            //{
+                                                            //    //员工订单不需要解析促销信息
+                                                            //    if (_o.OrderDetail.IsEmployee)
+                                                            //    {
+                                                            //        OrderService.SaveOrder(_o);
+                                                            //    }
+                                                            //    else
+                                                            //    {
+                                                            //        //解析促销信息(套装原始订单)
+                                                            //        //1.有一件产品以及数量相匹配
+                                                            //        //2.有效时间内
+                                                            //        //3.有效店铺
+                                                            //        TradeDto objPromotionTrade = _o;
+                                                            //        foreach (var pp in productPromotionList.Where(p => (DateTime.Compare(p.BeginDate, _o.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, _o.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
+                                                            //        {
+                                                            //            string _gift_subOrderNo = string.Empty;
+                                                            //            var _r = setOrders.Where(p => !p.OrderDetail.IsSetOrigin).FirstOrDefault();
+                                                            //            if (_r != null)
+                                                            //            {
+                                                            //                _gift_subOrderNo = _r.OrderDetail.SubOrderNo;
+                                                            //            }
+                                                            //            objPromotionTrade = PromotionService.ParseProductPromotion(trades.Where(p => p.Order.OrderNo == objPromotionTrade.Order.OrderNo).ToList(), objPromotionTrade, pp, _gift_subOrderNo);
+                                                            //        }
+                                                            //        OrderService.SaveOrder(objPromotionTrade);
+                                                            //    }
+                                                            //}
+                                                            //else
+                                                            //{
+                                                            //    OrderService.SaveOrder(_o);
+                                                            //}
                                                         }
-                                                        else
-                                                        {
-                                                            OrderService.SaveOrder(_o);
-                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        //如果该套装不属于该店铺
+                                                        detail.IsError = true;
+                                                        detail.IsDelete = false;
+                                                        detail.ErrorMsg = $"The Set:{detail.SKU} is not belong to this mall!";
+                                                        //保存订单
+                                                        OrderService.SaveOrder(t);
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    //如果该套装不属于该店铺
-                                                    t.OrderDetail.IsError = true;
-                                                    t.OrderDetail.IsDelete = false;
-                                                    t.OrderDetail.ErrorMsg = $"The Set:{t.OrderDetail.SKU} is not belong to this mall!";
+                                                    //如果该套装已经过期,则加入到错误订单中
+                                                    detail.IsError = true;
+                                                    detail.IsDelete = false;
+                                                    detail.ErrorMsg = $"The Set:{detail.SKU} is overdue!";
                                                     //保存订单
                                                     OrderService.SaveOrder(t);
                                                 }
                                             }
                                             else
                                             {
-                                                //如果该套装已经过期,则加入到错误订单中
-                                                t.OrderDetail.IsError = true;
-                                                t.OrderDetail.IsDelete = false;
-                                                t.OrderDetail.ErrorMsg = $"The Set:{t.OrderDetail.SKU} is overdue!";
+                                                //如果该套装设置已经被删除,则加入到错误订单中
+                                                detail.IsError = true;
+                                                detail.IsDelete = false;
+                                                detail.ErrorMsg = $"The Set:{detail.SKU} is not exist!";
                                                 //保存订单
                                                 OrderService.SaveOrder(t);
                                             }
                                         }
                                         else
                                         {
-                                            //如果该套装设置已经被删除,则加入到错误订单中
-                                            t.OrderDetail.IsError = true;
-                                            t.OrderDetail.IsDelete = false;
-                                            t.OrderDetail.ErrorMsg = $"The Set:{t.OrderDetail.SKU} is not exist!";
-                                            //保存订单
-                                            OrderService.SaveOrder(t);
+                                            //员工订单不需要解析促销信息
+                                            if (detail.IsEmployee)
+                                            {
+                                                OrderService.SaveOrder(t);
+                                            }
+                                            else
+                                            {
+                                                //解析促销信息(普通订单)
+                                                //1.有一件产品以及数量相匹配
+                                                //2.有效时间内
+                                                //3.有效店铺
+                                                TradeDto objPromotionTrade = t;
+                                                foreach (var pp in productPromotionList.Where(p => (DateTime.Compare(p.BeginDate, t.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, t.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
+                                                {
+                                                    objPromotionTrade = PromotionService.ParseProductPromotion(trades.Where(p => p.Order.OrderNo == objPromotionTrade.Order.OrderNo).ToList(), objPromotionTrade, pp);
+                                                }
+                                                //保存订单
+                                                OrderService.SaveOrder(objPromotionTrade);
+                                            }
                                         }
                                     }
                                     else
                                     {
-                                        //员工订单不需要解析促销信息
-                                        if (t.OrderDetail.IsEmployee)
-                                        {
-                                            OrderService.SaveOrder(t);
-                                        }
-                                        else
-                                        {
-                                            //解析促销信息(普通订单)
-                                            //1.有一件产品以及数量相匹配
-                                            //2.有效时间内
-                                            //3.有效店铺
-                                            TradeDto objPromotionTrade = t;
-                                            foreach (var pp in ProductPromotionList.Where(p => (DateTime.Compare(p.BeginDate, t.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, t.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
-                                            {
-                                                objPromotionTrade = PromotionService.ParseProductPromotion(trades.Where(p => p.Order.OrderNo == objPromotionTrade.Order.OrderNo).ToList(), objPromotionTrade, pp);
-                                            }
-                                            //保存订单
-                                            OrderService.SaveOrder(objPromotionTrade);
-                                        }
+                                        detail.IsError = true;
+                                        detail.IsDelete = false;
+                                        detail.ErrorMsg = $"SKU:{detail.SKU} does not exist!";
+                                        //保存订单
+                                        OrderService.SaveOrder(t);
                                     }
                                 }
                                 else
                                 {
-                                    t.OrderDetail.IsError = true;
-                                    t.OrderDetail.IsDelete = false;
-                                    t.OrderDetail.ErrorMsg = $"SKU:{t.OrderDetail.SKU} does not exist!";
+                                    detail.IsError = true;
+                                    detail.IsDelete = false;
+                                    detail.ErrorMsg = $"SKU is empty!";
                                     //保存订单
                                     OrderService.SaveOrder(t);
                                 }
-                            }
-                            else
-                            {
-                                t.OrderDetail.IsError = true;
-                                t.OrderDetail.IsDelete = false;
-                                t.OrderDetail.ErrorMsg = $"SKU is empty!";
-                                //保存订单
-                                OrderService.SaveOrder(t);
                             }
 
                             //返回信息
@@ -326,7 +334,6 @@ namespace Samsonite.OMS.ECommerce
                                 {
                                     MallSapCode = t.Order.MallSapCode,
                                     OrderNo = t.Order.OrderNo,
-                                    SubOrderNo = t.OrderDetail.SubOrderNo,
                                     CreateTime = t.Order.CreateDate
                                 },
                                 Result = true,
@@ -346,7 +353,6 @@ namespace Samsonite.OMS.ECommerce
                             {
                                 MallSapCode = t.Order.MallSapCode,
                                 OrderNo = t.Order.OrderNo,
-                                SubOrderNo = t.OrderDetail.SubOrderNo,
                                 CreateTime = t.Order.CreateDate
                             },
                             Result = false,
@@ -1026,20 +1032,32 @@ namespace Samsonite.OMS.ECommerce
 
         #region 函数
         /// <summary>
-        /// 重算订单总金额
+        /// 替换重名子订单号
         /// </summary>
-        /// <param name="objTradeDto"></param>
-        /// <param name="objTradeDtoList"></param>
-        private static void RecalculateAmount(TradeDto objTradeDto, List<TradeDto> objTradeDtoList)
+        /// <param name="orderNo"></param>
+        /// <param name="subOrderNo"></param>
+        /// <param name="newOrderNo"></param>
+        /// <returns></returns>
+        private static string RenameSubOrderNo(string orderNo, string subOrderNo, string newOrderNo)
         {
-            var _order = objTradeDtoList.Where(p => p.Order.MallSapCode == objTradeDto.Order.MallSapCode && p.Order.OrderNo == objTradeDto.Order.OrderNo).ToList();
-            objTradeDto.Order.OrderAmount = _order.Sum(p => p.OrderDetail.SellingPrice * p.OrderDetail.Quantity);
-            //付款总金额(不算快递费)
-            objTradeDto.Order.PaymentAmount = _order.Sum(p => p.OrderDetail.ActualPaymentAmount);
-            //信用卡实际总付款
-            objTradeDto.Order.BalanceAmount = objTradeDto.Order.PaymentAmount + objTradeDto.Order.DeliveryFee;
-            objTradeDto.Order.DiscountAmount = objTradeDto.Order.OrderAmount - objTradeDto.Order.PaymentAmount;
+            return subOrderNo.Replace(orderNo + "_", newOrderNo + "_");
         }
+
+        ///// <summary>
+        ///// 重算订单总金额
+        ///// </summary>
+        ///// <param name="objTradeDto"></param>
+        ///// <param name="objTradeDtoList"></param>
+        //private static void RecalculateAmount(TradeDto objTradeDto, List<TradeDto> objTradeDtoList)
+        //{
+        //    var _order = objTradeDtoList.Where(p => p.Order.MallSapCode == objTradeDto.Order.MallSapCode && p.Order.OrderNo == objTradeDto.Order.OrderNo).ToList();
+        //    objTradeDto.Order.OrderAmount = _order.Sum(p => p.OrderDetail.SellingPrice * p.OrderDetail.Quantity);
+        //    //付款总金额(不算快递费)
+        //    objTradeDto.Order.PaymentAmount = _order.Sum(p => p.OrderDetail.ActualPaymentAmount);
+        //    //信用卡实际总付款
+        //    objTradeDto.Order.BalanceAmount = objTradeDto.Order.PaymentAmount + objTradeDto.Order.DeliveryFee;
+        //    objTradeDto.Order.DiscountAmount = objTradeDto.Order.OrderAmount - objTradeDto.Order.PaymentAmount;
+        //}
 
         /// <summary>
         /// Claim转换

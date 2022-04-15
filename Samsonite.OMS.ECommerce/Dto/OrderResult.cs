@@ -16,11 +16,6 @@ namespace Samsonite.OMS.ECommerce.Dto
         public string OrderNo { get; set; }
 
         /// <summary>
-        /// 子订单号
-        /// </summary>
-        public string SubOrderNo { get; set; }
-
-        /// <summary>
         /// 日期
         /// </summary>
         public DateTime CreateTime { get; set; }

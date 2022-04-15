@@ -28,12 +28,19 @@ namespace Samsonite.OMS.Service
                         //重新赋值对象,解决数据加密时指向相同对象问题
                         Customer _customer = GenericHelper.TCopyValue<Customer>(dto.Customer);
                         OrderBilling _orderBilling = GenericHelper.TCopyValue<OrderBilling>(dto.Billing);
-                        OrderReceive _orderReceive = GenericHelper.TCopyValue<OrderReceive>(dto.Receive);
+                        List<OrderReceive> _orderReceives = new List<OrderReceive>();
+                        foreach (var item in dto.OrderReceives)
+                        {
+                            _orderReceives.Add(GenericHelper.TCopyValue<OrderReceive>(item));
+                        }
                         UserEmployee _userEmployee = GenericHelper.TCopyValue<UserEmployee>(dto.Employee);
                         //数据加密
                         EncryptionFactory.Create(_customer).Encrypt();
                         EncryptionFactory.Create(_orderBilling).Encrypt();
-                        EncryptionFactory.Create(_orderReceive).Encrypt();
+                        foreach (var item in _orderReceives)
+                        {
+                            EncryptionFactory.Create(item).Encrypt();
+                        }
                         EncryptionFactory.Create(_userEmployee).Encrypt();
 
                         //----------判断用户是否存在-以手机号为判断依据,用户名判断依据----------------
@@ -74,30 +81,13 @@ namespace Samsonite.OMS.Service
                             db.Customer.Add(objCustomer);
                         }
                         db.SaveChanges();
-                        //----------------------------判断订单是否存在------------------------------
-                        Order objOrder = db.Order.Where(p => p.OrderNo == dto.Order.OrderNo).FirstOrDefault();
-                        if (objOrder != null)
-                        {
-                            //更新总金额
-                            objOrder.OrderAmount = dto.Order.OrderAmount;
-                            objOrder.PaymentAmount = dto.Order.PaymentAmount;
-                            objOrder.BalanceAmount = dto.Order.BalanceAmount;
-                            objOrder.DiscountAmount = dto.Order.DiscountAmount;
-                        }
-                        else
-                        {
-                            objOrder = dto.Order;
-                            objOrder.CustomerNo = objCustomer.CustomerNo;
-                            dto.Order.AddDate = DateTime.Now;
-                            db.Order.Add(objOrder);
-                        }
+                        //----------------------------订单信息------------------------------
+                        db.Order.Add(dto.Order);
                         db.SaveChanges();
                         //----------------------------收货地址----------------------------------------
-                        if (!string.IsNullOrEmpty(_orderReceive.OrderNo))
+                        foreach (var item in _orderReceives)
                         {
-                            _orderReceive.OrderId = objOrder.Id;
-                            _orderReceive.CustomerNo = objCustomer.CustomerNo;
-                            db.OrderReceive.Add(_orderReceive);
+                            db.OrderReceive.Add(item);
                             db.SaveChanges();
                         }
                         //----------------------------billing信息-------------------------------------
@@ -106,49 +96,55 @@ namespace Samsonite.OMS.Service
                             OrderBilling objOrderBilling = db.OrderBilling.Where(p => p.OrderNo == _orderBilling.OrderNo).FirstOrDefault();
                             if (objOrderBilling != null)
                             {
-                                objOrderBilling.OrderId = objOrder.Id;
+                                objOrderBilling.OrderId = dto.Order.Id;
                             }
                             else
                             {
                                 objOrderBilling = _orderBilling;
-                                objOrderBilling.OrderId = objOrder.Id;
+                                objOrderBilling.OrderId = dto.Order.Id;
                                 db.OrderBilling.Add(objOrderBilling);
                             }
                             db.SaveChanges();
                         }
                         //----------------------------订单详情-----------------------------------
-                        //设置主订单号
-                        dto.OrderDetail.OrderId = objOrder.Id;
-                        dto.OrderDetail.AddDate = DateTime.Now;
-                        dto.OrderDetail.EditDate = null;
-                        db.OrderDetail.Add(dto.OrderDetail);
-                        //添加一条订单日志
-                        db.OrderLog.Add(new OrderLog
+                        foreach (var item in dto.OrderDetails)
                         {
-                            Msg = "Create order from API",
-                            CreateDate = DateTime.Now,
-                            OrderNo = dto.Order.OrderNo,
-                            SubOrderNo = dto.OrderDetail.SubOrderNo,
-                            OriginStatus = 0,
-                            NewStatus = dto.OrderDetail.Status,
-                            UserId = 0
-                        });
+                            //设置主订单号
+                            item.OrderId = dto.Order.Id;
+                            item.AddDate = DateTime.Now;
+                            item.EditDate = null;
+                            db.OrderDetail.Add(item);
+                            //添加一条订单日志
+                            db.OrderLog.Add(new OrderLog
+                            {
+                                Msg = "Create order from API",
+                                CreateDate = DateTime.Now,
+                                OrderNo = dto.Order.OrderNo,
+                                SubOrderNo = item.SubOrderNo,
+                                OriginStatus = 0,
+                                NewStatus = item.Status,
+                                UserId = 0
+                            });
+                        }
                         db.SaveChanges();
                         //----------------------套装减套装库存,同时需要减少子商品库存-------------------
-                        if (dto.OrderDetail.IsSet)
+                        foreach (var item in dto.OrderDetails)
                         {
-                            if (dto.OrderDetail.IsSetOrigin)
+                            if (item.IsSet)
                             {
-                                ProductService.UpdateBundleProductInventory(dto.OrderDetail.SKU, dto.OrderDetail.Quantity);
+                                if (item.IsSetOrigin)
+                                {
+                                    ProductService.UpdateBundleProductInventory(item.SKU, item.Quantity);
+                                }
+                                else
+                                {
+                                    ProductService.UpdateCommonProductInventory(item.SKU, item.Quantity);
+                                }
                             }
                             else
                             {
-                                ProductService.UpdateCommonProductInventory(dto.OrderDetail.SKU, dto.OrderDetail.Quantity);
+                                ProductService.UpdateCommonProductInventory(item.SKU, item.Quantity);
                             }
-                        }
-                        else
-                        {
-                            ProductService.UpdateCommonProductInventory(dto.OrderDetail.SKU, dto.OrderDetail.Quantity);
                         }
                         //-----------------------赠品--------------------------------------------------
                         foreach (var item in dto.OrderGifts)
@@ -162,17 +158,17 @@ namespace Samsonite.OMS.Service
                             db.OrderPaymentDetail.Add(item);
                         }
                         //--------------------更新产品折扣优惠信息-------------------------------------
-                        foreach (var item in dto.DetailAdjustments)
+                        foreach (var item in dto.OrderDetailAdjustments)
                         {
                             db.OrderDetailAdjustment.Add(item);
                         }
                         //------------------------更新支付信息-----------------------------------------
-                        foreach (var item in dto.Payments)
+                        foreach (var item in dto.OrderPayments)
                         {
                             db.OrderPayment.Add(item);
                         }
                         //-----------------------更新产品折扣信息--------------------------------------
-                        foreach (var item in dto.PaymentGifts)
+                        foreach (var item in dto.OrderPaymentGifts)
                         {
                             db.OrderPaymentGift.Add(item);
                         }
@@ -188,7 +184,7 @@ namespace Samsonite.OMS.Service
                         }
                         db.SaveChanges();
                         //--------------如果是员工订单,则保存该员工信息------------------------
-                        if (dto.OrderDetail.IsEmployee)
+                        if (dto.OrderDetails.Exists(p => p.IsEmployee))
                         {
                             if (!string.IsNullOrEmpty(_userEmployee.EmployeeEmail))
                             {

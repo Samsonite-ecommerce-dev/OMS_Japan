@@ -60,158 +60,159 @@ namespace Samsonite.OMS.Service
         /// <returns></returns>
         public static TradeDto ParseProductPromotion(List<TradeDto> objTradeDtoList, TradeDto tradeDto, ProductPromotionDto promotions, string GiftSubOrderNo = null)
         {
-            try
-            {
-                using (var db = new ebEntities())
-                {
+            return null;
+            //try
+            //{
+            //    using (var db = new ebEntities())
+            //    {
 
-                    //赠品附加的子订单号,如果没有传递,则默认为当前子订单号
-                    string _GiftSubOrderNo = (string.IsNullOrEmpty(GiftSubOrderNo)) ? tradeDto.OrderDetail.SubOrderNo : GiftSubOrderNo;
-                    //买特定产品送
-                    if (promotions.RuleType == 1)
-                    {
-                        //判断是否满足条件(不允许设置买2件以上SKU才送赠品的情况)
-                        var _p = promotions.PromotionProducts.Where(p => p.SKU == tradeDto.OrderDetail.SKU && tradeDto.OrderDetail.Quantity >= p.Quantity).FirstOrDefault();
-                        if (_p != null)
-                        {
-                            //附加赠品
-                            foreach (var sd in promotions.PromotionGifts)
-                            {
-                                var existGift = tradeDto.OrderGifts.Where(p => p.Sku == sd.SKU && p.IsSystemGift).FirstOrDefault();
-                                if (existGift != null)
-                                {
-                                    //取较大数量
-                                    if (tradeDto.OrderDetail.Quantity * sd.Quantity > existGift.Quantity)
-                                    {
-                                        existGift.Quantity = tradeDto.OrderDetail.Quantity * sd.Quantity;
-                                    }
-                                }
-                                else
-                                {
-                                    //查询赠品是否有限制
-                                    var objInventory = db.PromotionProductInventory.Where(p => p.PromotionId == promotions.PromotionID && p.MallSapCode == tradeDto.Order.MallSapCode && p.SKU == sd.SKU).FirstOrDefault();
-                                    if (objInventory != null)
-                                    {
-                                        if (objInventory.CurrentInventory > 0)
-                                        {
-                                            //判断是否够送
-                                            int _giftQuantity = tradeDto.OrderDetail.Quantity * sd.Quantity;
-                                            if (_giftQuantity > objInventory.CurrentInventory)
-                                                _giftQuantity = objInventory.CurrentInventory;
-                                            tradeDto.OrderGifts.Add(new OrderGift()
-                                            {
-                                                OrderNo = tradeDto.Order.OrderNo,
-                                                SubOrderNo = _GiftSubOrderNo,
-                                                GiftNo = OrderService.CreateGiftSubOrderNO(tradeDto.OrderDetail.SubOrderNo, sd.SKU),
-                                                Sku = sd.SKU,
-                                                ProductName = sd.ProductName,
-                                                MallProductId = string.Empty,
-                                                Price = sd.Price,
-                                                Quantity = _giftQuantity,
-                                                IsSystemGift = true,
-                                                AddDate = DateTime.Now
-                                            });
-                                            //减少店铺赠品库存
-                                            db.Database.ExecuteSqlCommand("update PromotionProductInventory set CurrentInventory=CurrentInventory-{1} where Id={0}", objInventory.Id, _giftQuantity);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        tradeDto.OrderGifts.Add(new OrderGift()
-                                        {
-                                            OrderNo = tradeDto.Order.OrderNo,
-                                            SubOrderNo = _GiftSubOrderNo,
-                                            GiftNo = OrderService.CreateGiftSubOrderNO(tradeDto.OrderDetail.SubOrderNo, sd.SKU),
-                                            Sku = sd.SKU,
-                                            ProductName = sd.ProductName,
-                                            MallProductId = string.Empty,
-                                            Price = sd.Price,
-                                            Quantity = tradeDto.OrderDetail.Quantity * sd.Quantity,
-                                            IsSystemGift = true,
-                                            AddDate = DateTime.Now
-                                        });
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    //满送
-                    else if (promotions.RuleType == 2)
-                    {
-                        if (tradeDto.Order.PaymentAmount >= promotions.TotalAmount)
-                        {
-                            //满送赠品只附加到第一个子订单上(子订单号末尾2位是_1)
-                            if (tradeDto.OrderDetail.SubOrderNo.Substring(tradeDto.OrderDetail.SubOrderNo.Length - 2) == "_1")
-                            {
-                                //附加赠品
-                                foreach (var sd in promotions.PromotionGifts)
-                                {
-                                    var existGift = tradeDto.OrderGifts.Where(p => p.Sku == sd.SKU && p.IsSystemGift).FirstOrDefault();
-                                    if (existGift != null)
-                                    {
-                                        //取较大数量
-                                        if (sd.Quantity > existGift.Quantity)
-                                        {
-                                            existGift.Quantity = sd.Quantity;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        //查询赠品是否有限制
-                                        var objInventory = db.PromotionProductInventory.Where(p => p.PromotionId == promotions.PromotionID && p.MallSapCode == tradeDto.Order.MallSapCode && p.SKU == sd.SKU).FirstOrDefault();
-                                        if (objInventory != null)
-                                        {
-                                            if (objInventory.CurrentInventory > 0)
-                                            {
-                                                //判断是否够送
-                                                int _giftQuantity = sd.Quantity;
-                                                if (_giftQuantity > objInventory.CurrentInventory)
-                                                    _giftQuantity = objInventory.CurrentInventory;
-                                                tradeDto.OrderGifts.Add(new OrderGift()
-                                                {
-                                                    OrderNo = tradeDto.Order.OrderNo,
-                                                    SubOrderNo = _GiftSubOrderNo,
-                                                    GiftNo = OrderService.CreateGiftSubOrderNO(tradeDto.OrderDetail.SubOrderNo, sd.SKU),
-                                                    Sku = sd.SKU,
-                                                    ProductName = sd.ProductName,
-                                                    MallProductId = string.Empty,
-                                                    Price = sd.Price,
-                                                    Quantity = _giftQuantity,
-                                                    IsSystemGift = true,
-                                                    AddDate = DateTime.Now
-                                                });
-                                                //减赠品库存
-                                                db.Database.ExecuteSqlCommand("update PromotionProductInventory set CurrentInventory=CurrentInventory-{1} where Id={0}", objInventory.Id, _giftQuantity);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            tradeDto.OrderGifts.Add(new OrderGift()
-                                            {
-                                                OrderNo = tradeDto.Order.OrderNo,
-                                                SubOrderNo = _GiftSubOrderNo,
-                                                GiftNo = OrderService.CreateGiftSubOrderNO(tradeDto.OrderDetail.SubOrderNo, sd.SKU),
-                                                Sku = sd.SKU,
-                                                ProductName = sd.ProductName,
-                                                MallProductId = string.Empty,
-                                                Price = sd.Price,
-                                                Quantity = sd.Quantity,
-                                                IsSystemGift = true,
-                                                AddDate = DateTime.Now
-                                            });
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    return tradeDto;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            //        //赠品附加的子订单号,如果没有传递,则默认为当前子订单号
+            //        string _GiftSubOrderNo = (string.IsNullOrEmpty(GiftSubOrderNo)) ? tradeDto.OrderDetail.SubOrderNo : GiftSubOrderNo;
+            //        //买特定产品送
+            //        if (promotions.RuleType == 1)
+            //        {
+            //            //判断是否满足条件(不允许设置买2件以上SKU才送赠品的情况)
+            //            var _p = promotions.PromotionProducts.Where(p => p.SKU == tradeDto.OrderDetail.SKU && tradeDto.OrderDetail.Quantity >= p.Quantity).FirstOrDefault();
+            //            if (_p != null)
+            //            {
+            //                //附加赠品
+            //                foreach (var sd in promotions.PromotionGifts)
+            //                {
+            //                    var existGift = tradeDto.OrderGifts.Where(p => p.Sku == sd.SKU && p.IsSystemGift).FirstOrDefault();
+            //                    if (existGift != null)
+            //                    {
+            //                        //取较大数量
+            //                        if (tradeDto.OrderDetail.Quantity * sd.Quantity > existGift.Quantity)
+            //                        {
+            //                            existGift.Quantity = tradeDto.OrderDetail.Quantity * sd.Quantity;
+            //                        }
+            //                    }
+            //                    else
+            //                    {
+            //                        //查询赠品是否有限制
+            //                        var objInventory = db.PromotionProductInventory.Where(p => p.PromotionId == promotions.PromotionID && p.MallSapCode == tradeDto.Order.MallSapCode && p.SKU == sd.SKU).FirstOrDefault();
+            //                        if (objInventory != null)
+            //                        {
+            //                            if (objInventory.CurrentInventory > 0)
+            //                            {
+            //                                //判断是否够送
+            //                                int _giftQuantity = tradeDto.OrderDetail.Quantity * sd.Quantity;
+            //                                if (_giftQuantity > objInventory.CurrentInventory)
+            //                                    _giftQuantity = objInventory.CurrentInventory;
+            //                                tradeDto.OrderGifts.Add(new OrderGift()
+            //                                {
+            //                                    OrderNo = tradeDto.Order.OrderNo,
+            //                                    SubOrderNo = _GiftSubOrderNo,
+            //                                    GiftNo = OrderService.CreateGiftSubOrderNO(tradeDto.OrderDetail.SubOrderNo, sd.SKU),
+            //                                    Sku = sd.SKU,
+            //                                    ProductName = sd.ProductName,
+            //                                    MallProductId = string.Empty,
+            //                                    Price = sd.Price,
+            //                                    Quantity = _giftQuantity,
+            //                                    IsSystemGift = true,
+            //                                    AddDate = DateTime.Now
+            //                                });
+            //                                //减少店铺赠品库存
+            //                                db.Database.ExecuteSqlCommand("update PromotionProductInventory set CurrentInventory=CurrentInventory-{1} where Id={0}", objInventory.Id, _giftQuantity);
+            //                            }
+            //                        }
+            //                        else
+            //                        {
+            //                            tradeDto.OrderGifts.Add(new OrderGift()
+            //                            {
+            //                                OrderNo = tradeDto.Order.OrderNo,
+            //                                SubOrderNo = _GiftSubOrderNo,
+            //                                GiftNo = OrderService.CreateGiftSubOrderNO(tradeDto.OrderDetail.SubOrderNo, sd.SKU),
+            //                                Sku = sd.SKU,
+            //                                ProductName = sd.ProductName,
+            //                                MallProductId = string.Empty,
+            //                                Price = sd.Price,
+            //                                Quantity = tradeDto.OrderDetail.Quantity * sd.Quantity,
+            //                                IsSystemGift = true,
+            //                                AddDate = DateTime.Now
+            //                            });
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //        //满送
+            //        else if (promotions.RuleType == 2)
+            //        {
+            //            if (tradeDto.Order.PaymentAmount >= promotions.TotalAmount)
+            //            {
+            //                //满送赠品只附加到第一个子订单上(子订单号末尾2位是_1)
+            //                if (tradeDto.OrderDetail.SubOrderNo.Substring(tradeDto.OrderDetail.SubOrderNo.Length - 2) == "_1")
+            //                {
+            //                    //附加赠品
+            //                    foreach (var sd in promotions.PromotionGifts)
+            //                    {
+            //                        var existGift = tradeDto.OrderGifts.Where(p => p.Sku == sd.SKU && p.IsSystemGift).FirstOrDefault();
+            //                        if (existGift != null)
+            //                        {
+            //                            //取较大数量
+            //                            if (sd.Quantity > existGift.Quantity)
+            //                            {
+            //                                existGift.Quantity = sd.Quantity;
+            //                            }
+            //                        }
+            //                        else
+            //                        {
+            //                            //查询赠品是否有限制
+            //                            var objInventory = db.PromotionProductInventory.Where(p => p.PromotionId == promotions.PromotionID && p.MallSapCode == tradeDto.Order.MallSapCode && p.SKU == sd.SKU).FirstOrDefault();
+            //                            if (objInventory != null)
+            //                            {
+            //                                if (objInventory.CurrentInventory > 0)
+            //                                {
+            //                                    //判断是否够送
+            //                                    int _giftQuantity = sd.Quantity;
+            //                                    if (_giftQuantity > objInventory.CurrentInventory)
+            //                                        _giftQuantity = objInventory.CurrentInventory;
+            //                                    tradeDto.OrderGifts.Add(new OrderGift()
+            //                                    {
+            //                                        OrderNo = tradeDto.Order.OrderNo,
+            //                                        SubOrderNo = _GiftSubOrderNo,
+            //                                        GiftNo = OrderService.CreateGiftSubOrderNO(tradeDto.OrderDetail.SubOrderNo, sd.SKU),
+            //                                        Sku = sd.SKU,
+            //                                        ProductName = sd.ProductName,
+            //                                        MallProductId = string.Empty,
+            //                                        Price = sd.Price,
+            //                                        Quantity = _giftQuantity,
+            //                                        IsSystemGift = true,
+            //                                        AddDate = DateTime.Now
+            //                                    });
+            //                                    //减赠品库存
+            //                                    db.Database.ExecuteSqlCommand("update PromotionProductInventory set CurrentInventory=CurrentInventory-{1} where Id={0}", objInventory.Id, _giftQuantity);
+            //                                }
+            //                            }
+            //                            else
+            //                            {
+            //                                tradeDto.OrderGifts.Add(new OrderGift()
+            //                                {
+            //                                    OrderNo = tradeDto.Order.OrderNo,
+            //                                    SubOrderNo = _GiftSubOrderNo,
+            //                                    GiftNo = OrderService.CreateGiftSubOrderNO(tradeDto.OrderDetail.SubOrderNo, sd.SKU),
+            //                                    Sku = sd.SKU,
+            //                                    ProductName = sd.ProductName,
+            //                                    MallProductId = string.Empty,
+            //                                    Price = sd.Price,
+            //                                    Quantity = sd.Quantity,
+            //                                    IsSystemGift = true,
+            //                                    AddDate = DateTime.Now
+            //                                });
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //        }
+            //        return tradeDto;
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    throw ex;
+            //}
         }
 
         ///// <summary>

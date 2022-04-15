@@ -76,9 +76,6 @@
     <Compile Include="ECommerceUtil.cs" />
     <Compile Include="Interface\IECommerceAPI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Japan\Micros\MicrosAPI.cs" />
-    <Compile Include="Japan\Micros\MicrosConfig.cs" />
-    <Compile Include="Japan\Micros\MicrosControl.cs" />
     <Compile Include="Japan\SpeedPostExtend.cs" />
     <Compile Include="Japan\ExtendAPI.cs" />
     <Compile Include="Japan\Tumi\TumiAPI.cs" />
@@ -110,6 +107,9 @@
       <Project>{177b13ca-9e9f-44a0-b5e0-623722551fa0}</Project>
       <Name>Samsonite.OMS.Service</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Japan\Micros\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

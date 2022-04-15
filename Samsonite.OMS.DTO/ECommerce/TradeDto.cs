@@ -16,20 +16,20 @@ namespace Samsonite.OMS.DTO
         public TradeDto()
         {
             Order = new Order();
-            OrderDetail = new OrderDetail();
+            OrderDetails = new List<OrderDetail>();
             OrderGifts = new List<OrderGift>();
             Customer = new Customer();
-            Receive = new OrderReceive();
+            OrderReceives = new List<OrderReceive>();
             Billing = new OrderBilling();
             OrderPaymentDetails = new List<OrderPaymentDetail>();
-            Payments = new List<OrderPayment>();
-            PaymentGifts = new List<OrderPaymentGift>();
-            DetailAdjustments = new List<OrderDetailAdjustment>();
+            OrderPayments = new List<OrderPayment>();
+            OrderPaymentGifts = new List<OrderPaymentGift>();
+            OrderDetailAdjustments = new List<OrderDetailAdjustment>();
             OrderShippingAdjustments = new List<OrderShippingAdjustment>();
             OrderValueAddedServices = new List<OrderValueAddedService>();
             Employee = new UserEmployee();
-            GiftIDs = new List<string>();
-            SubOrderRelatedInfo = new SubOrderRelated();
+            ParentRelateds = new List<ParentRelated>();
+            GiftRelateds = new List<GiftRelated>();
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace Samsonite.OMS.DTO
         /// <summary>
         /// 收件人信息(物流信息)
         /// </summary>
-        public OrderReceive Receive { get; set; }
+        public List<OrderReceive> OrderReceives { get; set; }
 
         /// <summary>
         /// 收件人信息(账单信息)
@@ -55,7 +55,7 @@ namespace Samsonite.OMS.DTO
         /// <summary>
         /// 产品信息
         /// </summary>
-        public OrderDetail OrderDetail { get; set; }
+        public List<OrderDetail> OrderDetails { get; set; }
 
         /// <summary>
         /// 混合支付信息
@@ -70,17 +70,17 @@ namespace Samsonite.OMS.DTO
         /// <summary>
         /// Demandware
         /// </summary>
-        public List<OrderPayment> Payments { get; set; }
+        public List<OrderPayment> OrderPayments { get; set; }
 
         /// <summary>
         /// Demandware
         /// </summary>
-        public List<OrderPaymentGift> PaymentGifts { get; set; }
+        public List<OrderPaymentGift> OrderPaymentGifts { get; set; }
 
         /// <summary>
         /// Demandware
         /// </summary>
-        public List<OrderDetailAdjustment> DetailAdjustments { get; set; }
+        public List<OrderDetailAdjustment> OrderDetailAdjustments { get; set; }
 
         /// <summary>
         /// Demandware
@@ -93,25 +93,27 @@ namespace Samsonite.OMS.DTO
         public List<OrderValueAddedService> OrderValueAddedServices { get; set; }
 
         /// <summary>
-        /// Demandware
+        /// Demandware员工订单信息
         /// </summary>
         public UserEmployee Employee { get; set; }
 
         /// <summary>
-        /// Demandware附属赠品ID
-        /// </summary>
-        public List<string> GiftIDs { get; set; }
-
-        /// <summary>
         /// 子订单父子级关联
         /// </summary>
-        public SubOrderRelated SubOrderRelatedInfo { get; set; }
+        public List<ParentRelated> ParentRelateds { get; set; }
+
+        /// <summary>
+        /// Demandware附属赠品ID
+        /// </summary>
+        public List<GiftRelated> GiftRelateds { get; set; }
 
         /// <summary>
         /// 
         /// </summary>
-        public class SubOrderRelated
+        public class ParentRelated
         {
+            public string SubOrderNo { get; set; }
+
             /// <summary>
             /// 是否父级
             /// </summary>
@@ -121,6 +123,15 @@ namespace Samsonite.OMS.DTO
             /// 关联码
             /// </summary>
             public string RelatedCode { get; set; }
+        }
+
+        public class GiftRelated
+        {
+            public string SubOrderNo { get; set; }
+
+            public string Sku { get; set; }
+
+            public List<string> GiftIds { get; set; }
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading;
 
 using Samsonite.OMS.Service;
 using Samsonite.OMS.DTO;
-using Samsonite.OMS.ECommerce.Dto;
+using Samsonite.OMS.ECommerce.Result;
 using Samsonite.Utility.Common;
 using Samsonite.OMS.ECommerce;
 

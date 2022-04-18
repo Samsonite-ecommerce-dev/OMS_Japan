@@ -8,7 +8,7 @@ using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
 using Samsonite.OMS.ECommerce;
 using Samsonite.OMS.ECommerce.Interface;
-using Samsonite.OMS.ECommerce.Dto;
+using Samsonite.OMS.ECommerce.Result;
 
 using OMS.Service.Base;
 using OMS.Service.Base.Model;

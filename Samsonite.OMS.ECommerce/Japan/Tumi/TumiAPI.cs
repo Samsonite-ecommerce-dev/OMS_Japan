@@ -12,6 +12,7 @@ using Samsonite.OMS.DTO;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.ECommerce.Dto;
+using Samsonite.OMS.ECommerce.Result;
 using Samsonite.OMS.Encryption;
 using Newtonsoft.Json;
 
@@ -23,6 +24,8 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         private string _localPath = string.Empty;
         //ftp信息
         private FtpDto _ftpConfig;
+        //货币精准度
+        private int _amountAccuracy = 0;
 
         public FtpDto FtpConfig
         {
@@ -37,721 +40,612 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
             }
         }
 
+        public TumiAPI()
+        {
+            //金额精准度
+            _amountAccuracy = ConfigService.GetAmountAccuracyConfig();
+        }
+
         #region 方法
         /// <summary>
         /// 解析订单
         /// </summary>
-        /// <param name="filePath"></param>
+        /// <param name="item"></param>
         /// <returns></returns>
-        public List<TradeDto> ParseXmlToOrder(string filePath)
+        private TradeDto ParseOrder(OrderDto item)
         {
-            //金额精准度
-            int _AmountAccuracy = ConfigService.GetAmountAccuracyConfig();
-            var _result = new List<TradeDto>();
-            //XmlDocument doc = new XmlDocument();
-            //doc.Load(filePath);
-            ////添加 xmls 命名空间，否则会导致 xpath 查询无效
-            //var nsmgr = new XmlNamespaceManager(doc.NameTable);
+            try
+            {
+                //解析订单
+                string _orderNo = VariableHelper.SaferequestNull(item.OrderNo);
 
-            //string ns = "b";
-            //string nsPrefix = $"./{ns}:";
-            //nsmgr.AddNamespace(ns, "http://www.demandware.com/xml/impex/order/2006-10-31");
+                /***********************************order***********************************/
+                var order = new Order()
+                {
+                    MallSapCode = this.MallSapCode,
+                    MallName = this.MallName,
+                    OrderNo = _orderNo,
+                    PlatformOrderId = 0,
+                    PlatformType = this.PlatformCode,
+                    OrderSource = 0,
+                    //默认是普通订单
+                    OrderType = (int)OrderType.OnLine,
+                    CreateSource = (int)CreateSource.System,
+                    //O2O收货店铺
+                    OffLineSapCode = string.Empty,
+                    PaymentType = 0,
+                    PaymentAttribute = string.Empty,
+                    PaymentDate = null,
+                    PaymentStatus = VariableHelper.SaferequestNull(item.StatusInfo.PaymentStatus),
+                    //商品金额
+                    OrderAmount = 0,
+                    //应付金额
+                    PaymentAmount = VariableHelper.SaferequestDecimal(item.TotalsInfo.MerchandizeTotal.GrossPrice),
+                    BalanceAmount = VariableHelper.SaferequestDecimal(item.TotalsInfo.OrderTotal.GrossPrice),
+                    DiscountAmount = 0,
+                    AdjustAmount = 0,
+                    PointAmount = 0,
+                    //物流金额
+                    DeliveryFee = VariableHelper.SaferequestDecimal(item.TotalsInfo.ShippingTotal.GrossPrice),
+                    ShippingMethod = (int)ShippingMethod.StandardShipping,
+                    Point = 0,
+                    InvoiceMessage = JsonHelper.JsonSerialize(new List<InvoiceDto>()),
+                    //默认为新订单
+                    Status = (int)OrderStatus.New,
+                    LoyaltyCardNo = VariableHelper.SaferequestNull(item.LoyaltyCardNo),
+                    EBStatus = string.Empty,
+                    CustomerNo = string.Empty,
+                    TaxNumber = string.Empty,
+                    Tax = 0,
+                    Taxation = VariableHelper.SaferequestNull(item.Taxation),
+                    Remark = VariableHelper.SaferequestNull(item.Remark),
+                    CreateDate = VariableHelper.SaferequestTime(item.OrderDate),
+                    AddDate = DateTime.Now,
+                    EditDate = DateTime.Now
+                };
 
-            //var orderNodes = doc.SelectNodes("//b:order", nsmgr);
-            //foreach (XmlNode orderNode in orderNodes)
-            //{
-            //    var dtos = new List<TradeDto>();
-            //    Order order = new Order();
-            //    /**********************order*********************************************/
-            //    var orederAttr = orderNode.Attributes["order-no"];
-            //    order.OrderNo = orederAttr != null ? orederAttr.Value : "";
-            //    order.MallName = this.MallName;
-            //    order.MallSapCode = this.MallSapCode;
-            //    order.PlatformOrderId = 0;
-            //    order.PlatformType = this.PlatformCode;
-            //    //默认是普通订单
-            //    order.OrderType = (int)OrderType.OnLine;
-            //    order.OrderSource = 0;
-            //    //O2O收货店铺
-            //    order.OffLineSapCode = string.Empty;
-            //    order.CreateSource = (int)CreateSource.System;
-            //    order.AdjustAmount = 0;
-            //    order.PointAmount = 0;
-            //    order.DeliveryFee = 0;
-            //    order.Point = 0;
-            //    order.InvoiceMessage = JsonHelper.JsonSerialize(new List<InvoiceDto>());
-            //    //默认是普通订单
-            //    order.Status = (int)OrderStatus.New;
-            //    order.EBStatus = string.Empty;
-            //    order.CustomerNo = string.Empty;
-            //    order.LoyaltyCardNo = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='loyaltyCardNo']", nsmgr);
-            //    order.TaxNumber = string.Empty;
-            //    order.Tax = 0;
-            //    order.Taxation = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}taxation", nsmgr);
-            //    order.Remark = string.Empty;
-            //    order.CreateDate = VariableHelper.SaferequestTime(XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}order-date", nsmgr));
-            //    order.AddDate = DateTime.Now;
-            //    string currency = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}currency", nsmgr);
+                //订单渠道
+                string _orderChanel = VariableHelper.SaferequestNull(item.OrderChanel);
+                if (_orderChanel.ToUpper() == "PC")
+                {
+                    order.OrderSource = (int)OrderSource.PC;
+                }
+                else if (_orderChanel.ToUpper() == "MOBILE")
+                {
+                    order.OrderSource = (int)OrderSource.Mobile;
+                }
 
-            //    /**********************customer*********************************************/
-            //    var customer = new Customer();
-            //    customer.CustomerNo = string.Empty;
-            //    customer.PlatformUserNo = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}customer-no", nsmgr);
-            //    customer.Name = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}customer-name", nsmgr);
-            //    //平台名称是邮箱
-            //    customer.PlatformUserName = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}customer-email", nsmgr);
-            //    if (string.IsNullOrEmpty(customer.PlatformUserName))
-            //        customer.PlatformUserName = customer.Name;
-            //    customer.Nickname = customer.Name;
-            //    customer.Email = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}customer-email", nsmgr);
-            //    customer.CountryCode = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}country-code", nsmgr);
-            //    customer.City = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}city", nsmgr);
-            //    customer.Province = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='province']", nsmgr);
-            //    customer.District = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='district']", nsmgr);
-            //    customer.Town = string.Empty;
-            //    customer.Tel = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}phone", nsmgr);
-            //    customer.Mobile = string.Empty;
-            //    customer.Zipcode = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}postal-code", nsmgr);
-            //    string address1 = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}address1", nsmgr);
-            //    string address2 = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}address2", nsmgr);
-            //    customer.Addr = address1;
-            //    if (!string.IsNullOrEmpty(address2))
-            //        customer.Addr += $",{address2}";
-            //    customer.AddDate = DateTime.Now;
+                /***********************************customer***********************************/
+                var customer = new Samsonite.OMS.Database.Customer()
+                {
+                    CustomerNo = string.Empty,
+                    PlatformUserNo = VariableHelper.SaferequestNull(item.CustomerInfo.CustomerNo),
+                    //平台名称是邮箱
+                    PlatformUserName = VariableHelper.SaferequestNull(item.CustomerInfo.CustomerEmail),
+                    Name = VariableHelper.SaferequestNull(item.CustomerInfo.CustomerName),
+                    Nickname = string.Empty,
+                    Tel = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.Phone),
+                    Mobile = string.Empty,
+                    Email = VariableHelper.SaferequestNull(item.CustomerInfo.CustomerEmail),
+                    Zipcode = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.PostalCode),
+                    Addr = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.Address1),
+                    CountryCode = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.CountryCode),
+                    Province = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.Province),
+                    City = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.City),
+                    District = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.District),
+                    Town = string.Empty,
+                    AddDate = DateTime.Now
+                };
+                string _address2 = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.Address2);
+                if (!string.IsNullOrEmpty(_address2))
+                    customer.Addr += $",{_address2}";
 
-            //    /**********************billing address*********************************************/
-            //    OrderBilling billing = new OrderBilling();
-            //    billing.OrderNo = order.OrderNo;
-            //    billing.FirstName = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}first-name", nsmgr);
-            //    billing.LastName = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}last-name", nsmgr);
-            //    billing.Phone = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}phone", nsmgr);
-            //    billing.CountryCode = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}country-code", nsmgr);
-            //    billing.StateCode = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}state-code", nsmgr);
-            //    billing.City = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}city", nsmgr);
-            //    billing.Email = string.Empty;
-            //    billing.Address1 = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}address1", nsmgr);
-            //    billing.Address2 = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}customer/{nsPrefix}billing-address/{nsPrefix}address2", nsmgr);
+                /***********************************billing***********************************/
+                var billing = new OrderBilling()
+                {
+                    OrderNo = _orderNo,
+                    FirstName = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.FirstName),
+                    LastName = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.LastName),
+                    Phone = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.Phone),
+                    Email = VariableHelper.SaferequestNull(item.CustomerInfo.CustomerEmail),
+                    CountryCode = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.CountryCode),
+                    StateCode = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.StateCode),
+                    City = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.City),
+                    Address1 = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.Address1),
+                    Address2 = VariableHelper.SaferequestNull(item.CustomerInfo.BillingAddressInfo.Address2)
+                };
 
-            //    /**********************status*********************************************/
-            //    //物流状态
-            //    string confirmationStatus = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}status/{nsPrefix}confirmation-status", nsmgr);
-            //    order.PaymentStatus = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}status/{nsPrefix}payment-status", nsmgr);
-            //    string orderStatus = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}status/{nsPrefix}order-status", nsmgr);
+                /***********************************receive***********************************/
+                var _shipment = item.Shipments.FirstOrDefault();
+                var orderReceive = new OrderReceive()
+                {
+                    OrderNo = _orderNo,
+                    SubOrderNo = string.Empty,
+                    CustomerNo = string.Empty,
+                    Receive = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.FirstName),
+                    ReceiveEmail = string.Empty,
+                    ReceiveTel = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.Phone),
+                    ReceiveCel = string.Empty,
+                    Country = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.CountryCode),
+                    Province = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.Province),
+                    City = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.City),
+                    District = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.District),
+                    Town = string.Empty,
+                    ReceiveAddr = string.Empty,
+                    ReceiveZipcode = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.PostalCode),
+                    AddDate = DateTime.Now,
+                    ShipmentID = string.Empty,
+                    ShippingType = string.Empty,
+                    Address1 = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.Address1),
+                    Address2 = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.Address2)
+                };
+                string _lastName = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.LastName);
+                if (!string.IsNullOrEmpty(_lastName))
+                {
+                    orderReceive.Receive += $" {_lastName}";
+                }
+                orderReceive.ReceiveAddr = orderReceive.Address1;
+                if (!string.IsNullOrEmpty(orderReceive.Address2))
+                {
+                    orderReceive.ReceiveAddr += $",{orderReceive.Address2}";
+                }
+                //物流方式
+                ShippingMethodModel shippingMethodModel = GetShippingInfo(_shipment.ShippingMethod);
+                order.ShippingMethod = (int)shippingMethodModel.ShippingType;
+                orderReceive.ShippingType = shippingMethodModel.ShippingValue;
 
-            //    /**********************shipping-lineitems*********************************************/
-            //    OrderReceive orderReceive = new OrderReceive();
-            //    string shipmentXpath = $"./{nsPrefix}shipments/{nsPrefix}shipment";
-            //    var shipmentNodes = orderNode.SelectNodes(shipmentXpath, nsmgr);
-            //    if (shipmentNodes != null)
-            //    {
-            //        foreach (XmlNode snode in shipmentNodes)
-            //        {
-            //            orderReceive.OrderNo = order.OrderNo;
-            //            orderReceive.AddDate = DateTime.Now;
-            //            if (snode.Attributes != null)
-            //            {
-            //                orderReceive.ShipmentID = snode.Attributes["shipment-id"].Value;
-            //            }
-            //            /*******收货人名称******/
-            //            orderReceive.Receive = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}first-name", nsmgr);
-            //            string _lastName = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}last-name", nsmgr);
-            //            if (!string.IsNullOrEmpty(_lastName))
-            //            {
-            //                orderReceive.Receive += $" {_lastName}";
-            //            }
-            //            orderReceive.ReceiveTel = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}phone", nsmgr);
-            //            orderReceive.ReceiveCel = string.Empty;
-            //            //orderReceive.ConsigneeName = string.Empty;
-            //            //orderReceive.ConsigneePhone = string.Empty;
-            //            orderReceive.Country = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}country-code", nsmgr);
-            //            orderReceive.Province = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}state-code", nsmgr);
-            //            orderReceive.City = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}city", nsmgr);
-            //            orderReceive.District = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='district']", nsmgr);
-            //            orderReceive.Town = string.Empty;
-            //            orderReceive.ReceiveZipcode = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}postal-code", nsmgr);
-            //            orderReceive.Address1 = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}address1", nsmgr);
-            //            orderReceive.Address2 = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-address/{nsPrefix}address2", nsmgr);
-            //            /*******收货地址*********/
-            //            orderReceive.ReceiveAddr = orderReceive.Address1;
-            //            if (!string.IsNullOrEmpty(orderReceive.Address2))
-            //            {
-            //                orderReceive.ReceiveAddr += $",{orderReceive.Address2}";
-            //            }
-            //            if (!string.IsNullOrEmpty(orderReceive.District))
-            //            {
-            //                orderReceive.ReceiveAddr += $",{orderReceive.District}";
-            //            }
-            //            if (!string.IsNullOrEmpty(orderReceive.City))
-            //            {
-            //                orderReceive.ReceiveAddr += $",{orderReceive.City}";
-            //            }
-            //            if (!string.IsNullOrEmpty(orderReceive.Province))
-            //            {
-            //                orderReceive.ReceiveAddr += $",{orderReceive.Province}";
-            //            }
-            //            if (!string.IsNullOrEmpty(orderReceive.ReceiveZipcode))
-            //            {
-            //                orderReceive.ReceiveAddr += $",{orderReceive.ReceiveZipcode}";
-            //            }
-            //            /************************/
-            //            orderReceive.ShippingType = XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-method", nsmgr);
+                /***********************************orderShippingAdjustment***********************************/
+                //运费总折扣 
+                decimal _shippingAdjustmentTotal = 0;
+                var orderShippingAdjustments = new List<OrderShippingAdjustment>();
+                var _shipping = item.Shippings.FirstOrDefault();
+                if (_shipping != null)
+                {
+                    var orderShippingAdjustment = new OrderShippingAdjustment();
+                    orderShippingAdjustment.OrderNo = _orderNo;
+                    orderShippingAdjustment.NetPrice = VariableHelper.SaferequestDecimal(_shipping.NetPrice);
+                    orderShippingAdjustment.Tax = VariableHelper.SaferequestDecimal(_shipping.Tax);
+                    orderShippingAdjustment.GrossPrice = VariableHelper.SaferequestDecimal(_shipping.GrossPrice);
+                    orderShippingAdjustment.BasePrice = VariableHelper.SaferequestDecimal(_shipping.BasePrice);
+                    orderShippingAdjustment.TaxBasis = VariableHelper.SaferequestDecimal(_shipping.TaxBasis);
+                    orderShippingAdjustment.ShipmentId = VariableHelper.SaferequestNull(_shipping.ShipmentId);
+                    if (_shipping.PriceAdjustments != null)
+                    {
+                        foreach (var priceAdj in _shipping.PriceAdjustments)
+                        {
+                            orderShippingAdjustment.AdjustmentNetPrice = VariableHelper.SaferequestDecimal(priceAdj.NetPrice);
+                            orderShippingAdjustment.AdjustmentTax = VariableHelper.SaferequestDecimal(priceAdj.Tax);
+                            orderShippingAdjustment.AdjustmentGrossPrice = VariableHelper.SaferequestDecimal(priceAdj.GrossPrice);
+                            orderShippingAdjustment.AdjustmentBasePrice = VariableHelper.SaferequestDecimal(priceAdj.BasePrice);
+                            orderShippingAdjustment.AdjustmentLineitemText = VariableHelper.SaferequestNull(priceAdj.LineitemText);
+                            orderShippingAdjustment.AdjustmentTaxBasis = VariableHelper.SaferequestDecimal(priceAdj.TaxBasis);
+                            orderShippingAdjustment.AdjustmentPromotionId = VariableHelper.SaferequestNull(priceAdj.PromotionId);
+                            orderShippingAdjustment.AdjustmentCampaignId = VariableHelper.SaferequestNull(priceAdj.CampaignId);
+                            //快递费折扣
+                            _shippingAdjustmentTotal += Math.Abs(orderShippingAdjustment.AdjustmentGrossPrice);
+                        }
+                    }
+                    orderShippingAdjustments.Add(orderShippingAdjustment);
+                }
 
-            //            ShippingMethodModel shippingMethodModel = GetShippingInfo(XmlHelper.GetSingleNodeText(snode, $"{nsPrefix}shipping-method", nsmgr));
-            //            //物流方式
-            //            order.ShippingMethod = (int)shippingMethodModel.ShippingType;
-            //            orderReceive.ShippingType = shippingMethodModel.ShippingValue;
+                //重新计算快递费
+                order.DeliveryFee = order.DeliveryFee - _shippingAdjustmentTotal;
+                //应付金额扣除快递费
+                order.PaymentAmount = order.PaymentAmount - order.DeliveryFee;
+                order.DiscountAmount = order.OrderAmount - order.PaymentAmount;
+                if (order.DiscountAmount <= 0) order.DiscountAmount = 0;
 
-            //        }
-            //    }
+                /***********************************orderDetailAdjustment***********************************/
+                //总订单级别折扣
+                decimal _orderRegularAdjustmentTotal = 0;
+                bool _isEmployee = false;
+                string _employeeLimitKey = string.Empty;
+                int _promotionType = 0;
+                var orderDetailAdjustments_OrderLevel = new List<OrderDetailAdjustment>();
+                if (item.TotalsInfo.MerchandizeTotal.PriceAdjustments != null)
+                {
+                    foreach (var priceAdj in item.TotalsInfo.MerchandizeTotal.PriceAdjustments)
+                    {
+                        var _promotionId = VariableHelper.SaferequestNull(priceAdj.PromotionId);
+                        //判断是否内部员工订单
+                        if (_promotionId.ToLower().Contains("jp-staff"))
+                        {
+                            _isEmployee = true;
+                            _employeeLimitKey = _promotionId.ToLower();
+                            _promotionType = (int)OrderPromotionType.Staff;
+                        }
+                        else if (_promotionId.ToLower().Contains("jp-award"))
+                        {
+                            _promotionType = (int)OrderPromotionType.LoyaltyAward;
+                        }
+                        else
+                        {
+                            _promotionType = (int)OrderPromotionType.Regular;
+                        }
 
-            //    /**********************totals********************************************************/
-            //    //商品金额
-            //    order.OrderAmount = (decimal)XmlHelper.GetSingleNodeDoubleValue(orderNode, $"{nsPrefix}totals/{nsPrefix}merchandize-total/{nsPrefix}gross-price", nsmgr);
+                        var orderDetailAdjustment = new OrderDetailAdjustment()
+                        {
+                            OrderNo = _orderNo,
+                            SubOrderNo = string.Empty,
+                            Type = _promotionType,
+                            NetPrice = VariableHelper.SaferequestDecimal(priceAdj.NetPrice),
+                            Tax = VariableHelper.SaferequestDecimal(priceAdj.Tax),
+                            GrossPrice = VariableHelper.SaferequestDecimal(priceAdj.GrossPrice),
+                            BasePrice = VariableHelper.SaferequestDecimal(priceAdj.BasePrice),
+                            LineitemText = VariableHelper.SaferequestNull(priceAdj.LineitemText),
+                            TaxBasis = VariableHelper.SaferequestDecimal(priceAdj.TaxBasis),
+                            PromotionId = _promotionId,
+                            CampaignId = VariableHelper.SaferequestNull(priceAdj.CampaignId),
+                            CouponId = VariableHelper.SaferequestNull(priceAdj.Coupon_Id)
+                        };
+                        orderDetailAdjustments_OrderLevel.Add(orderDetailAdjustment);
 
-            //    //应付金额
-            //    order.PaymentAmount = (decimal)XmlHelper.GetSingleNodeDoubleValue(orderNode, $"{nsPrefix}totals/{nsPrefix}order-total/{nsPrefix}gross-price", nsmgr);
+                        //订单级别总折扣
+                        _orderRegularAdjustmentTotal += Math.Abs(orderDetailAdjustment.GrossPrice);
+                    }
+                }
 
-            //    //物流金额
-            //    order.DeliveryFee = (decimal)XmlHelper.GetSingleNodeDoubleValue(orderNode, $"{nsPrefix}totals/{nsPrefix}shipping-total/{nsPrefix}gross-price", nsmgr);
+                /***********************************orderPayment***********************************/
+                //付款信息
+                var orderPayments = new List<OrderPayment>();
+                foreach (var payment in item.Payments)
+                {
+                    var orderPayment = new OrderPayment()
+                    {
+                        OrderNo = _orderNo,
+                        Method = VariableHelper.SaferequestNull(payment.MethodName),
+                        InicisPaymentMethod = VariableHelper.SaferequestNull(payment.InicisPaymentMethod),
+                        ProcessorId = VariableHelper.SaferequestNull(payment.ProcessorId),
+                        Amount = VariableHelper.SaferequestDecimal(payment.Amount),
+                        BankAccountNumber = string.Empty,
+                        BankAccountOwner = string.Empty,
+                        BankCode = string.Empty,
+                        BankName = string.Empty,
+                        PaymentDeadline = string.Empty,
+                        Tid = string.Empty
+                    };
+                    order.PaymentType = GetPaymentType(orderPayment.Method, orderPayment.ProcessorId);
+                    if (order.PaymentType == (int)PayType.CashOnDelivery)
+                    {
+                        order.PaymentDate = null;
+                    }
+                    else
+                    {
+                        //如果不是cod订单,付款时间默认为订单创建时间
+                        order.PaymentDate = order.CreateDate;
+                    }
+                    if (payment.CreditCardInfo != null)
+                    {
+                        string card_type = VariableHelper.SaferequestNull(payment.CreditCardInfo.CardType);
+                        PayAttribute paymentAttribute = new PayAttribute()
+                        {
+                            CardType = card_type,
+                            PayCode = orderPayment.Method
+                        };
+                        order.PaymentAttribute = JsonHelper.JsonSerialize(paymentAttribute);
+                    }
+                    orderPayments.Add(orderPayment);
 
-            //    /**********************custom-attributes*********************************************/
-            //    string orderChanel = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='orderChanel']", nsmgr);
-            //    if (orderChanel.ToUpper() == "PC")
-            //    {
-            //        order.OrderSource = (int)OrderSource.PC;
-            //    }
-            //    else if (orderChanel.ToUpper() == "Mobile")
-            //    {
-            //        order.OrderSource = (int)OrderSource.Mobile;
-            //    }
-            //    else
-            //    {
-            //        order.OrderSource = 0;
-            //    }
+                    //BalanceAmount:累加计算实际付款金额
+                    order.BalanceAmount += payment.Amount;
+                }
 
-            //    /**********************shipping-lineitems begin*********************************************/
-            //    //运费总折扣 
-            //    decimal shippingAdjustmentTotal = 0;
-            //    //匹配快递费折扣
-            //    var orderShippingAdjustments = new List<OrderShippingAdjustment>();
-            //    var orderShippingNodes = orderNode.SelectNodes($"./{nsPrefix}shipping-lineitems/{nsPrefix}shipping-lineitem", nsmgr);
-            //    if (orderShippingNodes != null)
-            //    {
-            //        foreach (XmlNode shippingNode in orderShippingNodes)
-            //        {
-            //            OrderShippingAdjustment shippingAdjustment = new OrderShippingAdjustment();
-            //            shippingAdjustment.OrderNo = order.OrderNo;
-            //            shippingAdjustment.NetPrice = XmlHelper.GetSingleNodeDecimalValue(shippingNode, $"{nsPrefix}net-price", nsmgr);
-            //            shippingAdjustment.Tax = XmlHelper.GetSingleNodeDecimalValue(shippingNode, $"{nsPrefix}tax", nsmgr);
-            //            shippingAdjustment.GrossPrice = XmlHelper.GetSingleNodeDecimalValue(shippingNode, $"{nsPrefix}gross-price", nsmgr);
-            //            shippingAdjustment.BasePrice = XmlHelper.GetSingleNodeDecimalValue(shippingNode, $"{nsPrefix}base-price", nsmgr);
-            //            shippingAdjustment.TaxBasis = XmlHelper.GetSingleNodeDecimalValue(shippingNode, $"{nsPrefix}tax-basis", nsmgr);
-            //            //快递折扣信息
-            //            var orderShippingPriceNodes = shippingNode.SelectNodes($"./{nsPrefix}price-adjustments/{nsPrefix}price-adjustment", nsmgr);
-            //            foreach (XmlNode priceNode in orderShippingPriceNodes)
-            //            {
-            //                shippingAdjustment.AdjustmentNetPrice = XmlHelper.GetSingleNodeDecimalValue(priceNode, $"{nsPrefix}net-price", nsmgr);
-            //                shippingAdjustment.AdjustmentTax = XmlHelper.GetSingleNodeDecimalValue(priceNode, $"{nsPrefix}tax", nsmgr);
-            //                shippingAdjustment.AdjustmentGrossPrice = XmlHelper.GetSingleNodeDecimalValue(priceNode, $"{nsPrefix}gross-price", nsmgr);
-            //                shippingAdjustment.AdjustmentBasePrice = XmlHelper.GetSingleNodeDecimalValue(priceNode, $"{nsPrefix}base-price", nsmgr);
-            //                shippingAdjustment.AdjustmentLineitemText = XmlHelper.GetSingleNodeText(priceNode, $"{nsPrefix}lineitem-text", nsmgr);
-            //                shippingAdjustment.AdjustmentTaxBasis = XmlHelper.GetSingleNodeDecimalValue(priceNode, $"{nsPrefix}tax-basis", nsmgr);
-            //                shippingAdjustment.AdjustmentPromotionId = XmlHelper.GetSingleNodeText(priceNode, $"{nsPrefix}promotion-id", nsmgr);
-            //                shippingAdjustment.AdjustmentCampaignId = XmlHelper.GetSingleNodeText(priceNode, $"{nsPrefix}campaign-id", nsmgr);
-            //                //快递费折扣
-            //                shippingAdjustmentTotal += Math.Abs(shippingAdjustment.AdjustmentGrossPrice);
+                //创建Order对象
+                TradeDto tradeDto = new TradeDto()
+                {
+                    Order = order,
+                    Customer = customer,
+                    Billing = billing,
+                    OrderPayments = orderPayments,
+                    OrderShippingAdjustments = orderShippingAdjustments,
+                    OrderDetailAdjustments = orderDetailAdjustments_OrderLevel
+                };
 
-            //            }
-            //            shippingAdjustment.ShipmentId = XmlHelper.GetSingleNodeText(shippingNode, $"{nsPrefix}shipment-id", nsmgr);
-            //            orderShippingAdjustments.Add(shippingAdjustment);
-            //        }
-            //    }
+                /***********************************orderDetail***********************************/
+                int index = 1;
+                foreach (var detail in item.Products)
+                {
+                    string _subOrderNo = ECommerceUtil.CreateSubOrderNo(this.PlatformCode, _orderNo, string.Empty, index);
+                    string _parentSubOrderNo = string.Empty;
+                    //---------如果是二级子订单--------------------------------------
+                    bool isMainProduct = VariableHelper.SaferequestBool(detail.IsMainProduct);
+                    string relatedProductGroup = VariableHelper.SaferequestNull(detail.RelatedProductGroup);
+                    if (!string.IsNullOrEmpty(relatedProductGroup))
+                    {
+                        if (!isMainProduct)
+                        {
+                            var tmp = tradeDto.ParentRelateds.Where(p => p.RelatedCode == relatedProductGroup && p.IsParent).FirstOrDefault();
+                            if (tmp != null)
+                            {
+                                //重建子订单号
+                                _subOrderNo = $"{tmp.SubOrderNo}_{index}";
+                                _parentSubOrderNo = tmp.SubOrderNo;
+                            }
+                        }
+                        //保存二级子订单关系
+                        tradeDto.ParentRelateds = new List<TradeDto.ParentRelated>()
+                                            {
+                                                new TradeDto.ParentRelated()
+                                                {
+                                                    SubOrderNo = _subOrderNo,
+                                                    IsParent = isMainProduct,
+                                                    RelatedCode = relatedProductGroup
+                                                }
+                                            };
+                    }
+                    //----------------------------------------------------------------
 
-            //    //重新计算快递费
-            //    order.DeliveryFee = order.DeliveryFee - shippingAdjustmentTotal;
+                    //关联OrderReceive
+                    var orderReceiveTmp = GenericHelper.TCopyValue<OrderReceive>(orderReceive);
+                    orderReceiveTmp.SubOrderNo = _subOrderNo;
+                    tradeDto.OrderReceives.Add(orderReceiveTmp);
 
-            //    //应付金额扣除快递费
-            //    order.PaymentAmount = order.PaymentAmount - order.DeliveryFee;
-            //    order.DiscountAmount = order.OrderAmount - order.PaymentAmount;
-            //    if (order.DiscountAmount <= 0) order.DiscountAmount = 0;
+                    //订单详情
+                    string _sku = VariableHelper.SaferequestNull(detail.Sku);
+                    //如果sku为空,则去DW的ProductId作为sku
+                    if (string.IsNullOrEmpty(_sku))
+                        _sku = VariableHelper.SaferequestNull(detail.ProductId);
+                    decimal _paymentAmount = Math.Round(VariableHelper.SaferequestDecimal(detail.GrossPrice / detail.Quantity), _amountAccuracy);
+                    string _preOrderDeliveryDate = VariableHelper.SaferequestNull(detail.PreOrderDeliveryDate);
+                    bool _isReservation = false;
+                    DateTime _delivertDate = DateTime.Now;
+                    _isReservation = DateTime.TryParse(_preOrderDeliveryDate, out _delivertDate);
 
-            //    /**********************totals*********************************************/
-            //    //总订单级别折扣
-            //    decimal orderRegularAdjustmentTotal = 0;
-            //    bool isEmployee = false;
-            //    string employeeLimitKey = string.Empty;
-            //    int promotionType = 0;
-            //    var orderAdjustments = new List<OrderDetailAdjustment>();
-            //    var orderAdjustmentNodes = orderNode.SelectNodes($"{nsPrefix}totals/{nsPrefix}merchandize-total/{nsPrefix}price-adjustments/{nsPrefix}price-adjustment", nsmgr);
-            //    if (orderAdjustmentNodes != null)
-            //    {
-            //        foreach (XmlNode adjustmentNode in orderAdjustmentNodes)
-            //        {
-            //            var _promotionId = VariableHelper.SaferequestStr(XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}promotion-id", nsmgr));
-            //            //判断是否内部员工订单
-            //            if (_promotionId.ToLower().Contains("sg-staff"))
-            //            {
-            //                isEmployee = true;
-            //                employeeLimitKey = _promotionId.ToLower();
-            //                promotionType = (int)OrderPromotionType.Staff;
-            //            }
-            //            else if (_promotionId.ToLower().Contains("sg-award"))
-            //            {
-            //                promotionType = (int)OrderPromotionType.LoyaltyAward;
-            //            }
-            //            else
-            //            {
-            //                promotionType = (int)OrderPromotionType.Regular;
-            //            }
+                    OrderDetail orderDetail = new OrderDetail()
+                    {
+                        OrderNo = _orderNo,
+                        SubOrderNo = _subOrderNo,
+                        ParentSubOrderNo = _parentSubOrderNo,
+                        CreateDate = tradeDto.Order.CreateDate,
+                        MallProductId = VariableHelper.SaferequestNull(detail.ProductId),
+                        MallSkuId = string.Empty,
+                        ProductName = VariableHelper.SaferequestNull(detail.ProductName),
+                        ProductPic = string.Empty,
+                        ProductId = string.Empty,
+                        SetCode = string.Empty,
+                        SKU = _sku,
+                        SkuProperties = String.Empty,
+                        SkuGrade = string.Empty,
+                        Quantity = 1,
+                        RRPPrice = 0,
+                        //base-price是单价
+                        //PaymentAmount为去除子订单级别优惠后的总金额
+                        //ActualPaymentAmount去除订单级别优惠后的总金额
+                        SupplyPrice = Math.Round(VariableHelper.SaferequestDecimal(detail.NetPrice / detail.Quantity), _amountAccuracy),
+                        SellingPrice = Math.Round(VariableHelper.SaferequestDecimal(detail.BasePrice / detail.Quantity), _amountAccuracy),
+                        PaymentAmount = _paymentAmount,
+                        ActualPaymentAmount = _paymentAmount,
+                        Status = (int)ProductStatus.Received,
+                        EBStatus = tradeDto.Order.PaymentStatus,
+                        ShippingProvider = string.Empty,
+                        ShippingType = (int)ShipType.OMSShipping,
+                        ShippingStatus = (int)WarehouseProcessStatus.Wait,
+                        DeliveringPlant = this.VirtualDeliveringPlant,
+                        CancelQuantity = 0,
+                        ReturnQuantity = 0,
+                        ExchangeQuantity = 0,
+                        RejectQuantity = 0,
+                        Tax = Math.Round(VariableHelper.SaferequestDecimal(detail.Tax / detail.Quantity), _amountAccuracy),
+                        TaxRate = VariableHelper.SaferequestDecimal(detail.TaxRate),
+                        //判断是否预购订单
+                        IsReservation = _isReservation,
+                        ReservationDate = _isReservation ? (DateTime?)_delivertDate : null,
+                        ReservationRemark = string.Empty,
+                        //预售订单设置成hold状态,等预售时间到才设置成false
+                        IsStop = _isReservation,
+                        IsSet = false,
+                        IsSetOrigin = false,
+                        IsPre = false,
+                        IsGift = false,
+                        IsUrgent = (tradeDto.Order.ShippingMethod == (int)ShippingMethod.ExpressShipping),
+                        IsExchangeNew = false,
+                        IsSystemCancel = false,
+                        IsEmployee = false,
+                        AddDate = DateTime.Now,
+                        EditDate = DateTime.Now,
+                        CompleteDate = null,
+                        ExtraRequest = string.Empty,
+                        IsError = false,
+                        ErrorMsg = string.Empty,
+                        ErrorRemark = string.Empty,
+                        IsDelete = false
+                    };
+                    //如果是赠品,当作普通产品处理
+                    bool _isGift = false;
+                    //商品折扣
+                    var orderDetailAdjustments_ItemLevel = new List<OrderDetailAdjustment>();
+                    if (detail.PriceAdjustments != null)
+                    {
+                        foreach (var priceAdj in detail.PriceAdjustments)
+                        {
+                            var _promotionId = VariableHelper.SaferequestNull(priceAdj.PromotionId);
+                            //判断是否内部员工订单
+                            if (_promotionId.ToLower().Contains("jp-staff"))
+                            {
+                                _isEmployee = true;
+                                _employeeLimitKey = _promotionId.ToLower();
+                                _promotionType = (int)OrderPromotionType.Staff;
+                            }
+                            else if (_promotionId.ToLower().Contains("jp-award"))
+                            {
+                                _promotionType = (int)OrderPromotionType.LoyaltyAward;
+                            }
+                            else
+                            {
+                                _promotionType = (int)OrderPromotionType.Regular;
+                            }
 
-            //            OrderDetailAdjustment adjustment = new OrderDetailAdjustment();
-            //            adjustment.Type = promotionType;
-            //            adjustment.NetPrice = (decimal)XmlHelper.GetSingleNodeDoubleValue(adjustmentNode, $"{nsPrefix}net-price", nsmgr);
-            //            adjustment.Tax = (decimal)XmlHelper.GetSingleNodeDoubleValue(adjustmentNode, $"{nsPrefix}tax", nsmgr);
-            //            adjustment.GrossPrice = (decimal)XmlHelper.GetSingleNodeDoubleValue(adjustmentNode, $"{nsPrefix}gross-price", nsmgr);
-            //            adjustment.BasePrice = (decimal)XmlHelper.GetSingleNodeDoubleValue(adjustmentNode, $"{nsPrefix}base-price", nsmgr);
-            //            adjustment.LineitemText = XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}lineitem-text", nsmgr);
-            //            adjustment.TaxBasis = (decimal)XmlHelper.GetSingleNodeDoubleValue(adjustmentNode, $"{nsPrefix}tax-basis", nsmgr);
-            //            adjustment.PromotionId = VariableHelper.SaferequestStr(XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}promotion-id", nsmgr));
-            //            adjustment.CampaignId = VariableHelper.SaferequestStr(XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}campaign-id", nsmgr));
-            //            adjustment.CouponId = VariableHelper.SaferequestStr(XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}coupon-id", nsmgr));
-            //            adjustment.OrderNo = order.OrderNo;
-            //            adjustment.SubOrderNo = string.Empty;
-            //            orderAdjustments.Add(adjustment);
+                            var orderDetailAdjustment = new OrderDetailAdjustment()
+                            {
+                                OrderNo = _orderNo,
+                                SubOrderNo = orderDetail.SubOrderNo,
+                                Type = _promotionType,
+                                NetPrice = VariableHelper.SaferequestDecimal(priceAdj.NetPrice),
+                                Tax = VariableHelper.SaferequestDecimal(priceAdj.Tax),
+                                GrossPrice = VariableHelper.SaferequestDecimal(priceAdj.GrossPrice),
+                                BasePrice = VariableHelper.SaferequestDecimal(priceAdj.BasePrice),
+                                LineitemText = VariableHelper.SaferequestNull(priceAdj.LineitemText),
+                                TaxBasis = VariableHelper.SaferequestDecimal(priceAdj.TaxBasis),
+                                PromotionId = _promotionId,
+                                CampaignId = VariableHelper.SaferequestNull(priceAdj.CampaignId),
+                                CouponId = VariableHelper.SaferequestNull(priceAdj.Coupon_Id),
+                            };
+                            orderDetailAdjustments_ItemLevel.Add(orderDetailAdjustment);
 
-            //            //订单级别总折扣
-            //            orderRegularAdjustmentTotal += Math.Abs(adjustment.GrossPrice);
-            //        }
-            //    }
+                            //注意,实际成交价=商品零售价-优惠折扣价
+                            if (orderDetailAdjustment.GrossPrice != 0)
+                            {
+                                orderDetail.PaymentAmount = orderDetail.PaymentAmount + orderDetailAdjustment.GrossPrice;
+                                orderDetail.ActualPaymentAmount = orderDetail.PaymentAmount;
+                            }
 
-            //    /**********************payments-lineitems begin*********************************************/
-            //    var giftNodes = orderNode.SelectNodes($"./{nsPrefix}payments/{nsPrefix}payment/{nsPrefix}gift-certificate", nsmgr);
-            //    var paymentGifts = new List<OrderPaymentGift>();
-            //    if (giftNodes != null)
-            //    {
-            //        foreach (XmlNode node in giftNodes)
-            //        {
-            //            string path = $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute";
-            //            string xpath = path + "[@attribute-id='{0}']";
+                            //注意 PromotionId=jp-prod-FreeXXX或者jp-order-FreeXXX 表示为赠品
+                            _isGift = (orderDetailAdjustment.PromotionId.ToLower().Contains("jp-prod-free") || orderDetailAdjustment.PromotionId.ToLower().Contains("jp-order-free"));
+                            if (_isGift)
+                            {
+                                orderDetail.PaymentAmount = 0;
+                                orderDetail.ActualPaymentAmount = 0;
+                            }
+                        }
+                    }
 
-            //            OrderPaymentGift giftParPayment = new OrderPaymentGift();
-            //            giftParPayment.CardBalanceMutations = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "cardBalanceMutations"), nsmgr);
-            //            giftParPayment.CardBalanceRedeemed = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "cardBalanceRedeemed"), nsmgr);
-            //            giftParPayment.CardBalances = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "cardBalances"), nsmgr);
-            //            giftParPayment.GiftCardId = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "giftCardId"), nsmgr);
-            //            giftParPayment.GiftCardPin = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "giftCardPin"), nsmgr);
-            //            giftParPayment.IsloyaltyCard = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "isloyaltyCard"), nsmgr);
-            //            giftParPayment.LoyaltyIssuanceTransactionID = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "loyaltyIssuanceTransactionID"), nsmgr);
-            //            giftParPayment.GiftTransactionId = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "transactionId"), nsmgr);
-            //            giftParPayment.Amount = (decimal)XmlHelper.GetSingleNodeDoubleValue(node.ParentNode, $"{nsPrefix}amount", nsmgr);
-            //            giftParPayment.ProcessorId = XmlHelper.GetSingleNodeText(node.ParentNode, $"{nsPrefix}processor-id", nsmgr);
-            //            giftParPayment.TransactionId = XmlHelper.GetSingleNodeText(node.ParentNode, $"./{nsPrefix}transaction-id", nsmgr);
-            //            giftParPayment.OrderNo = order.OrderNo;
+                    //Monogram Pacth
+                    var monoPatchValue = VariableHelper.SaferequestNull(detail.MonogramPatch);
+                    if (!string.IsNullOrEmpty(monoPatchValue))
+                    {
+                        var monogramItem = ParseToMonogramItem(monoPatchValue);
+                        tradeDto.OrderValueAddedServices.Add(new OrderValueAddedService()
+                        {
+                            OrderNo = tradeDto.Order.OrderNo,
+                            SubOrderNo = orderDetail.SubOrderNo,
+                            Type = (int)ValueAddedServicesType.Monogram,
+                            MonoLocation = ValueAddedService.MONOGRAM_PATCH,
+                            MonoValue = JsonHelper.JsonSerialize(monogramItem, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
+                        });
+                    }
 
-            //            //积分
-            //            if (giftParPayment.Amount == 0 && !string.IsNullOrEmpty(giftParPayment.CardBalanceMutations))
-            //            {
-            //                order.Point = ParseCardBalance(giftParPayment.CardBalanceMutations);
-            //            }
+                    //Monogram Tag
+                    var monoTagValue = VariableHelper.SaferequestNull(detail.MonogramTag);
+                    MonogramDto monoTags = ParseToMonogramItem(monoTagValue);
+                    if (monoTags != null)
+                    {
+                        tradeDto.OrderValueAddedServices.Add(new OrderValueAddedService()
+                        {
+                            OrderNo = tradeDto.Order.OrderNo,
+                            SubOrderNo = orderDetail.SubOrderNo,
+                            Type = (int)ValueAddedServicesType.Monogram,
+                            MonoLocation = ValueAddedService.MONOGRAM_TAG,
+                            MonoValue = JsonHelper.JsonSerialize(monoTags, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
+                        });
+                    }
 
-            //            //折扣点
-            //            if (giftParPayment.Amount > 0 && string.IsNullOrEmpty(giftParPayment.CardBalanceMutations))
-            //            {
-            //                order.PointAmount += giftParPayment.Amount;
-            //            }
+                    //Gift Card
+                    string giftCardValue = VariableHelper.SaferequestNull(detail.GiftCard);
+                    if (!string.IsNullOrEmpty(giftCardValue))
+                    {
+                        var giftCardItem = ParseToGiftCardItem(giftCardValue);
+                        tradeDto.OrderValueAddedServices.Add(new OrderValueAddedService()
+                        {
+                            OrderNo = tradeDto.Order.OrderNo,
+                            SubOrderNo = orderDetail.SubOrderNo,
+                            Type = (int)ValueAddedServicesType.GiftCard,
+                            MonoLocation = ValueAddedService.GIFT_CARD,
+                            MonoValue = JsonHelper.JsonSerialize(giftCardItem, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
+                        });
+                    }
 
-            //            paymentGifts.Add(giftParPayment);
-            //        }
-            //    }
+                    ////Monogram
+                    //string _monoAbleValue = VariableHelper.SaferequestNull(detail.MonogramAble);
+                    //if (!string.IsNullOrEmpty(_monoAbleValue))
+                    //{
+                    //    tradeDto.OrderValueAddedServices.Add(new OrderValueAddedService()
+                    //    {
+                    //        OrderNo = tradeDto.Order.OrderNo,
+                    //        SubOrderNo = orderDetail.SubOrderNo,
+                    //        Type = (int)ValueAddedServicesType.Monogram,
+                    //        MonoLocation = ValueAddedService.MONOGRAM_ABLE,
+                    //        MonoValue = JsonHelper.JsonSerialize(new MonogramDto
+                    //        {
+                    //            Text = _monoAbleValue
+                    //        }, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
+                    //    });
+                    //}
 
-            //    var paymentNodes = orderNode.SelectNodes($"./{nsPrefix}payments/{nsPrefix}payment", nsmgr);
-            //    var payments = new List<OrderPayment>();
-            //    if (paymentNodes != null)
-            //    {
-            //        foreach (XmlNode node in paymentNodes)
-            //        {
-            //            OrderPayment payment = new OrderPayment();
-            //            payment.Method = XmlHelper.GetSingleNodeText(node, $"{nsPrefix}custom-method/{nsPrefix}method-name", nsmgr);
-            //            payment.ProcessorId = XmlHelper.GetSingleNodeText(node, $"{nsPrefix}processor-id", nsmgr);
-            //            order.PaymentType = GetPaymentType(payment.Method, payment.ProcessorId);
-            //            if (order.PaymentType == (int)PayType.CashOnDelivery)
-            //            {
-            //                order.PaymentDate = null;
-            //            }
-            //            else
-            //            {
-            //                //如果不是cod订单,付款时间默认为订单创建时间
-            //                order.PaymentDate = order.CreateDate;
-            //            }
-            //            string card_type = XmlHelper.GetSingleNodeText(node, $"{nsPrefix}credit-card/{nsPrefix}card-type", nsmgr);
-            //            PayAttribute paymentAttribute = new PayAttribute()
-            //            {
-            //                CardType = card_type,
-            //                PayCode = payment.Method
-            //            };
-            //            order.PaymentAttribute = JsonHelper.JsonSerialize(paymentAttribute);
-            //            payment.Amount = XmlHelper.GetSingleNodeDecimalValue(node, $"{nsPrefix}amount", nsmgr);
-            //            //custom
-            //            string path = $"{nsPrefix}custom-method/{nsPrefix}custom-attributes/{nsPrefix}custom-attribute";
-            //            string xpath = path + "[@attribute-id='{0}']";
-            //            payment.BankAccountNumber = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "bankAccountNumber"), nsmgr);
-            //            payment.BankAccountOwner = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "bankAccountOwner"), nsmgr);
-            //            payment.BankCode = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "bankCode"), nsmgr);
-            //            payment.BankName = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "bankName"), nsmgr);
-            //            payment.InicisPaymentMethod = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "inicisPaymentMethod"), nsmgr);
-            //            payment.PaymentDeadline = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "paymentDeadline"), nsmgr);
-            //            payment.Tid = XmlHelper.GetSingleNodeText(node, string.Format(xpath, "tid"), nsmgr);
-            //            payment.OrderNo = order.OrderNo;
-            //            payments.Add(payment);
+                    //是否内部员工订单
+                    orderDetail.IsEmployee = _isEmployee;
+                    //如果是内部员工订单
+                    if (_isEmployee)
+                    {
+                        ////---获取RRP价格----
+                        //decimal _RRPrice = Math.Round(VariableHelper.SaferequestDecimal(detail.ProductStandardPrice), _amountAccuracy);
 
-            //            //BalanceAmount:累加计算实际付款金额
-            //            order.BalanceAmount += payment.Amount;
-            //        }
-            //    }
+                        //写入员工信息
+                        tradeDto.Employee = new UserEmployee()
+                        {
+                            EmployeeEmail = customer.Email,
+                            EmployeeName = customer.Name,
+                            DataGroupID = 0,
+                            LevelID = UserEmployeeService.GetLevelID(_employeeLimitKey),
+                            CurrentAmount = 0,
+                            CurrentQuantity = 0,
+                            LeaveTime = string.Empty,
+                            IsLock = false,
+                            Remark = string.Empty,
+                            AddTime = DateTime.Now
+                        };
+                    }
 
-            //    /**********************product-lineitems begin*********************************************/
-            //    //匹配产品项
-            //    string productXpaht = $"./{nsPrefix}product-lineitems/{nsPrefix}product-lineitem";
-            //    var productNodes = orderNode.SelectNodes(productXpaht, nsmgr);
-            //    //DW订单状态，看是否是取消订单Cancel-Complete
-            //    string dw_status = XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='orderStatus']", nsmgr);
-
-            //    if (productNodes != null)
-            //    {
-            //        int index = 1;
-            //        foreach (XmlNode productNode in productNodes)
-            //        {
-            //            int _quantity = XmlHelper.GetSingleNodeIntValue(productNode, $"{nsPrefix}quantity", nsmgr);
-
-            //            //按照购买数量分割成多个子订单
-            //            for (int t = 0; t < _quantity; t++)
-            //            {
-            //                TradeDto dto = new TradeDto
-            //                {
-            //                    Order = order,
-            //                    Customer = customer,
-            //                    Billing = billing,
-            //                    Receive = GenericHelper.TCopyValue<OrderReceive>(orderReceive)
-            //                };
-
-            //                string _subOrderNo = ECommerceUtil.CreateSubOrderNo(this.PlatformCode, order.OrderNo, string.Empty, index);
-            //                string _parentSubOrderNo = string.Empty;
-            //                //---------如果是二级子订单--------------------------------------
-            //                bool isMainProduct = XmlHelper.GetSingleNodeBoolValue(productNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='isMainProduct']", nsmgr);
-            //                string relatedProductGroup = XmlHelper.GetSingleNodeText(productNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='relatedProductGroup']", nsmgr);
-            //                if (!string.IsNullOrEmpty(relatedProductGroup))
-            //                {
-            //                    if (!isMainProduct)
-            //                    {
-            //                        var tmp = dtos.Where(p => p.SubOrderRelatedInfo.RelatedCode == relatedProductGroup && p.SubOrderRelatedInfo.IsParent).FirstOrDefault();
-            //                        if (tmp != null)
-            //                        {
-            //                            //重建子订单号
-            //                            _subOrderNo = $"{tmp.OrderDetail.SubOrderNo}_{index}";
-            //                            _parentSubOrderNo = tmp.OrderDetail.SubOrderNo;
-            //                        }
-            //                    }
-            //                    //保存二级子订单关系
-            //                    dto.SubOrderRelatedInfo = new TradeDto.SubOrderRelated()
-            //                    {
-            //                        IsParent = isMainProduct,
-            //                        RelatedCode = relatedProductGroup
-            //                    };
-            //                }
-            //                //----------------------------------------------------------------
-
-            //                if (index == 1) //判断是否是第一个，把总优惠信息，放到第一个产品上
-            //                {
-            //                    dto.Payments = payments;
-            //                    dto.PaymentGifts = paymentGifts;
-            //                    dto.DetailAdjustments = orderAdjustments;
-            //                    dto.OrderShippingAdjustments = orderShippingAdjustments;
-            //                }
-
-            //                //更改收货信息的子订单号信息
-            //                dto.Receive.SubOrderNo = _subOrderNo;
-
-            //                OrderDetail orderDetail = new OrderDetail();
-            //                orderDetail.OrderNo = order.OrderNo;
-            //                orderDetail.SubOrderNo = _subOrderNo;
-            //                orderDetail.ParentSubOrderNo = string.Empty;
-            //                orderDetail.CreateDate = VariableHelper.SaferequestTime(XmlHelper.GetSingleNodeText(orderNode, $"{nsPrefix}order-date", nsmgr));
-            //                orderDetail.MallProductId = XmlHelper.GetSingleNodeText(productNode, $"{nsPrefix}product-id", nsmgr);
-            //                orderDetail.MallSkuId = string.Empty;
-            //                orderDetail.ProductName = XmlHelper.GetSingleNodeText(productNode, $"{nsPrefix}lineitem-text", nsmgr);
-            //                orderDetail.ProductPic = string.Empty;
-            //                orderDetail.SetCode = string.Empty;
-            //                orderDetail.SKU = XmlHelper.GetSingleNodeText(productNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='sku']", nsmgr);
-            //                //如果sku为空,则去MallProductId作为sku
-            //                if (string.IsNullOrEmpty(orderDetail.SKU))
-            //                {
-            //                    orderDetail.SKU = orderDetail.MallProductId;
-            //                }
-            //                orderDetail.SkuProperties = string.Empty;
-            //                orderDetail.SkuGrade = string.Empty;
-            //                orderDetail.Quantity = 1;
-            //                orderDetail.RRPPrice = 0;
-            //                //base-price是单价
-            //                //PaymentAmount为去除子订单级别优惠后的总金额
-            //                //ActualPaymentAmount去除订单级别优惠后的总金额
-            //                orderDetail.SupplyPrice = Math.Round(XmlHelper.GetSingleNodeDecimalValue(productNode, $"{nsPrefix}net-price", nsmgr) / _quantity, _AmountAccuracy);
-            //                orderDetail.SellingPrice = XmlHelper.GetSingleNodeDecimalValue(productNode, $"{nsPrefix}base-price", nsmgr);
-            //                orderDetail.PaymentAmount = Math.Round(XmlHelper.GetSingleNodeDecimalValue(productNode, $"{nsPrefix}gross-price", nsmgr) / _quantity, _AmountAccuracy);
-            //                orderDetail.ActualPaymentAmount = orderDetail.PaymentAmount;
-            //                //默认都是已付款订单
-            //                orderDetail.Status = (int)ProductStatus.Received;
-            //                orderDetail.EBStatus = order.PaymentStatus;
-            //                orderDetail.ShippingProvider = string.Empty;
-            //                orderDetail.ShippingType = (int)ShipType.OMSShipping;
-            //                orderDetail.ShippingStatus = (int)WarehouseProcessStatus.Wait;
-            //                orderDetail.DeliveringPlant = this.VirtualDeliveringPlant;
-            //                orderDetail.CancelQuantity = 0;
-            //                orderDetail.ReturnQuantity = 0;
-            //                orderDetail.ExchangeQuantity = 0;
-            //                orderDetail.RejectQuantity = 0;
-            //                orderDetail.Tax = Math.Round(XmlHelper.GetSingleNodeDecimalValue(productNode, $"{nsPrefix}tax", nsmgr) / _quantity, _AmountAccuracy);
-            //                orderDetail.TaxRate = (decimal)XmlHelper.GetSingleNodeDoubleValue(productNode, $"{nsPrefix}tax-rate", nsmgr);
-            //                //判断是否预购订单
-            //                string preOrderDeliveryDate = XmlHelper.GetSingleNodeText(productNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='preOrderDeliveryDate']", nsmgr);
-            //                DateTime delivertDate = DateTime.Now;
-            //                if (DateTime.TryParse(preOrderDeliveryDate, out delivertDate))
-            //                {
-            //                    orderDetail.IsReservation = true;
-            //                    orderDetail.ReservationDate = delivertDate;
-            //                    orderDetail.ReservationRemark = string.Empty;
-            //                    //预售订单设置成hold状态,等预售时间到才设置成false
-            //                    orderDetail.IsStop = true;
-            //                }
-            //                else
-            //                {
-            //                    orderDetail.IsReservation = false;
-            //                    orderDetail.ReservationRemark = string.Empty;
-            //                    orderDetail.IsStop = false;
-            //                }
-            //                orderDetail.IsSet = false;
-            //                orderDetail.IsSetOrigin = false;
-            //                orderDetail.IsPre = false;
-            //                orderDetail.IsGift = false;
-            //                orderDetail.IsUrgent = (dto.Order.ShippingMethod == (int)ShippingMethod.ExpressShipping);
-            //                orderDetail.IsExchangeNew = false;
-            //                orderDetail.IsSystemCancel = false;
-            //                orderDetail.AddDate = DateTime.Now;
-            //                orderDetail.EditDate = DateTime.Now;
-            //                orderDetail.CompleteDate = null;
-            //                orderDetail.ExtraRequest = string.Empty;
-            //                //商品折扣
-            //                var adjustments = productNode.SelectNodes($"./{nsPrefix}price-adjustments/{nsPrefix}price-adjustment", nsmgr);
-            //                //如果是赠品,当作普通产品处理
-            //                bool _isGift = false;
-            //                if (adjustments != null)
-            //                {
-            //                    foreach (XmlNode adjustmentNode in adjustments)
-            //                    {
-            //                        var _promotionId = VariableHelper.SaferequestStr(XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}promotion-id", nsmgr));
-            //                        //判断是否内部员工订单
-            //                        if (_promotionId.ToLower().Contains("sg-staff"))
-            //                        {
-            //                            isEmployee = true;
-            //                            employeeLimitKey = _promotionId.ToLower();
-            //                            promotionType = (int)OrderPromotionType.Staff;
-            //                        }
-            //                        else if (_promotionId.ToLower().Contains("sg-award"))
-            //                        {
-            //                            promotionType = (int)OrderPromotionType.LoyaltyAward;
-            //                        }
-            //                        else
-            //                        {
-            //                            promotionType = (int)OrderPromotionType.Regular;
-            //                        }
-
-            //                        OrderDetailAdjustment adjustment = new OrderDetailAdjustment();
-            //                        adjustment.Type = promotionType;
-            //                        adjustment.NetPrice = Math.Round(XmlHelper.GetSingleNodeDecimalValue(adjustmentNode, $"{nsPrefix}net-price", nsmgr) / _quantity, _AmountAccuracy);
-            //                        adjustment.Tax = Math.Round(XmlHelper.GetSingleNodeDecimalValue(adjustmentNode, $"{nsPrefix}tax", nsmgr) / _quantity, _AmountAccuracy);
-            //                        adjustment.GrossPrice = Math.Round(XmlHelper.GetSingleNodeDecimalValue(adjustmentNode, $"{nsPrefix}gross-price", nsmgr) / _quantity, _AmountAccuracy);
-            //                        adjustment.BasePrice = Math.Round(XmlHelper.GetSingleNodeDecimalValue(adjustmentNode, $"{nsPrefix}base-price", nsmgr) / _quantity, _AmountAccuracy);
-            //                        adjustment.LineitemText = XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}lineitem-text", nsmgr);
-            //                        adjustment.TaxBasis = Math.Round(XmlHelper.GetSingleNodeDecimalValue(adjustmentNode, $"{nsPrefix}tax-basis", nsmgr) / _quantity, _AmountAccuracy);
-            //                        adjustment.PromotionId = _promotionId;
-            //                        adjustment.CampaignId = VariableHelper.SaferequestStr(XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}campaign-id", nsmgr));
-            //                        adjustment.CouponId = VariableHelper.SaferequestStr(XmlHelper.GetSingleNodeText(adjustmentNode, $"{nsPrefix}coupon-id", nsmgr));
-            //                        adjustment.OrderNo = order.OrderNo;
-            //                        adjustment.SubOrderNo = orderDetail.SubOrderNo;
-            //                        dto.DetailAdjustments.Add(adjustment);
-
-            //                        //注意，实际成交价=商品零售价-优惠折扣价
-            //                        if (adjustment.GrossPrice != 0)
-            //                        {
-            //                            orderDetail.ActualPaymentAmount = orderDetail.PaymentAmount + adjustment.GrossPrice;
-            //                            orderDetail.PaymentAmount = orderDetail.ActualPaymentAmount;
-            //                        }
-
-            //                        //注意 PromotionId=sg-prod-FreeXXX或者sg-order-FreeXXX 表示为赠品
-            //                        _isGift = (adjustment.PromotionId.ToLower().Contains("sg-prod-free") || adjustment.PromotionId.ToLower().Contains("sg-order-free"));
-            //                        if (_isGift)
-            //                        {
-            //                            orderDetail.PaymentAmount = 0;
-            //                            orderDetail.ActualPaymentAmount = 0;
-            //                        }
-            //                    }
-            //                }
-            //                //错误信息
-            //                orderDetail.IsError = false;
-            //                orderDetail.ErrorMsg = string.Empty;
-            //                orderDetail.ErrorRemark = string.Empty;
-            //                orderDetail.IsDelete = false;
-
-            //                //解析增值服务信息
-            //                //Monogram text,Font color,Font family
-            //                var monoPatchValue = XmlHelper.GetSingleNodeText(productNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='MONOPATCH']", nsmgr);
-            //                MonogramDto monoPatchs = parseToMonogramItem(monoPatchValue);
-            //                if (monoPatchs != null)
-            //                {
-            //                    dto.OrderValueAddedServices.Add(new OrderValueAddedService()
-            //                    {
-            //                        OrderNo = dto.Order.OrderNo,
-            //                        SubOrderNo = _subOrderNo,
-            //                        Type = (int)ValueAddedServicesType.Monogram,
-            //                        MonoLocation = ValueAddedService.MONOGRAM_PATCH,
-            //                        MonoValue = JsonHelper.JsonSerialize(monoPatchs, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
-            //                    });
-            //                }
-            //                var monoTagValue = XmlHelper.GetSingleNodeText(productNode,
-            //                   $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='MONOTAG']", nsmgr);
-            //                MonogramDto monoTags = parseToMonogramItem(monoTagValue);
-            //                if (monoTags != null)
-            //                {
-            //                    dto.OrderValueAddedServices.Add(new OrderValueAddedService()
-            //                    {
-            //                        OrderNo = dto.Order.OrderNo,
-            //                        SubOrderNo = _subOrderNo,
-            //                        Type = (int)ValueAddedServicesType.Monogram,
-            //                        MonoLocation = ValueAddedService.MONOGRAM_TAG,
-            //                        MonoValue = JsonHelper.JsonSerialize(monoTags, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
-            //                    });
-            //                }
-            //                //var monoAbleValue = XmlHelper.GetSingleNodeText(productNode,
-            //                //   $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='MONOABLE']", nsmgr);
-            //                //MonogramDto monoAbles = parseToMonogramItem(monoAbleValue);
-            //                //if (monoAbles != null)
-            //                //{
-            //                //    dto.OrderValueAddedServices.Add(new OrderValueAddedService()
-            //                //    {
-            //                //        OrderNo = dto.Order.OrderNo,
-            //                //        SubOrderNo = _SubOrderNo,
-            //                //        Type = (int)ValueAddedServicesType.Monogram,
-            //                //        MonoLocation = ValueAddedService.MONOGRAM_ABLE,
-            //                //        MonoValue = JsonHelper.JsonSerialize(monoAbles, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
-            //                //    });
-            //                //}
-            //                //Gift Card
-            //                //Message,receiver,sender,font,gift card ID
-            //                string giftCardValue = XmlHelper.GetSingleNodeText(productNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='giftCard']", nsmgr);
-            //                if (!string.IsNullOrEmpty(giftCardValue))
-            //                {
-            //                    var giftCardItem = ParseToGiftCardItem(giftCardValue);
-            //                    dto.OrderValueAddedServices.Add(new OrderValueAddedService()
-            //                    {
-            //                        OrderNo = order.OrderNo,
-            //                        SubOrderNo = orderDetail.SubOrderNo,
-            //                        Type = (int)ValueAddedServicesType.GiftCard,
-            //                        MonoLocation = ValueAddedService.GIFT_CARD,
-            //                        MonoValue = JsonHelper.JsonSerialize(giftCardItem, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore })
-            //                    });
-            //                }
-
-            //                //是否内部员工订单
-            //                orderDetail.IsEmployee = isEmployee;
-            //                //如果是内部员工订单
-            //                if (isEmployee)
-            //                {
-            //                    //写入员工信息
-            //                    dto.Employee = new UserEmployee()
-            //                    {
-            //                        EmployeeEmail = customer.Email,
-            //                        EmployeeName = customer.Name,
-            //                        DataGroupID = 0,
-            //                        LevelID = UserEmployeeService.GetLevelID(employeeLimitKey),
-            //                        CurrentAmount = 0,
-            //                        CurrentQuantity = 0,
-            //                        LeaveTime = string.Empty,
-            //                        IsLock = false,
-            //                        Remark = string.Empty,
-            //                        AddTime = DateTime.Now
-            //                    };
-            //                }
-            //                dto.OrderDetail = orderDetail;
-
-            //                //如果是赠品,不添加该dto对象
-            //                if (_isGift)
-            //                {
-            //                    //将赠品挂靠到关联的(同一个订单)的子订单上
-            //                    var _RelateDto = dtos.Where(p => p.Order.OrderNo == dto.Order.OrderNo && p.GiftIDs.Contains(orderDetail.MallProductId)).FirstOrDefault();
-            //                    if (_RelateDto != null)
-            //                    {
-            //                        //将赠品的优惠信息挂靠到产品上面
-            //                        foreach (var _d in dto.DetailAdjustments)
-            //                        {
-            //                            _d.SubOrderNo = _RelateDto.OrderDetail.SubOrderNo;
-            //                        }
-            //                        _RelateDto.DetailAdjustments.AddRange(dto.DetailAdjustments);
-            //                        _RelateDto.OrderGifts.Add(new OrderGift()
-            //                        {
-            //                            OrderNo = _RelateDto.Order.OrderNo,
-            //                            SubOrderNo = _RelateDto.OrderDetail.SubOrderNo,
-            //                            GiftNo = OrderService.CreateGiftSubOrderNO(_RelateDto.OrderDetail.SubOrderNo, dto.OrderDetail.SKU),
-            //                            Sku = dto.OrderDetail.SKU,
-            //                            MallProductId = dto.OrderDetail.MallProductId,
-            //                            ProductName = dto.OrderDetail.ProductName,
-            //                            Price = dto.OrderDetail.SellingPrice,
-            //                            Quantity = dto.OrderDetail.Quantity,
-            //                            IsSystemGift = false,
-            //                            AddDate = DateTime.Now
-            //                        });
-            //                    }
-            //                }
-            //                else
-            //                {
-            //                    //赠品全部附加到多数量的第一个产品上
-            //                    if (t == 0)
-            //                    {
-            //                        //附属赠品ID
-            //                        dto.GiftIDs = GetBonusProductID(XmlHelper.GetSingleNodeText(productNode, $"{nsPrefix}custom-attributes/{nsPrefix}custom-attribute[@attribute-id='sg_bonusProductPromotion']", nsmgr));
-            //                    }
-            //                    dtos.Add(dto);
-            //                    index++;
-            //                }
-            //            }
-            //        }
-            //    }
-
-            //    //如果存在订单级别优惠,则需要将优惠金额比例平摊到ActualPayment上
-            //    if (orderRegularAdjustmentTotal > 0)
-            //    {
-            //        decimal _sumPaymentAmount = dtos.Sum(p => p.OrderDetail.PaymentAmount);
-            //        //需要分摊的金额
-            //        decimal _avgAmount = orderRegularAdjustmentTotal;
-            //        decimal _r_avgAmount = _avgAmount;
-            //        int k = 0;
-            //        foreach (var _detail in dtos)
-            //        {
-            //            k++;
-            //            //最后一个使用减法
-            //            if (k == dtos.Count)
-            //            {
-            //                _detail.OrderDetail.ActualPaymentAmount -= _r_avgAmount;
-            //            }
-            //            else
-            //            {
-            //                decimal _c = Math.Round(_avgAmount * _detail.OrderDetail.PaymentAmount / _sumPaymentAmount, _AmountAccuracy);
-            //                _detail.OrderDetail.ActualPaymentAmount -= _c;
-            //                _r_avgAmount -= _c;
-            //            }
-            //        }
-            //    }
-            //    _result.AddRange(dtos);
-            //}
-            return _result;
+                    //如果是赠品,需要添加到orderGifts集合
+                    if (_isGift)
+                    {
+                        //将赠品挂靠到关联的(同一个订单)的子订单上
+                        var _relateDto = tradeDto.GiftRelateds.Where(p => p.GiftIds.Contains(orderDetail.MallProductId)).OrderByDescending(p => p.SubOrderNo).FirstOrDefault();
+                        if (_relateDto != null)
+                        {
+                            //将赠品的优惠信息挂靠到父产品上面
+                            foreach (var _d in orderDetailAdjustments_ItemLevel)
+                            {
+                                _d.SubOrderNo = _relateDto.SubOrderNo;
+                            }
+                            //添加赠品
+                            tradeDto.OrderGifts.Add(new OrderGift()
+                            {
+                                OrderNo = tradeDto.Order.OrderNo,
+                                SubOrderNo = _relateDto.SubOrderNo,
+                                GiftNo = OrderService.CreateGiftSubOrderNO(_relateDto.SubOrderNo, _relateDto.Sku),
+                                Sku = orderDetail.SKU,
+                                MallProductId = orderDetail.MallProductId,
+                                ProductName = orderDetail.ProductName,
+                                Price = orderDetail.SellingPrice,
+                                Quantity = orderDetail.Quantity,
+                                IsSystemGift = false,
+                                PromotionID = 0,
+                                AddDate = DateTime.Now
+                            });
+                        }
+                        //如果没有关联,则不处理
+                    }
+                    else
+                    {
+                        //附属赠品ID
+                        tradeDto.GiftRelateds.Add(new TradeDto.GiftRelated()
+                        {
+                            SubOrderNo = orderDetail.SubOrderNo,
+                            Sku = orderDetail.SKU,
+                            GiftIds = GetBonusProductID(VariableHelper.SaferequestNull(detail.BonusProductPromotionIDs))
+                        });
+                        tradeDto.OrderDetails.Add(orderDetail);
+                        index++;
+                    }
+                    tradeDto.OrderDetailAdjustments.AddRange(orderDetailAdjustments_ItemLevel);
+                }
+                //返回对象
+                return tradeDto;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         /// <summary>
@@ -761,9 +655,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// <returns></returns>
         private List<ClaimInfoDto> ParseXmlToOrderFullRequest(string filePath)
         {
-            //金额精准度
-            int _AmountAccuracy = ConfigService.GetAmountAccuracyConfig();
-
             var dtos = new List<ClaimInfoDto>();
             XmlDocument doc = new XmlDocument();
             doc.Load(filePath);
@@ -799,11 +690,11 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                                 //全部取消时退款的快递费平摊处理
                                 if (t == objOrderDetail_List.Count)
                                 {
-                                    info.ExpressFee = Math.Round(_d.DeliveryFee - _d.DeliveryFee / objOrderDetail_List.Count * (objOrderDetail_List.Count - 1), _AmountAccuracy);
+                                    info.ExpressFee = Math.Round(_d.DeliveryFee - _d.DeliveryFee / objOrderDetail_List.Count * (objOrderDetail_List.Count - 1), _amountAccuracy);
                                 }
                                 else
                                 {
-                                    info.ExpressFee = Math.Round(_d.DeliveryFee / objOrderDetail_List.Count, _AmountAccuracy);
+                                    info.ExpressFee = Math.Round(_d.DeliveryFee / objOrderDetail_List.Count, _amountAccuracy);
                                 }
                                 info.ClaimType = ClaimType.Cancel;
                                 info.RequestId = OrderCancelProcessService.CreateRequestID(_d.SubOrderNo);
@@ -813,7 +704,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                                 //退款时产生的整个订单的取货快递费平摊处理
                                 if (t == objOrderDetail_List.Count)
                                 {
-                                    info.ExpressFee = Math.Round(_shipping_fee - _shipping_fee / objOrderDetail_List.Count * (objOrderDetail_List.Count - 1), _AmountAccuracy);
+                                    info.ExpressFee = Math.Round(_shipping_fee - _shipping_fee / objOrderDetail_List.Count * (objOrderDetail_List.Count - 1), _amountAccuracy);
                                 }
                                 else
                                 {
@@ -1393,27 +1284,31 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
 
         #region 交易API
         /// <summary>
-        /// 获取订单
+        /// 获取待处理订单集合
         /// </summary>
         /// <returns></returns>
         public List<TradeDto> GetOrders()
         {
-            List<TradeDto> dtos = new List<TradeDto>();
-            //FTP文件目录
-            string _ftpFilePath = $"{FtpConfig.FtpFilePath}{TumiConfig.OrderRemotePath}";
-            SFTPHelper sftpHelper = new SFTPHelper(FtpConfig.FtpServerIp, FtpConfig.Port, FtpConfig.UserId, FtpConfig.Password);
-
-            //本地保存文件目录
-            string _localPath = AppDomain.CurrentDomain.BaseDirectory + this._localPath + "\\" + DateTime.Now.ToString("yyyy-MM") + "\\" + DateTime.Now.ToString("yyyyMMdd") + "\\" + TumiConfig.OrderLocalPath;
-            //读取文件
-            FTPResult _ftpFiles = FtpService.DownFileFromsFtp(sftpHelper, _ftpFilePath, _localPath, "xml", FtpConfig.IsDeleteOriginalFile);
-            //循环文件列表
-            foreach (var _str in _ftpFiles.SuccessFile)
+            List<TradeDto> tradeDtos = new List<TradeDto>();
+            using (var db = new ebEntities())
             {
-                var orders = ParseXmlToOrder(_str);
-                dtos.AddRange(orders);
+                var waitOrders = db.OrderCache.Where(p => p.MallSapCode == this.MallSapCode && p.Status == 0).ToList();
+                foreach (var item in waitOrders)
+                {
+                    try
+                    {
+                        var data = JsonHelper.JsonDeserialize<OrderDto>(item.DataString);
+                        tradeDtos.Add(this.ParseOrder(data));
+                    }
+                    catch (Exception ex)
+                    {
+                        item.ErrorCount++;
+                        item.ErrorMessage = ex.ToString();
+                        db.SaveChanges();
+                    }
+                }
             }
-            return dtos;
+            return tradeDtos;
         }
         #endregion
 
@@ -1718,7 +1613,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                     List<View_MallProductInventory> objMallProduct_List = db.View_MallProductInventory.Where(p => p.MallSapCode == this.MallSapCode && p.ProductType != (int)ProductType.Gift && p.IsOnSale && p.IsUsed && p.SalesPrice > 0).ToList();
                     //读取产品信息
                     List<string> skus = objMallProduct_List.GroupBy(p => p.SKU).Select(o => o.Key).ToList();
-                    List<Product> objProduct_List = db.Product.Where(p => skus.Contains(p.SKU)).ToList();
+                    List<Database.Product> objProduct_List = db.Product.Where(p => skus.Contains(p.SKU)).ToList();
                     //读取产品相关价格区间集合
                     List<long> ids = objMallProduct_List.Select(o => o.ID).ToList();
                     List<MallProductPriceRange> objMallProductPriceRange_List = db.MallProductPriceRange.Where(p => ids.Contains(p.MP_ID)).ToList();
@@ -1899,7 +1794,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                             EncryptionFactory.Create(item).Decrypt();
                         }
                         //客户信息
-                        dto.Customer = db.SingleOrDefault<Customer>($"select top 1 * from Customer where CustomerNo=@0", order.CustomerNo);
+                        dto.Customer = db.SingleOrDefault<Database.Customer>($"select top 1 * from Customer where CustomerNo=@0", order.CustomerNo);
                         //解密相关字段信息
                         EncryptionFactory.Create(dto.Customer).Decrypt();
 
@@ -2324,7 +2219,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// </summary>
         /// <param name="objStr"></param>
         /// <returns></returns>
-        public  ShippingMethodModel GetShippingInfo(string objStr)
+        public ShippingMethodModel GetShippingInfo(string objStr)
         {
             ShippingMethodModel _result = new ShippingMethodModel()
             {

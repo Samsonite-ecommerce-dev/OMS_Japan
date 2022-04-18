@@ -415,6 +415,19 @@
           <Property Name="StateCode" Type="nvarchar" MaxLength="50" />
           <Property Name="City" Type="nvarchar" MaxLength="128" />
         </EntityType>
+        <EntityType Name="OrderCache">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MallSapCode" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="OrderNo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="DataString" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="AddDate" Type="datetime" Nullable="false" />
+          <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="ErrorCount" Type="int" Nullable="false" />
+          <Property Name="ErrorMessage" Type="nvarchar(max)" />
+        </EntityType>
         <EntityType Name="OrderCancel">
           <Key>
             <PropertyRef Name="Id" />
@@ -489,7 +502,7 @@
           <Property Name="CollectName" Type="nvarchar" MaxLength="50" />
           <Property Name="CollectPhone" Type="nvarchar" MaxLength="50" />
           <Property Name="CollectAddress" Type="nvarchar" MaxLength="500" />
-          <Property Name="AddDate" Type="datetime" />
+          <Property Name="AddDate" Type="datetime" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
           <Property Name="ErrorCount" Type="int" Nullable="false" />
           <Property Name="ErrorMessage" Type="nvarchar(max)" />
@@ -2450,6 +2463,7 @@
           <EntitySet Name="MallProductPriceRange" EntityType="Self.MallProductPriceRange" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Order" EntityType="Self.Order" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OrderBilling" EntityType="Self.OrderBilling" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="OrderCache" EntityType="Self.OrderCache" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OrderCancel" EntityType="Self.OrderCancel" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OrderChangeRecord" EntityType="Self.OrderChangeRecord" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="OrderClaimCache" EntityType="Self.OrderClaimCache" Schema="dbo" store:Type="Tables" />
@@ -3187,6 +3201,7 @@
           <EntitySet Name="MallProductPriceRange" EntityType="Samsonite.OMS.Database.MallProductPriceRange" />
           <EntitySet Name="Order" EntityType="Samsonite.OMS.Database.Order" />
           <EntitySet Name="OrderBilling" EntityType="Samsonite.OMS.Database.OrderBilling" />
+          <EntitySet Name="OrderCache" EntityType="Samsonite.OMS.Database.OrderCache" />
           <EntitySet Name="OrderCancel" EntityType="Samsonite.OMS.Database.OrderCancel" />
           <EntitySet Name="OrderChangeRecord" EntityType="Samsonite.OMS.Database.OrderChangeRecord" />
           <EntitySet Name="OrderClaimCache" EntityType="Samsonite.OMS.Database.OrderClaimCache" />
@@ -3669,6 +3684,19 @@
           <Property Name="StateCode" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="City" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
         </EntityType>
+        <EntityType Name="OrderCache">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MallSapCode" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="OrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DataString" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AddDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Status" Type="Int32" Nullable="false" />
+          <Property Name="ErrorCount" Type="Int32" Nullable="false" />
+          <Property Name="ErrorMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
         <EntityType Name="OrderCancel">
           <Key>
             <PropertyRef Name="Id" />
@@ -3743,7 +3771,7 @@
           <Property Name="CollectName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="CollectPhone" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="CollectAddress" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="AddDate" Type="DateTime" Precision="3" />
+          <Property Name="AddDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Status" Type="Int32" Nullable="false" />
           <Property Name="ErrorCount" Type="Int32" Nullable="false" />
           <Property Name="ErrorMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
@@ -6082,6 +6110,20 @@
                 <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
                 <ScalarProperty Name="OrderId" ColumnName="OrderId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="OrderCache">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.OrderCache">
+              <MappingFragment StoreEntitySet="OrderCache">
+                <ScalarProperty Name="ErrorMessage" ColumnName="ErrorMessage" />
+                <ScalarProperty Name="ErrorCount" ColumnName="ErrorCount" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="AddDate" ColumnName="AddDate" />
+                <ScalarProperty Name="DataString" ColumnName="DataString" />
+                <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
+                <ScalarProperty Name="MallSapCode" ColumnName="MallSapCode" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

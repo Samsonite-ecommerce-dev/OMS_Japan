@@ -168,6 +168,9 @@
     <Compile Include="OrderBilling.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="OrderCache.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="OrderCancel.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>

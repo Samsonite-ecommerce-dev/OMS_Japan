@@ -1,9 +1,9 @@
 ﻿using System;
 
 
-namespace Samsonite.OMS.ECommerce.Dto
+namespace Samsonite.OMS.ECommerce.Result
 {
-    public class PoslogResult
+    public class ReserveResult
     {
         /// <summary>
         /// 店铺SapCode
@@ -19,10 +19,5 @@ namespace Samsonite.OMS.ECommerce.Dto
         /// 子订单号
         /// </summary>
         public string SubOrderNo { get; set; }
-
-        /// <summary>
-        /// 类型
-        /// </summary>
-        public int LogType { get; set; }
     }
 }

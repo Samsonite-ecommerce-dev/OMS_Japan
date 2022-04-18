@@ -7,7 +7,7 @@ using Samsonite.Utility.Common;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Service;
-using Samsonite.OMS.ECommerce.Dto;
+using Samsonite.OMS.ECommerce.Result;
 using Samsonite.OMS.Service.AppConfig;
 
 namespace Samsonite.OMS.ECommerce

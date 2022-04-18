@@ -16,6 +16,8 @@ using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Samsonite.OMS.ECommerce.Dto;
+using Samsonite.OMS.ECommerce.Result;
 
 namespace Test
 {
@@ -30,8 +32,8 @@ namespace Test
         public TestWebAPI()
         {
             //测试
-            this.localSite = "http://127.0.0.1:8095";
-            //this.localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
+            //this.localSite = "http://127.0.0.1:8095";
+            this.localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
             //正式
             //this.localSite = "https://tumi-jpomsapi.samsonite-asia.com";
 
@@ -631,46 +633,12 @@ namespace Test
                                     CountryCode="SG",
                                     Phone="89787667",
                                     Email="test_globee_thanh2@yopmail.com"
-                                },
-                                Gift=false,
-                                ShipmentTotalsInfo=new ShipmentTotals()
-                                {
-                                    MerchandizeTotal=new TotalChild()
-                                    {
-                                        NetPrice=2238.32M,
-                                        Tax=156.68M,
-                                        GrossPrice=2395.00M
-                                    },
-                                    AdjustedMerchandizeTotal=new TotalChild()
-                                    {
-                                        NetPrice=2112.15M,
-                                        Tax=147.85M,
-                                        GrossPrice=2260.00M
-                                    },
-                                    ShippingTotal=new TotalChild()
-                                    {
-                                        NetPrice=0.00M,
-                                        Tax=0.00M,
-                                        GrossPrice=0.00M
-                                    },
-                                    AdjustedShippingTotal=new TotalChild()
-                                    {
-                                        NetPrice=0.00M,
-                                        Tax=0.00M,
-                                        GrossPrice=0.00M
-                                    },
-                                    ShipmentTotal=new TotalChild()
-                                    {
-                                        NetPrice=2112.15M,
-                                        Tax=147.85M,
-                                        GrossPrice=2260.00M
-                                    }
                                 }
                             }
                         },
                         TotalsInfo = new  Totals
                         {
-                            MerchandizeTotal=new TotalChild()
+                            MerchandizeTotal=new TotalChildAdjustment()
                             {
                                 NetPrice=2238.32M,
                                 Tax=156.68M,

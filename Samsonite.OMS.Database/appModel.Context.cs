@@ -49,6 +49,7 @@ namespace Samsonite.OMS.Database
         public virtual DbSet<MallProductPriceRange> MallProductPriceRange { get; set; }
         public virtual DbSet<Order> Order { get; set; }
         public virtual DbSet<OrderBilling> OrderBilling { get; set; }
+        public virtual DbSet<OrderCache> OrderCache { get; set; }
         public virtual DbSet<OrderCancel> OrderCancel { get; set; }
         public virtual DbSet<OrderChangeRecord> OrderChangeRecord { get; set; }
         public virtual DbSet<OrderClaimCache> OrderClaimCache { get; set; }

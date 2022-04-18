@@ -6,7 +6,7 @@ using System.Linq;
 
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
-using Samsonite.OMS.ECommerce.Dto;
+using Samsonite.OMS.ECommerce.Result;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
 

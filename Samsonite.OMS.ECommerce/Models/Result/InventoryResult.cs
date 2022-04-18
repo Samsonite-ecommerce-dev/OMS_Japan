@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace Samsonite.OMS.ECommerce.Dto
+namespace Samsonite.OMS.ECommerce.Result
 {
     public class InventoryResult
     {

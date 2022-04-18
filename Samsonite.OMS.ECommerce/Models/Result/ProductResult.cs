@@ -1,9 +1,9 @@
 ﻿using System;
 
 
-namespace Samsonite.OMS.ECommerce.Dto
+namespace Samsonite.OMS.ECommerce.Result
 {
-    public class PriceResult
+    public class ProductResult
     {
         /// <summary>
         /// 店铺SapCode
@@ -11,7 +11,7 @@ namespace Samsonite.OMS.ECommerce.Dto
         public string MallSapCode { get; set; }
 
         /// <summary>
-        /// Sku
+        /// SKU
         /// </summary>
         public string SKU { get; set; }
 
@@ -19,15 +19,5 @@ namespace Samsonite.OMS.ECommerce.Dto
         /// Material-Gridval
         /// </summary>
         public string ProductID { get; set; }
-
-        /// <summary>
-        /// 市场价
-        /// </summary>
-        public decimal MarketPrice { get; set; }
-
-        /// <summary>
-        /// 销售价
-        /// </summary>
-        public decimal SalesPrice { get; set; }
     }
 }

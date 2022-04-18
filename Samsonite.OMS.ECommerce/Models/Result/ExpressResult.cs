@@ -1,9 +1,9 @@
 ﻿using System;
 
 
-namespace Samsonite.OMS.ECommerce.Dto
+namespace Samsonite.OMS.ECommerce.Result
 {
-    public class DeliveryResult
+    public class ExpressResult
     {
         /// <summary>
         /// 店铺SapCode
@@ -21,8 +21,8 @@ namespace Samsonite.OMS.ECommerce.Dto
         public string SubOrderNo { get; set; }
 
         /// <summary>
-        /// 快递号
+        /// 子订单的物流状态或者平台状态
         /// </summary>
-        public string InvoiceNo { get; set; }
+        public string ExpressStatus { get; set; }
     }
 }

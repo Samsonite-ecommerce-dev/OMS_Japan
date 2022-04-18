@@ -54,7 +54,6 @@ namespace Test
             //ImportDWProducts();
             //PushDWPrices();
             //PushOrderDetail();
-            //getOrders();
             //SendInventory();
             //SendPrice();
             //ExpressPickUp();
@@ -71,60 +70,60 @@ namespace Test
             Console.WriteLine(result.Count);
         }
 
-        public static void ImportDWOrders()
-        {
-            TumiAPI objTumiAPI = TumiAPIClient();
+        //public static void ImportDWOrders()
+        //{
+        //    TumiAPI objTumiAPI = TumiAPIClient();
 
-            List<string> paths = new List<string>()
-            {
-                 //@"D:\Test\Singapore\DW\orders\MonoSAMSG_order_export_dev00002211.xml",
-                @"D:\Test\JPN-Tumi\orders\TUMISG_order_export_TUSG00010908.xml"
-                //@"E:\Test\orders_export_00000703.xml",
-                //@"E:\Test\orders_export_00000625.xml",
-                //@"E:\Test\orders_export_00000735.xml",
-                //@"E:\Test\orders_export_00000737.xml",
-                //@"E:\Test\orders_export_00000744.xml"
-            };
-            foreach (var path in paths)
-            {
-                var x = objTumiAPI.ParseXmlToOrder(path);
-                //foreach (var o in x)
-                //{
-                //    Console.WriteLine(o.Order.OrderNo);
-                //    Console.WriteLine(o.Order.MallName);
-                //    Console.WriteLine(o.Order.MallSapCode);
-                //    Console.WriteLine(o.OrderDetail.SubOrderNo);
-                //    Console.WriteLine(o.Order.PaymentType);
-                //    Console.WriteLine(o.Order.PaymentAttribute);
-                //}
-                Console.WriteLine(x.Count);
-                var result = ECommerceBaseService.SaveTrades(x);
-                foreach (var item in result.ResultData)
-                {
-                    Console.WriteLine($"OrderNo:{item.Data.OrderNo},Result:{item.Result}");
-                }
+        //    List<string> paths = new List<string>()
+        //    {
+        //         //@"D:\Test\Singapore\DW\orders\MonoSAMSG_order_export_dev00002211.xml",
+        //        @"D:\Test\JPN-Tumi\orders\TUMISG_order_export_TUSG00010908.xml"
+        //        //@"E:\Test\orders_export_00000703.xml",
+        //        //@"E:\Test\orders_export_00000625.xml",
+        //        //@"E:\Test\orders_export_00000735.xml",
+        //        //@"E:\Test\orders_export_00000737.xml",
+        //        //@"E:\Test\orders_export_00000744.xml"
+        //    };
+        //    foreach (var path in paths)
+        //    {
+        //        var x = objTumiAPI.ParseXmlToOrder(path);
+        //        //foreach (var o in x)
+        //        //{
+        //        //    Console.WriteLine(o.Order.OrderNo);
+        //        //    Console.WriteLine(o.Order.MallName);
+        //        //    Console.WriteLine(o.Order.MallSapCode);
+        //        //    Console.WriteLine(o.OrderDetail.SubOrderNo);
+        //        //    Console.WriteLine(o.Order.PaymentType);
+        //        //    Console.WriteLine(o.Order.PaymentAttribute);
+        //        //}
+        //        Console.WriteLine(x.Count);
+        //        var result = ECommerceBaseService.SaveTrades(x);
+        //        foreach (var item in result.ResultData)
+        //        {
+        //            Console.WriteLine($"OrderNo:{item.Data.OrderNo},Result:{item.Result}");
+        //        }
 
-                //var x = objTumiAPI.ParseXmlToOrder(path);
-                //foreach(var y in x)
-                //{
-                //Console.WriteLine(y.OrderDetail.OrderNo);
-                //}
-                // Console.WriteLine(x.Count);
-                //foreach (var z in x)
-                //{
+        //        //var x = objTumiAPI.ParseXmlToOrder(path);
+        //        //foreach(var y in x)
+        //        //{
+        //        //Console.WriteLine(y.OrderDetail.OrderNo);
+        //        //}
+        //        // Console.WriteLine(x.Count);
+        //        //foreach (var z in x)
+        //        //{
 
-                //   Console.WriteLine(z.OrderDetail.SubOrderNo+":"+z.OrderDetail.ActualPaymentAmount);
-                //   Console.WriteLine("------------");
-                //}
+        //        //   Console.WriteLine(z.OrderDetail.SubOrderNo+":"+z.OrderDetail.ActualPaymentAmount);
+        //        //   Console.WriteLine("------------");
+        //        //}
 
-                //CommonBaseService.SaveTrades(x);
-                //Console.WriteLine(x[0].Order.OrderNo);
-            }
+        //        //CommonBaseService.SaveTrades(x);
+        //        //Console.WriteLine(x[0].Order.OrderNo);
+        //    }
 
-            //List<TradeDto> _list = objTumiAPI.GetTrades();
-            //var x = CommonBaseService.SaveTrades(_list);
-            //Console.WriteLine(x.SuccessRecord);
-        }
+        //    //List<TradeDto> _list = objTumiAPI.GetTrades();
+        //    //var x = CommonBaseService.SaveTrades(_list);
+        //    //Console.WriteLine(x.SuccessRecord);
+        //}
 
         public static void ImportDWClaimOrders()
         {

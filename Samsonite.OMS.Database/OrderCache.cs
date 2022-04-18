@@ -12,26 +12,12 @@ namespace Samsonite.OMS.Database
     using System;
     using System.Collections.Generic;
     
-    public partial class OrderClaimCache
+    public partial class OrderCache
     {
         public long ID { get; set; }
         public string MallSapCode { get; set; }
         public string OrderNo { get; set; }
-        public string SubOrderNo { get; set; }
-        public int PlatformID { get; set; }
-        public decimal Price { get; set; }
-        public int Quantity { get; set; }
-        public string Sku { get; set; }
-        public int ClaimType { get; set; }
-        public int ClaimReason { get; set; }
-        public string ClaimMemo { get; set; }
-        public System.DateTime ClaimDate { get; set; }
-        public string RequestId { get; set; }
-        public int CollectionType { get; set; }
-        public decimal ExpressFee { get; set; }
-        public string CollectName { get; set; }
-        public string CollectPhone { get; set; }
-        public string CollectAddress { get; set; }
+        public string DataString { get; set; }
         public System.DateTime AddDate { get; set; }
         public int Status { get; set; }
         public int ErrorCount { get; set; }

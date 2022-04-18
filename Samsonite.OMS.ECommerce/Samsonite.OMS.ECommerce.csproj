@@ -60,16 +60,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dto\ClaimResult.cs" />
-    <Compile Include="Dto\PoslogResult.cs" />
-    <Compile Include="Dto\OrderResult.cs" />
-    <Compile Include="Dto\ProductResult.cs" />
-    <Compile Include="Dto\ReserveResult.cs" />
-    <Compile Include="Dto\DetailResult.cs" />
-    <Compile Include="Dto\DeliveryResult.cs" />
-    <Compile Include="Dto\ExpressResult.cs" />
-    <Compile Include="Dto\PriceResult.cs" />
-    <Compile Include="Dto\InventoryResult.cs" />
+    <Compile Include="Models\Result\ClaimResult.cs" />
+    <Compile Include="Models\Dto\OrderDto.cs" />
+    <Compile Include="Models\Result\PoslogResult.cs" />
+    <Compile Include="Models\Result\OrderResult.cs" />
+    <Compile Include="Models\Result\ProductResult.cs" />
+    <Compile Include="Models\Result\ReserveResult.cs" />
+    <Compile Include="Models\Result\DetailResult.cs" />
+    <Compile Include="Models\Result\DeliveryResult.cs" />
+    <Compile Include="Models\Result\ExpressResult.cs" />
+    <Compile Include="Models\Result\PriceResult.cs" />
+    <Compile Include="Models\Result\InventoryResult.cs" />
     <Compile Include="ECommerceBase.cs" />
     <Compile Include="ECommerceBaseService.cs" />
     <Compile Include="ECommerceException.cs" />

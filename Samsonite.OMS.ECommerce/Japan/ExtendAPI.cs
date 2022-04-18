@@ -6,12 +6,10 @@ using System.Linq;
 
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
-using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.Service.Sap.Poslog;
-using Samsonite.Utility.FTP;
 using Samsonite.Utility.Common;
-using Samsonite.OMS.ECommerce.Dto;
+using Samsonite.OMS.ECommerce.Result;
 using Samsonite.OMS.DTO.Sap;
 
 namespace Samsonite.OMS.ECommerce.Japan

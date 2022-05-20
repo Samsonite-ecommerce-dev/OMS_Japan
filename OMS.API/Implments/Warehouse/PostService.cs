@@ -188,8 +188,8 @@ namespace OMS.API.Implments.Warehouse
                         Result = objDeliveryDto.Result,
                         Message = objDeliveryDto.ResultMsg,
                         MallCode = objDeliveryDto.MallSapCode,
-                        OrderNo = objDeliveryDto.OrderNo,
                         SubOrderNo = objDeliveryDto.SubOrderNo,
+                        DeliveryType = item.DeliveryType,
                         Company = objDeliveryDto.DeliveryName,
                         DeliveryNo = objDeliveryDto.DeliveryInvoice
                     });
@@ -203,6 +203,7 @@ namespace OMS.API.Implments.Warehouse
                         MallCode = item.MallCode,
                         OrderNo = item.OrderNo,
                         SubOrderNo = item.SubOrderNo,
+                        DeliveryType = item.DeliveryType,
                         Company = item.Company,
                         DeliveryNo = item.DeliveryNo,
                     });

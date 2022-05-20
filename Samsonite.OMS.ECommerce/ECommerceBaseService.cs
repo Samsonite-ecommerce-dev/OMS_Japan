@@ -26,15 +26,13 @@ namespace Samsonite.OMS.ECommerce
             using (var db = new ebEntities())
             {
                 //获取套装列表
-                var productSetList = ProductSetService.GetProductBundles();
+                var productBundles = ProductSetService.GetProductBundles();
                 //获取当前有效的促销列表
-                var productPromotionList = PromotionService.GetProductPromotions();
-                //注: DW的订单的实际付款金额有效
+                var productPromotions = PromotionService.GetProductPromotions();
                 foreach (var t in trades)
                 {
                     try
                     {
-                        //View_OrderDetail objView_OrderDetail = new View_OrderDetail();
                         string _ORDER_NO = t.Order.OrderNo;
                         bool _IS_NEW_ORDER = false;
                         //判断门店是否存在,不存在则标为错误订单
@@ -177,6 +175,7 @@ namespace Samsonite.OMS.ECommerce
                         }
                         else
                         {
+                            //查看子订单是否存在错误产品信息
                             foreach (var detail in t.OrderDetails)
                             {
                                 if (!string.IsNullOrEmpty(detail.SKU))
@@ -196,116 +195,9 @@ namespace Samsonite.OMS.ECommerce
                                         if (string.IsNullOrEmpty(detail.ProductPic))
                                         {
                                             detail.ProductPic = objProduct.ImageUrl;
-                                        }
-
-                                        //如果是特殊的订单需要重算总金额
-
-                                        //如果是套装产品
-                                        if (objProduct.IsSet)
-                                        {
-
-                                            //解析套装
-                                            //1.SkuMatchCode等于SetName或者SetCode
-                                            //2.有效时间内
-                                            //3.有效店铺
-                                            ProductSetDto objProductSetDto = productSetList.Where(p => p.SetCode == detail.SKU).SingleOrDefault();
-                                            if (objProductSetDto != null)
-                                            {
-                                                if (DateTime.Compare(objProductSetDto.StartDate, t.Order.CreateDate) <= 0 && DateTime.Compare(objProductSetDto.EndDate, t.Order.CreateDate) >= 0)
-                                                {
-                                                    if (objProductSetDto.Malls.Contains(t.Order.MallSapCode))
-                                                    {
-                                                        //设置套装原始订单sku
-                                                        detail.SKU = objProductSetDto.SetCode;
-                                                        detail.SetCode = objProductSetDto.SetCode;
-                                                        ProductSetService.ParseProductBundle(t, detail, objProductSetDto);
-                                                        foreach (var _o in t.OrderDetails)
-                                                        {
-                                                            ////套装原始订单需要解析促销信息
-                                                            //if (_o.OrderDetail.IsSet && _o.OrderDetail.IsSetOrigin)
-                                                            //{
-                                                            //    //员工订单不需要解析促销信息
-                                                            //    if (_o.OrderDetail.IsEmployee)
-                                                            //    {
-                                                            //        OrderService.SaveOrder(_o);
-                                                            //    }
-                                                            //    else
-                                                            //    {
-                                                            //        //解析促销信息(套装原始订单)
-                                                            //        //1.有一件产品以及数量相匹配
-                                                            //        //2.有效时间内
-                                                            //        //3.有效店铺
-                                                            //        TradeDto objPromotionTrade = _o;
-                                                            //        foreach (var pp in productPromotionList.Where(p => (DateTime.Compare(p.BeginDate, _o.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, _o.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
-                                                            //        {
-                                                            //            string _gift_subOrderNo = string.Empty;
-                                                            //            var _r = setOrders.Where(p => !p.OrderDetail.IsSetOrigin).FirstOrDefault();
-                                                            //            if (_r != null)
-                                                            //            {
-                                                            //                _gift_subOrderNo = _r.OrderDetail.SubOrderNo;
-                                                            //            }
-                                                            //            objPromotionTrade = PromotionService.ParseProductPromotion(trades.Where(p => p.Order.OrderNo == objPromotionTrade.Order.OrderNo).ToList(), objPromotionTrade, pp, _gift_subOrderNo);
-                                                            //        }
-                                                            //        OrderService.SaveOrder(objPromotionTrade);
-                                                            //    }
-                                                            //}
-                                                            //else
-                                                            //{
-                                                            //    OrderService.SaveOrder(_o);
-                                                            //}
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        //如果该套装不属于该店铺
-                                                        detail.IsError = true;
-                                                        detail.IsDelete = false;
-                                                        detail.ErrorMsg = $"The Set:{detail.SKU} is not belong to this mall!";
-                                                        //保存订单
-                                                        OrderService.SaveOrder(t);
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    //如果该套装已经过期,则加入到错误订单中
-                                                    detail.IsError = true;
-                                                    detail.IsDelete = false;
-                                                    detail.ErrorMsg = $"The Set:{detail.SKU} is overdue!";
-                                                    //保存订单
-                                                    OrderService.SaveOrder(t);
-                                                }
-                                            }
-                                            else
-                                            {
-                                                //如果该套装设置已经被删除,则加入到错误订单中
-                                                detail.IsError = true;
-                                                detail.IsDelete = false;
-                                                detail.ErrorMsg = $"The Set:{detail.SKU} is not exist!";
-                                                //保存订单
-                                                OrderService.SaveOrder(t);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            //员工订单不需要解析促销信息
-                                            if (detail.IsEmployee)
-                                            {
-                                                OrderService.SaveOrder(t);
-                                            }
-                                            else
-                                            {
-                                                //解析促销信息(普通订单)
-                                                //1.有一件产品以及数量相匹配
-                                                //2.有效时间内
-                                                //3.有效店铺
-                                                TradeDto objPromotionTrade = t;
-                                                foreach (var pp in productPromotionList.Where(p => (DateTime.Compare(p.BeginDate, t.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, t.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
-                                                {
-                                                    objPromotionTrade = PromotionService.ParseProductPromotion(trades.Where(p => p.Order.OrderNo == objPromotionTrade.Order.OrderNo).ToList(), objPromotionTrade, pp);
-                                                }
-                                                //保存订单
-                                                OrderService.SaveOrder(objPromotionTrade);
-                                            }
+                                            //如果是套装产品
+                                            if (objProduct.IsSet)
+                                                detail.IsSet = true;
                                         }
                                     }
                                     else
@@ -313,19 +205,34 @@ namespace Samsonite.OMS.ECommerce
                                         detail.IsError = true;
                                         detail.IsDelete = false;
                                         detail.ErrorMsg = $"SKU:{detail.SKU} does not exist!";
-                                        //保存订单
-                                        OrderService.SaveOrder(t);
                                     }
                                 }
                                 else
                                 {
                                     detail.IsError = true;
                                     detail.IsDelete = false;
-                                    detail.ErrorMsg = $"SKU is empty!";
-                                    //保存订单
-                                    OrderService.SaveOrder(t);
+                                    detail.ErrorMsg = $"SKU:{detail.SKU} is empty!";
                                 }
                             }
+                            //如果存在是套装产品
+                            if (t.OrderDetails.Where(p => p.IsSet).Any())
+                            {
+                                ProductSetService.ParseProductBundle(t, productBundles);
+                            }
+                            //解析促销信息
+                            //注:员工订单不再享受促销优惠
+                            if (!t.OrderDetails.Where(p => p.IsEmployee).Any())
+                            {
+                                //1.有一件产品以及数量相匹配
+                                //2.有效时间内
+                                //3.有效店铺
+                                foreach (var pp in productPromotions.Where(p => (DateTime.Compare(p.BeginDate, t.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, t.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
+                                {
+                                    PromotionService.ParseProductPromotion(t, pp);
+                                }
+                            }
+                            //保存订单
+                            OrderService.SaveOrder(t);
 
                             //返回信息
                             _result.ResultData.Add(new CommonResultData<OrderResult>()

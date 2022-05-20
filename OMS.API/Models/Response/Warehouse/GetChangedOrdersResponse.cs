@@ -92,6 +92,11 @@ namespace OMS.API.Models.Warehouse
         public int quantity { get; set; }
 
         /// <summary>
+        /// 是否赠品
+        /// </summary>
+        public bool isGifts { get; set; }
+
+        /// <summary>
         /// 退货的快递公司
         /// </summary>
         public string expressCompany { get; set; }
@@ -151,6 +156,11 @@ namespace OMS.API.Models.Warehouse
         /// 数量
         /// </summary>
         public int quantity { get; set; }
+
+        /// <summary>
+        /// 是否赠品
+        /// </summary>
+        public bool isGifts { get; set; }
 
         /// <summary>
         /// 退货的快递公司

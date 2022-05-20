@@ -1289,10 +1289,6 @@
       <Project>{8f6f5a76-973a-4a30-ad39-0a75a0067c68}</Project>
       <Name>Samsonite.Utility</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\SDK\Express\Singapore\SingPostSdk\SingPostSdk.csproj">
-      <Project>{6343af11-e696-410b-82d8-33292fe442bc}</Project>
-      <Name>SingPostSdk</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Samsonite.OMS.Database\Samsonite.OMS.Database.csproj">
       <Project>{9c8b3e3d-f34c-4303-b630-347a4a1d1191}</Project>
       <Name>Samsonite.OMS.Database</Name>

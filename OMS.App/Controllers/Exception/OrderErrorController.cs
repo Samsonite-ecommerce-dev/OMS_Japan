@@ -384,7 +384,7 @@ namespace OMS.App.Controllers
                                             //t.OrderDetail = objData;
                                             foreach (var pp in ProductPromotionList.Where(p => (DateTime.Compare(p.BeginDate, t.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, t.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
                                             {
-                                                t = PromotionService.ParseProductPromotion(new List<TradeDto>() { t }, t, pp, _gift_subOrderNo);
+                                                t = PromotionService.ParseProductPromotion(t, pp, _gift_subOrderNo);
                                             }
                                             //保存赠品
                                             foreach (var item in t.OrderGifts)
@@ -440,7 +440,7 @@ namespace OMS.App.Controllers
                                             //t.OrderDetail = objData;
                                             foreach (var pp in ProductPromotionList.Where(p => (DateTime.Compare(p.BeginDate, t.Order.CreateDate) <= 0) && (DateTime.Compare(p.EndDate, t.Order.CreateDate) >= 0) && p.Malls.Contains(t.Order.MallSapCode)))
                                             {
-                                                t = PromotionService.ParseProductPromotion(new List<TradeDto>() { t }, t, pp);
+                                                t = PromotionService.ParseProductPromotion(t, pp);
                                             }
                                             //保存赠品
                                             foreach (var item in t.OrderGifts)

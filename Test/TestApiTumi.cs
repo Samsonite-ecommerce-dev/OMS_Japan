@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using Samsonite.OMS.Service.AppConfig;
-using SingPostSdk;
 using Samsonite.OMS.ECommerce.Dto;
 using Samsonite.OMS.ECommerce.Japan;
 using Samsonite.OMS.Encryption;

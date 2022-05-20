@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Text;
+using System.Xml;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
 
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
-using Samsonite.OMS.ECommerce.Dto;
 using Samsonite.Utility.Common;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.FTP;
 using Samsonite.OMS.Service.AppConfig;
-using System.Xml;
+
+using Samsonite.OMS.ECommerce.Result;
 
 namespace Samsonite.OMS.ECommerce.Japan.Micros
 {
@@ -43,7 +42,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
         /// <returns></returns>
         public List<TradeDto> ParseXmlToOrder(string filePath)
         {
-            var objTradeDto_List = new List<TradeDto>();
+            var tradeDtos = new List<TradeDto>();
             //金额精准度
             int _amountAccuracy = ConfigService.GetAmountAccuracyConfig();
             //micros店铺列表
@@ -109,6 +108,22 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                             });
                         }
                     }
+                    //如果支付金额为0,则不存在TenderID节点,在该情况下需要默认补充一条CASH支付方式
+                    if (!orderPaymentDetails.Any())
+                    {
+                        string _payCode = "CASH";
+                        orderPaymentDetails.Add(new OrderPaymentDetail()
+                        {
+                            OrderNo = _orderNo,
+                            PaymentAmount = 0,
+                            PaymentType = GetPaymentType(_payCode),
+                            PaymentAttribute = JsonHelper.JsonSerialize(new PayAttribute()
+                            {
+                                CardType = "",
+                                PayCode = _payCode
+                            })
+                        });
+                    }
                     decimal _balanceAmount = orderPaymentDetails.DefaultIfEmpty().Sum(p => p.PaymentAmount);
                     //如果是混合支付
                     if (orderPaymentDetails.Count > 1)
@@ -130,8 +145,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                             CardType = "",
                             PayCode = _payCode
                         };
-                        //如果只有一种支付方式,则不需要添加该支付详情
-                        orderPaymentDetails.Clear();
                     }
 
                     decimal _roundedTotal = XmlHelper.GetSingleNodeDecimalValue(retailTransaction, $"{nsPrefix}RoundedTotal", nsmgr);
@@ -177,6 +190,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                         TaxNumber = string.Empty,
                         Tax = 0,
                         Taxation = string.Empty,
+                        ESTArrivalTime = string.Empty,
                         Remark = string.Empty,
                         CreateDate = XmlHelper.GetSingleNodeTimeValue(transaction, $"{nsPrefix}EndDateTime", nsmgr),
                         AddDate = DateTime.Now,
@@ -216,7 +230,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                     string _address = _address1;
                     if (!string.IsNullOrEmpty(_address2))
                         _address += $",{_address2}";
-                    Customer customer = new Customer()
+                    var customer = new Database.Customer()
                     {
                         CustomerNo = string.Empty,
                         PlatformUserNo = string.Empty,
@@ -320,6 +334,16 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                         }
                     }
 
+                    //创建Order对象
+                    TradeDto tradeDto = new TradeDto()
+                    {
+                        Order = order,
+                        Customer = customer,
+                        Billing = billing,
+                        OrderShippingAdjustments = orderShippingAdjustments,
+                        OrderPaymentDetails = orderPaymentDetails
+                    };
+
                     /**********************item line*********************************************/
                     int index = 0;
                     foreach (XmlNode itemNode in lineItemNodes)
@@ -338,20 +362,9 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                 {
                                     index++;
                                     string _SubOrderNo = ECommerceUtil.CreateSubOrderNo(this.PlatformCode, _orderNo, string.Empty, index);
-                                    TradeDto _t = new TradeDto();
-                                    _t.Order = order;
-                                    _t.Customer = customer;
-                                    _t.Billing = billing;
-                                    if (index == 1)
-                                    {
-                                        //快递费附加到第一个子订单上
-                                        _t.OrderShippingAdjustments = orderShippingAdjustments;
-                                        //如果有混合支付信息,则附加到第一个子订单上
-                                        _t.OrderPaymentDetails = orderPaymentDetails;
-                                    }
 
                                     //子订单信息
-                                    _t.OrderDetail = new OrderDetail()
+                                    OrderDetail orderDetail = new OrderDetail()
                                     {
                                         OrderNo = _orderNo,
                                         SubOrderNo = _SubOrderNo,
@@ -413,7 +426,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                     if (!string.IsNullOrEmpty(_addr2))
                                         _addr += $",{_addr2}";
                                     //收货信息
-                                    _t.Receive = new OrderReceive()
+                                    OrderReceive orderReceive = new OrderReceive()
                                     {
                                         OrderNo = _orderNo,
                                         SubOrderNo = _SubOrderNo,
@@ -435,9 +448,10 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                         Address1 = XmlHelper.GetSingleNodeText(delivery, $"{nsPrefix}Address/{nsPrefix}AddressLine1", nsmgr),
                                         Address2 = XmlHelper.GetSingleNodeText(delivery, $"{nsPrefix}Address/{nsPrefix}AddressLine2", nsmgr),
                                     };
+                                    tradeDto.OrderReceives.Add(orderReceive);
 
                                     //促销信息
-                                    _t.DetailAdjustments = new List<OrderDetailAdjustment>();
+                                    List<OrderDetailAdjustment> orderDetailAdjustments = new List<OrderDetailAdjustment>();
                                     var retailPriceModifiers = saleForDelivery.SelectNodes($"{nsPrefix}RetailPriceModifier[@VoidFlag='false']", nsmgr);
                                     foreach (XmlNode priceNode in retailPriceModifiers)
                                     {
@@ -447,13 +461,13 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                         {
                                             if (_promotionId.Contains(o))
                                             {
-                                                _t.OrderDetail.IsEmployee = true;
+                                                orderDetail.IsEmployee = true;
                                                 break;
                                             }
                                         }
 
                                         //判断促销类型
-                                        if (_t.OrderDetail.IsEmployee)
+                                        if (orderDetail.IsEmployee)
                                         {
                                             _promotionType = (int)OrderPromotionType.Staff;
                                         }
@@ -466,7 +480,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                             _promotionType = (int)OrderPromotionType.Regular;
                                         }
 
-                                        _t.DetailAdjustments.Add(new OrderDetailAdjustment()
+                                        orderDetailAdjustments.Add(new OrderDetailAdjustment()
                                         {
                                             OrderNo = _orderNo,
                                             SubOrderNo = _SubOrderNo,
@@ -489,10 +503,10 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                         if (index == 1)
                                         {
                                             //更新应付金额和实际付款金额
-                                            _t.OrderDetail.PaymentAmount += _roundedTotal;
-                                            _t.OrderDetail.ActualPaymentAmount = _t.OrderDetail.PaymentAmount;
+                                            orderDetail.PaymentAmount += _roundedTotal;
+                                            orderDetail.ActualPaymentAmount = orderDetail.PaymentAmount;
                                             //创建折扣信息
-                                            _t.DetailAdjustments.Add(new OrderDetailAdjustment()
+                                            orderDetailAdjustments.Add(new OrderDetailAdjustment()
                                             {
                                                 OrderNo = _orderNo,
                                                 SubOrderNo = _SubOrderNo,
@@ -509,33 +523,30 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                             });
                                         }
                                     }
-
-                                    objTradeDto_List.Add(_t);
+                                    tradeDto.OrderDetailAdjustments.AddRange(orderDetailAdjustments);
+                                    tradeDto.OrderDetails.Add(orderDetail);
                                 }
                             }
                         }
                     }
+
+                    //添加订单
+                    tradeDtos.Add(tradeDto);
                 }
             }
 
             //计算订单金额
-            List<string> orderNos = objTradeDto_List.GroupBy(p => p.Order.OrderNo).Select(o => o.Key).ToList();
-            foreach (string orderNo in orderNos)
+            foreach (var trade in tradeDtos)
             {
-                var tradesTmp = objTradeDto_List.Where(p => p.Order.OrderNo == orderNo);
-                decimal _orderAmount = tradesTmp.Sum(p => p.OrderDetail.SellingPrice * p.OrderDetail.Quantity);
-                decimal _discountAmount = 0 - tradesTmp.Where(p => p.Order.OrderNo == orderNo).Sum(p => p.DetailAdjustments.Sum(o => o.BasePrice));
-                decimal _paymentAmount = tradesTmp.Sum(p => p.OrderDetail.ActualPaymentAmount);
-                foreach (var o in tradesTmp)
-                {
-                    o.Order.OrderAmount = _orderAmount;
-                    //实付金额需要除去快递费
-                    o.Order.PaymentAmount = _paymentAmount;
-                    o.Order.DiscountAmount = _discountAmount;
-                }
+                decimal _orderAmount = trade.OrderDetails.Sum(p => p.SellingPrice * p.Quantity);
+                decimal _discountAmount = 0 - trade.OrderDetailAdjustments.Sum(p => p.BasePrice);
+                decimal _paymentAmount = trade.OrderDetails.Sum(p => p.ActualPaymentAmount);
+                trade.Order.OrderAmount = _orderAmount;
+                //实付金额需要除去快递费
+                trade.Order.PaymentAmount = _paymentAmount;
+                trade.Order.DiscountAmount = _discountAmount;
             }
-
-            return objTradeDto_List;
+            return tradeDtos;
         }
         #endregion
 
@@ -587,11 +598,11 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
         public CommonResult<ExpressResult> GetExpressFromPlatform()
         {
             CommonResult<ExpressResult> _result = new CommonResult<ExpressResult>();
-            SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
+            SagawaExtend objSagawaExtend = new SagawaExtend();
             //普通订单
-            _result.ResultData.AddRange(objSpeedPostExtend.GetExpress(this.MallSapCode, MicrosConfig.timeAgo).ResultData);
-            //换货订单
-            _result.ResultData.AddRange(objSpeedPostExtend.GetExpress_ExChangeNewOrder(this.MallSapCode, MicrosConfig.timeAgo).ResultData);
+            _result.ResultData.AddRange(objSagawaExtend.GetExpress(this.MallSapCode, MicrosConfig.timeAgo).ResultData);
+            ////换货订单
+            //_result.ResultData.AddRange(objSagawaExtend.GetExpress_ExChangeNewOrder(this.MallSapCode, MicrosConfig.timeAgo).ResultData);
             return _result;
         }
 

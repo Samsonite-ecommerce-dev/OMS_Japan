@@ -19,7 +19,7 @@ namespace Samsonite.OMS.ECommerce
             List<StoreInstance> _result = new List<StoreInstance>();
             //日本
             _result.Add(new StoreInstance() { Country = "Japan", PlatformCode = (int)PlatformType.TUMI_Japan, CommerceAPI = new Japan.Tumi.TumiControl() });
-            //_result.Add(new StoreInstance() { Country = "Japan", PlatformCode = (int)PlatformType.Micros_Japan, CommerceAPI = new Japan.Micros.MicrosControl() });
+            _result.Add(new StoreInstance() { Country = "Japan", PlatformCode = (int)PlatformType.Micros_Japan, CommerceAPI = new Japan.Micros.MicrosControl() });
             return _result;
         }
 

@@ -104,6 +104,7 @@ namespace Samsonite.OMS.Service.Sap.Poslog
                             SubOrderNo = gift.GiftNo,
                             ProductName = gift.ProductName,
                             SKU = gift.Sku,
+                            RRPPrice = gift.Price,
                             SellingPrice = gift.Price,
                             PaymentAmount = 0,
                             Quantity = gift.Quantity,
@@ -713,9 +714,8 @@ namespace Samsonite.OMS.Service.Sap.Poslog
                     var product = products.Where(p => p.IsCommon && (p.EAN == detail.SKU || p.SKU == detail.SKU)).FirstOrDefault();
                     if (product != null)
                     {
-                        //更新RRP价格,RRP价格以SAP给的产品库为准
-                        detail.SellingPrice = Math.Abs(product.MarketPrice);
-                        decimal originalPrice = detail.SellingPrice * item.OrderDetail.Quantity;
+                        //RRP价格以下单时的RRP价格为准
+                        decimal originalPrice = detail.RRPPrice * item.OrderDetail.Quantity;
                         TransactionPosLog.TransactionItem transactionItem = new TransactionPosLog.TransactionItem()
                         {
                             LogType = sapLogType,
@@ -727,7 +727,7 @@ namespace Samsonite.OMS.Service.Sap.Poslog
                             Grid = product.GdVal,
                             Description = detail.ProductName,
                             OriginalPrice = originalPrice, //注意,这里数量都变为正数
-                            UnitPrice = detail.SellingPrice,
+                            UnitPrice = detail.RRPPrice,
                             PaidPrice = detail.ActualPaymentAmount,
                             ProductId = product.ProductId,
                             Quantity = detail.Quantity,

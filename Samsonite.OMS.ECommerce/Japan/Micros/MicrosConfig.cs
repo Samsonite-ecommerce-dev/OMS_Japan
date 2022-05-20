@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Samsonite.OMS.Database;
-using Samsonite.OMS.Service;
+﻿using System.Collections.Generic;
 
 namespace Samsonite.OMS.ECommerce.Japan.Micros
 {

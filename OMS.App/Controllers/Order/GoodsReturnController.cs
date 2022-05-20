@@ -13,7 +13,6 @@ using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.Utility.Common;
-using Samsonite.OMS.ECommerce.Japan;
 
 namespace OMS.App.Controllers
 {
@@ -143,7 +142,7 @@ namespace OMS.App.Controllers
                 _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.IsFromExchange={0}", Param = 0 });
 
                 //查询
-                var _list = db.GetPage<dynamic>("select vr.Id,vr.OrderNo,vr.SubOrderNo,vr.Quantity,vr.Remark,vr.CreateDate,vr.ApiIsRead,vr.Quantity as ReturnQuantity,vr.[Status],vr.[Type],vr.AcceptUserId,vr.ManualUserID,vr.ApiReplyDate,vr.ApiReplyMsg,vr.AcceptUserDate,vr.AcceptRemark,vr.RefundUserDate,vr.RefundRemark,vr.IsDelete,od.SKU,od.ProductName,vr.[Status] as ProcessStatus,vr.RefundAmount,vr.RefundPoint,vr.RefundExpress,vr.RefundSurcharge,vr.IsFromExchange,vr.ShippingCompany,vr.ShippingNo,vr.ApiStatus,vr.AddUserName,vr.AcceptUserName,vr.RefundUserName,vr.MallName,od.PaymentType,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderReturn as vr inner join View_OrderDetail as od on vr.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vr.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vr.Id desc,vr.ChangeID desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = db.GetPage<dynamic>("select vr.Id,vr.OrderNo,vr.SubOrderNo,vr.Quantity,vr.Remark,vr.CreateDate,vr.ApiIsRead,vr.Quantity as ReturnQuantity,vr.[Status],vr.[Type],vr.AcceptUserId,vr.ManualUserID,vr.ApiReplyDate,vr.ApiReplyMsg,vr.AcceptUserDate,vr.AcceptRemark,vr.RefundUserDate,vr.RefundRemark,vr.IsDelete,od.SKU,od.ProductName,vr.[Status] as ProcessStatus,vr.RefundAmount,vr.RefundPoint,vr.RefundExpress,vr.RefundSurcharge,vr.IsFromExchange,vr.ShippingCompany,vr.ShippingNo,vr.ApiStatus,vr.AddUserName,vr.AcceptUserName,vr.RefundUserName,vr.MallName,od.PaymentType,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderReturn as vr inner join View_OrderDetail as od on vr.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vr.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vr.Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
                 //数据解密并脱敏
                 foreach (var item in _list.Items)
                 {
@@ -468,75 +467,6 @@ namespace OMS.App.Controllers
                 }
                 return _result;
             }
-        }
-
-        /// <summary>
-        /// 从speedPost申请快递号
-        /// </summary>
-        /// <returns></returns>
-        [UserPowerAuthorize(Type = UserPowerAuthorize.ResultType.Json)]
-        public JsonResult Add_GenerateTrackingNumber_Message()
-        {
-            //加载语言包
-            var _LanguagePack = this.GetLanguagePack;
-
-            JsonResult _result = new JsonResult();
-            string _OrderNo = VariableHelper.SaferequestStr(Request.Form["OrderNo"]);
-            int _Reason = VariableHelper.SaferequestInt(Request.Form["Reason"]);
-            string _SelectedSubOrderNo = VariableHelper.SaferequestStr(Request.Form["SelectedSubOrderNo"]);
-            ReceiveDto objReceiveDto = new ReceiveDto()
-            {
-                Receiver = VariableHelper.SaferequestStr(Request.Form["Receiver"]),
-                Tel = VariableHelper.SaferequestStr(Request.Form["Tel"]),
-                Mobile = VariableHelper.SaferequestStr(Request.Form["Mobile"]),
-                ZipCode = VariableHelper.SaferequestStr(Request.Form["Zipcode"]),
-                Address = VariableHelper.SaferequestStr(Request.Form["Addr"])
-            };
-
-            try
-            {
-                if (string.IsNullOrEmpty(_SelectedSubOrderNo))
-                {
-                    throw new Exception(_LanguagePack["goodsreturn_edit_message_at_least_one_product"]);
-                }
-
-                using (var db = new ebEntities())
-                {
-                    var objView_OrderDetail = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo && p.SubOrderNo == _SelectedSubOrderNo).SingleOrDefault();
-                    if (objView_OrderDetail != null)
-                    {
-                        SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
-                        var resp = objSpeedPostExtend.CreateShipmentForOrder(objView_OrderDetail, objReceiveDto, db);
-                        if (Convert.ToBoolean(resp[0]))
-                        {
-                            //返回数据
-                            _result.Data = new
-                            {
-                                result = true,
-                                shipmentNumber = resp[1].ToString(),
-                                msg = resp[1].ToString(),
-                            };
-                        }
-                        else
-                        {
-                            throw new Exception(resp[2].ToString());
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception(_LanguagePack["common_data_load_false"]);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _result.Data = new
-                {
-                    result = false,
-                    msg = ex.Message
-                };
-            }
-            return _result;
         }
         #endregion
 
@@ -1103,7 +1033,7 @@ namespace OMS.App.Controllers
 
                 //查询
                 DataRow _dr = null;
-                var _list = db.Fetch<dynamic>("select vr.Id,vr.OrderNo,vr.SubOrderNo,vr.Quantity,vr.Remark,vr.CreateDate,vr.ApiIsRead,vr.Quantity as ReturnQuantity,vr.[Status],vr.[Type],vr.AcceptUserId,vr.ManualUserID,vr.ApiReplyDate,vr.ApiReplyMsg,vr.AcceptUserDate,vr.AcceptRemark,vr.RefundUserDate,vr.RefundRemark,vr.IsDelete,od.SKU,od.ProductName,vr.[Status] as ProcessStatus,vr.RefundAmount,vr.RefundPoint,vr.RefundExpress,vr.RefundSurcharge,vr.IsFromExchange,vr.ShippingCompany,vr.ShippingNo,vr.ApiStatus,vr.AddUserName,vr.AcceptUserName,vr.RefundUserName,vr.MallName,od.PaymentType,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderReturn as vr inner join View_OrderDetail as od on vr.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vr.SubOrderNo=oe.SubOrderNo left join Customer as c on od.CustomerNo=c.CustomerNo order by vr.Id desc,vr.ChangeID desc", _SqlWhere);
+                var _list = db.Fetch<dynamic>("select vr.Id,vr.OrderNo,vr.SubOrderNo,vr.Quantity,vr.Remark,vr.CreateDate,vr.ApiIsRead,vr.Quantity as ReturnQuantity,vr.[Status],vr.[Type],vr.AcceptUserId,vr.ManualUserID,vr.ApiReplyDate,vr.ApiReplyMsg,vr.AcceptUserDate,vr.AcceptRemark,vr.RefundUserDate,vr.RefundRemark,vr.IsDelete,od.SKU,od.ProductName,vr.[Status] as ProcessStatus,vr.RefundAmount,vr.RefundPoint,vr.RefundExpress,vr.RefundSurcharge,vr.IsFromExchange,vr.ShippingCompany,vr.ShippingNo,vr.ApiStatus,vr.AddUserName,vr.AcceptUserName,vr.RefundUserName,vr.MallName,od.PaymentType,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderReturn as vr inner join View_OrderDetail as od on vr.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vr.SubOrderNo=oe.SubOrderNo left join Customer as c on od.CustomerNo=c.CustomerNo order by vr.Id desc", _SqlWhere);
 
                 foreach (var dy in _list)
                 {

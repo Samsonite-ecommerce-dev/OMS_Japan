@@ -116,7 +116,7 @@ namespace OMS.App.Controllers
                 }
 
                 //查询
-                var _list = db.GetPage<View_OrderModify>("select * from View_OrderModify order by Id desc,ChangeID desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = db.GetPage<View_OrderModify>("select * from View_OrderModify order by Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
                 //数据解密并脱敏
                 foreach (var item in _list.Items)
                 {
@@ -835,7 +835,7 @@ namespace OMS.App.Controllers
 
                 //查询
                 DataRow _dr = null;
-                var _list = db.Fetch<View_OrderModify>("select * from View_OrderModify order by Id desc,ChangeID desc", _SqlWhere);
+                var _list = db.Fetch<View_OrderModify>("select * from View_OrderModify order by Id desc", _SqlWhere);
                 foreach (var dy in _list)
                 {
                     //数据解密并脱敏

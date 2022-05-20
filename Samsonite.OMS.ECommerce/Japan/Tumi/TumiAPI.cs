@@ -98,6 +98,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                     TaxNumber = string.Empty,
                     Tax = 0,
                     Taxation = VariableHelper.SaferequestNull(item.Taxation),
+                    ESTArrivalTime = string.Empty,
                     Remark = VariableHelper.SaferequestNull(item.Remark),
                     CreateDate = VariableHelper.SaferequestTime(item.OrderDate),
                     AddDate = DateTime.Now,
@@ -330,6 +331,49 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                     order.BalanceAmount += payment.Amount;
                 }
 
+                /***********************************OrderPaymentDetail***********************************/
+                //多种支付方式
+                var orderPaymentDetails = new List<OrderPaymentDetail>();
+                //统计除去积分以外的支付类型数量(积分抵扣金额不算在OMS的支付方式中)
+                var processorIds = orderPayments.Where(p => p.ProcessorId.ToUpper() != "BASIC_GIFT_CERTIFICATE").GroupBy(p => p.ProcessorId).Select(o => o.Key);
+                if (processorIds.Count() > 1)
+                {
+                    //混合支付
+                    order.PaymentType = (int)PayType.Mixed;
+                    //保存支付方式详情
+                    foreach (var pid in processorIds)
+                    {
+                        var method = orderPayments.Where(p => p.ProcessorId == pid).FirstOrDefault().Method;
+                        orderPaymentDetails.Add(new OrderPaymentDetail()
+                        {
+                            OrderNo = order.OrderNo,
+                            PaymentAmount = orderPayments.Where(p => p.ProcessorId == pid).Sum(p => p.Amount),
+                            PaymentType = GetPaymentType(method, pid),
+                            PaymentAttribute = JsonHelper.JsonSerialize(new PayAttribute()
+                            {
+                                CardType = "",
+                                PayCode = method
+                            })
+                        });
+                    }
+                }
+                else
+                {
+                    var tmpPayments = orderPayments.Where(p => p.ProcessorId == processorIds.Single()).FirstOrDefault();
+                    //保存支付方式详情
+                    orderPaymentDetails.Add(new OrderPaymentDetail()
+                    {
+                        OrderNo = order.OrderNo,
+                        PaymentAmount = orderPayments.Where(p => p.ProcessorId == tmpPayments.ProcessorId).Sum(p => p.Amount),
+                        PaymentType = order.PaymentType,
+                        PaymentAttribute = JsonHelper.JsonSerialize(new PayAttribute()
+                        {
+                            CardType = "",
+                            PayCode = tmpPayments.Method
+                        })
+                    });
+                }
+
                 //创建Order对象
                 TradeDto tradeDto = new TradeDto()
                 {
@@ -338,7 +382,8 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                     Billing = billing,
                     OrderPayments = orderPayments,
                     OrderShippingAdjustments = orderShippingAdjustments,
-                    OrderDetailAdjustments = orderDetailAdjustments_OrderLevel
+                    OrderDetailAdjustments = orderDetailAdjustments_OrderLevel,
+                    OrderPaymentDetails = orderPaymentDetails
                 };
 
                 /***********************************orderDetail***********************************/
@@ -364,14 +409,14 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                         }
                         //保存二级子订单关系
                         tradeDto.ParentRelateds = new List<TradeDto.ParentRelated>()
-                                            {
-                                                new TradeDto.ParentRelated()
-                                                {
-                                                    SubOrderNo = _subOrderNo,
-                                                    IsParent = isMainProduct,
-                                                    RelatedCode = relatedProductGroup
-                                                }
-                                            };
+                        {
+                            new TradeDto.ParentRelated()
+                            {
+                                SubOrderNo = _subOrderNo,
+                                IsParent = isMainProduct,
+                                RelatedCode = relatedProductGroup
+                            }
+                        };
                     }
                     //----------------------------------------------------------------
 
@@ -1387,11 +1432,11 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         public CommonResult<ExpressResult> GetExpressFromPlatform()
         {
             CommonResult<ExpressResult> _result = new CommonResult<ExpressResult>();
-            SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
+            SagawaExtend objSagawaExtend = new SagawaExtend();
             //普通订单
-            _result.ResultData.AddRange(objSpeedPostExtend.GetExpress(this.MallSapCode, TumiConfig.timeAgo).ResultData);
-            //换货订单
-            _result.ResultData.AddRange(objSpeedPostExtend.GetExpress_ExChangeNewOrder(this.MallSapCode, TumiConfig.timeAgo).ResultData);
+            _result.ResultData.AddRange(objSagawaExtend.GetExpress(this.MallSapCode, TumiConfig.timeAgo).ResultData);
+            ////换货订单
+            //_result.ResultData.AddRange(objSagawaExtend.GetExpress_ExChangeNewOrder(this.MallSapCode, TumiConfig.timeAgo).ResultData);
             return _result;
         }
 

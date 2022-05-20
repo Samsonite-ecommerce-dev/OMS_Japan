@@ -9,7 +9,7 @@ using Samsonite.OMS.Service.AppConfig;
 using Samsonite.OMS.Service.Sap.Materials;
 using Samsonite.OMS.Service.Sap.Poslog;
 using Samsonite.Utility.Common;
-using SingPostSdk;
+using SagawaSdk;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -25,6 +25,9 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using SagawaSdk.Request;
+using SagawaSdk.Response;
+using SagawaSdk.Domain;
 
 namespace Test
 {
@@ -38,7 +41,7 @@ namespace Test
             //---api---
             //(new TestWebAPI()).TestWarehouse();
             //(new TestWebAPI()).TestClickCollect();
-            (new TestWebAPI()).TestPlatform();
+            //(new TestWebAPI()).TestPlatform();
 
             //DeBug();
             //PDFToImage();
@@ -73,6 +76,8 @@ namespace Test
 
             //---WMS---
             //GetInventory();
+
+            SagawaSdkTest();
 
             Console.ReadKey();
         }
@@ -174,6 +179,38 @@ namespace Test
                 {
                     Console.Write("Configuration information read failed.");
                 }
+            }
+        }
+
+        private static void SagawaSdkTest()
+        {
+            string url = "https://smart-apitest.sagawa-exp.co.jp/v1";
+            string clientID = "B2N4J3JV";
+            string password = "xI4w&-JO";
+
+            DefaultClient defaultClient = new DefaultClient(url, clientID, password);
+            var _req = new GetExpressStatusRequest()
+            {
+                PostBody = new SagawaSdk.Domain.ExpressRequest()
+                {
+                    ExpressList = new List<SagawaSdk.Domain.ExpressInfo>()
+                      {
+                          new SagawaSdk.Domain.ExpressInfo()
+                          {
+                               ExpressNo="980000000766"
+                          }
+                      },
+                    HenkDataSyube = 1
+                }
+            };
+            var req = defaultClient.Execute(_req);
+            if (!req.IsError)
+            {
+                Console.WriteLine(req.Expresses[0].ExpressNo);
+            }
+            else
+            {
+                Console.WriteLine($"{req.ErrorCode}:{req.ErrorMsg}");
             }
         }
 

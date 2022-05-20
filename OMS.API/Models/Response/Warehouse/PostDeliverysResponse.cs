@@ -19,6 +19,12 @@ namespace OMS.API.Models.Warehouse
         /// </summary>
         public string SubOrderNo { get; set; }
 
+        /// <summary>
+        /// 快递号对应类型
+        /// 0.普通订单的快递号
+        /// 2.换货订单的新快递号
+        public int DeliveryType { get; set; }
+
         /// <summary> 
         /// 快递公司
         /// </summary>

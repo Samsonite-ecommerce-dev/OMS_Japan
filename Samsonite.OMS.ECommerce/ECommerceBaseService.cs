@@ -197,7 +197,10 @@ namespace Samsonite.OMS.ECommerce
                                             detail.ProductPic = objProduct.ImageUrl;
                                             //如果是套装产品
                                             if (objProduct.IsSet)
+                                            {
                                                 detail.IsSet = true;
+                                                detail.IsSetOrigin = true;
+                                            }
                                         }
                                     }
                                     else
@@ -215,7 +218,7 @@ namespace Samsonite.OMS.ECommerce
                                 }
                             }
                             //如果存在是套装产品
-                            if (t.OrderDetails.Where(p => p.IsSet).Any())
+                            if (t.OrderDetails.Where(p => p.IsSet && p.IsSetOrigin).Any())
                             {
                                 ProductSetService.ParseProductBundle(t, productBundles);
                             }
@@ -274,10 +277,10 @@ namespace Samsonite.OMS.ECommerce
         /// <summary>
         /// 处理取消/退货/换货/拒收订单
         /// </summary>
-        /// <param name="ClaimOrders"></param>
-        /// <param name="objType"></param>
+        /// <param name="claimOrders"></param>
+        /// <param name="claimType"></param>
         /// <returns></returns>
-        public static CommonResult<ClaimResult> SaveClaims(List<ClaimInfoDto> ClaimOrders, ClaimType objType)
+        public static CommonResult<ClaimResult> SaveClaims(List<ClaimInfoDto> claimOrders, ClaimType claimType)
         {
             CommonResult<ClaimResult> _result = new CommonResult<ClaimResult>();
             //金额精准度
@@ -285,7 +288,7 @@ namespace Samsonite.OMS.ECommerce
             using (var db = new ebEntities())
             {
                 //筛选操作数据
-                var objClaims = ClaimOrders.Where(p => p.ClaimType == objType).ToList();
+                var objClaims = claimOrders.Where(p => p.ClaimType == claimType).ToList();
                 foreach (var item in objClaims)
                 {
                     try
@@ -340,7 +343,7 @@ namespace Samsonite.OMS.ECommerce
                                                 CollectAddress = item.CollectAddress,
                                                 CacheID = item.CacheID
                                             };
-                                            SaveClaimOrder(objType, setItem, od);
+                                            SaveClaimOrder(claimType, setItem, od);
                                         }
                                         //如果没有找到套装子订单
                                         if (objOrderDetail_List.Count == 0)
@@ -350,7 +353,7 @@ namespace Samsonite.OMS.ECommerce
                                     }
                                     else
                                     {
-                                        SaveClaimOrder(objType, item, objOrderDetail);
+                                        SaveClaimOrder(claimType, item, objOrderDetail);
                                     }
 
                                     //写入成功信息
@@ -364,7 +367,7 @@ namespace Samsonite.OMS.ECommerce
                                             MallSapCode = objOrderDetail.MallSapCode,
                                             OrderNo = objOrderDetail.OrderNo,
                                             SubOrderNo = objOrderDetail.SubOrderNo,
-                                            ClaimType = objType,
+                                            ClaimType = claimType,
                                             SKU = objOrderDetail.SKU,
                                             Quantity = item.Quantity,
                                             RequestID = String.Empty
@@ -400,7 +403,7 @@ namespace Samsonite.OMS.ECommerce
                                 MallSapCode = item.MallSapCode,
                                 OrderNo = item.OrderNo,
                                 SubOrderNo = item.SubOrderNo,
-                                ClaimType = objType,
+                                ClaimType = claimType,
                                 SKU = item.SKU,
                                 Quantity = item.Quantity,
                                 RequestID = String.Empty
@@ -415,26 +418,50 @@ namespace Samsonite.OMS.ECommerce
         }
 
         /// <summary>
+        /// 更新缓存订单信息
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="orderNo"></param>
+        /// <param name="errorMsg"></param>
+        public static void UpdateOrderCache(bool result, string orderNo, string errorMsg)
+        {
+            using (var db = new ebEntities())
+            {
+                if (!string.IsNullOrEmpty(orderNo))
+                {
+                    if (result)
+                    {
+                        db.Database.ExecuteSqlCommand("Update OrderCache set Status=1 where OrderNo={0}", orderNo);
+                    }
+                    else
+                    {
+                        db.Database.ExecuteSqlCommand("Update OrderCache set ErrorCount=ErrorCount+1,ErrorMessage={1} where OrderNo={0}", orderNo, errorMsg);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// 保存取消/退货/换货/拒收
         /// </summary>
-        /// <param name="objType"></param>
-        /// <param name="objClaimInfoDto"></param>
-        /// <param name="objOrderDetail"></param>
-        private static void SaveClaimOrder(ClaimType objType, ClaimInfoDto objClaimInfoDto, View_OrderDetail objOrderDetail)
+        /// <param name="claimType"></param>
+        /// <param name="claimInfoDto"></param>
+        /// <param name="orderDetail"></param>
+        private static void SaveClaimOrder(ClaimType claimType, ClaimInfoDto claimInfoDto, View_OrderDetail orderDetail)
         {
-            switch (objType)
+            switch (claimType)
             {
                 case ClaimType.Cancel:
-                    OrderService.CancelOrder(objClaimInfoDto, objOrderDetail);
+                    OrderService.CancelOrder(claimInfoDto, orderDetail);
                     break;
                 case ClaimType.Exchange:
-                    OrderService.ExchangeOrder(objClaimInfoDto, objOrderDetail);
+                    OrderService.ExchangeOrder(claimInfoDto, orderDetail);
                     break;
                 case ClaimType.Return:
-                    OrderService.ReturnOrder(objClaimInfoDto, objOrderDetail);
+                    OrderService.ReturnOrder(claimInfoDto, orderDetail);
                     break;
                 case ClaimType.Reject:
-                    OrderService.RejectOrder(objClaimInfoDto, objOrderDetail);
+                    OrderService.RejectOrder(claimInfoDto, orderDetail);
                     break;
                 default:
                     break;
@@ -444,18 +471,18 @@ namespace Samsonite.OMS.ECommerce
         /// <summary>
         /// 合并读取到的claim和未处理的claim
         /// </summary>
-        /// <param name="objClaimList"></param>
-        /// <param name="objMallSapCode"></param>
+        /// <param name="claimList"></param>
+        /// <param name="mallSapCode"></param>
         /// <returns></returns>
-        public static List<ClaimInfoDto> JoinClaimList(List<ClaimInfoDto> objClaimList, string objMallSapCode)
+        public static List<ClaimInfoDto> JoinClaimList(List<ClaimInfoDto> claimList, string mallSapCode)
         {
             List<ClaimInfoDto> _result = new List<ClaimInfoDto>();
             using (var db = new ebEntities())
             {
                 //读取待执行Claim列表
-                List<OrderClaimCache> objOrderClaimCache_List = WaitClaimCacheList(objMallSapCode);
+                List<OrderClaimCache> objOrderClaimCache_List = WaitClaimCacheList(mallSapCode);
                 //缓存中每个子订单只能存在一条某种Claim记录(包括已处理的)
-                foreach (var objClaim in objClaimList)
+                foreach (var objClaim in claimList)
                 {
                     OrderClaimCache _exsitClaim = objOrderClaimCache_List.Where(p => p.OrderNo == objClaim.OrderNo && p.SubOrderNo == objClaim.SubOrderNo && p.ClaimType == (int)objClaim.ClaimType).FirstOrDefault();
                     if (_exsitClaim == null)
@@ -489,7 +516,7 @@ namespace Samsonite.OMS.ECommerce
                 db.SaveChanges();
 
                 //重新读取待执行Claim列表
-                var objWaitClaimCache_List = WaitClaimCacheList(objMallSapCode);
+                var objWaitClaimCache_List = WaitClaimCacheList(mallSapCode);
                 foreach (var _o in objWaitClaimCache_List)
                 {
                     _result.Add(new ClaimInfoDto()
@@ -522,13 +549,13 @@ namespace Samsonite.OMS.ECommerce
         /// <summary>
         /// 待执行Claim列表
         /// </summary>
-        /// <param name="objMallSapCode"></param>
-        protected static List<OrderClaimCache> WaitClaimCacheList(string objMallSapCode)
+        /// <param name="mallSapCode"></param>
+        protected static List<OrderClaimCache> WaitClaimCacheList(string mallSapCode)
         {
             List<OrderClaimCache> _result = new List<OrderClaimCache>();
             using (var db = new ebEntities())
             {
-                _result = db.OrderClaimCache.Where(p => p.MallSapCode == objMallSapCode && p.Status == 0).ToList();
+                _result = db.OrderClaimCache.Where(p => p.MallSapCode == mallSapCode && p.Status == 0).ToList();
             }
             return _result;
         }
@@ -536,17 +563,17 @@ namespace Samsonite.OMS.ECommerce
         /// <summary>
         /// 取消/退货/换货/拒收记录操作结果
         /// </summary>
-        /// <param name="objResult"></param>
-        /// <param name="objClaim"></param>
-        /// <param name="objMessage"></param>
-        protected static void ClaimCacheResult(bool objResult, ClaimInfoDto objClaim, string objMessage)
+        /// <param name="result"></param>
+        /// <param name="claimInfoDto"></param>
+        /// <param name="message"></param>
+        protected static void ClaimCacheResult(bool result, ClaimInfoDto claimInfoDto, string message)
         {
             using (var db = new ebEntities())
             {
-                OrderClaimCache objOrderClaimCache = db.OrderClaimCache.Where(p => p.MallSapCode == objClaim.MallSapCode && p.ID == objClaim.CacheID).SingleOrDefault();
+                OrderClaimCache objOrderClaimCache = db.OrderClaimCache.Where(p => p.MallSapCode == claimInfoDto.MallSapCode && p.ID == claimInfoDto.CacheID).SingleOrDefault();
                 if (objOrderClaimCache != null)
                 {
-                    if (objResult)
+                    if (result)
                     {
                         objOrderClaimCache.Status = 1;
                         objOrderClaimCache.ErrorMessage = string.Empty;
@@ -554,7 +581,7 @@ namespace Samsonite.OMS.ECommerce
                     else
                     {
                         objOrderClaimCache.ErrorCount++;
-                        objOrderClaimCache.ErrorMessage = objMessage;
+                        objOrderClaimCache.ErrorMessage = message;
                     }
 
                 }
@@ -568,24 +595,24 @@ namespace Samsonite.OMS.ECommerce
         /// <summary>
         /// 设置商品状态为下架
         /// </summary>
-        /// <param name="objMallSapCode"></param>
-        protected static void SetItemsOffSale(string objMallSapCode)
+        /// <param name="mallSapCode"></param>
+        protected static void SetItemsOffSale(string mallSapCode)
         {
             using (var db = new ebEntities())
             {
-                db.Database.ExecuteSqlCommand("update MallProduct set IsOnSale=0 where MallSapCode={0}", objMallSapCode);
+                db.Database.ExecuteSqlCommand("update MallProduct set IsOnSale=0 where MallSapCode={0}", mallSapCode);
             }
         }
 
         /// <summary>
         /// 计算店铺下所有有效产品的价格
         /// </summary>
-        /// <param name="objMallSapCode"></param>
-        protected static void CalculateMallSkuSalesPrice(string objMallSapCode)
+        /// <param name="mallSapCode"></param>
+        protected static void CalculateMallSkuSalesPrice(string mallSapCode)
         {
             using (var db = new ebEntities())
             {
-                List<MallProduct> objMallProduct_List = db.MallProduct.Where(p => p.MallSapCode == objMallSapCode && p.IsUsed).ToList();
+                List<MallProduct> objMallProduct_List = db.MallProduct.Where(p => p.MallSapCode == mallSapCode && p.IsUsed).ToList();
                 foreach (var _o in objMallProduct_List)
                 {
                     ProductService.CalculateMallSku_SalesPrice(_o, db);
@@ -969,12 +996,12 @@ namespace Samsonite.OMS.ECommerce
         /// <summary>
         /// Claim转换
         /// </summary>
-        /// <param name="objType"></param>
+        /// <param name="claimType"></param>
         /// <returns></returns>
-        private static ClaimType GetClaimType(int objType)
+        private static ClaimType GetClaimType(int claimType)
         {
             ClaimType _result = new ClaimType();
-            switch (objType)
+            switch (claimType)
             {
                 case (int)ClaimType.Cancel:
                     _result = ClaimType.Cancel;

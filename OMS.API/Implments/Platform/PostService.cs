@@ -58,17 +58,29 @@ namespace OMS.API.Implments.Platform
                                     throw new Exception("The mall dose not exists!");
                                 }
 
-                                //缓存订单信息
-                                db.OrderCache.Add(new OrderCache()
+                                string dateString = JsonHelper.JsonSerialize(item);
+                                //查询缓存中是否存在未处理的订单
+                                var orderCache = db.OrderCache.Where(p => p.OrderNo == item.OrderNo && p.MallSapCode == item.MallSapCode && p.Status == 0).FirstOrDefault();
+                                if (orderCache != null)
                                 {
-                                    OrderNo = item.OrderNo,
-                                    MallSapCode = item.MallSapCode,
-                                    DataString = JsonHelper.JsonSerialize(item),
-                                    AddDate = DateTime.Now,
-                                    Status = 0,
-                                    ErrorCount = 0,
-                                    ErrorMessage = string.Empty
-                                });
+                                    //更新订单详情
+                                    orderCache.DataString = dateString;
+                                    orderCache.AddDate = DateTime.Now;
+                                }
+                                else
+                                {
+                                    //缓存订单信息
+                                    db.OrderCache.Add(new OrderCache()
+                                    {
+                                        OrderNo = item.OrderNo,
+                                        MallSapCode = item.MallSapCode,
+                                        DataString = dateString,
+                                        AddDate = DateTime.Now,
+                                        Status = 0,
+                                        ErrorCount = 0,
+                                        ErrorMessage = string.Empty
+                                    });
+                                }
                                 db.SaveChanges();
 
                                 //返回信息

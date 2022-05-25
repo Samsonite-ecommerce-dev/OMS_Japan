@@ -31,6 +31,7 @@ namespace Samsonite.OMS.Database
         public int ExpressStatus { get; set; }
         public string ExpressMsg { get; set; }
         public string Remark { get; set; }
+        public string DeliveryChangeUrl { get; set; }
         public System.DateTime CreateDate { get; set; }
         public bool IsNeedPush { get; set; }
     }

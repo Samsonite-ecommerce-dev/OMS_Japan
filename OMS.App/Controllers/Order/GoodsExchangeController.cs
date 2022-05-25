@@ -513,7 +513,8 @@ namespace OMS.App.Controllers
                                         DeliveryDate = string.Empty,
                                         ExpressStatus = 0,
                                         ExpressMsg = string.Empty,
-                                        Remark = "",
+                                        Remark = string.Empty,
+                                        DeliveryChangeUrl=string.Empty,
                                         CreateDate = DateTime.Now,
                                         IsNeedPush = false
                                     };

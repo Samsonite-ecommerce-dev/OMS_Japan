@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Linq;
 
 using Samsonite.OMS.DTO;
@@ -12,13 +10,27 @@ using Samsonite.Utility.Common;
 
 using SagawaSdk;
 using SagawaSdk.Request;
-using SagawaSdk.Response;
 using SagawaSdk.Domain;
 
 namespace Samsonite.OMS.ECommerce.Japan
 {
-    public class SingPostConfig
+    public class SagawaConfig
     {
+        /// <summary>
+        /// 快递变更地址
+        /// </summary>
+        public const string ChangeUrl = "https://www.ds.e-service.sagawa-exp.co.jp/p_ssp/p.i?";
+
+        /// <summary>
+        /// OMS接口地址
+        /// </summary>
+        public const string GoBackUrl = "/ExternalInterface/SagawaGoBack";
+
+        /// <summary>
+        /// OMS接口密钥
+        /// </summary>
+        public const string GoBackToken = "lR2KQRIpDV9u5JEum2VwBkBYg7TFZ49w";
+
         public static ExpressCompany expressCompany
         {
             get
@@ -36,7 +48,7 @@ namespace Samsonite.OMS.ECommerce.Japan
         {
             if (defaultClient == null)
             {
-                var objExpressCompany = SingPostConfig.expressCompany;
+                var objExpressCompany = SagawaConfig.expressCompany;
                 defaultClient = new DefaultClient(objExpressCompany.APIUrl, objExpressCompany.APIClientID, objExpressCompany.AppClientSecret);
             }
         }
@@ -72,24 +84,24 @@ namespace Samsonite.OMS.ECommerce.Japan
                     try
                     {
                         var invoices = orderDetail_DeliveryTmp.Select(p => p.deliverys.InvoiceNo).ToArray();
-                        var expressList = new List<ExpressInfo>();
+                        var expressList = new List<ExpressRequest>();
                         foreach (var item in invoices)
                         {
-                            expressList.Add(new ExpressInfo()
+                            expressList.Add(new ExpressRequest()
                             {
                                 ExpressNo = item
                             });
                         }
                         var _req = new GetExpressStatusRequest()
                         {
-                            PostBody = new ExpressRequest()
+                            PostBody = new ExpressStatusRequest()
                             {
                                 ExpressList = expressList,
                                 HenkDataSyube = 1
                             }
                         };
                         var _rsp = defaultClient.Execute(_req);
-                        if (!_rsp.IsError)
+                        if (_rsp.ResultCode.Equals("0"))
                         {
                             foreach (var express in _rsp.Expresses)
                             {
@@ -106,12 +118,13 @@ namespace Samsonite.OMS.ECommerce.Japan
                                 foreach (var item in tmpDeliverys)
                                 {
                                     //更新信息
-                                    db.Database.ExecuteSqlCommand("update Deliverys set ExpressMsg={0}, ExpressStatus={1} where Id={2}", expressMsg, expressStatus, item.deliverys.Id);
+                                    var changeData = $"{SagawaConfig.ChangeUrl}{express.HaiyoInfo.HenkData}";
+                                    db.Database.ExecuteSqlCommand("update Deliverys set ExpressStatus={1},ExpressMsg={2},DeliveryChangeUrl={3} where Id={0}", item.deliverys.Id, expressStatus, expressMsg, changeData);
 
                                     //根据最新的trace判断订单是否完结
                                     if (expressStatus == ExpressStatus.Signed)
                                     {
-                                        OrderService.OrderStatus_InDeliveryToDelivered(item.detail, "Get the Express Status from Singpost", db);
+                                        OrderService.OrderStatus_InDeliveryToDelivered(item.detail, "Get the Express Status from Sagawa", db);
                                     }
                                     //派送失败
                                     if (expressStatus == ExpressStatus.ReturnSigned)
@@ -199,7 +212,7 @@ namespace Samsonite.OMS.ECommerce.Japan
                         }
                         else
                         {
-                            throw new ECommerceException(_rsp.ErrorCode, _rsp.ErrorMsg);
+                            throw new ECommerceException(_rsp.ErrorInfo.Code.ToString(), _rsp.ErrorInfo.Message);
                         }
                     }
                     catch (Exception ex)
@@ -316,10 +329,10 @@ namespace Samsonite.OMS.ECommerce.Japan
                     expressStatus = ExpressStatus.Signed;
                     break;
                 case "0053":
-                    expressStatus = ExpressStatus.Signed;
+                    //expressStatus = ExpressStatus.Signed;
                     break;
                 case "0054":
-                    expressStatus = ExpressStatus.Signed;
+                    //expressStatus = ExpressStatus.Signed;
                     break;
                 case "0055":
                     expressStatus = ExpressStatus.Signed;
@@ -346,7 +359,7 @@ namespace Samsonite.OMS.ECommerce.Japan
                     expressStatus = ExpressStatus.RepeatSend;
                     break;
                 case "0077":
-                    expressStatus = ExpressStatus.RepeatSend;
+                    expressStatus = ExpressStatus.Signed;
                     break;
                 case "0078":
                     expressStatus = ExpressStatus.RepeatSend;

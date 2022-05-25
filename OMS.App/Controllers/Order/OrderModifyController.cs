@@ -278,7 +278,7 @@ namespace OMS.App.Controllers
                                     else
                                     {
                                         //只有Demandware的订单在Pedding状态允许编辑,其它订单都不允许
-                                        //注:Tumi/Micros订单需要修改错误的邮编等信息,从而解决因为错误的收货信息而无法在Singpost申请快递号的问题
+                                        //注:Tumi/Micros订单需要修改错误的邮编等信息,从而解决因为错误的收货信息而无法在Sagawa申请快递号的问题
                                         if (objOrderDetail.Status == (int)ProductStatus.Received)
                                         {
                                             if (objOrder.PlatformType == (int)PlatformType.TUMI_Japan || objOrder.PlatformType == (int)PlatformType.Micros_Japan)

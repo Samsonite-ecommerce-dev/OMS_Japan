@@ -39,7 +39,7 @@
                             <th>@ViewBag.LanguagePack["orderquery_detail_pay"]</th>
                             <td>
                                 @OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(_Order.PaymentType)
-                                @((_PayList.Count > 0) ? "(" + string.Join(",", _PayList.Select(p => OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(p.PaymentType))) + ")" : "")
+                                @((_PayList.Count > 1) ? "(" + string.Join(",", _PayList.Select(p => OMS.App.Helper.OrderHelper.GetPaymentTypeDisplay(p.PaymentType))) + ")" : "")
                             </td>
                             <th>@ViewBag.LanguagePack["orderquery_detail_paytime"]</th>
                             <td colspan="3">@((_Order.PaymentDate != null) ? _Order.PaymentDate.ToString("yyyy-MM-dd HH:mm:ss") : "")</td>
@@ -300,6 +300,19 @@
                                             </td>
                                             <th>@ViewBag.LanguagePack["orderquery_detail_delivery_pickup_time"]</th>
                                             <td>@_Delivery.ClearUpTime</td>
+                                        </tr>
+                                        <tr>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_delivery_change_url"]</th>
+                                            <td colspan="5">
+                                                @if (_Delivery.DeliveryChangeUrl.IndexOf("http") > -1)
+                                                {
+                                                    <a href="@_Delivery.DeliveryChangeUrl" class="href-blue-line" target="_blank">@_Delivery.DeliveryChangeUrl</a>
+                                                }
+                                                else
+                                                {
+                                                    @_Delivery.DeliveryChangeUrl;
+                                                }
+                                            </td>
                                         </tr>
                                         <tr>
                                             <th>@ViewBag.LanguagePack["orderquery_detail_shipping_status"]</th>

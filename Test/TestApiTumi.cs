@@ -15,6 +15,7 @@ using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service.Sap.Poslog;
 using Samsonite.OMS.DTO.Sap;
 using Samsonite.OMS.ECommerce.Japan.Tumi;
+using Samsonite.Utility.Common;
 
 namespace Test
 {
@@ -24,7 +25,7 @@ namespace Test
         {
             using (var db = new ebEntities())
             {
-                string _mallSapCode = "1234567";
+                string _mallSapCode = "1197417";
 
                 //读取店铺信息
                 View_Mall_Platform objView_Mall_Platform = db.View_Mall_Platform.Where(p => p.SapCode == _mallSapCode && p.PlatformCode == (int)PlatformType.TUMI_Japan).SingleOrDefault();
@@ -48,7 +49,7 @@ namespace Test
 
         public static void Test()
         {
-            //ImportDWOrders();
+            ImportDWOrders();
             //ImportDWClaimOrders();
             //ImportDWProducts();
             //PushDWPrices();
@@ -56,7 +57,7 @@ namespace Test
             //SendInventory();
             //SendPrice();
             //ExpressPickUp();
-            GetExpressFromPlatform();
+            //GetExpressFromPlatform();
             //PosLog();
 
             Console.ReadKey();
@@ -67,6 +68,28 @@ namespace Test
             TumiAPI objTumiAPI = TumiAPIClient();
             var result = objTumiAPI.GetOrders();
             Console.WriteLine(result.Count);
+        }
+
+        public static void ImportDWOrders()
+        {
+            TumiAPI objTumiAPI = TumiAPIClient();
+            var x = objTumiAPI.GetOrders();
+            if (x.Count > 0)
+            {
+                var result = ECommerceBaseService.SaveTrades(x);
+                //保存结果信息
+                var orderNos = result.ResultData.Select(p => p.Data.OrderNo).ToList();
+                foreach (var item in result.ResultData)
+                {
+                    ECommerceBaseService.UpdateOrderCache(item.Result,item.Data.OrderNo, item.ResultMessage);
+                    Console.WriteLine($"OrderNo:{item.Data.OrderNo},Result:{item.Result}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("none!");
+            }
+
         }
 
         //public static void ImportDWOrders()
@@ -319,7 +342,7 @@ namespace Test
             {
                 string _OrderNo = "TUSG00010608";
                 List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();
-                foreach (var _o in objView_OrderDetail_List.Where(p=>p.SubOrderNo== "TUSG00010608_1"))
+                foreach (var _o in objView_OrderDetail_List.Where(p => p.SubOrderNo == "TUSG00010608_1"))
                 {
                     if (_o.ProductStatus == (int)ProductStatus.Processing)
                     {

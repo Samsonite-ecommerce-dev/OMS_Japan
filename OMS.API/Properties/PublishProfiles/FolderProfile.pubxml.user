@@ -94,10 +94,10 @@
       <publishTime>05/07/2018 11:39:33</publishTime>
     </File>
     <File Include="bin/OMS.API.dll">
-      <publishTime>04/18/2022 11:08:32</publishTime>
+      <publishTime>05/23/2022 14:55:23</publishTime>
     </File>
     <File Include="bin/OMS.API.pdb">
-      <publishTime>04/18/2022 11:08:32</publishTime>
+      <publishTime>05/23/2022 14:55:23</publishTime>
     </File>
     <File Include="bin/Org.Mentalis.Security.dll">
       <publishTime>09/07/2015 09:08:51</publishTime>
@@ -147,44 +147,50 @@
     <File Include="bin/roslyn/VBCSCompiler.exe.config">
       <publishTime>06/12/2017 14:54:04</publishTime>
     </File>
+    <File Include="bin/SagawaSdk.dll">
+      <publishTime>05/23/2022 14:48:48</publishTime>
+    </File>
+    <File Include="bin/SagawaSdk.pdb">
+      <publishTime>05/23/2022 14:48:48</publishTime>
+    </File>
     <File Include="bin/Samsonite.OMS.Database.dll">
-      <publishTime>04/18/2022 09:59:21</publishTime>
+      <publishTime>05/23/2022 14:48:48</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Database.dll.config">
       <publishTime>03/14/2022 11:37:01</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Database.pdb">
-      <publishTime>04/18/2022 09:59:21</publishTime>
+      <publishTime>05/23/2022 14:48:48</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.DTO.dll">
-      <publishTime>04/18/2022 09:59:21</publishTime>
+      <publishTime>05/23/2022 14:48:48</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.DTO.pdb">
-      <publishTime>04/18/2022 09:59:21</publishTime>
+      <publishTime>05/23/2022 14:48:48</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.ECommerce.dll">
-      <publishTime>04/18/2022 11:08:28</publishTime>
+      <publishTime>05/23/2022 14:48:49</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.ECommerce.pdb">
-      <publishTime>04/18/2022 11:08:28</publishTime>
+      <publishTime>05/23/2022 14:48:49</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Encryption.dll">
-      <publishTime>04/18/2022 09:59:21</publishTime>
+      <publishTime>05/23/2022 14:48:48</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Encryption.pdb">
-      <publishTime>04/18/2022 09:59:21</publishTime>
+      <publishTime>05/23/2022 14:48:48</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Service.dll">
-      <publishTime>04/18/2022 09:59:22</publishTime>
+      <publishTime>05/23/2022 14:48:49</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Service.pdb">
-      <publishTime>04/18/2022 09:59:22</publishTime>
+      <publishTime>05/23/2022 14:48:49</publishTime>
     </File>
     <File Include="bin/Samsonite.Utility.dll">
-      <publishTime>03/30/2022 11:48:06</publishTime>
+      <publishTime>05/23/2022 14:48:48</publishTime>
     </File>
     <File Include="bin/Samsonite.Utility.pdb">
-      <publishTime>03/30/2022 11:48:06</publishTime>
+      <publishTime>05/23/2022 14:48:48</publishTime>
     </File>
     <File Include="bin/SingPostSdk.dll">
       <publishTime>03/14/2022 14:59:11</publishTime>

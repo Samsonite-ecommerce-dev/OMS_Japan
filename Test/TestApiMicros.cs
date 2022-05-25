@@ -11,7 +11,6 @@ using System.Text;
 using System.Xml;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.OMS.Service.Sap;
-using SingPostSdk;
 using Samsonite.OMS.ECommerce.Dto;
 using Samsonite.OMS.ECommerce.Japan;
 using Samsonite.OMS.Encryption;
@@ -26,9 +25,7 @@ namespace Test
         {
             using (var db = new ebEntities())
             {
-                //string _mallSapCode = "1000001";
-                //string _mallSapCode = "8888888";
-                string _mallSapCode = "1035300";
+                string _mallSapCode = "1197417";
                 //读取店铺信息
                 View_Mall_Platform objView_Mall_Platform = db.View_Mall_Platform.Where(p => p.SapCode == _mallSapCode && p.PlatformCode == (int)PlatformType.Micros_Japan).SingleOrDefault();
                 MicrosAPI objMicrosAPI = new MicrosAPI()
@@ -60,46 +57,26 @@ namespace Test
             //SendInventory();
             //GetExpress();
             //SetReadyToShip();
-            //CreateTrackingNumberForOrder();
-            //GetTrackingTraceForTest();
             //GetExpressFromPlatform();
             //PosLog();
 
-            //AssignShippingTest();
-
             Console.ReadKey();
-        }
-        public static void GetLabelForTest(string invoiceNo)
-        {
-            MicrosAPI MicrosAPI = MicrosAPIClinet();
-            GetLabelForTestMethod(invoiceNo);
-        }
-
-        private static void GetLabelForTestMethod(string InvoiceNo)
-        {
-            var objExpressCompany = SingPostConfig.expressCompany;
-            SingPostAPI api = new SingPostAPI(SingPostConfig.CustomerID, objExpressCompany.APIClientID, objExpressCompany.AppClientSecret, objExpressCompany.AccessToken, SingPostConfig.Account_Number);
-            var dateFolder = DateTime.Now.ToString("yyyy-MM");
-            var shippingLabelPath = $"{SingPostConfig.docPhysicalFilePath}{dateFolder}/ShippingLabel/";
-            if (!Directory.Exists(shippingLabelPath)) Directory.CreateDirectory(shippingLabelPath);
-            //api.PrintShipmentDocuments(InvoiceNo, false, shippingLabelPath, $"{InvoiceNo}_label");
-
         }
 
         public static void GetDocument()
         {
-            MicrosAPI MicrosAPI = MicrosAPIClinet();
-            using (var db = new ebEntities())
-            {
-                SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
-                List<string> _OrderNos = new List<string>() { "DEVSG00001708" };
-                List<View_OrderDetail> objView_OrderDetails = db.View_OrderDetail.Where(p => _OrderNos.Contains(p.OrderNo) && !(p.IsSetOrigin && p.IsSet)).ToList();
-                foreach (var _d in objView_OrderDetails)
-                {
-                    Deliverys objDeliverys = db.Deliverys.Where(p => p.OrderNo == _d.OrderNo && p.SubOrderNo == _d.SubOrderNo).SingleOrDefault();
-                    objSpeedPostExtend.GetDocument(_d, objDeliverys.InvoiceNo);
-                }
-            }
+            //MicrosAPI MicrosAPI = MicrosAPIClinet();
+            //using (var db = new ebEntities())
+            //{
+            //    SpeedPostExtend objSpeedPostExtend = new SpeedPostExtend();
+            //    List<string> _OrderNos = new List<string>() { "DEVSG00001708" };
+            //    List<View_OrderDetail> objView_OrderDetails = db.View_OrderDetail.Where(p => _OrderNos.Contains(p.OrderNo) && !(p.IsSetOrigin && p.IsSet)).ToList();
+            //    foreach (var _d in objView_OrderDetails)
+            //    {
+            //        Deliverys objDeliverys = db.Deliverys.Where(p => p.OrderNo == _d.OrderNo && p.SubOrderNo == _d.SubOrderNo).SingleOrDefault();
+            //        objSpeedPostExtend.GetDocument(_d, objDeliverys.InvoiceNo);
+            //    }
+            //}
             Console.WriteLine("over");
         }
 

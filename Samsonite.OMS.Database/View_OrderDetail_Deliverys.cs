@@ -80,5 +80,6 @@ namespace Samsonite.OMS.Database
         public decimal RRPPrice { get; set; }
         public string ShippingProvider { get; set; }
         public string DeliveringPlant { get; set; }
+        public string DeliveryChangeUrl { get; set; }
     }
 }

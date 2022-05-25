@@ -146,6 +146,7 @@
           <Property Name="ExpressStatus" Type="int" Nullable="false" />
           <Property Name="ExpressMsg" Type="nvarchar(max)" />
           <Property Name="Remark" Type="nvarchar" MaxLength="100" />
+          <Property Name="DeliveryChangeUrl" Type="nvarchar" MaxLength="2000" />
           <Property Name="CreateDate" Type="datetime" Nullable="false" />
           <Property Name="IsNeedPush" Type="bit" Nullable="false" />
         </EntityType>
@@ -628,7 +629,7 @@
           <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="OrderNo" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="SubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="GiftNo" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="GiftNo" Type="nvarchar" MaxLength="256" Nullable="false" />
           <Property Name="Sku" Type="nvarchar" MaxLength="50" />
           <Property Name="MallProductId" Type="nvarchar" MaxLength="50" />
           <Property Name="ProductName" Type="nvarchar" MaxLength="200" />
@@ -1928,6 +1929,7 @@
           <Property Name="RRPPrice" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="ShippingProvider" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="DeliveringPlant" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="DeliveryChangeUrl" Type="nvarchar" MaxLength="2000" />
         </EntityType>
         <!--生成过程中发现错误:
 警告 6002: 表/视图“OMS_Japan.dbo.View_OrderDetail_Receive”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
@@ -2851,7 +2853,8 @@
     [View_OrderDetail_Deliverys].[IsEmployee] AS [IsEmployee], 
     [View_OrderDetail_Deliverys].[RRPPrice] AS [RRPPrice], 
     [View_OrderDetail_Deliverys].[ShippingProvider] AS [ShippingProvider], 
-    [View_OrderDetail_Deliverys].[DeliveringPlant] AS [DeliveringPlant]
+    [View_OrderDetail_Deliverys].[DeliveringPlant] AS [DeliveringPlant], 
+    [View_OrderDetail_Deliverys].[DeliveryChangeUrl] AS [DeliveryChangeUrl]
     FROM [dbo].[View_OrderDetail_Deliverys] AS [View_OrderDetail_Deliverys]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="View_OrderDetail_Receive" EntityType="Self.View_OrderDetail_Receive" store:Type="Views" store:Schema="dbo">
@@ -3415,6 +3418,7 @@
           <Property Name="ExpressStatus" Type="Int32" Nullable="false" />
           <Property Name="ExpressMsg" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="Remark" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="DeliveryChangeUrl" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="IsNeedPush" Type="Boolean" Nullable="false" />
         </EntityType>
@@ -3897,7 +3901,7 @@
           <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="OrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="SubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="GiftNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GiftNo" Type="String" Nullable="false" MaxLength="256" FixedLength="false" Unicode="true" />
           <Property Name="Sku" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="MallProductId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="ProductName" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
@@ -5181,6 +5185,7 @@
           <Property Name="RRPPrice" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
           <Property Name="ShippingProvider" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DeliveringPlant" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="DeliveryChangeUrl" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="View_OrderDetail_Receive">
           <Key>
@@ -5812,6 +5817,7 @@
               <MappingFragment StoreEntitySet="Deliverys">
                 <ScalarProperty Name="IsNeedPush" ColumnName="IsNeedPush" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="DeliveryChangeUrl" ColumnName="DeliveryChangeUrl" />
                 <ScalarProperty Name="Remark" ColumnName="Remark" />
                 <ScalarProperty Name="ExpressMsg" ColumnName="ExpressMsg" />
                 <ScalarProperty Name="ExpressStatus" ColumnName="ExpressStatus" />
@@ -7402,6 +7408,7 @@
           <EntitySetMapping Name="View_OrderDetail_Deliverys">
             <EntityTypeMapping TypeName="Samsonite.OMS.Database.View_OrderDetail_Deliverys">
               <MappingFragment StoreEntitySet="View_OrderDetail_Deliverys">
+                <ScalarProperty Name="DeliveryChangeUrl" ColumnName="DeliveryChangeUrl" />
                 <ScalarProperty Name="DeliveringPlant" ColumnName="DeliveringPlant" />
                 <ScalarProperty Name="ShippingProvider" ColumnName="ShippingProvider" />
                 <ScalarProperty Name="RRPPrice" ColumnName="RRPPrice" />

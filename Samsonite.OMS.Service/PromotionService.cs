@@ -141,7 +141,7 @@ namespace Samsonite.OMS.Service
                         if (tradeDto.Order.PaymentAmount >= productPromotion.TotalAmount)
                         {
                             //满送赠品只附加到第一个子订单上(子订单号末尾2位是_1)
-                            var tmpDetail = tradeDto.OrderDetails.Where(p => p.SubOrderNo.Substring(p.SubOrderNo.Length - 2) == "_1").FirstOrDefault();
+                            var tmpDetail = tradeDto.OrderDetails.Where(p => p.SubOrderNo.Substring(p.SubOrderNo.Length - 2) == "_1" && !p.IsSetOrigin).FirstOrDefault();
                             if (tmpDetail != null)
                             {
                                 //赠品附加的子订单号,如果没有传递,则默认为当前子订单号

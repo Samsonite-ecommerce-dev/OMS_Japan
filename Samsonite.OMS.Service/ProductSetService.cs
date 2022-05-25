@@ -59,7 +59,8 @@ namespace Samsonite.OMS.Service
                 int _AmountAccuracy = ConfigService.GetAmountAccuracyConfig();
                 //读取套装产品
                 //注:错误订单无法进行解析
-                foreach (var detail in tradeDto.OrderDetails.Where(p => p.IsSet && !p.IsError && !p.IsDelete))
+                var pendingDetails = tradeDto.OrderDetails.Where(p => p.IsSet && p.IsSetOrigin && !p.IsError && !p.IsDelete).ToList();
+                foreach (var detail in pendingDetails)
                 {
                     //解析套装
                     //1.SkuMatchCode等于SetName或者SetCode
@@ -100,7 +101,6 @@ namespace Samsonite.OMS.Service
                                 //已匹配套装名称或者套装code为准
                                 foreach (var sd in productBundleTmp.SetDetails.OrderByDescending(p => p.IsPrimary))
                                 {
-                                    _k = 0;
                                     //如果套装子产品数量可能大于1
                                     for (int i = 0; i < sd.Quantity; i++)
                                     {
@@ -194,6 +194,11 @@ namespace Samsonite.OMS.Service
                                             IsDelete = false
                                         };
                                         tradeDto.OrderDetails.Add(orderDetailTmp);
+                                        //收货信息
+                                        var originReceive = tradeDto.OrderReceives.Where(p => p.SubOrderNo == detail.SubOrderNo).FirstOrDefault();
+                                        var orderReceive = GenericHelper.TCopyValue<OrderReceive>(originReceive);
+                                        orderReceive.SubOrderNo = _subOrderNo;
+                                        tradeDto.OrderReceives.Add(orderReceive);
 
                                         //将套装原始订单的产品级促销信息复制到子订单上
                                         //注:产品级别的优惠信息附加到第一个套装子产品上
@@ -203,7 +208,7 @@ namespace Samsonite.OMS.Service
                                             {
                                                 foreach (var o in originOrderDetailAdjustments)
                                                 {
-                                                    o.SubOrderNo = detail.SubOrderNo;
+                                                    o.SubOrderNo = _subOrderNo;
                                                 }
                                             }
 
@@ -213,22 +218,12 @@ namespace Samsonite.OMS.Service
                                                 foreach (var g in originOrderGifts)
                                                 {
                                                     //重新生成赠品订单号
-                                                    g.GiftNo = OrderService.CreateGiftSubOrderNO(detail.SubOrderNo, g.Sku);
-                                                    g.SubOrderNo = detail.SubOrderNo;
+                                                    g.GiftNo = OrderService.CreateGiftSubOrderNO(_subOrderNo, g.Sku);
+                                                    g.SubOrderNo = _subOrderNo;
                                                 }
                                             }
                                         }
                                     }
-                                }
-                                //删除原始订单产品级别促销信息
-                                foreach (var o in originOrderDetailAdjustments)
-                                {
-                                    tradeDto.OrderDetailAdjustments.Remove(o);
-                                }
-                                //删除原始订单赠品信息
-                                foreach (var o in originOrderGifts)
-                                {
-                                    tradeDto.OrderGifts.Remove(o);
                                 }
                             }
                             else

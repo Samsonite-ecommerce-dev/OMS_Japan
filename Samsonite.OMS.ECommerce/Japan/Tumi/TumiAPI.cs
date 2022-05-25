@@ -78,10 +78,10 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                     PaymentDate = null,
                     PaymentStatus = VariableHelper.SaferequestNull(item.StatusInfo.PaymentStatus),
                     //商品金额
-                    OrderAmount = 0,
+                    OrderAmount = VariableHelper.SaferequestDecimal(item.TotalsInfo.MerchandizeTotal.GrossPrice),
                     //应付金额
-                    PaymentAmount = VariableHelper.SaferequestDecimal(item.TotalsInfo.MerchandizeTotal.GrossPrice),
-                    BalanceAmount = VariableHelper.SaferequestDecimal(item.TotalsInfo.OrderTotal.GrossPrice),
+                    PaymentAmount = VariableHelper.SaferequestDecimal(item.TotalsInfo.OrderTotal.GrossPrice),
+                    BalanceAmount = 0,
                     DiscountAmount = 0,
                     AdjustAmount = 0,
                     PointAmount = 0,
@@ -435,7 +435,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                     bool _isReservation = false;
                     DateTime _delivertDate = DateTime.Now;
                     _isReservation = DateTime.TryParse(_preOrderDeliveryDate, out _delivertDate);
-
                     OrderDetail orderDetail = new OrderDetail()
                     {
                         OrderNo = _orderNo,
@@ -683,6 +682,31 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                         index++;
                     }
                     tradeDto.OrderDetailAdjustments.AddRange(orderDetailAdjustments_ItemLevel);
+                }
+
+                //如果存在订单级别优惠,则需要将优惠金额比例平摊到ActualPayment上
+                if (_orderRegularAdjustmentTotal > 0)
+                {
+                    decimal _sumPaymentAmount = tradeDto.OrderDetails.Sum(p => p.PaymentAmount);
+                    //需要分摊的金额
+                    decimal _avgAmount = _orderRegularAdjustmentTotal;
+                    decimal _r_avgAmount = _avgAmount;
+                    int k = 0;
+                    foreach (var detail in tradeDto.OrderDetails)
+                    {
+                        k++;
+                        //最后一个使用减法
+                        if (k == tradeDto.OrderDetails.Count)
+                        {
+                            detail.ActualPaymentAmount -= _r_avgAmount;
+                        }
+                        else
+                        {
+                            decimal _c = Math.Round(_avgAmount * detail.PaymentAmount / _sumPaymentAmount, _amountAccuracy);
+                            detail.ActualPaymentAmount -= _c;
+                            _r_avgAmount -= _c;
+                        }
+                    }
                 }
                 //返回对象
                 return tradeDto;

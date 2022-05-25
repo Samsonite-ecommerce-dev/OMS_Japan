@@ -28,6 +28,7 @@ using System.Threading;
 using SagawaSdk.Request;
 using SagawaSdk.Response;
 using SagawaSdk.Domain;
+using Samsonite.OMS.ECommerce.Japan;
 
 namespace Test
 {
@@ -35,13 +36,14 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            //TestApiMicros.Test();
             //TestApiTumi.Test();
+            //TestApiMicros.Test();
 
             //---api---
             //(new TestWebAPI()).TestWarehouse();
             //(new TestWebAPI()).TestClickCollect();
             //(new TestWebAPI()).TestPlatform();
+            (new TestWebAPI()).TestSagawaGoBack();
 
             //DeBug();
             //PDFToImage();
@@ -77,7 +79,7 @@ namespace Test
             //---WMS---
             //GetInventory();
 
-            SagawaSdkTest();
+            //SagawaSdkTest();
 
             Console.ReadKey();
         }
@@ -189,28 +191,55 @@ namespace Test
             string password = "xI4w&-JO";
 
             DefaultClient defaultClient = new DefaultClient(url, clientID, password);
-            var _req = new GetExpressStatusRequest()
+            ///****GetExpressStatus*****/
+            //var _req = new GetExpressStatusRequest()
+            //{
+            //    PostBody = new SagawaSdk.Domain.ExpressStatusRequest()
+            //    {
+            //        ExpressList = new List<SagawaSdk.Domain.ExpressRequest>()
+            //          {
+            //              new SagawaSdk.Domain.ExpressRequest()
+            //              {
+            //                   ExpressNo="980000000766"
+            //              }
+            //          },
+            //        HenkDataSyube = 1
+            //    }
+            //};
+            //var req = defaultClient.Execute(_req);
+            //if (req.ResultCode.Equals("0"))
+            //{
+            //    Console.WriteLine(req.Expresses[0].ExpressNo);
+            //}
+            //else
+            //{
+            //    Console.WriteLine($"{req.ErrorInfo.Code}:{req.ErrorInfo.Message}");
+            //}
+
+            /****RegChangeableDelivery*****/
+            var _req = new RegChangeableDeliveryRequest()
             {
-                PostBody = new SagawaSdk.Domain.ExpressRequest()
+                PostBody = new RegChangeableDeliveryInfo()
                 {
-                    ExpressList = new List<SagawaSdk.Domain.ExpressInfo>()
-                      {
-                          new SagawaSdk.Domain.ExpressInfo()
-                          {
-                               ExpressNo="980000000766"
-                          }
-                      },
-                    HenkDataSyube = 1
+                    ExpressList = new List<RegDeliveryRequest>()
+                    {
+                        new RegDeliveryRequest()
+                        {
+                            ExpressNo = "980000000766"
+                        }
+                    },
+                    Url = $"https://tumi-jpomstest.samsonite-asia.com/{SagawaConfig.GoBackUrl}",
+                    ApiKey = SagawaConfig.GoBackToken
                 }
             };
             var req = defaultClient.Execute(_req);
-            if (!req.IsError)
+            if (!req.ResultCode.Equals("0") || !req.ResultCode.Equals("2"))
             {
-                Console.WriteLine(req.Expresses[0].ExpressNo);
+                Console.WriteLine(req.Expresses[0].ExpressNo + "|" + req.Expresses[0].Message);
             }
             else
             {
-                Console.WriteLine($"{req.ErrorCode}:{req.ErrorMsg}");
+                Console.WriteLine($"{req.ErrorInfo.Code}:{req.ErrorInfo.Message}");
             }
         }
 

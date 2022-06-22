@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -45,30 +47,31 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
             int _status = VariableHelper.SaferequestInt(Request.Form["status"]);
             int _isrun = VariableHelper.SaferequestInt(Request.Form["isrun"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.ServiceModuleInfo.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ModuleTitle like {0}", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.ModuleTitle.Contains(_keyword));
                 }
 
                 if (_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "Status={0}", Param = (_status - 1) });
+                    _lambda = _lambda.Where(p => p.Status == (_status - 1));
                 }
 
                 if (_isrun > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsRun={0}", Param = 1 });
+                    _lambda = _lambda.Where(p => p.IsRun);
                 }
 
                 //查询
-                var _list = db.GetPage<ServiceModuleInfo>("select * from ServiceModuleInfo order by SortID asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.SortID, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -472,37 +475,44 @@ namespace OMS.App.Controllers
         public JsonResult Index_OperLog_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             int _ModuleID = VariableHelper.SaferequestInt(Request.Form["moduleid"]);
             int _JobType = VariableHelper.SaferequestInt(Request.Form["job_type"]);
             int _JobStatus = VariableHelper.SaferequestInt(Request.Form["job_status"]);
             string _time = VariableHelper.SaferequestStr(Request.Form["time"]);
 
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.ServiceModuleJob.AsQueryable();
+                var _lambda2 = db.ServiceModuleInfo.AsQueryable();
+
                 //搜索条件
                 if (_ModuleID > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "smj.ModuleID={0}", Param = _ModuleID });
+                    _lambda1 = _lambda1.Where(p => p.ModuleID == _ModuleID);
                 }
 
                 if (_JobType > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "smj.OperType={0}", Param = _JobType });
+                    _lambda1 = _lambda1.Where(p => p.OperType == _JobType);
                 }
 
                 if (_JobStatus > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "smj.Status={0}", Param = (_JobStatus - 1) });
+                    _lambda1 = _lambda1.Where(p => p.Status == (_JobStatus - 1));
                 }
 
                 if (!string.IsNullOrEmpty(_time))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,smj.AddTime,{0})=0 ", Param = VariableHelper.SaferequestTime(_time) });
+                    var _datetime = VariableHelper.SaferequestTime(_time);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.AddTime, _datetime) == 0);
                 }
 
+                var _lambda = from smj in _lambda1
+                              join smi in _lambda2 on smj.ModuleID equals smi.ModuleID
+                              select new { smj, smi.ModuleTitle };
+
                 //查询
-                var _list = db.GetPage<dynamic>("select smj.ID,smj.OperType,smj.Status,smj.StatusMessage,smj.AddTime,smi.ModuleTitle from ServiceModuleJob as smj inner join ServiceModuleInfo as smi on smj.ModuleID=smi.ModuleID order by smj.ID desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.smj.ID, false);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -510,10 +520,10 @@ namespace OMS.App.Controllers
                            select new
                            {
                                s1 = dy.ModuleTitle,
-                               s2 = ServiceHelper.GetJobTypeDisplay(dy.OperType),
-                               s3 = ServiceHelper.GetJobStatusDisplay(dy.Status, true),
-                               s4 = dy.StatusMessage,
-                               s5 = dy.AddTime.ToString("yyyy-MM-dd HH:mm:ss")
+                               s2 = ServiceHelper.GetJobTypeDisplay(dy.smj.OperType),
+                               s3 = ServiceHelper.GetJobStatusDisplay(dy.smj.Status, true),
+                               s4 = dy.smj.StatusMessage,
+                               s5 = dy.smj.AddTime.ToString("yyyy-MM-dd HH:mm:ss")
                            }
                 };
                 return _result;

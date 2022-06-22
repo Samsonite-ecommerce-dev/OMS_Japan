@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Web.Mvc;
 using Samsonite.Utility.Common;
 
@@ -11,7 +10,7 @@ namespace OMS.App.Controllers
 {
     public class ExternalInterfaceController : InterfaceController
     {
-        #region KerryExpress状态接收
+        #region Sagawa状态接收
         [HttpPost]
         public JsonResult SagawaGoBack()
         {
@@ -45,23 +44,5 @@ namespace OMS.App.Controllers
             return _result;
         }
         #endregion
-
-        #region Lazada AuthorizationCode
-        public ActionResult GetLazadaAuthorizationCode()
-        {
-            ViewBag.AuthorizationCode = VariableHelper.SaferequestNull(Request.QueryString["Code"]);
-
-            return View();
-        }
-        #endregion 
-
-        #region Shopee AuthorizationCode
-        public ActionResult GetShopeeAuthorizationCode()
-        {
-            ViewBag.ShopID = VariableHelper.SaferequestNull(Request.QueryString["shop_id"]);
-
-            return View();
-        }
-        #endregion 
     }
 }

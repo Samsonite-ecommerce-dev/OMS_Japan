@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Web.Mvc;
 
 using Samsonite.OMS.Database;
 using Samsonite.Utility.Common;
-using OMS.App.Helper;
 
 namespace OMS.App.Controllers
 {
@@ -32,7 +32,6 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
             string _time = VariableHelper.SaferequestStr(Request.Form["time"]);
             //账号列表
@@ -42,20 +41,24 @@ namespace OMS.App.Controllers
                 objUser_List = db.UserInfo.ToList();
             }
 
-            using (DynamicRepository db = new DynamicRepository((new logEntities())))
+            using (var db = new logEntities())
             {
+                var _lambda = db.WebAppErrorLog.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(UserIp like {0}) or (LogMessage like {0})", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.UserIP.Contains(_keyword) || p.LogMessage.Contains(_keyword));
                 }
 
                 if (!string.IsNullOrEmpty(_time))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,AddTime,{0})=0 ", Param = VariableHelper.SaferequestTime(_time) });
+                    var _datetime = VariableHelper.SaferequestTime(_time);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("day", p.AddTime, _datetime) == 0);
                 }
+
                 //查询
-                var _list = db.GetPage<WebAppErrorLog>("select LogID,UserID,UserIP,LogLevel,LogMessage,AddTime from WebAppErrorLog order by LogID desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.LogID, false);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

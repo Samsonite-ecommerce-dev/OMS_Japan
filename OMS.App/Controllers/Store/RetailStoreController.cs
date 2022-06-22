@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -7,7 +8,6 @@ using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
-using OMS.App.Helper;
 
 namespace OMS.App.Controllers
 {
@@ -33,31 +33,32 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["isdelete"]);
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.View_MallDetail.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((Name like {0}) or (MallName like {0}))", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.Name.Contains(_keyword) || p.MallName.Contains(_keyword));
                 }
 
                 if (_isdelete == 1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsUsed=0", Param = null });
+                    _lambda = _lambda.Where(p => !p.IsUsed);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsUsed=1", Param = null });
+                    _lambda = _lambda.Where(p => p.IsUsed);
                 }
 
                 //只显示线下店铺
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallType={0}", Param = (int)MallType.OffLine });
+                _lambda = _lambda.Where(p => p.MallType== (int)MallType.OffLine);
 
                 //查询
-                var _list = db.GetPage<View_MallDetail>("select * from View_MallDetail order by sortID asc,id asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<View_MallDetail, int>>() { new EntityOrderBy<View_MallDetail, int>() { parameter = p => p.SortID, IsASC = true }, new EntityOrderBy<View_MallDetail, int>() { parameter = p => p.Id, IsASC = true } });
                 _result.Data = new
                 {
                     total = _list.TotalItems,

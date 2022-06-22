@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -39,22 +39,25 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _name = VariableHelper.SaferequestStr(Request.Form["name"]);
             string _tel = VariableHelper.SaferequestStr(Request.Form["tel"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.Customer.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_name))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "Name={0}", Param = EncryptionBase.EncryptString(_name) });
+                    var _nameEncrypt = EncryptionBase.EncryptString(_name);
+                    _lambda = _lambda.Where(p => p.Name == _nameEncrypt);
                 }
                 if (!string.IsNullOrEmpty(_tel))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((Tel={0}) or (Mobile={0}))", Param = EncryptionBase.EncryptString(_tel) });
+                    var _telEncrypt = EncryptionBase.EncryptString(_tel);
+                    _lambda = _lambda.Where(p => p.Tel == _telEncrypt || p.Mobile == _telEncrypt);
                 }
                 //查询
-                var _list = db.GetPage<Customer>("select * from Customer order by Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.ID, false);
                 //数据解密并脱敏
                 foreach (var item in _list.Items)
                 {
@@ -280,22 +283,34 @@ namespace OMS.App.Controllers
             string _CustomerNo = VariableHelper.SaferequestStr(Request.Form["customerno"]);
             string _Type = VariableHelper.SaferequestStr(Request.Form["type"]);
 
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "o.CustomerNo={0}", Param = _CustomerNo });
+                var _lambda = from o in db.Order.Where(p => p.CustomerNo == _CustomerNo)
+                              select new OrderQuery
+                              {
+                                  Id = o.Id,
+                                  OrderNo = o.OrderNo,
+                                  MallName = o.MallName,
+                                  OrderType = o.OrderType,
+                                  OrderAmount = o.OrderAmount,
+                                  PaymentAmount = o.PaymentAmount,
+                                  Status = o.Status,
+                                  OrderSource = o.OrderSource,
+                                  CreateDate = o.CreateDate
+                              };
 
                 //查询
-                var _list = db.GetPage<OrderQuery>("select o.Id,o.OrderNo,o.MallName,o.OrderType,o.OrderAmount,o.PaymentAmount,o.Status,o.OrderSource,o.CreateDate from [Order] as o order by o.CreateDate desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.CreateDate, false);
 
-                List<string> _Orders = _list.Items.Select(p => "'" + (string)p.OrderNo + "'").ToList();
+                List<string> _orders = _list.Items.Select(p => p.OrderNo).ToList();
                 List<OrderReceive> objOrderReceive_List = new List<OrderReceive>();
                 List<OrderModify> objOrderModify_List = new List<OrderModify>();
-                if (_Orders.Count > 0)
+                if (_orders.Count > 0)
                 {
                     //获取收货信息
-                    objOrderReceive_List = db.Fetch<OrderReceive>("select * from OrderReceive where OrderNo in (" + string.Join(",", _Orders) + ")");
+                    objOrderReceive_List = db.OrderReceive.Where(p => _orders.Contains(p.OrderNo)).ToList();
                     //获取更新的地址信息
-                    objOrderModify_List = db.Fetch<OrderModify>("select * from OrderModify where OrderNo in (" + string.Join(",", _Orders) + ") and Status=@0", (int)ProcessStatus.ModifyComplete);
+                    objOrderModify_List = db.OrderModify.Where(p => _orders.Contains(p.OrderNo) && p.Status == (int)ProcessStatus.ModifyComplete).ToList();
                 }
                 foreach (var dy in _list.Items)
                 {
@@ -316,7 +331,7 @@ namespace OMS.App.Controllers
                         dy.ReceiveAddr = objOrderModify.Addr;
                     }
                     //数据解密并脱敏
-                    EncryptionFactory.Create(dy,new string[] { "UserName", "Receiver", "ReceiveTel", "ReceiveCel", "ReceiveAddr" }).HideSensitive();
+                    EncryptionFactory.Create(dy, new string[] { "UserName", "Receiver", "ReceiveTel", "ReceiveCel", "ReceiveAddr" }).HideSensitive();
                 }
                 //返回信息
                 _result.Data = new

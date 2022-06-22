@@ -132,20 +132,25 @@ namespace OMS.API.Utils
         /// <returns></returns>
         public static string GetIP()
         {
-            string result = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
-            if (string.IsNullOrEmpty(result))
+            string ip = string.Empty;
+            try
             {
-                result = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                if (HttpContext.Current.Request.ServerVariables["HTTP_VIA"] != null)
+                {
+                    ip = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"].ToString().Split(',')[0].Trim();
+                }
+                else
+                {
+                    ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                }
+                if (string.IsNullOrEmpty(ip))
+                    ip = HttpContext.Current.Request.UserHostAddress;
             }
-            if (string.IsNullOrEmpty(result))
+            catch
             {
-                result = HttpContext.Current.Request.UserHostAddress;
+                ip = "0.0.0.0";
             }
-            if (string.IsNullOrEmpty(result))
-            {
-                return "0.0.0.0";
-            }
-            return result;
+            return ip;
         }
 
         #endregion

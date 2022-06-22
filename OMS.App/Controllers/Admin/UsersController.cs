@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -36,28 +37,30 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["isdelete"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.UserInfo.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(UserName like {0} or RealName like {0})", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.UserName.Contains(_keyword) || p.RealName.Contains(_keyword));
                 }
 
                 if (_isdelete == 1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "Status={0}", Param = (int)UserStatus.Locked });
+                    _lambda = _lambda.Where(p => p.Status == (int)UserStatus.Locked);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "Status in (" + (int)UserStatus.Normal + "," + (int)UserStatus.ExpiredPwd + ")", Param = null });
+                    _lambda = _lambda.Where(p => (new List<int>() { (int)UserStatus.Normal, (int)UserStatus.ExpiredPwd }).Contains(p.Status));
                 }
 
                 //查询
-                var _list = db.GetPage<UserInfo>("select UserID,UserName,RealName,Remark,[Type],[Status] from UserInfo order by UserID desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                //查询
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.UserID, false);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

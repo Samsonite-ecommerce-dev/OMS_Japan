@@ -331,6 +331,9 @@
     <Compile Include="View_ApprovalRecord.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="View_Brand.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="View_DeliverysNote.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>

@@ -1390,6 +1390,31 @@
           <Property Name="ApprovalUserName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
+警告 6002: 表/视图“OMS_Japan.dbo.View_Brand”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+        <EntityType Name="View_Brand">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="SapCode" />
+            <PropertyRef Name="BrandName" />
+            <PropertyRef Name="IsParent" />
+            <PropertyRef Name="ParentID" />
+            <PropertyRef Name="RootID" />
+            <PropertyRef Name="Sort" />
+            <PropertyRef Name="IsLock" />
+            <PropertyRef Name="ParentBrandName" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SapCode" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="BrandName" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsParent" Type="bit" Nullable="false" />
+          <Property Name="ParentID" Type="int" Nullable="false" />
+          <Property Name="Remark" Type="nvarchar" MaxLength="500" />
+          <Property Name="RootID" Type="int" Nullable="false" />
+          <Property Name="Sort" Type="int" Nullable="false" />
+          <Property Name="IsLock" Type="bit" Nullable="false" />
+          <Property Name="ParentBrandName" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <!--生成过程中发现错误:
 警告 6002: 表/视图“OMS_Japan.dbo.View_DeliverysNote”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_DeliverysNote">
           <Key>
@@ -2533,6 +2558,20 @@
     [View_ApprovalRecord].[ApprovalUserName] AS [ApprovalUserName]
     FROM [dbo].[View_ApprovalRecord] AS [View_ApprovalRecord]</DefiningQuery>
           </EntitySet>
+          <EntitySet Name="View_Brand" EntityType="Self.View_Brand" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [View_Brand].[ID] AS [ID], 
+    [View_Brand].[SapCode] AS [SapCode], 
+    [View_Brand].[BrandName] AS [BrandName], 
+    [View_Brand].[IsParent] AS [IsParent], 
+    [View_Brand].[ParentID] AS [ParentID], 
+    [View_Brand].[Remark] AS [Remark], 
+    [View_Brand].[RootID] AS [RootID], 
+    [View_Brand].[Sort] AS [Sort], 
+    [View_Brand].[IsLock] AS [IsLock], 
+    [View_Brand].[ParentBrandName] AS [ParentBrandName]
+    FROM [dbo].[View_Brand] AS [View_Brand]</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="View_DeliverysNote" EntityType="Self.View_DeliverysNote" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [View_DeliverysNote].[NoteID] AS [NoteID], 
@@ -3260,6 +3299,7 @@
           <EntitySet Name="WebApiAccount" EntityType="Samsonite.OMS.Database.WebApiAccount" />
           <EntitySet Name="WebApiRoles" EntityType="Samsonite.OMS.Database.WebApiRoles" />
           <EntitySet Name="View_ApprovalRecord" EntityType="Samsonite.OMS.Database.View_ApprovalRecord" />
+          <EntitySet Name="View_Brand" EntityType="Samsonite.OMS.Database.View_Brand" />
           <EntitySet Name="View_DeliverysNote" EntityType="Samsonite.OMS.Database.View_DeliverysNote" />
           <EntitySet Name="View_Mall_Platform" EntityType="Samsonite.OMS.Database.View_Mall_Platform" />
           <EntitySet Name="View_MallDetail" EntityType="Samsonite.OMS.Database.View_MallDetail" />
@@ -4658,6 +4698,29 @@
           <Property Name="ApprovalRemark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="ApprovalDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="ApprovalUserName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="View_Brand">
+          <Key>
+            <PropertyRef Name="ID" />
+            <PropertyRef Name="SapCode" />
+            <PropertyRef Name="BrandName" />
+            <PropertyRef Name="IsParent" />
+            <PropertyRef Name="ParentID" />
+            <PropertyRef Name="RootID" />
+            <PropertyRef Name="Sort" />
+            <PropertyRef Name="IsLock" />
+            <PropertyRef Name="ParentBrandName" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SapCode" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="BrandName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IsParent" Type="Boolean" Nullable="false" />
+          <Property Name="ParentID" Type="Int32" Nullable="false" />
+          <Property Name="Remark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="RootID" Type="Int32" Nullable="false" />
+          <Property Name="Sort" Type="Int32" Nullable="false" />
+          <Property Name="IsLock" Type="Boolean" Nullable="false" />
+          <Property Name="ParentBrandName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="View_DeliverysNote">
           <Key>
@@ -7136,6 +7199,22 @@
                 <ScalarProperty Name="ApprovalTableName" ColumnName="ApprovalTableName" />
                 <ScalarProperty Name="ApprovalIdentify" ColumnName="ApprovalIdentify" />
                 <ScalarProperty Name="ApprovalProjectID" ColumnName="ApprovalProjectID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="View_Brand">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.View_Brand">
+              <MappingFragment StoreEntitySet="View_Brand">
+                <ScalarProperty Name="ParentBrandName" ColumnName="ParentBrandName" />
+                <ScalarProperty Name="IsLock" ColumnName="IsLock" />
+                <ScalarProperty Name="Sort" ColumnName="Sort" />
+                <ScalarProperty Name="RootID" ColumnName="RootID" />
+                <ScalarProperty Name="Remark" ColumnName="Remark" />
+                <ScalarProperty Name="ParentID" ColumnName="ParentID" />
+                <ScalarProperty Name="IsParent" ColumnName="IsParent" />
+                <ScalarProperty Name="BrandName" ColumnName="BrandName" />
+                <ScalarProperty Name="SapCode" ColumnName="SapCode" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>

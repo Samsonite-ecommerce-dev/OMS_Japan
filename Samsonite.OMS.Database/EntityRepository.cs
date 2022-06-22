@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -60,6 +59,7 @@ namespace Samsonite.OMS.Database
             var _result = new EntityPageResult<TEntity>();
             _result.TotalItems = lambda.Count();
             foreach (var ob in lambdaOrderBys)
+            {
                 if (ob.IsASC)
                 {
                     lambda = lambda.OrderBy(ob.parameter);
@@ -68,6 +68,7 @@ namespace Samsonite.OMS.Database
                 {
                     lambda = lambda.OrderByDescending(ob.parameter);
                 }
+            }
             _result.Items = lambda.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
             return _result;
         }

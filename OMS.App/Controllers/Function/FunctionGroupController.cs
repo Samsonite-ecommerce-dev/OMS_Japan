@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -7,7 +8,6 @@ using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
-using OMS.App.Helper;
 
 namespace OMS.App.Controllers
 {
@@ -34,17 +34,18 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.SysFunctionGroup.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "GroupName like {0}", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.GroupName.Contains(_keyword));
                 }
                 //查询
-                var _list = db.GetPage<SysFunctionGroup>("select Groupid,GroupName,GroupIcon,Rootid from SysFunctionGroup order by Rootid asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.Rootid, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

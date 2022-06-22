@@ -95,9 +95,9 @@
                         <select id="ModuleID" class="easyui-combobox">
                             <option value="0">--全部--</option>
                             @{
-    foreach (var _o in _ServiceList)
-    {
-                            <option value="@_o.ModuleID">@_o.ModuleTitle</option>
+                                foreach (var _o in _ServiceList)
+                                {
+                                    <option value="@_o.ModuleID">@_o.ModuleTitle</option>
                                 }
                             }
                         </select>
@@ -118,7 +118,7 @@
                             <option value="0">--全部--</option>
                             @foreach (var _o in _JobStatusList)
                             {
-                                <option value="@_o[0]">@_o[1]</option>
+                                <option value="@(Convert.ToInt32(_o[0])+1)">@_o[1]</option>
                             }
                         </select>
                     </li>
@@ -161,7 +161,7 @@
     </div>
 </div>
 @section scripts {
-@Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
+    @Scripts.Render("~/Content/js-library/my97datepicker/4.7.2/WdatePicker.js")
     <script type="text/javascript">
         $(function () {
             //----------------------服务设置---------------------------------

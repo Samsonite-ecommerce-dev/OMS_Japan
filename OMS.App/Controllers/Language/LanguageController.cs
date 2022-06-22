@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -34,31 +35,33 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
             int _classid = VariableHelper.SaferequestInt(Request.Form["classid"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["isdelete"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.LanguagePack.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((PackKey like {0}) or (PackChinese like {0}) or (PackEnglish like {0}) or (PackKorean like {0}) or (PackThai like {0}))", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.PackKey.Contains(_keyword) || p.PackChinese.Contains(_keyword) || p.PackEnglish.Contains(_keyword) || p.PackJapan.Contains(_keyword));
                 }
                 if (_classid != 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "FunctionID={0}", Param = _classid });
+                    _lambda = _lambda.Where(p => p.FunctionID == _classid);
                 }
                 if (_isdelete == 1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=1", Param = null });
+                    _lambda = _lambda.Where(p => p.IsDelete);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=0", Param = null });
+                    _lambda = _lambda.Where(p => !p.IsDelete);
                 }
+
                 //查询
-                var _list = db.GetPage<LanguagePack>("select * from LanguagePack order by FunctionID asc,SeqNumber asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<LanguagePack, int>>() { new EntityOrderBy<LanguagePack, int>() { parameter = p => p.FunctionID, IsASC = true }, new EntityOrderBy<LanguagePack, int>() { parameter = p => p.SeqNumber, IsASC = true } });
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -72,7 +75,7 @@ namespace OMS.App.Controllers
                                s4 = dy.PackEnglish,
                                s5 = dy.PackKorean,
                                s6 = dy.PackThai,
-                               s7=dy.PackJapan,
+                               s7 = dy.PackJapan,
                                s8 = string.Format("<a href=\"javascript: void(0)\" onclick=\"easyUIExtend.Grid.CommonOper($('#dg'),'" + Url.Action("Sort_Message", "Language") + "',{{id:{0},type:'U'}})\"><i class=\"fa fa-arrow-up color_success\"></i></a><a href=\"javascript: void(0)\" onclick=\"easyUIExtend.Grid.CommonOper($('#dg'),'" + Url.Action("Sort_Message", "Language") + "',{{id:{0},type:'D'}})\"><i class=\"fa fa-arrow-down color_success\"></i></a>", dy.ID),
                                s9 = (!dy.IsDelete) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>",
                            }
@@ -593,28 +596,29 @@ namespace OMS.App.Controllers
         public JsonResult LanguagePack_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
-            string _key = VariableHelper.SaferequestStr(Request.Form["q"]);
+            string _keyword = VariableHelper.SaferequestStr(Request.Form["q"]);
             int _fid = VariableHelper.SaferequestInt(Request.Form["fid"]);
             int _perpage = VariableHelper.SaferequestInt(Request.Form["rows"]);
             if (_perpage <= 0) _perpage = 20;
             int _page = VariableHelper.SaferequestInt(Request.Form["page"]);
             if (_page <= 0) _page = 1;
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.LanguagePack.AsQueryable();
+
                 //搜索条件
-                if (!string.IsNullOrEmpty(_key))
+                if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "PackKey like {0}", Param = "%" + _key + "%" });
+                    _lambda = _lambda.Where(p => p.PackKey.Contains(_keyword));
                 }
 
                 if (Request.Form["fid"] != null)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "FunctionID = {0}", Param = _fid });
+                    _lambda = _lambda.Where(p => p.FunctionID == _fid);
                 }
 
                 //查询
-                var _list = db.GetPage<dynamic>("select ID,PackKey,SeqNumber from LanguagePack order by FunctionID asc,SeqNumber asc", _SqlWhere, _perpage, _page);
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<LanguagePack, int>>() { new EntityOrderBy<LanguagePack, int>() { parameter = p => p.FunctionID, IsASC = true }, new EntityOrderBy<LanguagePack, int>() { parameter = p => p.SeqNumber, IsASC = true } });
                 _result.Data = new
                 {
                     total = _list.TotalItems,

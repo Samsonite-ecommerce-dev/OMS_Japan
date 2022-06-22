@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -13,7 +14,7 @@ namespace OMS.App.Controllers
     public class BrandController : BaseController
     {
         //
-        // GET: /Store/
+        // GET: /Brand/
         #region 查询
         [UserPowerAuthorize]
         public ActionResult Index()
@@ -32,28 +33,29 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["isdelete"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.View_Brand.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((BrandName like {0}) or (SapCode like {0}))", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.BrandName.Contains(_keyword) || p.SapCode.Contains(_keyword));
                 }
 
                 if (_isdelete == 1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsLock=1", Param = null });
+                    _lambda = _lambda.Where(p => p.IsLock);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsLock=0", Param = null });
+                    _lambda = _lambda.Where(p => !p.IsLock);
                 }
 
                 //查询
-                var _list = db.GetPage<dynamic>("select *,isnull((select BrandName from Brand as temp1 where temp1.ID=Brand.ParentID),'--') as ParentBrandName from Brand order by RootID asc, Sort asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<View_Brand, int>>() { new EntityOrderBy<View_Brand, int>() { parameter = p => p.RootID, IsASC = true }, new EntityOrderBy<View_Brand, int>() { parameter = p => p.Sort, IsASC = true } });
                 _result.Data = new
                 {
                     total = _list.TotalItems,

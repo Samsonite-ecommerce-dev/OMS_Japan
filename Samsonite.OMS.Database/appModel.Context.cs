@@ -105,6 +105,7 @@ namespace Samsonite.OMS.Database
         public virtual DbSet<WebApiAccount> WebApiAccount { get; set; }
         public virtual DbSet<WebApiRoles> WebApiRoles { get; set; }
         public virtual DbSet<View_ApprovalRecord> View_ApprovalRecord { get; set; }
+        public virtual DbSet<View_Brand> View_Brand { get; set; }
         public virtual DbSet<View_DeliverysNote> View_DeliverysNote { get; set; }
         public virtual DbSet<View_Mall_Platform> View_Mall_Platform { get; set; }
         public virtual DbSet<View_MallDetail> View_MallDetail { get; set; }

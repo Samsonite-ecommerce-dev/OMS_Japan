@@ -17,7 +17,16 @@ namespace OMS.App.Controllers
         private int _CurrentFunctionID = 0;
         public BaseController()
         {
+
             _CurrentFunctionID = this.CurrentFunctionID;
+        }
+
+        public EntityRepository BaseEntityRepository
+        {
+            get
+            {
+                return new EntityRepository(); ;
+            }
         }
 
         /// <summary>

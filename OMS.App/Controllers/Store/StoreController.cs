@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -37,65 +38,74 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
             int _type = VariableHelper.SaferequestInt(Request.Form["type"]);
             int _platformid = VariableHelper.SaferequestInt(Request.Form["platformid"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["isdelete"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.View_Mall_Platform.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallName like {0}", Param = "%" + _keyword + "%" });
+                    _lambda1 = _lambda1.Where(p => p.MallName.Contains(_keyword));
                 }
 
                 if (_type > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallType={0}", Param = _type });
+                    _lambda1 = _lambda1.Where(p => p.MallType == _type);
                 }
 
                 if (_platformid > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "PlatformCode={0}", Param = _platformid });
+                    _lambda1 = _lambda1.Where(p => p.PlatformCode == _platformid);
                 }
                 else
                 {
                     //显示有平台ID的店铺
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "PlatformCode>0", Param = null });
+                    _lambda1 = _lambda1.Where(p => p.PlatformCode > 0);
                 }
 
                 if (_isdelete == 1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsUsed=0", Param = null });
+                    _lambda1 = _lambda1.Where(p => !p.IsUsed);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsUsed=1", Param = null });
+                    _lambda1 = _lambda1.Where(p => p.IsUsed);
                 }
 
+                var _lambda = from vmp in _lambda1
+                              join fi in db.FTPInfo on vmp.FtpID equals fi.ID
+                              into tmp
+                              from c in tmp.DefaultIfEmpty()
+                              select new { vmp, c.FTPName };
+
+                ////查询
+                //var _list = db.GetPage<dynamic>("select *,Isnull((select FTPName from FTPInfo where FTPInfo.ID=View_Mall_Platform.FtpID),'') As FtpName from View_Mall_Platform order by sortID asc,id asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
                 //查询
-                var _list = db.GetPage<dynamic>("select *,Isnull((select FTPName from FTPInfo where FTPInfo.ID=View_Mall_Platform.FtpID),'') As FtpName from View_Mall_Platform order by sortID asc,id asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.vmp.SortID, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
                     rows = from dy in _list.Items
                            select new
                            {
-                               ck = dy.Id,
-                               s1 = dy.MallName,
-                               s2 = dy.SapCode,
-                               s3 = MallHelper.GetMallTypeDisplay(dy.MallType, true),
-                               s4 = dy.PlatformName,
-                               s5 = dy.Prefix,
-                               s6 = dy.VirtualWMSCode,
-                               s7 = MallHelper.GetMallInterfaceTypeDisplay(dy.InterfaceType, false),
-                               s8 = string.Join("", GetAuthorizeMessage(dy.PlatformCode, dy.UserID, dy.Token, dy.FtpName, dy.TokenTime)),
-                               s9 = dy.SortID,
-                               s10 = dy.Remark,
-                               s11 = dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"),
-                               s12 = (dy.IsUsed) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>",
-                               s13 = (dy.IsOpenService) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>"
+                               ck = dy.vmp.Id,
+                               s1 = dy.vmp.MallName,
+                               s2 = dy.vmp.SapCode,
+                               s3 = MallHelper.GetMallTypeDisplay(dy.vmp.MallType, true),
+                               s4 = dy.vmp.PlatformName,
+                               s5 = dy.vmp.Prefix,
+                               s6 = dy.vmp.VirtualWMSCode,
+                               s7 = MallHelper.GetMallInterfaceTypeDisplay(dy.vmp.InterfaceType, false),
+                               s8 = string.Join("", GetAuthorizeMessage(dy.vmp.PlatformCode, dy.vmp.UserID, dy.vmp.Token, dy.FTPName, dy.vmp.TokenTime)),
+                               s9 = dy.vmp.SortID,
+                               s10 = dy.vmp.Remark,
+                               s11 = dy.vmp.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                               s12 = (dy.vmp.IsUsed) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>",
+                               s13 = (dy.vmp.IsOpenService) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>"
                            }
                 };
                 return _result;
@@ -133,7 +143,7 @@ namespace OMS.App.Controllers
             ViewData["storage_list"] = StorageService.GetStorageOption();
             //接口类型
             ViewData["interface_list"] = MallHelper.MallInterfaceTypeObject();
-            
+
             //线下没有绑定平台的店铺列表
             List<Mall> malls = MallService.GetMallOption_OffLine().Where(p => p.PlatformCode == 0).ToList();
             malls.Add(new Mall()

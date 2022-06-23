@@ -16,6 +16,7 @@ namespace OMS.App.Controllers
     {
         //
         // GET: /Role/
+
         #region 查询
         [UserPowerAuthorize]
         public ActionResult Index()

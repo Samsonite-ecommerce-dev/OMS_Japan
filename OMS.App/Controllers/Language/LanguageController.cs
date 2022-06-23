@@ -16,7 +16,6 @@ namespace OMS.App.Controllers
     {
         //
         // GET: /Language/
-
         #region 查询
         [UserPowerAuthorize]
         public ActionResult Index()
@@ -61,7 +60,7 @@ namespace OMS.App.Controllers
                 }
 
                 //查询
-                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<LanguagePack, int>>() { new EntityOrderBy<LanguagePack, int>() { parameter = p => p.FunctionID, IsASC = true }, new EntityOrderBy<LanguagePack, int>() { parameter = p => p.SeqNumber, IsASC = true } });
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => new { p.FunctionID, p.SeqNumber }, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -618,7 +617,7 @@ namespace OMS.App.Controllers
                 }
 
                 //查询
-                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<LanguagePack, int>>() { new EntityOrderBy<LanguagePack, int>() { parameter = p => p.FunctionID, IsASC = true }, new EntityOrderBy<LanguagePack, int>() { parameter = p => p.SeqNumber, IsASC = true } });
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => new { p.FunctionID, p.SeqNumber }, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

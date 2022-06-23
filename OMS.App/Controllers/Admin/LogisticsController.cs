@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
@@ -15,6 +14,7 @@ namespace OMS.App.Controllers
     {
         //
         // GET: /Logistics/
+
         #region 查询
         [UserPowerAuthorize]
         public ActionResult Index()
@@ -55,7 +55,7 @@ namespace OMS.App.Controllers
                 }
 
                 //查询
-                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<ExpressCompany, int>>() { new EntityOrderBy<ExpressCompany, int>() { parameter = p => p.SortID, IsASC = true }, new EntityOrderBy<ExpressCompany, int>() { parameter = p => p.Id, IsASC = true } });
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => new { p.SortID, p.Id }, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

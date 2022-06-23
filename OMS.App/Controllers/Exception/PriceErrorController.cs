@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Web;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Linq;
-using System.Text;
 using System.Web.Mvc;
 
 using Samsonite.OMS.DTO;
@@ -18,7 +17,7 @@ namespace OMS.App.Controllers
     public class PriceErrorController : BaseController
     {
         //
-        // GET: /InventoryError/
+        // GET: /PriceError/
 
         #region 查询
         [UserPowerAuthorize]
@@ -41,68 +40,79 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _sku = VariableHelper.SaferequestStr(Request.Form["sku"]);
             string _storeid = VariableHelper.SaferequestStr(Request.Form["store"]);
             string _time = VariableHelper.SaferequestStr(Request.Form["time"]);
             string _msg = VariableHelper.SaferequestStr(Request.Form["msg"]);
             int _status = VariableHelper.SaferequestInt(Request.Form["status"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.MallProduct.AsQueryable();
+                var _lambda2 = db.ECommercePushPriceRecord.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_sku))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "epr.PushMessage like {0}", Param = "%" + _sku + "%" });
+                    _lambda2 = _lambda2.Where(p => p.PushMessage.Contains(_sku));
                 }
 
                 if (!string.IsNullOrEmpty(_storeid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "mp.MallSapCode={0}", Param = _storeid });
+                    _lambda1 = _lambda1.Where(p => p.MallSapCode == _storeid);
                 }
                 else
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "mp.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    _lambda1 = _lambda1.Where(p => _UserMalls.Contains(p.MallSapCode));
                 }
 
                 if (!string.IsNullOrEmpty(_time))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,epr.AddTime,{0})=0", Param = VariableHelper.SaferequestTime(_time) });
+                    var _dateTime = VariableHelper.SaferequestTime(_time);
+                    _lambda2 = _lambda2.Where(p => SqlFunctions.DateDiff("day", p.AddTime, _dateTime) == 0);
                 }
 
                 if (!string.IsNullOrEmpty(_msg))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "epr.ErrorMessage like {0}", Param = "%" + _msg + "%" });
+                    _lambda2 = _lambda2.Where(p => p.PushResultMessage.Contains(_msg));
                 }
 
                 if (_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "epr.IsDelete=1", Param = null });
+                    _lambda2 = _lambda2.Where(p => p.IsDelete);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "epr.IsDelete=0", Param = null });
+                    _lambda2 = _lambda2.Where(p => !p.IsDelete);
                 }
 
+                //推送价格
+                _lambda2 = _lambda2.Where(p => p.PushType == (int)ECommercePushType.PushPrice);
+
                 //失败订单
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "epr.PushResult={0}", Param = 0 });
+                _lambda2 = _lambda2.Where(p => !p.PushResult);
+
+                var _lambda = from epr in _lambda2
+                              join mp in _lambda1 on epr.RelatedId equals mp.ID
+                              select new { epr, mp };
+
                 //店铺列表
                 List<Mall> objMall_List = MallService.GetMallOption();
-                //查询(包括普通推送和警告推送)
-                var _list = db.GetPage<dynamic>("select epr.Id,epr.PushMessage,mp.MallSapCode,epr.PushResultMessage,epr.PushType,epr.AddTime from MallProduct as mp inner join ECommercePushPriceRecord as epr on epr.RelatedId=mp.Id and epr.PushType=" + (int)ECommercePushType.PushPrice + " order by epr.AddTime desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                //查询
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.epr.AddTime, false);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
                     rows = from dy in _list.Items
                            select new
                            {
-                               ck = dy.Id,
-                               s1 = ParsePushMessage(dy.PushMessage)[0],
-                               s2 = (objMall_List.Where(p => p.SapCode == dy.MallSapCode).SingleOrDefault() != null) ? objMall_List.Where(p => p.SapCode == dy.MallSapCode).SingleOrDefault().Name : "",
-                               s3 = ParsePushMessage(dy.PushMessage)[1],
-                               s4 = dy.PushResultMessage,
-                               s5 = dy.AddTime.ToString("yyyy-MM-dd HH:mm:ss")
+                               ck = dy.epr.Id,
+                               s1 = ParsePushMessage(dy.epr.PushMessage)[0],
+                               s2 = (objMall_List.Where(p => p.SapCode == dy.mp.MallSapCode).SingleOrDefault() != null) ? objMall_List.Where(p => p.SapCode == dy.mp.MallSapCode).SingleOrDefault().Name : "",
+                               s3 = ParsePushMessage(dy.epr.PushMessage)[1],
+                               s4 = dy.epr.PushResultMessage,
+                               s5 = dy.epr.AddTime.ToString("yyyy-MM-dd HH:mm:ss")
                            }
                 };
             }

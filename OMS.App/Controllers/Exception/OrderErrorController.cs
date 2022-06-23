@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Web;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Data;
 using System.IO;
 using System.Linq;
@@ -11,16 +13,17 @@ using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
+using Samsonite.OMS.Service.AppConfig;
 using Samsonite.Utility.Common;
 using OMS.App.Helper;
-using Samsonite.OMS.Service.AppConfig;
+
 
 namespace OMS.App.Controllers
 {
     public class OrderErrorController : BaseController
     {
         //
-        // GET: /OrderQuery/
+        // GET: /OrderError/
 
         #region 查询
         [UserPowerAuthorize]
@@ -45,64 +48,68 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["orderid"]);
             string _storeid = VariableHelper.SaferequestStr(Request.Form["store"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["time2"]);
             int _status = VariableHelper.SaferequestInt(Request.Form["status"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.View_OrderDetail.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((OrderNo like {0}) or (SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _lambda = _lambda.Where(p => p.OrderNo.Contains(_orderid) || p.SubOrderNo.Contains(_orderid));
                 }
 
                 if (!string.IsNullOrEmpty(_storeid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode={0}", Param = _storeid });
+                    _lambda = _lambda.Where(p => p.MallSapCode == _storeid);
                 }
                 else
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    if (_UserMalls.Count == 0)
-                        _UserMalls.Add("0");
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    //if (_UserMalls.Count == 0)
+                    //    _UserMalls.Add("0");
+                    //_SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    _lambda = _lambda.Where(p => _UserMalls.Contains(p.MallSapCode));
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,OrderTime,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    var _beginTime = VariableHelper.SaferequestTime(_time1);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("day", p.OrderTime, _beginTime) <= 0);
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,OrderTime,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    var _endTime = VariableHelper.SaferequestTime(_time2);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("day", p.OrderTime, _endTime) >= 0);
                 }
 
                 if (_status == 1)
                 {
                     //已处理的错误订单
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsError=0", Param = null });
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=0", Param = null });
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ErrorMsg!=''", Param = null });
+                    _lambda = _lambda.Where(p => !p.IsError);
+                    _lambda = _lambda.Where(p => !p.IsDelete);
+                    _lambda = _lambda.Where(p => !string.IsNullOrEmpty(p.ErrorMsg));
                 }
                 else if (_status == 2)
                 {
                     //已删除订单
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=1", Param = null });
+                    _lambda = _lambda.Where(p => p.IsDelete);
                 }
                 else
                 {
                     //错误订单
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsError=1", Param = null });
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=0", Param = null });
+                    _lambda = _lambda.Where(p => p.IsError);
+                    _lambda = _lambda.Where(p => !p.IsDelete);
                 }
 
                 //查询
-                var _list = db.GetPage<dynamic>("select Id,DetailID,OrderNo,SubOrderNo,MallName,OrderTime,PaymentDate,SKU,ProductName,Quantity,SellingPrice,ProductStatus,PaymentAmount,ActualPaymentAmount,ShippingStatus,IsError,ErrorMsg,ErrorRemark from View_OrderDetail order by OrderTime desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.OrderTime, false);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -642,55 +649,61 @@ namespace OMS.App.Controllers
             string _storeid = VariableHelper.SaferequestStr(Request.Form["StoreName"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["Time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["Time2"]);
-            int _valid = VariableHelper.SaferequestInt(Request.Form["Valid"]);
+            int _status = VariableHelper.SaferequestInt(Request.Form["Status"]);
 
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.View_OrderDetail.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((OrderNo like {0}) or (SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _lambda = _lambda.Where(p => p.OrderNo.Contains(_orderid) || p.SubOrderNo.Contains(_orderid));
                 }
 
                 if (!string.IsNullOrEmpty(_storeid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode={0}", Param = _storeid });
+                    _lambda = _lambda.Where(p => p.MallSapCode == _storeid);
                 }
                 else
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    //if (_UserMalls.Count == 0)
+                    //    _UserMalls.Add("0");
+                    //_SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    _lambda = _lambda.Where(p => _UserMalls.Contains(p.MallSapCode));
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,OrderTime,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    var _beginTime = VariableHelper.SaferequestTime(_time1);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("day", p.OrderTime, _beginTime) <= 0);
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,OrderTime,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    var _endTime = VariableHelper.SaferequestTime(_time2);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("day", p.OrderTime, _endTime) >= 0);
                 }
 
-                if (_valid == 1)
+                if (_status == 1)
                 {
                     //已处理的错误订单
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsError=0", Param = null });
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=0", Param = null });
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ErrorMsg!=''", Param = null });
+                    _lambda = _lambda.Where(p => !p.IsError);
+                    _lambda = _lambda.Where(p => !p.IsDelete);
+                    _lambda = _lambda.Where(p => !string.IsNullOrEmpty(p.ErrorMsg));
                 }
-                else if (_valid == 2)
+                else if (_status == 2)
                 {
                     //已删除订单
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=1", Param = null });
+                    _lambda = _lambda.Where(p => p.IsDelete);
                 }
                 else
                 {
                     //错误订单
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsError=1", Param = null });
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=0", Param = null });
+                    _lambda = _lambda.Where(p => p.IsError);
+                    _lambda = _lambda.Where(p => !p.IsDelete);
                 }
 
                 DataTable dt = new DataTable();
@@ -710,7 +723,7 @@ namespace OMS.App.Controllers
                 //读取数据
                 DataRow _dr = null;
                 //默认显示当前账号允许看到的店铺订单
-                List<dynamic> _List = db.Fetch<dynamic>("select OrderNo,SubOrderNo,MallName,OrderTime,PaymentDate,SKU,ProductName,Quantity,SellingPrice,ProductStatus,PaymentAmount,ActualPaymentAmount,ShippingStatus,IsError,ErrorMsg from View_OrderDetail order by OrderTime desc", _SqlWhere);
+                var _List = _lambda.OrderByDescending(p => p.OrderTime).ToList();
                 foreach (dynamic _dy in _List)
                 {
                     _dr = dt.NewRow();

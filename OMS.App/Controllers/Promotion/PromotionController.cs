@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -15,6 +17,7 @@ namespace OMS.App.Controllers
     {
         //
         // GET: /Promotion/
+
         #region 查询
         [UserPowerAuthorize]
         public ActionResult Index()
@@ -38,72 +41,83 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _title = VariableHelper.SaferequestStr(Request.Form["title"]);
             string _storeid = VariableHelper.SaferequestStr(Request.Form["store"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["time2"]);
             int _state = VariableHelper.SaferequestInt(Request.Form["state"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["isdelete"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.Promotion.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_title))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "PromotionName like {0}", Param = "%" + _title + "%" });
+                    _lambda1 = _lambda1.Where(p => p.PromotionName.Contains(_title));
                 }
 
                 if (!string.IsNullOrEmpty(_storeid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(select count(Id) from PromotionMall where PromotionMall.PromotionId=Promotion.Id and MallSapCode={0})>0", Param = _storeid });
+                    _lambda1 = _lambda1.Where(p => db.PromotionMall.Where(o => o.PromotionId == p.Id).Any());
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    var _beginTime = VariableHelper.SaferequestTime(_time1);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.CreateDate, _beginTime) <= 0);
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    var _endTime = VariableHelper.SaferequestTime(_time2);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.CreateDate, _endTime) >= 0);
                 }
 
                 if (_state > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsApproval={0}", Param = _state - 1 });
+                    _lambda1 = _lambda1.Where(p => p.IsApproval);
                 }
 
                 if (_isdelete == 1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=1", Param = null });
+                    _lambda1 = _lambda1.Where(p => p.IsDelete);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsDelete=0", Param = null });
+                    _lambda1 = _lambda1.Where(p => !p.IsDelete);
                 }
 
+                var _lambda = from p in _lambda1
+                              join ui in db.UserInfo on p.UserId equals ui.UserID
+                              into tmp
+                              from c in tmp.DefaultIfEmpty()
+                              select new { p, c.RealName };
+
                 //查询
-                var _list = db.GetPage<dynamic>("select *,isnull((select RealName from UserInfo where UserInfo.UserID=Promotion.UserId),'')As AddUserName from Promotion order by Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.p.Id, false);
                 //获取促销审核信息
-                List<int> _IdList = _list.Items.Select(p => (int)p.Id).ToList();
-                string _Ids = string.Join(",", _IdList);
-                if (string.IsNullOrEmpty(_Ids)) _Ids = "0";
-                List<View_ApprovalRecord> objView_ApprovalRecord_List = db.Fetch<View_ApprovalRecord>("where ApprovalProjectID=@0 and DetailID in (" + string.Join(",", _Ids) + ")", (int)ApprovalType.Promotion);
+                List<View_ApprovalRecord> objView_ApprovalRecord_List = new List<View_ApprovalRecord>();
+                List<long> _Ids = _list.Items.Select(p => p.p.Id).ToList();
+                if (_Ids.Any())
+                {
+                    objView_ApprovalRecord_List = db.View_ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && _Ids.Contains(p.DetailID)).ToList();
+                }
                 _result.Data = new
                 {
                     total = _list.TotalItems,
                     rows = from dy in _list.Items
                            select new
                            {
-                               ck = dy.Id,
-                               s1 = dy.PromotionName,
-                               s2 = string.Format("{0}-{1}", dy.BeginDate.ToString("yyyy/MM/dd"), dy.EndDate.ToString("yyyy/MM/dd")),
-                               s3 = (dy.RuleType == 1) ? _LanguagePack["promotion_index_type1"] : _LanguagePack["promotion_index_type2"],
-                               s4 = (dy.GiftRule == 1) ? _LanguagePack["promotion_edit_activity_gift_rule_2"] : _LanguagePack["promotion_edit_activity_gift_rule_1"],
-                               s5 = string.Format("{0},{1}{2}", dy.AddUserName, dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(dy.Remark)) ? "<br/>" + dy.Remark : "")),
-                               s6 = (dy.IsApproval) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>",
-                               s7 = GetApprovalMessage(ApprovalIdentify.SaleApproval, dy.Id, objView_ApprovalRecord_List),
-                               s8 = GetApprovalMessage(ApprovalIdentify.WHApproval, dy.Id, objView_ApprovalRecord_List)
+                               ck = dy.p.Id,
+                               s1 = dy.p.PromotionName,
+                               s2 = string.Format("{0}-{1}", dy.p.BeginDate.ToString("yyyy/MM/dd"), dy.p.EndDate.ToString("yyyy/MM/dd")),
+                               s3 = (dy.p.RuleType == 1) ? _LanguagePack["promotion_index_type1"] : _LanguagePack["promotion_index_type2"],
+                               s4 = (dy.p.GiftRule == 1) ? _LanguagePack["promotion_edit_activity_gift_rule_2"] : _LanguagePack["promotion_edit_activity_gift_rule_1"],
+                               s5 = string.Format("{0},{1}{2}", dy.RealName, dy.p.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(dy.p.Remark)) ? "<br/>" + dy.p.Remark : "")),
+                               s6 = (dy.p.IsApproval) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>",
+                               s7 = GetApprovalMessage(ApprovalIdentify.SaleApproval, dy.p.Id, objView_ApprovalRecord_List),
+                               s8 = GetApprovalMessage(ApprovalIdentify.WHApproval, dy.p.Id, objView_ApprovalRecord_List)
                            }
                 };
                 return _result;

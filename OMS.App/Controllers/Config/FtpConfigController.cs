@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
@@ -46,7 +45,7 @@ namespace OMS.App.Controllers
                 }
 
                 //查询
-                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<FTPInfo, int>>() { new EntityOrderBy<FTPInfo, int>() { parameter = p => p.SortID, IsASC = true }, new EntityOrderBy<FTPInfo, int>() { parameter = p => p.ID, IsASC = true } });
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => new { p.SortID, p.ID }, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

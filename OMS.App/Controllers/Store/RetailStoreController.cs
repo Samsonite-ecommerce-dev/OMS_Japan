@@ -15,6 +15,7 @@ namespace OMS.App.Controllers
     {
         //
         // GET: /RetailStore/
+
         #region 查询
         [UserPowerAuthorize]
         public ActionResult Index()
@@ -55,10 +56,10 @@ namespace OMS.App.Controllers
                 }
 
                 //只显示线下店铺
-                _lambda = _lambda.Where(p => p.MallType== (int)MallType.OffLine);
+                _lambda = _lambda.Where(p => p.MallType == (int)MallType.OffLine);
 
                 //查询
-                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<View_MallDetail, int>>() { new EntityOrderBy<View_MallDetail, int>() { parameter = p => p.SortID, IsASC = true }, new EntityOrderBy<View_MallDetail, int>() { parameter = p => p.Id, IsASC = true } });
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p =>new { p.SortID, p.Id }, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web;
-using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Data;
 using System.Linq;
 using System.Web.Mvc;
@@ -17,7 +18,7 @@ namespace OMS.App.Controllers
     public class OrderWHReplyController : BaseController
     {
         //
-        // GET: /OrderQuery/
+        // GET: /OrderWHReply/
 
         #region 查询
         [UserPowerAuthorize]
@@ -42,81 +43,90 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["orderid"]);
             string _storeid = VariableHelper.SaferequestStr(Request.Form["store"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["time2"]);
             string _msg = VariableHelper.SaferequestStr(Request.Form["msg"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["isdelete"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.View_OrderDetail.AsQueryable();
+                var _lambda2 = db.OrderWMSReply.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((od.OrderNo like {0}) or (od.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _lambda1 = _lambda1.Where(p => p.OrderNo.Contains(_orderid) || p.SubOrderNo.Contains(_orderid));
                 }
 
                 if (!string.IsNullOrEmpty(_storeid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "od.MallSapCode={0}", Param = _storeid });
+                    _lambda1 = _lambda1.Where(p => p.MallSapCode == _storeid);
                 }
                 else
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "od.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    _lambda1 = _lambda1.Where(p => _UserMalls.Contains(p.MallSapCode));
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,od.OrderTime,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    var _beginTime = VariableHelper.SaferequestTime(_time1);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.OrderTime, _beginTime) <= 0);
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,od.OrderTime,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    var _endTime = VariableHelper.SaferequestTime(_time2);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.OrderTime, _endTime) >= 0);
                 }
 
                 if (!string.IsNullOrEmpty(_msg))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "owr.ApiReplyMsg like {0}", Param = "%" + _msg + "%" });
+                    _lambda2 = _lambda2.Where(p => p.ApiReplyMsg.Contains(_msg));
                 }
 
                 if (_isdelete == 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "owr.IsDelete=0", Param = null });
+                    _lambda2 = _lambda2.Where(p => !p.IsDelete);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "owr.IsDelete=1", Param = null });
+                    _lambda2 = _lambda2.Where(p => p.IsDelete);
                 }
 
                 //WH接收失败订单
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "owr.Status=0", Param = null });
+                _lambda2 = _lambda2.Where(p => !p.Status);
+
+                var _lambda = from od in _lambda1
+                              join owr in _lambda2 on od.SubOrderNo equals owr.SubOrderNo
+                              select new { od, owr };
+
                 //查询
-                var _list = db.GetPage<dynamic>("select owr.Id,od.OrderNo,od.SubOrderNo,od.MallName,od.OrderTime,od.SKU,od.ProductName,od.Quantity,od.SellingPrice,od.ProductStatus,od.PaymentAmount,od.ActualPaymentAmount,owr.ApiReplyDate,owr.ApiReplyMsg,owr.ApiCount from View_OrderDetail as od inner join OrderWMSReply as owr on od.SubOrderNo=owr.SubOrderNo order by owr.Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.owr.Id, false);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
                     rows = from dy in _list.Items
                            select new
                            {
-                               ck = dy.Id,
-                               s1 = string.Format("<a href=\"javascript:void(0);\" onclick=\"artDialogExtend.Dialog.Open('" + Url.Action("Detail", "OrderQuery") + "?ID={0}',{{title:'{1}-{0}',width:'100%',height:'100%'}});\">{0}</a>", dy.OrderNo, _LanguagePack["ordererror_detail_title"]),
-                               s2 = dy.SubOrderNo,
-                               s3 = dy.MallName,
-                               s4 = dy.SKU,
-                               s5 = dy.ProductName,
-                               s6 = VariableHelper.FormateMoney(dy.SellingPrice),
-                               s7 = dy.Quantity,
-                               s8 = VariableHelper.FormateMoney(dy.PaymentAmount),
-                               s9 = VariableHelper.FormateMoney(OrderHelper.MathRound(dy.ActualPaymentAmount)),
-                               s10 = OrderHelper.GetProductStatusDisplay(dy.ProductStatus, true),
-                               s11 = VariableHelper.FormateTime(dy.OrderTime, "yyyy-MM-dd HH:mm:ss"),
-                               s12 = dy.ApiCount,
-                               s13 = VariableHelper.FormateTime(dy.ApiReplyDate, "yyyy-MM-dd HH:mm:ss"),
-                               s14 = dy.ApiReplyMsg
+                               ck = dy.owr.Id,
+                               s1 = string.Format("<a href=\"javascript:void(0);\" onclick=\"artDialogExtend.Dialog.Open('" + Url.Action("Detail", "OrderQuery") + "?ID={0}',{{title:'{1}-{0}',width:'100%',height:'100%'}});\">{0}</a>", dy.od.OrderNo, _LanguagePack["ordererror_detail_title"]),
+                               s2 = dy.od.SubOrderNo,
+                               s3 = dy.od.MallName,
+                               s4 = dy.od.SKU,
+                               s5 = dy.od.ProductName,
+                               s6 = VariableHelper.FormateMoney(dy.od.SellingPrice),
+                               s7 = dy.od.Quantity,
+                               s8 = VariableHelper.FormateMoney(dy.od.PaymentAmount),
+                               s9 = VariableHelper.FormateMoney(OrderHelper.MathRound(dy.od.ActualPaymentAmount)),
+                               s10 = OrderHelper.GetProductStatusDisplay(dy.od.ProductStatus, true),
+                               s11 = VariableHelper.FormateTime(dy.od.OrderTime, "yyyy-MM-dd HH:mm:ss"),
+                               s12 = dy.owr.ApiCount,
+                               s13 = VariableHelper.FormateTime(dy.owr.ApiReplyDate, "yyyy-MM-dd HH:mm:ss"),
+                               s14 = dy.owr.ApiReplyMsg
                            }
                 };
             }
@@ -242,44 +252,58 @@ namespace OMS.App.Controllers
             string _time1 = VariableHelper.SaferequestStr(Request.Form["Time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["Time2"]);
             string _msg = VariableHelper.SaferequestStr(Request.Form["PostReplyMessage"]);
+            int _isdelete = VariableHelper.SaferequestInt(Request.Form["Canceled"]);
 
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.View_OrderDetail.AsQueryable();
+                var _lambda2 = db.OrderWMSReply.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((od.OrderNo like {0}) or (od.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _lambda1 = _lambda1.Where(p => p.OrderNo.Contains(_orderid) || p.SubOrderNo.Contains(_orderid));
                 }
 
                 if (!string.IsNullOrEmpty(_storeid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "od.MallSapCode={0}", Param = _storeid });
+                    _lambda1 = _lambda1.Where(p => p.MallSapCode == _storeid);
                 }
                 else
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "od.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    _lambda1 = _lambda1.Where(p => _UserMalls.Contains(p.MallSapCode));
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,od.OrderTime,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    var _beginTime = VariableHelper.SaferequestTime(_time1);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.OrderTime, _beginTime) <= 0);
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,od.OrderTime,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    var _endTime = VariableHelper.SaferequestTime(_time2);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.OrderTime, _endTime) >= 0);
                 }
 
                 if (!string.IsNullOrEmpty(_msg))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "owr.ApiReplyMsg like {0}", Param = "%" + _msg + "%" });
+                    _lambda2 = _lambda2.Where(p => p.ApiReplyMsg.Contains(_msg));
+                }
+
+                if (_isdelete == 0)
+                {
+                    _lambda2 = _lambda2.Where(p => !p.IsDelete);
+                }
+                else
+                {
+                    _lambda2 = _lambda2.Where(p => p.IsDelete);
                 }
 
                 //WH接收失败订单
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "owr.Status=0", Param = null });
+                _lambda2 = _lambda2.Where(p => !p.Status);
 
                 DataTable dt = new DataTable();
                 dt.Columns.Add(_LanguagePack["orderwhreply_index_order_no"]);
@@ -300,24 +324,26 @@ namespace OMS.App.Controllers
                 //读取数据
                 DataRow _dr = null;
                 //默认显示当前账号允许看到的店铺订单
-                List<dynamic> _List = db.Fetch<dynamic>($"select od.Id,od.OrderNo,od.SubOrderNo,od.MallName,od.OrderTime,od.SKU,od.ProductName,od.Quantity,od.SellingPrice,od.ProductStatus,od.PaymentAmount,od.ActualPaymentAmount,owr.ApiReplyDate,owr.ApiReplyMsg,owr.ApiCount from View_OrderDetail as od inner join OrderWMSReply as owr on od.SubOrderNo=owr.SubOrderNo order by od.OrderTime desc", _SqlWhere);
-                foreach (dynamic _dy in _List)
+                var _list = from od in _lambda1
+                            join owr in _lambda2 on od.SubOrderNo equals owr.SubOrderNo
+                            select new { od, owr };
+                foreach (var _dy in _list)
                 {
                     _dr = dt.NewRow();
-                    _dr[0] = _dy.OrderNo;
-                    _dr[1] = _dy.SubOrderNo;
-                    _dr[2] = _dy.MallName;
-                    _dr[3] = _dy.SKU;
-                    _dr[4] = _dy.ProductName;
-                    _dr[5] = VariableHelper.FormateMoney(_dy.SellingPrice);
-                    _dr[6] = _dy.Quantity;
-                    _dr[7] = VariableHelper.FormateMoney(_dy.PaymentAmount);
-                    _dr[8] = VariableHelper.FormateMoney(_dy.ActualPaymentAmount);
-                    _dr[9] = OrderHelper.GetProductStatusDisplay(_dy.ProductStatus, false);
-                    _dr[10] = VariableHelper.FormateTime(_dy.OrderTime, "yyyy-MM-dd HH:mm:ss");
-                    _dr[11] = _dy.ApiCount;
-                    _dr[12] = VariableHelper.FormateTime(_dy.ApiReplyDate, "yyyy-MM-dd HH:mm:ss");
-                    _dr[13] = _dy.ApiReplyMsg;
+                    _dr[0] = _dy.od.OrderNo;
+                    _dr[1] = _dy.od.SubOrderNo;
+                    _dr[2] = _dy.od.MallName;
+                    _dr[3] = _dy.od.SKU;
+                    _dr[4] = _dy.od.ProductName;
+                    _dr[5] = VariableHelper.FormateMoney(_dy.od.SellingPrice);
+                    _dr[6] = _dy.od.Quantity;
+                    _dr[7] = VariableHelper.FormateMoney(_dy.od.PaymentAmount);
+                    _dr[8] = VariableHelper.FormateMoney(_dy.od.ActualPaymentAmount);
+                    _dr[9] = OrderHelper.GetProductStatusDisplay(_dy.od.ProductStatus, false);
+                    _dr[10] = VariableHelper.FormateTime(_dy.od.OrderTime, "yyyy-MM-dd HH:mm:ss");
+                    _dr[11] = _dy.owr.ApiCount;
+                    _dr[12] = VariableHelper.FormateTime(_dy.owr.ApiReplyDate, "yyyy-MM-dd HH:mm:ss");
+                    _dr[13] = _dy.owr.ApiReplyMsg;
                     dt.Rows.Add(_dr);
                 }
 

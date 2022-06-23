@@ -49,10 +49,10 @@ namespace OMS.App.Controllers
                 }
                 if (_classid > 0)
                 {
-                    _lambda = _lambda.Where(p => p.Groupid==_classid);
+                    _lambda = _lambda.Where(p => p.Groupid == _classid);
                 }
                 //查询
-                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), new List<EntityOrderBy<View_SysFunction, int>>() { new EntityOrderBy<View_SysFunction, int>() { parameter = p => p.Groupid, IsASC = true }, new EntityOrderBy<View_SysFunction, int>() { parameter = p => p.SeqNumber, IsASC = true } });
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => new { p.Groupid, p.SeqNumber }, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

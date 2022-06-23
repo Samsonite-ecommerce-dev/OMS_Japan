@@ -16,6 +16,7 @@ namespace OMS.App.Controllers
     {
         //
         // GET: /Store/
+
         #region 查询
         [UserPowerAuthorize]
         public ActionResult Index()
@@ -82,10 +83,8 @@ namespace OMS.App.Controllers
                               from c in tmp.DefaultIfEmpty()
                               select new { vmp, c.FTPName };
 
-                ////查询
-                //var _list = db.GetPage<dynamic>("select *,Isnull((select FTPName from FTPInfo where FTPInfo.ID=View_Mall_Platform.FtpID),'') As FtpName from View_Mall_Platform order by sortID asc,id asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
                 //查询
-                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.vmp.SortID, true);
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p =>new { p.vmp.SortID, p.vmp.Id }, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

@@ -1,8 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
     var _m = (Samsonite.OMS.Database.View_Promotion)Model;
-    var _ApprovalList = (List<Samsonite.OMS.Database.View_ApprovalRecord>)ViewData["approval_list"];
-    List<string> _AppConfig = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().PromotionApproval;
 }
 <div class="main">
     <div class="main_edit">
@@ -66,36 +64,6 @@
                             @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
                         </td>
                     </tr>
-                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
-                    {
-                        var _o = _ApprovalList.Where(p => p.ApprovalIdentify == (Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString())).SingleOrDefault();
-                        <tr>
-                            <th>
-                                @ViewBag.LanguagePack["promotion_detail_sale_approval_message"]：
-                            </th>
-                            <td>
-                                @if (_o != null)
-                                {
-                                    Html.Raw(string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br />" + _o.ApprovalRemark : "")));
-                                }
-                            </td>
-                        </tr>
-                    }
-                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
-                    {
-                        var _o = _ApprovalList.Where(p => p.ApprovalIdentify == (Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString())).SingleOrDefault();
-                        <tr>
-                            <th>
-                                @ViewBag.LanguagePack["promotion_detail_wh_approval_message"]：
-                            </th>
-                            <td>
-                                @if (_o != null)
-                                {
-                                    Html.Raw(string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br />" + _o.ApprovalRemark : "")));
-                                }
-                            </td>
-                        </tr>
-                    }
                 </tbody>
             </table>
         </form>

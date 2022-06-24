@@ -78,7 +78,6 @@
     <Compile Include="AppNotification\NotificationTableTemplate.cs" />
     <Compile Include="AppNotification\NotificationTextTemplate.cs" />
     <Compile Include="AppNotification\NotificationUtils.cs" />
-    <Compile Include="ApprovalService.cs" />
     <Compile Include="AppConfig\ConfigService.cs" />
     <Compile Include="BrandService.cs" />
     <Compile Include="AreaService.cs" />

@@ -305,6 +305,10 @@ namespace OMS.App.Controllers
                 //WH接收失败订单
                 _lambda2 = _lambda2.Where(p => !p.Status);
 
+                var _lambda = from od in _lambda1
+                              join owr in _lambda2 on od.SubOrderNo equals owr.SubOrderNo
+                              select new { od, owr };
+
                 DataTable dt = new DataTable();
                 dt.Columns.Add(_LanguagePack["orderwhreply_index_order_no"]);
                 dt.Columns.Add(_LanguagePack["orderwhreply_index_sub_order_no"]);
@@ -324,9 +328,7 @@ namespace OMS.App.Controllers
                 //读取数据
                 DataRow _dr = null;
                 //默认显示当前账号允许看到的店铺订单
-                var _list = from od in _lambda1
-                            join owr in _lambda2 on od.SubOrderNo equals owr.SubOrderNo
-                            select new { od, owr };
+                var _list = _lambda.AsNoTracking().OrderByDescending(p => p.owr.Id).ToList();
                 foreach (var _dy in _list)
                 {
                     _dr = dt.NewRow();

@@ -55,29 +55,6 @@
           <Property Name="AddTime" Type="datetime" Nullable="false" />
           <Property Name="EditTime" Type="datetime" />
         </EntityType>
-        <EntityType Name="ApprovalInfo">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ApprovalProjectID" Type="int" Nullable="false" />
-          <Property Name="ApprovalName" Type="nvarchar" MaxLength="50" Nullable="false" />
-          <Property Name="ApprovalIdentify" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="Remark" Type="nvarchar" MaxLength="512" />
-        </EntityType>
-        <EntityType Name="ApprovalRecord">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ApprovalProjectID" Type="int" Nullable="false" />
-          <Property Name="ApprovalIdentify" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="ApprovalTableName" Type="varchar" MaxLength="50" />
-          <Property Name="DetailID" Type="bigint" Nullable="false" />
-          <Property Name="ApprovalUserId" Type="int" Nullable="false" />
-          <Property Name="ApprovalRemark" Type="nvarchar" MaxLength="500" />
-          <Property Name="ApprovalDate" Type="datetime" Nullable="false" />
-        </EntityType>
         <EntityType Name="Brand">
           <Key>
             <PropertyRef Name="ID" />
@@ -1368,28 +1345,6 @@
           <Property Name="InterfaceID" Type="int" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
-警告 6002: 表/视图“OMS_Japan.dbo.View_ApprovalRecord”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
-        <EntityType Name="View_ApprovalRecord">
-          <Key>
-            <PropertyRef Name="ID" />
-            <PropertyRef Name="ApprovalProjectID" />
-            <PropertyRef Name="ApprovalIdentify" />
-            <PropertyRef Name="DetailID" />
-            <PropertyRef Name="ApprovalUserId" />
-            <PropertyRef Name="ApprovalDate" />
-            <PropertyRef Name="ApprovalUserName" />
-          </Key>
-          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="ApprovalProjectID" Type="int" Nullable="false" />
-          <Property Name="ApprovalIdentify" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="ApprovalTableName" Type="varchar" MaxLength="50" />
-          <Property Name="DetailID" Type="bigint" Nullable="false" />
-          <Property Name="ApprovalUserId" Type="int" Nullable="false" />
-          <Property Name="ApprovalRemark" Type="nvarchar" MaxLength="500" />
-          <Property Name="ApprovalDate" Type="datetime" Nullable="false" />
-          <Property Name="ApprovalUserName" Type="nvarchar" MaxLength="50" Nullable="false" />
-        </EntityType>
-        <!--生成过程中发现错误:
 警告 6002: 表/视图“OMS_Japan.dbo.View_Brand”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_Brand">
           <Key>
@@ -2356,6 +2311,28 @@
           <Property Name="AddUserName" Type="nvarchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <!--生成过程中发现错误:
+警告 6002: 表/视图“OMS_Japan.dbo.View_ProductSetDetail”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
+        <EntityType Name="View_ProductSetDetail">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="ProductSetId" />
+            <PropertyRef Name="SKU" />
+            <PropertyRef Name="IsPrimary" />
+            <PropertyRef Name="Parent" />
+            <PropertyRef Name="Quantity" />
+            <PropertyRef Name="Price" />
+            <PropertyRef Name="ProductName" />
+          </Key>
+          <Property Name="Id" Type="bigint" Nullable="false" />
+          <Property Name="ProductSetId" Type="bigint" Nullable="false" />
+          <Property Name="SKU" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="IsPrimary" Type="bit" Nullable="false" />
+          <Property Name="Parent" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="Quantity" Type="int" Nullable="false" />
+          <Property Name="Price" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="ProductName" Type="nvarchar" MaxLength="100" Nullable="false" />
+        </EntityType>
+        <!--生成过程中发现错误:
 警告 6002: 表/视图“OMS_Japan.dbo.View_Promotion”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
         <EntityType Name="View_Promotion">
           <Key>
@@ -2469,8 +2446,6 @@
           <EntitySet Name="AnalysisDailyOrder" EntityType="Self.AnalysisDailyOrder" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AnalysisDailyProduct" EntityType="Self.AnalysisDailyProduct" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="AnalysisEmployeeOrder" EntityType="Self.AnalysisEmployeeOrder" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="ApprovalInfo" EntityType="Self.ApprovalInfo" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="ApprovalRecord" EntityType="Self.ApprovalRecord" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Brand" EntityType="Self.Brand" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="BSArea" EntityType="Self.BSArea" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Customer" EntityType="Self.Customer" Schema="dbo" store:Type="Tables" />
@@ -2545,19 +2520,6 @@
           <EntitySet Name="WarehouseInfo" EntityType="Self.WarehouseInfo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WebApiAccount" EntityType="Self.WebApiAccount" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WebApiRoles" EntityType="Self.WebApiRoles" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="View_ApprovalRecord" EntityType="Self.View_ApprovalRecord" store:Type="Views" store:Schema="dbo">
-            <DefiningQuery>SELECT 
-    [View_ApprovalRecord].[ID] AS [ID], 
-    [View_ApprovalRecord].[ApprovalProjectID] AS [ApprovalProjectID], 
-    [View_ApprovalRecord].[ApprovalIdentify] AS [ApprovalIdentify], 
-    [View_ApprovalRecord].[ApprovalTableName] AS [ApprovalTableName], 
-    [View_ApprovalRecord].[DetailID] AS [DetailID], 
-    [View_ApprovalRecord].[ApprovalUserId] AS [ApprovalUserId], 
-    [View_ApprovalRecord].[ApprovalRemark] AS [ApprovalRemark], 
-    [View_ApprovalRecord].[ApprovalDate] AS [ApprovalDate], 
-    [View_ApprovalRecord].[ApprovalUserName] AS [ApprovalUserName]
-    FROM [dbo].[View_ApprovalRecord] AS [View_ApprovalRecord]</DefiningQuery>
-          </EntitySet>
           <EntitySet Name="View_Brand" EntityType="Self.View_Brand" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [View_Brand].[ID] AS [ID], 
@@ -3149,6 +3111,18 @@
     [View_ProductSet].[AddUserName] AS [AddUserName]
     FROM [dbo].[View_ProductSet] AS [View_ProductSet]</DefiningQuery>
           </EntitySet>
+          <EntitySet Name="View_ProductSetDetail" EntityType="Self.View_ProductSetDetail" store:Type="Views" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [View_ProductSetDetail].[Id] AS [Id], 
+    [View_ProductSetDetail].[ProductSetId] AS [ProductSetId], 
+    [View_ProductSetDetail].[SKU] AS [SKU], 
+    [View_ProductSetDetail].[IsPrimary] AS [IsPrimary], 
+    [View_ProductSetDetail].[Parent] AS [Parent], 
+    [View_ProductSetDetail].[Quantity] AS [Quantity], 
+    [View_ProductSetDetail].[Price] AS [Price], 
+    [View_ProductSetDetail].[ProductName] AS [ProductName]
+    FROM [dbo].[View_ProductSetDetail] AS [View_ProductSetDetail]</DefiningQuery>
+          </EntitySet>
           <EntitySet Name="View_Promotion" EntityType="Self.View_Promotion" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [View_Promotion].[Id] AS [Id], 
@@ -3222,8 +3196,6 @@
           <EntitySet Name="AnalysisDailyOrder" EntityType="Samsonite.OMS.Database.AnalysisDailyOrder" />
           <EntitySet Name="AnalysisDailyProduct" EntityType="Samsonite.OMS.Database.AnalysisDailyProduct" />
           <EntitySet Name="AnalysisEmployeeOrder" EntityType="Samsonite.OMS.Database.AnalysisEmployeeOrder" />
-          <EntitySet Name="ApprovalInfo" EntityType="Samsonite.OMS.Database.ApprovalInfo" />
-          <EntitySet Name="ApprovalRecord" EntityType="Samsonite.OMS.Database.ApprovalRecord" />
           <EntitySet Name="Brand" EntityType="Samsonite.OMS.Database.Brand" />
           <EntitySet Name="BSArea" EntityType="Samsonite.OMS.Database.BSArea" />
           <EntitySet Name="Customer" EntityType="Samsonite.OMS.Database.Customer" />
@@ -3298,7 +3270,6 @@
           <EntitySet Name="WarehouseInfo" EntityType="Samsonite.OMS.Database.WarehouseInfo" />
           <EntitySet Name="WebApiAccount" EntityType="Samsonite.OMS.Database.WebApiAccount" />
           <EntitySet Name="WebApiRoles" EntityType="Samsonite.OMS.Database.WebApiRoles" />
-          <EntitySet Name="View_ApprovalRecord" EntityType="Samsonite.OMS.Database.View_ApprovalRecord" />
           <EntitySet Name="View_Brand" EntityType="Samsonite.OMS.Database.View_Brand" />
           <EntitySet Name="View_DeliverysNote" EntityType="Samsonite.OMS.Database.View_DeliverysNote" />
           <EntitySet Name="View_Mall_Platform" EntityType="Samsonite.OMS.Database.View_Mall_Platform" />
@@ -3313,6 +3284,7 @@
           <EntitySet Name="View_OrderReject" EntityType="Samsonite.OMS.Database.View_OrderReject" />
           <EntitySet Name="View_OrderReturn" EntityType="Samsonite.OMS.Database.View_OrderReturn" />
           <EntitySet Name="View_ProductSet" EntityType="Samsonite.OMS.Database.View_ProductSet" />
+          <EntitySet Name="View_ProductSetDetail" EntityType="Samsonite.OMS.Database.View_ProductSetDetail" />
           <EntitySet Name="View_Promotion" EntityType="Samsonite.OMS.Database.View_Promotion" />
           <EntitySet Name="View_SysFunction" EntityType="Samsonite.OMS.Database.View_SysFunction" />
           <EntitySet Name="View_UserEmployee" EntityType="Samsonite.OMS.Database.View_UserEmployee" />
@@ -3366,29 +3338,6 @@
           <Property Name="TotalOrderPayment" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
           <Property Name="AddTime" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="EditTime" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="ApprovalInfo">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ApprovalProjectID" Type="Int32" Nullable="false" />
-          <Property Name="ApprovalName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="ApprovalIdentify" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="Remark" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="ApprovalRecord">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ApprovalProjectID" Type="Int32" Nullable="false" />
-          <Property Name="ApprovalIdentify" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ApprovalTableName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DetailID" Type="Int64" Nullable="false" />
-          <Property Name="ApprovalUserId" Type="Int32" Nullable="false" />
-          <Property Name="ApprovalRemark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="ApprovalDate" Type="DateTime" Nullable="false" Precision="3" />
         </EntityType>
         <EntityType Name="Brand">
           <Key>
@@ -4679,26 +4628,6 @@
           <Property Name="AccountID" Type="Int32" Nullable="false" />
           <Property Name="InterfaceID" Type="Int32" Nullable="false" />
         </EntityType>
-        <EntityType Name="View_ApprovalRecord">
-          <Key>
-            <PropertyRef Name="ID" />
-            <PropertyRef Name="ApprovalProjectID" />
-            <PropertyRef Name="ApprovalIdentify" />
-            <PropertyRef Name="DetailID" />
-            <PropertyRef Name="ApprovalUserId" />
-            <PropertyRef Name="ApprovalDate" />
-            <PropertyRef Name="ApprovalUserName" />
-          </Key>
-          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="ApprovalProjectID" Type="Int32" Nullable="false" />
-          <Property Name="ApprovalIdentify" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="ApprovalTableName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="DetailID" Type="Int64" Nullable="false" />
-          <Property Name="ApprovalUserId" Type="Int32" Nullable="false" />
-          <Property Name="ApprovalRemark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="ApprovalDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="ApprovalUserName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
         <EntityType Name="View_Brand">
           <Key>
             <PropertyRef Name="ID" />
@@ -5637,6 +5566,26 @@
           <Property Name="IsDelete" Type="Boolean" Nullable="false" />
           <Property Name="AddUserName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
+        <EntityType Name="View_ProductSetDetail">
+          <Key>
+            <PropertyRef Name="Id" />
+            <PropertyRef Name="ProductSetId" />
+            <PropertyRef Name="SKU" />
+            <PropertyRef Name="IsPrimary" />
+            <PropertyRef Name="Parent" />
+            <PropertyRef Name="Quantity" />
+            <PropertyRef Name="Price" />
+            <PropertyRef Name="ProductName" />
+          </Key>
+          <Property Name="Id" Type="Int64" Nullable="false" />
+          <Property Name="ProductSetId" Type="Int64" Nullable="false" />
+          <Property Name="SKU" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="IsPrimary" Type="Boolean" Nullable="false" />
+          <Property Name="Parent" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Quantity" Type="Int32" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="ProductName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+        </EntityType>
         <EntityType Name="View_Promotion">
           <Key>
             <PropertyRef Name="Id" />
@@ -5796,31 +5745,6 @@
                 <ScalarProperty Name="Brand" ColumnName="Brand" />
                 <ScalarProperty Name="DataGroupID" ColumnName="DataGroupID" />
                 <ScalarProperty Name="EmployeeUserID" ColumnName="EmployeeUserID" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="ApprovalInfo">
-            <EntityTypeMapping TypeName="Samsonite.OMS.Database.ApprovalInfo">
-              <MappingFragment StoreEntitySet="ApprovalInfo">
-                <ScalarProperty Name="Remark" ColumnName="Remark" />
-                <ScalarProperty Name="ApprovalIdentify" ColumnName="ApprovalIdentify" />
-                <ScalarProperty Name="ApprovalName" ColumnName="ApprovalName" />
-                <ScalarProperty Name="ApprovalProjectID" ColumnName="ApprovalProjectID" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="ApprovalRecord">
-            <EntityTypeMapping TypeName="Samsonite.OMS.Database.ApprovalRecord">
-              <MappingFragment StoreEntitySet="ApprovalRecord">
-                <ScalarProperty Name="ApprovalDate" ColumnName="ApprovalDate" />
-                <ScalarProperty Name="ApprovalRemark" ColumnName="ApprovalRemark" />
-                <ScalarProperty Name="ApprovalUserId" ColumnName="ApprovalUserId" />
-                <ScalarProperty Name="DetailID" ColumnName="DetailID" />
-                <ScalarProperty Name="ApprovalTableName" ColumnName="ApprovalTableName" />
-                <ScalarProperty Name="ApprovalIdentify" ColumnName="ApprovalIdentify" />
-                <ScalarProperty Name="ApprovalProjectID" ColumnName="ApprovalProjectID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
@@ -7188,21 +7112,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="View_ApprovalRecord">
-            <EntityTypeMapping TypeName="Samsonite.OMS.Database.View_ApprovalRecord">
-              <MappingFragment StoreEntitySet="View_ApprovalRecord">
-                <ScalarProperty Name="ApprovalUserName" ColumnName="ApprovalUserName" />
-                <ScalarProperty Name="ApprovalDate" ColumnName="ApprovalDate" />
-                <ScalarProperty Name="ApprovalRemark" ColumnName="ApprovalRemark" />
-                <ScalarProperty Name="ApprovalUserId" ColumnName="ApprovalUserId" />
-                <ScalarProperty Name="DetailID" ColumnName="DetailID" />
-                <ScalarProperty Name="ApprovalTableName" ColumnName="ApprovalTableName" />
-                <ScalarProperty Name="ApprovalIdentify" ColumnName="ApprovalIdentify" />
-                <ScalarProperty Name="ApprovalProjectID" ColumnName="ApprovalProjectID" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="View_Brand">
             <EntityTypeMapping TypeName="Samsonite.OMS.Database.View_Brand">
               <MappingFragment StoreEntitySet="View_Brand">
@@ -7818,6 +7727,20 @@
                 <ScalarProperty Name="Description" ColumnName="Description" />
                 <ScalarProperty Name="SetCode" ColumnName="SetCode" />
                 <ScalarProperty Name="SetName" ColumnName="SetName" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="View_ProductSetDetail">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.View_ProductSetDetail">
+              <MappingFragment StoreEntitySet="View_ProductSetDetail">
+                <ScalarProperty Name="ProductName" ColumnName="ProductName" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Parent" ColumnName="Parent" />
+                <ScalarProperty Name="IsPrimary" ColumnName="IsPrimary" />
+                <ScalarProperty Name="SKU" ColumnName="SKU" />
+                <ScalarProperty Name="ProductSetId" ColumnName="ProductSetId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

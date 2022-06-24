@@ -1392,8 +1392,6 @@
     <Content Include="Views\PackageGoods\Detail.cshtml" />
     <Content Include="Views\PackageGoods\Edit.cshtml" />
     <Content Include="Views\PackageGoods\Index.cshtml" />
-    <Content Include="Views\PackageGoods\SaleApproval.cshtml" />
-    <Content Include="Views\PackageGoods\WHApproval.cshtml" />
     <Content Include="Views\Platform\Add.cshtml" />
     <Content Include="Views\Platform\Edit.cshtml" />
     <Content Include="Views\Platform\Index.cshtml" />
@@ -1411,8 +1409,6 @@
     <Content Include="Views\Promotion\Detail.cshtml" />
     <Content Include="Views\Promotion\Edit.cshtml" />
     <Content Include="Views\Promotion\Index.cshtml" />
-    <Content Include="Views\Promotion\SaleApproval.cshtml" />
-    <Content Include="Views\Promotion\WHApproval.cshtml" />
     <Content Include="Views\Role\Add.cshtml" />
     <Content Include="Views\Role\Edit.cshtml" />
     <Content Include="Views\Role\Index.cshtml" />

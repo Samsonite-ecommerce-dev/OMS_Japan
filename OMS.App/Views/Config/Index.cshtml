@@ -3,8 +3,6 @@
     var _ApplicationConfig = (Samsonite.OMS.DTO.ApplicationConfigDto)Model;
     var _LanguageList = (List<Samsonite.OMS.DTO.AppLanguagePack>)ViewData["language_list"];
     var _PayTypeList = (List<object[]>)ViewData["paytype_list"];
-    var _ApproalList = (List<Samsonite.OMS.Database.ApprovalInfo>)ViewData["approal_list"];
-
 }
 <div class="main">
     <div class="main_top">@Html.Raw(ViewBag.MenuBar)</div>
@@ -128,53 +126,6 @@
                                         else
                                         {
                                             <input id="aa_@t" name="AmountAccuracy" type="radio" value="@t" /><label for="aa_@t">@t</label>
-                                        }
-                                    }
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div title="审核流程配置" style="padding:3px">
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <th colspan="2" class="textalign_center font-bold fontSize-14">审核流程配置</th>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <span class="color_danger">*</span>套装审核流程选择：
-
-                                </th>
-                                <td>
-                                    @foreach (var _o in _ApproalList.Where(p => p.ApprovalProjectID == (int)Samsonite.OMS.DTO.ApprovalType.Bunlde))
-                                    {
-                                        if (_ApplicationConfig.BundleApproval.Contains(_o.ApprovalIdentify))
-                                        {
-                                            <input id="ba_@_o.ID" name="BundleApproval" type="checkbox" value="@_o.ApprovalIdentify" checked="checked" /><label for="ba_@_o.ID">@_o.ApprovalName</label>
-                                        }
-                                        else
-                                        {
-                                            <input id="ba_@_o.ID" name="BundleApproval" type="checkbox" value="@_o.ApprovalIdentify" /><label for="ba_@_o.ID">@_o.ApprovalName</label>
-                                        }
-                                    }
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <span class="color_danger">*</span>促销审核流程选择：
-
-                                </th>
-                                <td>
-                                    @foreach (var _o in _ApproalList.Where(p => p.ApprovalProjectID == (int)Samsonite.OMS.DTO.ApprovalType.Promotion))
-                                    {
-                                        if (_ApplicationConfig.PromotionApproval.Contains(_o.ApprovalIdentify))
-                                        {
-                                            <input id="pa_@_o.ID" name="PromotionApproval" type="checkbox" value="@_o.ApprovalIdentify" checked="checked" /><label for="pa_@_o.ID">@_o.ApprovalName</label>
-                                        }
-                                        else
-                                        {
-                                            <input id="pa_@_o.ID" name="PromotionApproval" type="checkbox" value="@_o.ApprovalIdentify" /><label for="pa_@_o.ID">@_o.ApprovalName</label>
                                         }
                                     }
                                 </td>

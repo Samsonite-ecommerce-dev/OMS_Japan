@@ -1,7 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
     var _QuickTimeList = (List<object[]>)ViewData["quicktime_list"];
-    List<string> _AppConfig = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().BundleApproval;
 }
 
 <div class="main">
@@ -57,14 +56,6 @@
             <a id="restore" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-eraser color_primary"></i>@ViewBag.LanguagePack["common_recover"]</a>
             <a id="exportexcel" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-upload color_primary"></i>@ViewBag.LanguagePack["common_export"]</a>
             <a id="detail" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-window-restore color_success"></i>@ViewBag.LanguagePack["common_detail"]</a>
-            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
-            {
-                <a id="saleapproval" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-gavel color_primary"></i>@ViewBag.LanguagePack["common_sale_approval"]</a>
-            }
-            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
-            {
-                <a id="whapproval" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-university color_primary"></i>@ViewBag.LanguagePack["common_wh_approval"]</a>
-            }
             <span class="toolbar-separator"></span>
             <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
         </div>
@@ -94,18 +85,6 @@
                     @*<th data-options="field:'s7',align:'left'">
                         @ViewBag.LanguagePack["packagegoods_index_state"]
                     </th>*@
-                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
-                    {
-                        <th data-options="field:'s8',align:'left'">
-                            @ViewBag.LanguagePack["packagegoods_index_sale_approval_message"]
-                        </th>
-                    }
-                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
-                    {
-                        <th data-options="field:'s9',align:'left'">
-                            @ViewBag.LanguagePack["packagegoods_index_wh_approval_message"]
-                        </th>
-                    }
                 </tr>
             </thead>
         </table>

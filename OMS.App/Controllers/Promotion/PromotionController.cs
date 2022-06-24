@@ -96,13 +96,6 @@ namespace OMS.App.Controllers
 
                 //查询
                 var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.p.Id, false);
-                //获取促销审核信息
-                List<View_ApprovalRecord> objView_ApprovalRecord_List = new List<View_ApprovalRecord>();
-                List<long> _Ids = _list.Items.Select(p => p.p.Id).ToList();
-                if (_Ids.Any())
-                {
-                    objView_ApprovalRecord_List = db.View_ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && _Ids.Contains(p.DetailID)).ToList();
-                }
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -115,24 +108,11 @@ namespace OMS.App.Controllers
                                s3 = (dy.p.RuleType == 1) ? _LanguagePack["promotion_index_type1"] : _LanguagePack["promotion_index_type2"],
                                s4 = (dy.p.GiftRule == 1) ? _LanguagePack["promotion_edit_activity_gift_rule_2"] : _LanguagePack["promotion_edit_activity_gift_rule_1"],
                                s5 = string.Format("{0},{1}{2}", dy.RealName, dy.p.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(dy.p.Remark)) ? "<br/>" + dy.p.Remark : "")),
-                               s6 = (dy.p.IsApproval) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>",
-                               s7 = GetApprovalMessage(ApprovalIdentify.SaleApproval, dy.p.Id, objView_ApprovalRecord_List),
-                               s8 = GetApprovalMessage(ApprovalIdentify.WHApproval, dy.p.Id, objView_ApprovalRecord_List)
+                               s6 = (dy.p.IsApproval) ? "<label class=\"fa fa-check color_primary\"></label>" : "<label class=\"fa fa-close color_danger\"></label>"
                            }
                 };
                 return _result;
             }
-        }
-
-        private string GetApprovalMessage(ApprovalIdentify objApprovalIdentify, long objID, List<View_ApprovalRecord> objView_ApprovalRecord_List)
-        {
-            string _result = string.Empty;
-            var _o = objView_ApprovalRecord_List.Where(p => p.ApprovalIdentify == (objApprovalIdentify.ToString()) && p.DetailID == objID).SingleOrDefault();
-            if (_o != null)
-            {
-                _result = string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br/>" + _o.ApprovalRemark : ""));
-            }
-            return _result;
         }
         #endregion
 
@@ -316,25 +296,16 @@ namespace OMS.App.Controllers
                 Promotion objPromotion = db.Promotion.Where(p => p.Id == _ID).SingleOrDefault();
                 if (objPromotion != null)
                 {
-                    //是否已经被审核,只要被审核过就不能在编辑
-                    List<ApprovalRecord> objApprovalRecord_List = db.ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && p.DetailID == objPromotion.Id).ToList();
-                    if (objApprovalRecord_List.Count == 0)
-                    {
-                        //店铺列表
-                        ViewData["store_list"] = MallService.GetMallOption_OnLine();
-                        //关联商品
-                        ViewData["promotion_product_list"] = db.PromotionProduct.Where(p => p.PromotionId == objPromotion.Id).ToList();
-                        //关联赠品
-                        ViewData["promotion_gift_list"] = db.PromotionGift.Where(p => p.PromotionId == objPromotion.Id).ToList();
-                        //关联店铺
-                        ViewData["promotion_store_list"] = db.PromotionMall.Where(p => p.PromotionId == objPromotion.Id).Select(p => p.MallSapCode).ToList();
+                    //店铺列表
+                    ViewData["store_list"] = MallService.GetMallOption_OnLine();
+                    //关联商品
+                    ViewData["promotion_product_list"] = db.PromotionProduct.Where(p => p.PromotionId == objPromotion.Id).ToList();
+                    //关联赠品
+                    ViewData["promotion_gift_list"] = db.PromotionGift.Where(p => p.PromotionId == objPromotion.Id).ToList();
+                    //关联店铺
+                    ViewData["promotion_store_list"] = db.PromotionMall.Where(p => p.PromotionId == objPromotion.Id).Select(p => p.MallSapCode).ToList();
 
-                        return View(objPromotion);
-                    }
-                    else
-                    {
-                        return RedirectToAction("Index", "Error", new { Type = (int)ErrorType.Other, Message = _LanguagePack["promotion_edit_message_no_allow_edit"] });
-                    }
+                    return View(objPromotion);
                 }
                 else
                 {
@@ -415,13 +386,6 @@ namespace OMS.App.Controllers
                         Promotion objData = db.Promotion.Where(p => p.Id == _ID).SingleOrDefault();
                         if (objData != null)
                         {
-                            //是否已经被审核,只要被审核过就不能在编辑
-                            List<ApprovalRecord> objApprovalRecord_List = db.ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && p.DetailID == objData.Id).ToList();
-                            if (objApprovalRecord_List.Count > 0)
-                            {
-                                throw new Exception(_LanguagePack["promotion_edit_message_no_allow_edit"]);
-                            }
-
                             objData.PromotionName = _Title;
                             objData.BeginDate = VariableHelper.SaferequestTime(_BeginTime);
                             objData.EndDate = VariableHelper.SaferequestTime(_EndTime);
@@ -830,8 +794,6 @@ namespace OMS.App.Controllers
                         _gifts += string.Format("<p>{0}×<lable class=\"color_primary s-bold\">{1}</span></p>", objPromotionGift.SKU, objPromotionGift.Quantity);
                     }
                     ViewBag.Gifts = _gifts;
-                    //审核信息
-                    ViewData["approval_list"] = db.View_ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && p.DetailID == objPromotion.Id).ToList();
 
                     return View(objPromotion);
                 }
@@ -840,305 +802,6 @@ namespace OMS.App.Controllers
                     return RedirectToAction("Index", "Error", new { Type = (int)ErrorType.NoMessage });
                 }
             }
-        }
-        #endregion
-
-        #region 销售审核
-        [UserPowerAuthorize]
-        public ActionResult SaleApproval()
-        {
-            //加载语言包
-            var _LanguagePack = this.GetLanguagePack;
-            ViewBag.LanguagePack = _LanguagePack;
-
-            int _ID = VariableHelper.SaferequestInt(Request.QueryString["ID"]);
-            using (var db = new ebEntities())
-            {
-                View_Promotion objPromotion = db.View_Promotion.Where(p => p.Id == _ID).SingleOrDefault();
-                if (objPromotion != null)
-                {
-                    //查看是否需要进行该审核
-                    if (this.GetApplicationConfig.PromotionApproval.Contains(ApprovalIdentify.SaleApproval.ToString()))
-                    {
-                        //查看是否已经完成审核
-                        ApprovalRecord objApprovalRecord = db.ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && p.ApprovalIdentify == ApprovalIdentify.SaleApproval.ToString() && p.DetailID == objPromotion.Id).SingleOrDefault();
-                        if (objApprovalRecord == null)
-                        {
-                            //店铺
-                            ViewBag.Stores = string.Join(",", (from pm in db.PromotionMall.Where(p => p.PromotionId == objPromotion.Id)
-                                                               join p in db.Mall on pm.MallSapCode equals p.SapCode
-                                                               select new
-                                                               {
-                                                                   MallName = p.Name
-                                                               }).Select(p => p.MallName).ToList());
-                            //规则
-                            string _rules = string.Empty;
-                            if (objPromotion.RuleType == 2)
-                            {
-                                _rules = string.Format(_LanguagePack["promotion_audit_rule_arrive_money"], VariableHelper.FormateMoney(objPromotion.TotalAmount));
-                            }
-                            else
-                            {
-                                _rules = "<p>" + _LanguagePack["promotion_audit_rule_product"] + "</p>";
-                                foreach (PromotionProduct objPromotionProduct in db.PromotionProduct.Where(p => p.PromotionId == objPromotion.Id).ToList())
-                                {
-                                    _rules += string.Format("<p>{0}×<lable class=\"color_primary s-bold\">{1}</label></p>", objPromotionProduct.SKU, objPromotionProduct.Quantity);
-                                }
-
-                            }
-                            ViewBag.Rules = _rules;
-                            //赠品信息
-                            string _gifts = string.Empty;
-                            foreach (PromotionGift objPromotionGift in db.PromotionGift.Where(p => p.PromotionId == objPromotion.Id).ToList())
-                            {
-                                _gifts += string.Format("<p>{0}×<lable class=\"color_primary s-bold\">{1}</span></p>", objPromotionGift.SKU, objPromotionGift.Quantity);
-                            }
-                            ViewBag.Gifts = _gifts;
-
-                            return View(objPromotion);
-                        }
-                        else
-                        {
-                            return RedirectToAction("Index", "Error", new { Type = (int)ErrorType.Other, Message = _LanguagePack["promotion_audit_message_no_allow"] });
-                        }
-                    }
-                    else
-                    {
-                        return RedirectToAction("Index", "Error", new { Type = (int)ErrorType.NoPower });
-                    }
-                }
-                else
-                {
-                    return RedirectToAction("Index", "Error", new { Type = (int)ErrorType.NoMessage });
-                }
-            }
-        }
-
-        [UserPowerAuthorize(Type = UserPowerAuthorize.ResultType.Json, IsAntiForgeryToken = true)]
-        public JsonResult SaleApproval_Message()
-        {
-            //加载语言包
-            var _LanguagePack = this.GetLanguagePack;
-
-            JsonResult _result = new JsonResult();
-            Int64 _ID = VariableHelper.SaferequestInt64(Request.Form["ID"]);
-            string _Remark = VariableHelper.SaferequestEditor(Request.Form["Remark"]);
-
-            using (var db = new ebEntities())
-            {
-                try
-                {
-                    Promotion objData = db.Promotion.Where(p => p.Id == _ID).SingleOrDefault();
-                    if (objData != null)
-                    {
-                        //查看是否需要进行该审核
-                        if (this.GetApplicationConfig.PromotionApproval.Contains(ApprovalIdentify.SaleApproval.ToString()))
-                        {
-                            //查看是否已经完成审核
-                            string _ApprovalIdentify = ApprovalIdentify.SaleApproval.ToString();
-                            ApprovalRecord objApprovalRecord = db.ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && p.ApprovalIdentify == _ApprovalIdentify && p.DetailID == objData.Id).SingleOrDefault();
-                            if (objApprovalRecord == null)
-                            {
-                                objApprovalRecord = new ApprovalRecord()
-                                {
-                                    ApprovalProjectID = (int)ApprovalType.Promotion,
-                                    ApprovalIdentify = _ApprovalIdentify,
-                                    ApprovalTableName = "Promotion",
-                                    DetailID = objData.Id,
-                                    ApprovalUserId = this.CurrentLoginUser.Userid,
-                                    ApprovalRemark = _Remark,
-                                    ApprovalDate = DateTime.Now
-                                };
-                                db.ApprovalRecord.Add(objApprovalRecord);
-                                db.SaveChanges();
-                                //判断是否完成所有审核
-                                if (ApprovalService.IsApproval(ApprovalType.Promotion, objData.Id, this.GetApplicationConfig.PromotionApproval))
-                                {
-                                    objData.IsApproval = true;
-                                    db.SaveChanges();
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception(_LanguagePack["promotion_audit_message_no_allow"]);
-                            }
-                            //返回信息
-                            _result.Data = new
-                            {
-                                result = true,
-                                msg = _LanguagePack["common_data_save_success"]
-                            };
-                        }
-                        else
-                        {
-                            throw new Exception(_LanguagePack["common_alert_no_permission"]);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception(_LanguagePack["common_data_load_false"]);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _result.Data = new
-                    {
-                        result = false,
-                        msg = ex.Message
-                    };
-                }
-            }
-            return _result;
-        }
-        #endregion
-
-        #region 仓库审核
-        [UserPowerAuthorize]
-        public ActionResult WHApproval()
-        {
-            //加载语言包
-            var _LanguagePack = this.GetLanguagePack;
-            ViewBag.LanguagePack = _LanguagePack;
-
-            int _ID = VariableHelper.SaferequestInt(Request.QueryString["ID"]);
-            using (var db = new ebEntities())
-            {
-                View_Promotion objPromotion = db.View_Promotion.Where(p => p.Id == _ID).SingleOrDefault();
-                if (objPromotion != null)
-                {
-                    //查看是否需要进行该审核
-                    if (this.GetApplicationConfig.PromotionApproval.Contains(ApprovalIdentify.WHApproval.ToString()))
-                    {
-                        //查看是否已经完成审核
-                        ApprovalRecord objApprovalRecord = db.ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && p.ApprovalIdentify == ApprovalIdentify.WHApproval.ToString() && p.DetailID == objPromotion.Id).SingleOrDefault();
-                        if (objApprovalRecord == null)
-                        {
-                            //店铺
-                            ViewBag.Stores = string.Join(",", (from pm in db.PromotionMall.Where(p => p.PromotionId == objPromotion.Id)
-                                                               join p in db.Mall on pm.MallSapCode equals p.SapCode
-                                                               select new
-                                                               {
-                                                                   MallName = p.Name
-                                                               }).Select(p => p.MallName).ToList());
-                            //规则
-                            string _rules = string.Empty;
-                            if (objPromotion.RuleType == 2)
-                            {
-                                _rules = string.Format(_LanguagePack["promotion_audit_rule_arrive_money"], VariableHelper.FormateMoney(objPromotion.TotalAmount));
-                            }
-                            else
-                            {
-                                _rules = "<p>" + _LanguagePack["promotion_audit_rule_product"] + "</p>";
-                                foreach (PromotionProduct objPromotionProduct in db.PromotionProduct.Where(p => p.PromotionId == objPromotion.Id).ToList())
-                                {
-                                    _rules += string.Format("<p>{0}×<lable class=\"color_primary s-bold\">{1}</label></p>", objPromotionProduct.SKU, objPromotionProduct.Quantity);
-                                }
-
-                            }
-                            ViewBag.Rules = _rules;
-                            //赠品信息
-                            string _gifts = string.Empty;
-                            foreach (PromotionGift objPromotionGift in db.PromotionGift.Where(p => p.PromotionId == objPromotion.Id).ToList())
-                            {
-                                _gifts += string.Format("<p>{0}×<lable class=\"color_primary s-bold\">{1}</span></p>", objPromotionGift.SKU, objPromotionGift.Quantity);
-                            }
-                            ViewBag.Gifts = _gifts;
-
-                            return View(objPromotion);
-                        }
-                        else
-                        {
-                            return RedirectToAction("Index", "Error", new { Type = (int)ErrorType.Other, Message = _LanguagePack["promotion_audit_message_no_allow"] });
-                        }
-                    }
-                    else
-                    {
-                        return RedirectToAction("Index", "Error", new { Type = (int)ErrorType.NoPower });
-                    }
-                }
-                else
-                {
-                    return RedirectToAction("Index", "Error", new { Type = (int)ErrorType.NoMessage });
-                }
-            }
-        }
-
-        [UserPowerAuthorize(Type = UserPowerAuthorize.ResultType.Json, IsAntiForgeryToken = true)]
-        public JsonResult WHApproval_Message()
-        {
-            //加载语言包
-            var _LanguagePack = this.GetLanguagePack;
-
-            JsonResult _result = new JsonResult();
-            Int64 _ID = VariableHelper.SaferequestInt64(Request.Form["ID"]);
-            string _Remark = VariableHelper.SaferequestEditor(Request.Form["Remark"]);
-
-            using (var db = new ebEntities())
-            {
-                try
-                {
-                    Promotion objData = db.Promotion.Where(p => p.Id == _ID).SingleOrDefault();
-                    if (objData != null)
-                    {
-                        //查看是否需要进行该审核
-                        if (this.GetApplicationConfig.PromotionApproval.Contains(ApprovalIdentify.SaleApproval.ToString()))
-                        {
-                            //查看是否已经完成审核
-                            string _ApprovalIdentify = ApprovalIdentify.WHApproval.ToString();
-                            ApprovalRecord objApprovalRecord = db.ApprovalRecord.Where(p => p.ApprovalProjectID == (int)ApprovalType.Promotion && p.ApprovalIdentify == _ApprovalIdentify && p.DetailID == objData.Id).SingleOrDefault();
-                            if (objApprovalRecord == null)
-                            {
-                                objApprovalRecord = new ApprovalRecord()
-                                {
-                                    ApprovalProjectID = (int)ApprovalType.Promotion,
-                                    ApprovalIdentify = _ApprovalIdentify,
-                                    ApprovalTableName = "Promotion",
-                                    DetailID = objData.Id,
-                                    ApprovalUserId = this.CurrentLoginUser.Userid,
-                                    ApprovalRemark = _Remark,
-                                    ApprovalDate = DateTime.Now
-                                };
-                                db.ApprovalRecord.Add(objApprovalRecord);
-                                db.SaveChanges();
-                                //判断是否完成所有审核
-                                if (ApprovalService.IsApproval(ApprovalType.Promotion, objData.Id, this.GetApplicationConfig.PromotionApproval))
-                                {
-                                    objData.IsApproval = true;
-                                    db.SaveChanges();
-                                }
-                            }
-                            else
-                            {
-                                throw new Exception(_LanguagePack["promotion_audit_message_no_allow"]);
-                            }
-
-                            //返回信息
-                            _result.Data = new
-                            {
-                                result = true,
-                                msg = _LanguagePack["common_data_save_success"]
-                            };
-                        }
-                        else
-                        {
-                            throw new Exception(_LanguagePack["common_alert_no_permission"]);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception(_LanguagePack["common_data_load_false"]);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _result.Data = new
-                    {
-                        result = false,
-                        msg = ex.Message
-                    };
-                }
-            }
-            return _result;
         }
         #endregion
     }

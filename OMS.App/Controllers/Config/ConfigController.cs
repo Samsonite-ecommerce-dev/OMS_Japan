@@ -5,12 +5,11 @@ using System.Web.Mvc;
 
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
-using Samsonite.OMS.Service;
 using Samsonite.OMS.Service.AppLanguage;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.Utility.Common;
-using OMS.App.Helper;
 using Newtonsoft.Json;
+using OMS.App.Helper;
 
 namespace OMS.App.Controllers
 {
@@ -33,8 +32,6 @@ namespace OMS.App.Controllers
             ViewData["language_list"] = LanguageType.LanguagePackOption();
             //支付方式集合
             ViewData["paytype_list"] = OrderHelper.PaymentTypeObject();
-            //审核集合
-            ViewData["approal_list"] = ApprovalService.ApprovalOption();
             //读取配置信息
             ApplicationConfigDto objApplicationConfigDto = ConfigService.GetConfig();
 
@@ -57,10 +54,6 @@ namespace OMS.App.Controllers
             int _WarningInventoryNumTumi = VariableHelper.SaferequestInt(Request.Form["WarningInventoryNumTumi"]);
             //金额精确值配置
             int _AmountAccuracy = VariableHelper.SaferequestInt(Request.Form["AmountAccuracy"]);
-            //套装审核
-            string _BundleApproval = VariableHelper.SaferequestStr(Request.Form["BundleApproval"]);
-            //促销审核
-            string _PromotionApproval = VariableHelper.SaferequestStr(Request.Form["PromotionApproval"]);
             //邮件服务器配置
             string _MailStmp = VariableHelper.SaferequestStr(Request.Form["MailStmp"]);
             int _MailPort = VariableHelper.SaferequestInt(Request.Form["MailPort"]);
@@ -133,20 +126,6 @@ namespace OMS.App.Controllers
                     if (_Config_aa != null)
                     {
                         _Config_aa.ConfigValue = _AmountAccuracy.ToString();
-                    }
-
-                    //套装审核流程
-                    var _Config_ba = objSysConfig_List.Where(p => p.ConfigKey == ConfigService.BUNDLE_APPROVAL_KEY).SingleOrDefault();
-                    if (_Config_ba != null)
-                    {
-                        _Config_ba.ConfigValue = _BundleApproval.Replace(",", "|");
-                    }
-
-                    //促销活动审核流程
-                    var _Configpa = objSysConfig_List.Where(p => p.ConfigKey == ConfigService.PROMOTION_APPROVAL_KEY).SingleOrDefault();
-                    if (_Configpa != null)
-                    {
-                        _Configpa.ConfigValue = _PromotionApproval.Replace(",", "|");
                     }
 
                     //邮件配置

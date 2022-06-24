@@ -2,10 +2,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var _m = (Samsonite.OMS.Database.View_ProductSet)Model;
     var _MallList = (List<Samsonite.OMS.Database.Mall>)ViewData["mall_list"];
-    var _DetailList = (List<dynamic>)ViewData["detail_list"];
+    var _SetDetailList = (List< Samsonite.OMS.Database.View_ProductSetDetail>)ViewData["set_detail_list"];
     var _InventoryList = (List<Samsonite.OMS.Database.MallProduct>)ViewData["inventory_list"];
-    var _ApprovalList = (List<Samsonite.OMS.Database.View_ApprovalRecord>)ViewData["approval_list"];
-    List<string> _AppConfig = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().PromotionApproval;
     int _WarningInventory = Samsonite.OMS.Service.AppConfig.ConfigCache.Instance.Get().WarningInventoryNumConfig;
 }
 <div class="main">
@@ -74,36 +72,6 @@
                                     @Html.Raw(string.Format("{0},{1}{2}", _m.AddUserName, _m.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_m.Remark)) ? "<br/>" + _m.Remark : "")))
                                 </td>
                             </tr>
-                            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
-                            {
-                                var _o = _ApprovalList.Where(p => p.ApprovalIdentify == (Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString())).SingleOrDefault();
-                                <tr>
-                                    <th>
-                                        @ViewBag.LanguagePack["packagegoods_detail_sale_approval_message"]：
-                                    </th>
-                                    <td colspan="3">
-                                        @if (_o != null)
-                                        {
-                                            Html.Raw(string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br />" + _o.ApprovalRemark : "")));
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
-                            {
-                                var _o = _ApprovalList.Where(p => p.ApprovalIdentify == (Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString())).SingleOrDefault();
-                                <tr>
-                                    <th>
-                                        @ViewBag.LanguagePack["packagegoods_detail_wh_approval_message"]：
-                                    </th>
-                                    <td colspan="3">
-                                        @if (_o != null)
-                                        {
-                                            Html.Raw(string.Format("{0},{1}{2}", _o.ApprovalUserName, _o.ApprovalDate.ToString("yyyy-MM-dd HH:mm:ss"), ((!string.IsNullOrEmpty(_o.ApprovalRemark)) ? "<br />" + _o.ApprovalRemark : "")));
-                                        }
-                                    </td>
-                                </tr>
-                            }
                         </tbody>
                     </table>
                 </div>
@@ -118,7 +86,7 @@
                                 <th>@ViewBag.LanguagePack["packagegoods_detail_isprimary"]</th>
                                 <th>@ViewBag.LanguagePack["packagegoods_detail_group"]</th>
                             </tr>
-                            @foreach (var _o in _DetailList)
+                            @foreach (var _o in _SetDetailList)
                             {
                                 <tr>
                                     <td>@_o.SKU</td>

@@ -44,16 +44,6 @@ namespace Samsonite.OMS.Service.AppConfig
         public const string AMOUNT_ACCURACY_KEY = "AMOUNT_ACCURACY";
 
         /// <summary>
-        /// 套装审核流程选择
-        /// </summary>
-        public const string BUNDLE_APPROVAL_KEY = "BUNDLE_APPROVAL";
-
-        /// <summary>
-        /// 促销活动审核流程选择
-        /// </summary>
-        public const string PROMOTION_APPROVAL_KEY = "PROMOTION_APPROVAL";
-
-        /// <summary>
         /// 邮件服务器配置
         /// </summary>
         public const string EMAIL_CONFIG_KEY = "EMAIL_CONFIG";
@@ -92,10 +82,6 @@ namespace Samsonite.OMS.Service.AppConfig
                 _result.WarningInventoryNumTumiConfig = GetWarningInventoryNumTumiConfig(objSysConfig_List);
                 //金额小数点显示配置
                 _result.AmountAccuracy = GetAmountAccuracyConfig(objSysConfig_List);
-                //套装审核流程
-                _result.BundleApproval = GetBundleApprovalConfig(objSysConfig_List);
-                //促销活动审核流程
-                _result.PromotionApproval = GetPromotionApprovalConfig(objSysConfig_List);
                 //邮件配置
                 _result.EmailConfig = GetEmailConfig(objSysConfig_List);
                 //是否启用API
@@ -287,77 +273,6 @@ namespace Samsonite.OMS.Service.AppConfig
                 if (objSysConfig != null)
                 {
                     _result = VariableHelper.SaferequestInt(objSysConfig.ConfigValue);
-                }
-            }
-            return _result;
-        }
-
-        /// <summary>
-        /// 获取套装审核流程配置
-        /// </summary>
-        /// <param name="objSysConfigList"></param>
-        /// <returns></returns>
-        public static List<string> GetBundleApprovalConfig(List<SysConfig> objSysConfigList = null)
-        {
-            List<string> _result = new List<string>();
-            using (var db = new ebEntities())
-            {
-                SysConfig objSysConfig = new SysConfig();
-                if (objSysConfigList == null)
-                {
-                    objSysConfig = db.SysConfig.Where(p => p.ConfigKey.ToUpper() == BUNDLE_APPROVAL_KEY).SingleOrDefault();
-                }
-                else
-                {
-                    objSysConfig = objSysConfigList.Where(p => p.ConfigKey.ToUpper() == BUNDLE_APPROVAL_KEY).SingleOrDefault();
-                }
-
-                if (objSysConfig != null)
-                {
-                    if (!string.IsNullOrEmpty(objSysConfig.ConfigValue))
-                    {
-                        string[] _value = objSysConfig.ConfigValue.Split('|');
-
-                        foreach (string _str in _value)
-                        {
-                            _result.Add(_str);
-                        }
-                    }
-                }
-            }
-            return _result;
-        }
-
-        /// <summary>
-        /// 获取促销活动审核流程配置
-        /// </summary>
-        /// <param name="objSysConfigList"></param>
-        /// <returns></returns>
-        public static List<string> GetPromotionApprovalConfig(List<SysConfig> objSysConfigList = null)
-        {
-            List<string> _result = new List<string>();
-            using (var db = new ebEntities())
-            {
-                SysConfig objSysConfig = new SysConfig();
-                if (objSysConfigList == null)
-                {
-                    objSysConfig = db.SysConfig.Where(p => p.ConfigKey.ToUpper() == PROMOTION_APPROVAL_KEY).SingleOrDefault();
-                }
-                else
-                {
-                    objSysConfig = objSysConfigList.Where(p => p.ConfigKey.ToUpper() == PROMOTION_APPROVAL_KEY).SingleOrDefault();
-                }
-
-                if (objSysConfig != null)
-                {
-                    if (!string.IsNullOrEmpty(objSysConfig.ConfigValue))
-                    {
-                        string[] _value = objSysConfig.ConfigValue.Split('|');
-                        foreach (string _str in _value)
-                        {
-                            _result.Add(_str);
-                        }
-                    }
                 }
             }
             return _result;

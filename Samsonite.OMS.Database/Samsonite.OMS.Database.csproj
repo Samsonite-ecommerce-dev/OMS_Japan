@@ -81,12 +81,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>appModel.edmx</DependentUpon>
     </Compile>
-    <Compile Include="ApprovalInfo.cs">
-      <DependentUpon>appModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="ApprovalRecord.cs">
-      <DependentUpon>appModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="EntityRepository.cs" />
     <Compile Include="BaseRepository.cs" />
     <Compile Include="Brand.cs">
@@ -328,9 +322,6 @@
     <Compile Include="UserRoles.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="View_ApprovalRecord.cs">
-      <DependentUpon>appModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="View_Brand.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
@@ -371,6 +362,9 @@
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
     <Compile Include="View_ProductSet.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="View_ProductSetDetail.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
     <Compile Include="View_Promotion.cs">

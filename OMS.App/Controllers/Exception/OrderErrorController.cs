@@ -723,7 +723,7 @@ namespace OMS.App.Controllers
                 //读取数据
                 DataRow _dr = null;
                 //默认显示当前账号允许看到的店铺订单
-                var _List = _lambda.OrderByDescending(p => p.OrderTime).ToList();
+                var _List = _lambda.AsNoTracking().OrderByDescending(p => p.OrderTime).ToList();
                 foreach (dynamic _dy in _List)
                 {
                     _dr = dt.NewRow();

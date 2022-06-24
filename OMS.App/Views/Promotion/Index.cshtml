@@ -88,18 +88,6 @@
                     @*<th data-options="field:'s6',align:'left'">
                         @ViewBag.LanguagePack["promotion_index_state"]
                     </th>*@
-                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
-                    {
-                        <th data-options="field:'s7',align:'left'">
-                            @ViewBag.LanguagePack["promotion_index_sale_approval_message"]
-                        </th>
-                    }
-                    @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
-                    {
-                        <th data-options="field:'s8',align:'left'">
-                            @ViewBag.LanguagePack["promotion_index_wh_approval_message"]
-                        </th>
-                    }
                 </tr>
             </thead>
         </table>

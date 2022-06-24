@@ -28,8 +28,6 @@ namespace Samsonite.OMS.Database
         public virtual DbSet<AnalysisDailyOrder> AnalysisDailyOrder { get; set; }
         public virtual DbSet<AnalysisDailyProduct> AnalysisDailyProduct { get; set; }
         public virtual DbSet<AnalysisEmployeeOrder> AnalysisEmployeeOrder { get; set; }
-        public virtual DbSet<ApprovalInfo> ApprovalInfo { get; set; }
-        public virtual DbSet<ApprovalRecord> ApprovalRecord { get; set; }
         public virtual DbSet<Brand> Brand { get; set; }
         public virtual DbSet<BSArea> BSArea { get; set; }
         public virtual DbSet<Customer> Customer { get; set; }
@@ -104,7 +102,6 @@ namespace Samsonite.OMS.Database
         public virtual DbSet<WarehouseInfo> WarehouseInfo { get; set; }
         public virtual DbSet<WebApiAccount> WebApiAccount { get; set; }
         public virtual DbSet<WebApiRoles> WebApiRoles { get; set; }
-        public virtual DbSet<View_ApprovalRecord> View_ApprovalRecord { get; set; }
         public virtual DbSet<View_Brand> View_Brand { get; set; }
         public virtual DbSet<View_DeliverysNote> View_DeliverysNote { get; set; }
         public virtual DbSet<View_Mall_Platform> View_Mall_Platform { get; set; }
@@ -119,6 +116,7 @@ namespace Samsonite.OMS.Database
         public virtual DbSet<View_OrderReject> View_OrderReject { get; set; }
         public virtual DbSet<View_OrderReturn> View_OrderReturn { get; set; }
         public virtual DbSet<View_ProductSet> View_ProductSet { get; set; }
+        public virtual DbSet<View_ProductSetDetail> View_ProductSetDetail { get; set; }
         public virtual DbSet<View_Promotion> View_Promotion { get; set; }
         public virtual DbSet<View_SysFunction> View_SysFunction { get; set; }
         public virtual DbSet<View_UserEmployee> View_UserEmployee { get; set; }

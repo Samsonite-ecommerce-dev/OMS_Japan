@@ -12,12 +12,15 @@ namespace Samsonite.OMS.Database
     using System;
     using System.Collections.Generic;
     
-    public partial class ApprovalInfo
+    public partial class View_ProductSetDetail
     {
-        public int ID { get; set; }
-        public int ApprovalProjectID { get; set; }
-        public string ApprovalName { get; set; }
-        public string ApprovalIdentify { get; set; }
-        public string Remark { get; set; }
+        public long Id { get; set; }
+        public long ProductSetId { get; set; }
+        public string SKU { get; set; }
+        public bool IsPrimary { get; set; }
+        public string Parent { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public string ProductName { get; set; }
     }
 }

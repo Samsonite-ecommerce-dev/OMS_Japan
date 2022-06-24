@@ -49,7 +49,6 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["orderid"]);
             string _storeid = VariableHelper.SaferequestStr(Request.Form["store"]);
             string _transactionid = VariableHelper.SaferequestStr(Request.Form["transactionid"]);
@@ -57,64 +56,73 @@ namespace OMS.App.Controllers
             string _time2 = VariableHelper.SaferequestStr(Request.Form["time2"]);
             int _type = VariableHelper.SaferequestInt(Request.Form["type"]);
             int _status = VariableHelper.SaferequestInt(Request.Form["status"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.SapUploadLogDetail.AsQueryable();
+                var _lambda2 = db.Order.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((sld.OrderNo like {0}) or (sld.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _lambda1 = _lambda1.Where(p => p.OrderNo.Contains(_orderid) || p.SubOrderNo.Contains(_orderid));
                 }
 
                 if (!string.IsNullOrEmpty(_storeid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.MallStoreCode={0}", Param = _storeid });
+                    _lambda1 = _lambda1.Where(p => p.MallStoreCode == _storeid);
                 }
                 else
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.MallStoreCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    _lambda1 = _lambda1.Where(p => _UserMalls.Contains(p.MallStoreCode));
                 }
 
                 if (!string.IsNullOrEmpty(_transactionid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.UploadNo={0}", Param = _transactionid });
+                    _lambda1 = _lambda1.Where(p => p.UploadNo == _transactionid);
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,sld.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    var _beginTime = VariableHelper.SaferequestTime(_time1);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.CreateDate, _beginTime) <= 0);
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,sld.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    var _endTime = VariableHelper.SaferequestTime(_time2);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.CreateDate, _endTime) >= 0);
                 }
 
                 if (_type > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.LogType={0}", Param = _type });
+                    _lambda1 = _lambda1.Where(p => p.LogType == _type);
                 }
 
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.Status={0}", Param = _status });
+                _lambda1 = _lambda1.Where(p => p.Status == _status);
+
+                var _lambda = from sld in _lambda1
+                              join o in _lambda2 on sld.OrderNo equals o.OrderNo
+                              select new { sld, o.MallName };
 
                 //查询
-                var _list = db.GetPage<dynamic>("select sld.Id,sld.OrderNo,sld.SubOrderNo,sld.UploadNo,sld.CreateDate,sld.LogType,sld.Status,sld.MallStoreCode,sld.SAPDNNumber,o.MallName from SapUploadLogDetail as sld inner join [Order] as o on sld.OrderNo=o.OrderNo order by sld.Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.sld.Id, false);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
                     rows = from dy in _list.Items
                            select new
                            {
-                               ck = dy.Id,
-                               s1 = dy.UploadNo,
+                               ck = dy.sld.Id,
+                               s1 = dy.sld.UploadNo,
                                s2 = dy.MallName,
-                               s3 = string.Format("<a href=\"javascript:void(0);\" onclick=\"artDialogExtend.Dialog.Open('" + Url.Action("Detail", "OrderQuery") + "?ID={0}',{{title:'{1}-{0}',width:'100%',height:'100%'}});\">{0}</a>", dy.OrderNo, _LanguagePack["orderquery_detail_title"]),
-                               s4 = dy.SubOrderNo,
-                               s5 = PoslogHelper.GetPoslogTypeDisplay(dy.LogType),
-                               s6 = PoslogHelper.GetPoslogStatusDisplay(dy.Status, true),
-                               s7 = dy.SAPDNNumber,
-                               s8 = dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")
+                               s3 = string.Format("<a href=\"javascript:void(0);\" onclick=\"artDialogExtend.Dialog.Open('" + Url.Action("Detail", "OrderQuery") + "?ID={0}',{{title:'{1}-{0}',width:'100%',height:'100%'}});\">{0}</a>", dy.sld.OrderNo, _LanguagePack["orderquery_detail_title"]),
+                               s4 = dy.sld.SubOrderNo,
+                               s5 = PoslogHelper.GetPoslogTypeDisplay(dy.sld.LogType),
+                               s6 = PoslogHelper.GetPoslogStatusDisplay(dy.sld.Status, true),
+                               s7 = dy.sld.SAPDNNumber,
+                               s8 = dy.sld.CreateDate.ToString("yyyy-MM-dd HH:mm:ss")
                            }
                 };
             }
@@ -185,46 +193,59 @@ namespace OMS.App.Controllers
             string _orderid = VariableHelper.SaferequestStr(Request.Form["OrderNumber"]);
             string _storeid = VariableHelper.SaferequestStr(Request.Form["StoreName"]);
             string _transactionid = VariableHelper.SaferequestStr(Request.Form["TransactionID"]);
-            string _time = VariableHelper.SaferequestStr(Request.Form["Time"]);
+            string _time1 = VariableHelper.SaferequestStr(Request.Form["Time1"]);
+            string _time2 = VariableHelper.SaferequestStr(Request.Form["Time2"]);
             int _type = VariableHelper.SaferequestInt(Request.Form["Type"]);
             int _status = VariableHelper.SaferequestInt(Request.Form["Status"]);
 
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
-                //搜索条件
+                var _lambda1 = db.SapUploadLogDetail.AsQueryable();
+                var _lambda2 = db.Order.AsQueryable();
+
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((sld.OrderNo like {0}) or (sld.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _lambda1 = _lambda1.Where(p => p.OrderNo.Contains(_orderid) || p.SubOrderNo.Contains(_orderid));
                 }
 
                 if (!string.IsNullOrEmpty(_storeid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.MallStoreCode={0}", Param = _storeid });
+                    _lambda1 = _lambda1.Where(p => p.MallStoreCode == _storeid);
                 }
                 else
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.MallStoreCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                    _lambda1 = _lambda1.Where(p => _UserMalls.Contains(p.MallStoreCode));
                 }
 
                 if (!string.IsNullOrEmpty(_transactionid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.UploadNo={0}", Param = _transactionid });
+                    _lambda1 = _lambda1.Where(p => p.UploadNo == _transactionid);
                 }
 
-                if (!string.IsNullOrEmpty(_time))
+                if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,sld.CreateDate,{0})=0", Param = VariableHelper.SaferequestTime(_time) });
+                    var _beginTime = VariableHelper.SaferequestTime(_time1);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.CreateDate, _beginTime) <= 0);
+                }
+
+                if (!string.IsNullOrEmpty(_time2))
+                {
+                    var _endTime = VariableHelper.SaferequestTime(_time2);
+                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.CreateDate, _endTime) >= 0);
                 }
 
                 if (_type > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.LogType={0}", Param = _type });
+                    _lambda1 = _lambda1.Where(p => p.LogType == _type);
                 }
 
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "sld.Status={0}", Param = _status });
+                _lambda1 = _lambda1.Where(p => p.Status == _status);
+
+                var _lambda = from sld in _lambda1
+                              join o in _lambda2 on sld.OrderNo equals o.OrderNo
+                              select new { sld, o.MallName };
 
                 DataTable dt = new DataTable();
                 dt.Columns.Add(_LanguagePack["poslogerror_index_transactionid"]);
@@ -238,18 +259,18 @@ namespace OMS.App.Controllers
 
                 //读取数据
                 DataRow _dr = null;
-                List<dynamic> _List = db.Fetch<dynamic>("select sld.Id,sld.OrderNo,sld.SubOrderNo,sld.UploadNo,sld.CreateDate,sld.LogType,sld.Status,sld.MallStoreCode,sld.SAPDNNumber,o.MallName from SapUploadLogDetail as sld inner join [Order] as o on sld.OrderNo=o.OrderNo order by sld.Id desc", _SqlWhere);
-                foreach (var _dy in _List)
+                var _list = _lambda.AsNoTracking().OrderByDescending(p => p.sld.Id).ToList();
+                foreach (var _dy in _list)
                 {
                     _dr = dt.NewRow();
-                    _dr[0] = _dy.UploadNo;
+                    _dr[0] = _dy.sld.UploadNo;
                     _dr[1] = _dy.MallName;
-                    _dr[2] = _dy.OrderNo;
-                    _dr[3] = _dy.SubOrderNo;
-                    _dr[4] = PoslogHelper.GetPoslogTypeDisplay(_dy.LogType);
-                    _dr[5] = PoslogHelper.GetPoslogStatusDisplay(_dy.Status, false);
-                    _dr[6] = _dy.SAPDNNumber;
-                    _dr[7] = _dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
+                    _dr[2] = _dy.sld.OrderNo;
+                    _dr[3] = _dy.sld.SubOrderNo;
+                    _dr[4] = PoslogHelper.GetPoslogTypeDisplay(_dy.sld.LogType);
+                    _dr[5] = PoslogHelper.GetPoslogStatusDisplay(_dy.sld.Status, false);
+                    _dr[6] = _dy.sld.SAPDNNumber;
+                    _dr[7] = _dy.sld.CreateDate.ToString("yyyy-MM-dd HH:mm:ss");
                     dt.Rows.Add(_dr);
                 }
 
@@ -267,6 +288,5 @@ namespace OMS.App.Controllers
             }
         }
         #endregion
-
     }
 }

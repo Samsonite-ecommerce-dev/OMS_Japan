@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
-using Newtonsoft.Json;
 using Samsonite.Utility.Common;
 using Samsonite.OMS.Service;
 
@@ -19,6 +16,8 @@ namespace OMS.App.Controllers
     public class DeliveryController : BaseController
     {
         // GET: /Delivery/
+
+        #region 查询
         [UserPowerAuthorize]
         public ActionResult Index()
         {
@@ -78,7 +77,9 @@ namespace OMS.App.Controllers
             }
             return _result;
         }
+        #endregion
 
+        #region 保存
         [HttpPost]
         public ActionResult Save()
         {
@@ -155,5 +156,6 @@ namespace OMS.App.Controllers
             }
             return _result;
         }
+        #endregion
     }
 }

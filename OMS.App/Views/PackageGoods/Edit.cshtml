@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var _m = (Samsonite.OMS.Database.ProductSet)Model;
     var _StoreList = (List<Samsonite.OMS.Database.Mall>)ViewData["store_list"];
-    var _SetDetailList = (List<dynamic>)ViewData["set_detail_list"];
+    var _SetDetailList = (List<Samsonite.OMS.Database.View_ProductSetDetail>)ViewData["set_detail_list"];
     var _SetStoreList = (List<string>)ViewData["set_store_list"];
 }
 <div class="main">

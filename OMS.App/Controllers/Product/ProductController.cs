@@ -56,63 +56,72 @@ namespace OMS.App.Controllers
             string _sort = VariableHelper.SaferequestStr(Request.Form["sort"]);
             string _order = VariableHelper.SaferequestStr(Request.Form["order"]);
 
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
-            List<string> _SqlOrder = new List<string>();
-
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.Product.AsQueryable();
+
                 if (_brand > 0)
                 {
-                    string _Brands = string.Join(",", BrandService.GetSons(_brand));
-                    if (!string.IsNullOrEmpty(_Brands))
+                    string _brands = string.Join(",", BrandService.GetSons(_brand));
+                    if (!string.IsNullOrEmpty(_brands))
                     {
-                        _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "charindex(Name,{0})>0", Param = _Brands });
+                        _lambda = _lambda.Where(p => SqlFunctions.CharIndex(p.Name, _brands) > 0);
                     }
                 }
 
                 if (!string.IsNullOrEmpty(_productname))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "Description like {0}", Param = "%" + _productname + "%" });
+                    _lambda = _lambda.Where(p => p.Description.Contains(_productname));
                 }
 
                 if (!string.IsNullOrEmpty(_sku))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "((SKU like {0}) or (EAN like {0}) or (ProductId like {0}))", Param = "%" + _sku + "%" });
+                    _lambda = _lambda.Where(p => p.SKU.Contains(_sku) || p.EAN.Contains(_sku) || p.ProductId.Contains(_sku));
                 }
 
                 if (!string.IsNullOrEmpty(_groupdesc))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "GroupDesc like {0}", Param = "%" + _groupdesc + "%" });
+                    _lambda = _lambda.Where(p => p.GroupDesc.Contains(_groupdesc));
                 }
 
                 if (!string.IsNullOrEmpty(_price1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "MarketPrice>={0}", Param = VariableHelper.SaferequestDecimal(_price1) });
+                    var _marketPrice1 = VariableHelper.SaferequestDecimal(_price1);
+                    _lambda = _lambda.Where(p => p.MarketPrice >= _marketPrice1);
                 }
 
                 if (!string.IsNullOrEmpty(_price2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "MarketPrice<={0}", Param = VariableHelper.SaferequestDecimal(_price2) });
+                    var _marketPrice2 = VariableHelper.SaferequestDecimal(_price2);
+                    _lambda = _lambda.Where(p => p.MarketPrice <= _marketPrice2);
                 }
 
                 if (_type.IndexOf(((int)ProductType.Common).ToString()) > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "IsCommon = {0}", Param = 1 });
+                    _lambda = _lambda.Where(p => p.IsCommon);
                 }
 
                 if (_type.IndexOf(((int)ProductType.Bundle).ToString()) > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "IsSet = {0}", Param = 1 });
+                    _lambda = _lambda.Where(p => p.IsSet);
                 }
 
                 if (_type.IndexOf(((int)ProductType.Gift).ToString()) > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "IsGift = {0}", Param = 1 });
+                    _lambda = _lambda.Where(p => p.IsGift);
                 }
 
-                _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "IsDelete = {0}", Param = (_isDelete == 1) ? 1 : 0 });
+                if (_isDelete == 1)
+                {
+                    _lambda = _lambda.Where(p => p.IsDelete);
+                }
+                else
+                {
+                    _lambda = _lambda.Where(p => !p.IsDelete);
+                }
 
                 //排序条件
+                var _lambdaOrderBys = new List<EntityOrderBy<Product, long>>();
                 if (!string.IsNullOrEmpty(_sort))
                 {
                     string[] _sort_array = _sort.Split(',');
@@ -121,14 +130,27 @@ namespace OMS.App.Controllers
                     {
                         if (_sort_array[t] == "s11")
                         {
-                            _SqlOrder.Add(string.Format("{0} {1}", "Quantity", (_order_array[t] == "desc") ? "desc" : "asc"));
+                            _lambdaOrderBys.Add(new EntityOrderBy<Product, long>()
+                            {
+                                OrderByKey = p => p.Quantity,
+                                IsASC = (_order_array[t] == "asc")
+                            });
                         }
                     }
                 }
-                _SqlOrder.Add("Id desc");
+
+                //默认排序
+                if (!_lambdaOrderBys.Any())
+                {
+                    _lambdaOrderBys.Add(new EntityOrderBy<Product, long>()
+                    {
+                        OrderByKey = p => p.Id,
+                        IsASC = false
+                    });
+                }
 
                 //查询
-                var _list = db.GetPage<Product>($"select * from Product Order By {string.Join(",", _SqlOrder)} ", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), _lambdaOrderBys.ToArray());
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -810,71 +832,69 @@ namespace OMS.App.Controllers
             string _type = VariableHelper.SaferequestStr(Request.Form["type"]);
             int _isDelete = VariableHelper.SaferequestInt(Request.Form["Canceled"]);
 
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.Product.AsQueryable();
+
                 if (_brand > 0)
                 {
-                    string _Brands = string.Join(",", BrandService.GetSons(_brand));
-                    if (!string.IsNullOrEmpty(_Brands))
+                    string _brands = string.Join(",", BrandService.GetSons(_brand));
+                    if (!string.IsNullOrEmpty(_brands))
                     {
-                        _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "charindex(Name,{0})>0", Param = _Brands });
+                        _lambda = _lambda.Where(p => SqlFunctions.CharIndex(p.Name, _brands) > 0);
                     }
                 }
 
                 if (!string.IsNullOrEmpty(_productname))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition
-                    {
-                        Condition = "Description like {0}",
-                        Param = "%" + _productname + "%"
-                    });
+                    _lambda = _lambda.Where(p => p.Description.Contains(_productname));
                 }
 
                 if (!string.IsNullOrEmpty(_sku))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition
-                    {
-                        Condition = "((SKU like {0}) or (EAN like {0}) or (ProductId like {0}))",
-                        Param = "%" + _sku + "%"
-                    });
+                    _lambda = _lambda.Where(p => p.SKU.Contains(_sku) || p.EAN.Contains(_sku) || p.ProductId.Contains(_sku));
                 }
 
                 if (!string.IsNullOrEmpty(_groupdesc))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition
-                    {
-                        Condition = "GroupDesc like {0}",
-                        Param = "%" + _groupdesc + "%"
-                    });
+                    _lambda = _lambda.Where(p => p.GroupDesc.Contains(_groupdesc));
                 }
 
                 if (!string.IsNullOrEmpty(_price1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "MarketPrice>={0}", Param = VariableHelper.SaferequestDecimal(_price1) });
+                    var _marketPrice1 = VariableHelper.SaferequestDecimal(_price1);
+                    _lambda = _lambda.Where(p => p.MarketPrice >= _marketPrice1);
                 }
 
                 if (!string.IsNullOrEmpty(_price2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "MarketPrice<={0}", Param = VariableHelper.SaferequestDecimal(_price2) });
+                    var _marketPrice2 = VariableHelper.SaferequestDecimal(_price2);
+                    _lambda = _lambda.Where(p => p.MarketPrice <= _marketPrice2);
                 }
 
                 if (_type.IndexOf(((int)ProductType.Common).ToString()) > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "IsCommon = {0}", Param = 1 });
+                    _lambda = _lambda.Where(p => p.IsCommon);
                 }
 
                 if (_type.IndexOf(((int)ProductType.Bundle).ToString()) > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "IsSet = {0}", Param = 1 });
+                    _lambda = _lambda.Where(p => p.IsSet);
                 }
 
                 if (_type.IndexOf(((int)ProductType.Gift).ToString()) > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "IsGift = {0}", Param = 1 });
+                    _lambda = _lambda.Where(p => p.IsGift);
                 }
 
-                _SqlWhere.Add(new DynamicRepository.SQLCondition { Condition = "IsDelete = {0}", Param = (_isDelete == 1) ? 1 : 0 });
+                if (_isDelete == 1)
+                {
+                    _lambda = _lambda.Where(p => p.IsDelete);
+                }
+                else
+                {
+                    _lambda = _lambda.Where(p => !p.IsDelete);
+                }
 
                 DataTable dt = new DataTable();
                 dt.Columns.Add(_LanguagePack["product_importexcel_brand"]);
@@ -900,8 +920,8 @@ namespace OMS.App.Controllers
 
                 //读取数据
                 DataRow _dr = null;
-                List<Product> _List = db.Fetch<Product>("select * from Product order by ID desc", _SqlWhere);
-                foreach (Product _dy in _List)
+                var _list = _lambda.AsNoTracking().OrderByDescending(p => p.Id).ToList();
+                foreach (Product _dy in _list)
                 {
                     _dr = dt.NewRow();
                     _dr[0] = _dy.Name;

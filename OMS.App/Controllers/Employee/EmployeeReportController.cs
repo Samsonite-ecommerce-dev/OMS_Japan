@@ -8,7 +8,6 @@ using System.Linq;
 using System.Web.Mvc;
 
 using Samsonite.OMS.Database;
-using Samsonite.OMS.DTO;
 using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;

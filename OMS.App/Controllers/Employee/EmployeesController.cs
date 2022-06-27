@@ -2,6 +2,7 @@
 using System.IO;
 using System.Web;
 using System.Data;
+using System.Data.Entity;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,34 +41,35 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
             int _levelid = VariableHelper.SaferequestInt(Request.Form["levelid"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["isdelete"]);
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.View_UserEmployee.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((EmployeeEmail={0}) or (EmployeeName={0}))", Param = EncryptionBase.EncryptString(_keyword) });
+                    _lambda = _lambda.Where(p => p.EmployeeEmail.Contains(_keyword) || p.EmployeeName.Contains(_keyword));
                 }
 
                 if (_levelid > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "LevelID={0}", Param = _levelid });
+                    _lambda = _lambda.Where(p => p.LevelID== _levelid);
                 }
 
                 if (_isdelete == 1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsLock=1", Param = null });
+                    _lambda = _lambda.Where(p => p.IsLock);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsLock=0", Param = null });
+                    _lambda = _lambda.Where(p => !p.IsLock);
                 }
 
                 //查询
-                var _list = db.GetPage<View_UserEmployee>("select * from View_UserEmployee order by EmployeeID desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.EmployeeID, false);
                 //数据解密
                 foreach (var item in _list.Items)
                 {
@@ -560,27 +562,28 @@ namespace OMS.App.Controllers
             int _levelid = VariableHelper.SaferequestInt(Request.Form["LevelID"]);
             int _isdelete = VariableHelper.SaferequestInt(Request.Form["Deleted"]);
 
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.View_UserEmployee.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(EmployeeEmail like {0} or EmployeeName like {0})", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.EmployeeEmail.Contains(_keyword) || p.EmployeeName.Contains(_keyword));
                 }
 
                 if (_levelid > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "LevelID={0}", Param = _levelid });
+                    _lambda = _lambda.Where(p => p.LevelID == _levelid);
                 }
 
                 if (_isdelete == 1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsLock=1", Param = null });
+                    _lambda = _lambda.Where(p => p.IsLock);
                 }
                 else
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "IsLock=0", Param = null });
+                    _lambda = _lambda.Where(p => !p.IsLock);
                 }
 
                 //查询
@@ -596,7 +599,7 @@ namespace OMS.App.Controllers
                 //读取数据
                 DataRow _dr = null;
                 //查询
-                var _list = db.Fetch<View_UserEmployee>("select * from View_UserEmployee order by EmployeeID desc", _SqlWhere);
+                var _list = _lambda.AsNoTracking().OrderByDescending(p => p.EmployeeID).ToList();
                 foreach (var _dy in _list)
                 {
                     //数据解

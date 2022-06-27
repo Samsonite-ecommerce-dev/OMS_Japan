@@ -337,11 +337,11 @@ namespace OMS.App.Controllers
                 int _TotalCount = db.Database.SqlQuery<int>("Proc_SearchOrder {0},{1},{2},{3},{4},{5}", string.Join(",", _SqlMalls), string.Join(" and ", _SqlWhere), "", 0, 0, 0).SingleOrDefault();
                 List<OrderQuery> _list = db.Database.SqlQuery<OrderQuery>("Proc_SearchOrder {0},{1},{2},{3},{4},{5}", string.Join(",", _SqlMalls), string.Join(" and ", _SqlWhere), string.Join(",", _SqlOrder), VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]), 1).ToList();
 
-                List<string> _Orders = _list.Select(p => p.OrderNo).ToList();
+                List<string> _orderNos = _list.Select(p => p.OrderNo).ToList();
                 //获取收货信息
-                List<OrderReceive> objOrderReceive_List = db.OrderReceive.Where(p => _Orders.Contains(p.OrderNo)).ToList();
+                List<OrderReceive> objOrderReceive_List = db.OrderReceive.Where(p => _orderNos.Contains(p.OrderNo)).ToList();
                 //获取更新的地址信息
-                List<OrderModify> objOrderModify_List = db.OrderModify.Where(p => _Orders.Contains(p.OrderNo) && p.Status == (int)ProcessStatus.ModifyComplete).ToList();
+                List<OrderModify> objOrderModify_List = db.OrderModify.Where(p => _orderNos.Contains(p.OrderNo) && p.Status == (int)ProcessStatus.ModifyComplete).ToList();
                 foreach (var dy in _list)
                 {
                     //读取收货信息
@@ -692,11 +692,10 @@ namespace OMS.App.Controllers
                 //读取数据
                 DataRow _dr = null;
                 var _list = db.Database.SqlQuery<OrderQueryExport>("select o.Id,o.OrderNo,o.MallName,o.MallSapCode,o.OrderType,o.OrderAmount,o.PaymentAmount As OrderPaymentAmount,o.PaymentType,o.DeliveryFee,o.BalanceAmount,o.PointAmount,o.OrderSource,o.ShippingMethod,o.PaymentDate,isnull(c.Name,'')As UserName,isnull(c.Email,'')As UserEmail,o.[Status],o.CreateDate as OrderTime,oe.[Receive],oe.ReceiveTel,oe.ReceiveCel,oe.ReceiveZipcode,oe.ReceiveAddr,oe.Province as ReceiveProvince,oe.City as ReceiveCity,oe.District as ReceiveDistrict,od.SubOrderNo,od.SKU,od.ProductName,od.RRPPrice,od.SupplyPrice,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.Quantity,od.CancelQuantity,od.ReturnQuantity,od.ExchangeQuantity,od.RejectQuantity,od.ReservationDate,od.ShippingStatus,od.[Status] As ProductStatus,od.IsExchangeNew,od.CreateDate,('') as Gifts,Isnull(ds.InvoiceNo,'') as InvoiceNo from OrderDetail as od inner join [order] as o on od.OrderNo =o.OrderNo inner join OrderReceive as oe on od.SubOrderNo = oe.SubOrderNo left join Deliverys as ds on od.SubOrderNo=ds.SubOrderNo left join Customer as c on o.CustomerNo = c.CustomerNo " + ((_SqlWhere.Count > 0) ? " where " + string.Join(" and ", _SqlWhere) : "") + " order by o.CreateDate desc");
-                List<string> _Orders = _list.Select(p => "'" + (string)p.OrderNo + "'").ToList();
                 var _orderNos = _list.GroupBy(p => p.OrderNo).Select(o => o.Key).ToList();
                 List<OrderModify> orderModifies = new List<OrderModify>();
                 List<OrderGift> orderGifts = new List<OrderGift>();
-                if (_Orders.Count > 0)
+                if (_orderNos.Count > 0)
                 {
                     //获取更新的地址信息
                     orderModifies = db.OrderModify.Where(p => _orderNos.Contains(p.OrderNo) && p.Status == (int)ProcessStatus.ModifyComplete).ToList();

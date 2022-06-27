@@ -54,14 +54,6 @@
             <a id="delete" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-close color_danger"></i>@ViewBag.LanguagePack["common_delete"]</a>
             <a id="restore" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-eraser color_primary"></i>@ViewBag.LanguagePack["common_recover"]</a>
             <a id="detail" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-window-restore color_success"></i>@ViewBag.LanguagePack["common_detail"]</a>
-            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.SaleApproval.ToString()))
-            {
-                <a id="saleapproval" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-gavel color_primary"></i>@ViewBag.LanguagePack["common_sale_approval"]</a>
-            }
-            @if (_AppConfig.Contains(Samsonite.OMS.DTO.ApprovalIdentify.WHApproval.ToString()))
-            {
-                <a id="whapproval" href="javascript:void(0)" class="easyui-linkbutton" plain="true"><i class="fa fa-university color_primary"></i>@ViewBag.LanguagePack["common_wh_approval"]</a>
-            }
             <span class="toolbar-separator"></span>
             <a id="refresh" href="javascript:void(0)" class="easyui-linkbutton" plain="true" power="false"><i class="fa fa-refresh color_info"></i>@ViewBag.LanguagePack["common_refresh"]</a>
         </div>

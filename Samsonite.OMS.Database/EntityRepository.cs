@@ -72,7 +72,7 @@ namespace Samsonite.OMS.Database
         /// <param name="lambda"></param>
         /// <param name="lambdaOrderBys"></param>
         /// <returns></returns>
-        private EntityPageResult<TEntity> GetPage<TEntity, TKey>(int pageIndex, int pageSize, IQueryable<TEntity> lambda, params EntityOrderBy<TEntity, TKey>[] lambdaOrderBys)
+        public EntityPageResult<TEntity> GetPage<TEntity, TKey>(int pageIndex, int pageSize, IQueryable<TEntity> lambda, params EntityOrderBy<TEntity, TKey>[] lambdaOrderBys)
         {
             var _result = new EntityPageResult<TEntity>();
             _result.TotalItems = lambda.Count();

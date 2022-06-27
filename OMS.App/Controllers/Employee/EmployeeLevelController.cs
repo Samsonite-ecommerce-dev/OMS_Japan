@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -34,18 +34,19 @@ namespace OMS.App.Controllers
         public JsonResult Index_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _keyword = VariableHelper.SaferequestStr(Request.Form["keyword"]);
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.UserEmployeeLevel.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_keyword))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((LevelName like {0}) or (LevelKey like {0}))", Param = "%" + _keyword + "%" });
+                    _lambda = _lambda.Where(p => p.LevelName.Contains(_keyword) || p.LevelKey.Contains(_keyword));
                 }
 
                 //查询
-                var _list = db.GetPage<UserEmployeeLevel>("select * from UserEmployeeLevel order by LevelID asc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.LevelID, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,

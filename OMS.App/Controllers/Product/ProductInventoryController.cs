@@ -157,7 +157,7 @@ namespace OMS.App.Controllers
                 }
 
                 //排序条件
-                var _lambdaOrderBys = new List<EntityOrderBy<View_MallProductInventory, long>>();
+                var _lambdaOrderBys = new List<EntityRepository.EntityOrderBy<View_MallProductInventory, long>>();
                 if (!string.IsNullOrEmpty(_sort))
                 {
                     string[] _sort_array = _sort.Split(',');
@@ -166,7 +166,7 @@ namespace OMS.App.Controllers
                     {
                         if (_sort_array[t] == "s3")
                         {
-                            _lambdaOrderBys.Add(new EntityOrderBy<View_MallProductInventory, long>()
+                            _lambdaOrderBys.Add(new EntityRepository.EntityOrderBy<View_MallProductInventory, long>()
                             {
                                 OrderByKey = p => p.Quantity,
                                 IsASC = (_order_array[t] == "asc")
@@ -178,12 +178,12 @@ namespace OMS.App.Controllers
                 //默认排序
                 if (!_lambdaOrderBys.Any())
                 {
-                    //_lambdaOrderBys.Add(new EntityOrderBy<View_MallProductInventory, long>()
+                    //_lambdaOrderBys.Add(new EntityRepository.EntityOrderBy<View_MallProductInventory, long>()
                     //{
                     //    OrderByKey = p => (long)p.MallSapCode,
                     //    IsASC = true
                     //});
-                    _lambdaOrderBys.Add(new EntityOrderBy<View_MallProductInventory, long>()
+                    _lambdaOrderBys.Add(new EntityRepository.EntityOrderBy<View_MallProductInventory, long>()
                     {
                         OrderByKey = p => p.ID,
                         IsASC = false

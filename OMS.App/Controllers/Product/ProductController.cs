@@ -121,7 +121,7 @@ namespace OMS.App.Controllers
                 }
 
                 //排序条件
-                var _lambdaOrderBys = new List<EntityOrderBy<Product, long>>();
+                var _lambdaOrderBys = new List<EntityRepository.EntityOrderBy<Product, long>>();
                 if (!string.IsNullOrEmpty(_sort))
                 {
                     string[] _sort_array = _sort.Split(',');
@@ -130,7 +130,7 @@ namespace OMS.App.Controllers
                     {
                         if (_sort_array[t] == "s11")
                         {
-                            _lambdaOrderBys.Add(new EntityOrderBy<Product, long>()
+                            _lambdaOrderBys.Add(new EntityRepository.EntityOrderBy<Product, long>()
                             {
                                 OrderByKey = p => p.Quantity,
                                 IsASC = (_order_array[t] == "asc")
@@ -142,7 +142,7 @@ namespace OMS.App.Controllers
                 //默认排序
                 if (!_lambdaOrderBys.Any())
                 {
-                    _lambdaOrderBys.Add(new EntityOrderBy<Product, long>()
+                    _lambdaOrderBys.Add(new EntityRepository.EntityOrderBy<Product, long>()
                     {
                         OrderByKey = p => p.Id,
                         IsASC = false

@@ -25,7 +25,7 @@ namespace OMS.App.Controllers
         {
             get
             {
-                return new EntityRepository(); ;
+                return new EntityRepository();
             }
         }
 

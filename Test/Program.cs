@@ -29,6 +29,7 @@ using SagawaSdk.Request;
 using SagawaSdk.Response;
 using SagawaSdk.Domain;
 using Samsonite.OMS.ECommerce.Japan;
+using static Samsonite.OMS.Database.EntityRepository;
 
 namespace Test
 {
@@ -43,9 +44,9 @@ namespace Test
             //(new TestWebAPI()).TestWarehouse();
             //(new TestWebAPI()).TestClickCollect();
             //(new TestWebAPI()).TestPlatform();
-            (new TestWebAPI()).TestSagawaGoBack();
+            //(new TestWebAPI()).TestSagawaGoBack();
 
-            //DeBug();
+            DeBug();
             //PDFToImage();
             //CreateQRImg();
             //Clock();
@@ -86,28 +87,38 @@ namespace Test
 
         private static void DeBug()
         {
-            DateTime startDate = Convert.ToDateTime("2022-03-01 00:00:00");
-            DateTime endDate = Convert.ToDateTime("2022-03-31 00:00:00");
+            //DateTime startDate = Convert.ToDateTime("2022-01-01 00:00:00");
+            //DateTime endDate = Convert.ToDateTime("2022-06-31 00:00:00");
+            //using (var db = new ebEntities())
+            //{
+            //    var _list = from o in db.Order
+            //                 join od in db.OrderDetail.Where(p => p.CreateDate >= startDate && p.CreateDate <= endDate && p.Status == (int)ProductStatus.Received && !p.IsSystemCancel && !p.IsExchangeNew && !p.IsSetOrigin && !p.IsError && !p.IsDelete && !(db.OrderWMSReply.Where(o => o.Status && o.SubOrderNo == p.SubOrderNo).Any())) on o.Id equals od.OrderId
+            //                 join r in db.OrderReceive on od.SubOrderNo equals r.SubOrderNo
+            //                 select new { od, r };
+
+            //    //var _entityRepository = new EntityRepository();
+            //    //var x = _entityRepository.GetPage(1, 10, _list.AsQueryable().AsNoTracking(), p => p.OrderNo, true);
+            //    //foreach (var item in x.Items)
+            //    //{
+            //    //    Console.WriteLine(item.OrderNo + "-" + item.SubOrderNo);
+            //    //}
+            //}
+            List<SqlQueryCondition> _sqlWhere = new List<SqlQueryCondition>();
+            //预售订单
+            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsReservation={0}", Param = 1 });
+            //过滤套装主订单
+            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsSetOrigin={0}", Param = 0 });
+            //不显示无效的订单
+            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsDelete={0}", Param = 0 });
+
+            EntityRepository entityRepository = new EntityRepository();
             using (var db = new ebEntities())
             {
-                var _list = (from o in db.Order
-                             join od in db.OrderDetail.Where(p => p.CreateDate >= startDate && p.CreateDate <= endDate && p.Status == (int)ProductStatus.Received && !p.IsSystemCancel && !p.IsExchangeNew && !p.IsSetOrigin && !p.IsError && !p.IsDelete && !(db.OrderWMSReply.Where(o => o.Status && o.SubOrderNo == p.SubOrderNo).Any())) on o.Id equals od.OrderId
-                             join r in db.OrderReceive on od.SubOrderNo equals r.SubOrderNo
-                             select new
-                             {
-                                 MallSapCode = o.MallSapCode,
-                                 OrderNo = o.OrderNo,
-                                 SubOrderNo = od.SubOrderNo,
-                                 PlatformType = o.PlatformType,
-                                 PaymentType = o.PaymentType,
-                                 OrderAmount = o.OrderAmount,
-                                 OrderPaymentAmount = o.PaymentAmount,
-                             });
-                var _entityRepository = new EntityRepository();
-                var x = _entityRepository.GetPage(1, 10, _list.AsQueryable().AsNoTracking(), p => p.OrderNo, true);
-                foreach (var item in x.Items)
+                var _list = entityRepository.SqlQueryGetPage<ReserveOrderQuery>(db, "select od.Id,od.OrderNo,od.SubOrderNo,o.MallSapCode,o.MallName,o.PaymentDate,o.CreateDate,od.SKU,od.ProductName,od.Quantity,od.Status,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.IsReservation,od.ReservationDate,od.ReservationRemark,od.ShippingStatus,od.IsError,isnull((select Name from Customer where Customer.CustomerNo=o.CustomerNo),'')As CustomerName,r.[Receive],r.ReceiveTel,r.ReceiveCel,r.ReceiveAddr from OrderDetail as od inner join [Order] as o on od.OrderNo=o.OrderNo inner join OrderReceive as r on r.SubOrderNo =od.SubOrderNo order by od.Id desc", _sqlWhere, 1,10);
+                Console.WriteLine(_list.TotalItems);
+                foreach (var item in _list.Items)
                 {
-                    Console.WriteLine(item.OrderNo + "-" + item.SubOrderNo);
+                    Console.WriteLine(item.OrderNo);
                 }
             }
         }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
-using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -45,6 +43,7 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["orderid"]);
             string[] _storeid = VariableHelper.SaferequestStringArray(Request.Form["store"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["time1"]);
@@ -52,14 +51,10 @@ namespace OMS.App.Controllers
             string _product_status = VariableHelper.SaferequestStr(Request.Form["product_status"]);
             using (var db = new ebEntities())
             {
-                var _lambda1 = db.View_OrderDetail.AsQueryable();
-                var _lambda2 = db.OrderReceive.AsQueryable();
-                var _lambda3 = db.Customer.AsQueryable();
-
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _lambda1 = _lambda1.Where(p => p.OrderNo.Contains(_orderid) || p.SubOrderNo.Contains(_orderid));
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((od.OrderNo like {0}) or (od.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -72,85 +67,43 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _lambda1 = _lambda1.Where(p => _UserMalls.Contains(p.MallSapCode));
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    var _beginTime = VariableHelper.SaferequestTime(_time1);
-                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.ReservationDate, _beginTime) <= 0);
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,od.ReservationDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    var _endTime = VariableHelper.SaferequestTime(_time2);
-                    _lambda1 = _lambda1.Where(p => SqlFunctions.DateDiff("day", p.ReservationDate, _endTime) >= 0);
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,od.ReservationDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 if (!string.IsNullOrEmpty(_product_status))
                 {
-                    var _productStatusArray = VariableHelper.SaferequestIntArray(_product_status).ToList();
-                    if (_productStatusArray.Contains((int)ProductStatus.Cancel))
+                    if (("," + _product_status + ",").IndexOf("," + ((int)ProductStatus.Cancel).ToString() + ",") > -1)
                     {
-                        _productStatusArray.Add((int)ProductStatus.CancelComplete);
+                        _product_status += "," + ((int)ProductStatus.CancelComplete).ToString();
                     }
-                    if (_productStatusArray.Contains((int)ProductStatus.Return))
+                    if (("," + _product_status + ",").IndexOf("," + ((int)ProductStatus.Return).ToString() + ",") > -1)
                     {
-                        _productStatusArray.Add((int)ProductStatus.ReturnComplete);
+                        _product_status += "," + ((int)ProductStatus.ReturnComplete).ToString();
                     }
-                    if (_productStatusArray.Contains((int)ProductStatus.Exchange))
+                    if (("," + _product_status + ",").IndexOf("," + ((int)ProductStatus.Exchange).ToString() + ",") > -1)
                     {
-                        _productStatusArray.Add((int)ProductStatus.ExchangeComplete);
+                        _product_status += "," + ((int)ProductStatus.ExchangeComplete).ToString();
                     }
-                    if (_productStatusArray.Contains((int)ProductStatus.Reject))
-                    {
-                        _productStatusArray.Add((int)ProductStatus.RejectComplete);
-                    }
-
-                    _lambda1 = _lambda1.Where(p => _productStatusArray.Contains(p.ProductStatus));
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.[Status] in (" + _product_status + ")", Param = null });
                 }
 
                 //预售订单
-                _lambda1 = _lambda1.Where(p => p.IsReservation);
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsReservation={0}", Param = 1 });
                 //过滤套装主订单
-                _lambda1 = _lambda1.Where(p => !p.IsSetOrigin);
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsSetOrigin={0}", Param = 0 });
                 //不显示无效的订单
-                _lambda1 = _lambda1.Where(p => !p.IsDelete);
-
-                var _lambda = from od in _lambda1
-                              join oe in _lambda2 on od.SubOrderNo equals oe.SubOrderNo
-                              join ci in _lambda3 on od.CustomerNo equals ci.CustomerNo into tmp
-                              from c in tmp.DefaultIfEmpty()
-                              select new ReserveOrderQuery()
-                              {
-                                  Id = od.Id,
-                                  OrderNo = od.OrderNo,
-                                  SubOrderNo = od.SubOrderNo,
-                                  MallName = od.MallName,
-                                  MallSapCode = od.MallSapCode,
-                                  PaymentDate = od.PaymentDate,
-                                  ShippingStatus = od.ShippingStatus,
-                                  OrderTime = od.OrderTime,
-                                  IsError = od.IsError,
-                                  SKU = od.SKU,
-                                  ProductName = od.ProductName,
-                                  RRPPrice = od.RRPPrice,
-                                  SupplyPrice = od.SupplyPrice,
-                                  SellingPrice = od.SellingPrice,
-                                  Quantity = od.Quantity,
-                                  PaymentAmount = od.PaymentAmount,
-                                  ActualPaymentAmount = od.ActualPaymentAmount,
-                                  ProductStatus = od.ProductStatus,
-                                  ReservationDate = od.ReservationDate,
-                                  ReservationRemark = od.ReservationRemark,
-                                  CustomerName = c.Name ?? "",
-                                  Receive = oe.Receive,
-                                  ReceiveTel = oe.ReceiveTel,
-                                  ReceiveCel = oe.Receive,
-                                  ReceiveAddr = oe.ReceiveAddr
-                              };
-
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsDelete={0}", Param = 0 });
                 //查询
-                var _list = this.BaseEntityRepository.GetPage(VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]), _lambda.AsNoTracking(), p => p.Id, false);
+                var _list = this.BaseEntityRepository.SqlQueryGetPage<ReserveOrderQuery>(db, "select od.Id,od.OrderNo,od.SubOrderNo,o.MallSapCode,o.MallName,o.PaymentDate,o.CreateDate,od.SKU,od.ProductName,od.Quantity,od.Status,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.IsReservation,od.ReservationDate,od.ReservationRemark,od.ShippingStatus,od.IsError,isnull((select Name from Customer where Customer.CustomerNo=o.CustomerNo),'')As CustomerName,r.[Receive],r.ReceiveTel,r.ReceiveCel,r.ReceiveAddr from OrderDetail as od inner join [Order] as o on od.OrderNo=o.OrderNo inner join OrderReceive as r on r.SubOrderNo =od.SubOrderNo order by od.Id desc", _sqlWhere, VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]));
                 //数据解密并脱敏
                 foreach (var item in _list.Items)
                 {
@@ -171,7 +124,7 @@ namespace OMS.App.Controllers
                                s6 = VariableHelper.FormateMoney(dy.SellingPrice),
                                s7 = dy.Quantity,
                                s8 = VariableHelper.FormateMoney(dy.PaymentAmount),
-                               s9 = OrderHelper.GetProductStatusDisplay(dy.ProductStatus, true),
+                               s9 = OrderHelper.GetProductStatusDisplay(dy.Status, true),
                                s10 = dy.CustomerName,
                                s11 = dy.Receive,
                                s12 = dy.ReceiveTel,
@@ -179,7 +132,7 @@ namespace OMS.App.Controllers
                                s14 = VariableHelper.FormateTime(dy.ReservationDate, "yyyy-MM-dd"),
                                s15 = OrderHelper.GetWarehouseProcessStatusDisplay(dy.ShippingStatus, true),
                                s16 = VariableHelper.FormateTime(dy.PaymentDate, "yyyy-MM-dd HH:mm:ss"),
-                               s17 = VariableHelper.FormateTime(dy.OrderTime, "yyyy-MM-dd HH:mm:ss"),
+                               s17 = VariableHelper.FormateTime(dy.CreateDate, "yyyy-MM-dd HH:mm:ss"),
                                s18 = dy.ReservationRemark
                            }
                 };

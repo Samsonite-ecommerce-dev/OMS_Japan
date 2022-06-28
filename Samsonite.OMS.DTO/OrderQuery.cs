@@ -219,25 +219,21 @@ namespace Samsonite.OMS.DTO
 
         public string SubOrderNo { get; set; }
 
-        public string MallName { get; set; }
-
         public string MallSapCode { get; set; }
+
+        public string MallName { get; set; }
 
         public DateTime? PaymentDate { get; set; }
 
-        public int ShippingStatus { get; set; }
-
-        public DateTime OrderTime { get; set; }
-
-        public bool IsError { get; set; }
+        public DateTime CreateDate { get; set; }
 
         public string SKU { get; set; }
 
         public string ProductName { get; set; }
 
-        public decimal RRPPrice { get; set; }
+        public int Quantity { get; set; }
 
-        public decimal SupplyPrice { get; set; }
+        public int Status { get; set; }
 
         public decimal SellingPrice { get; set; }
 
@@ -245,13 +241,15 @@ namespace Samsonite.OMS.DTO
 
         public decimal ActualPaymentAmount { get; set; }
 
-        public int Quantity { get; set; }
+        public bool IsReservation { get; set; }
 
         public DateTime? ReservationDate { get; set; }
 
         public string ReservationRemark { get; set; }
 
-        public int ProductStatus { get; set; }
+        public int ShippingStatus { get; set; }
+
+        public bool IsError { get; set; }
 
         public string CustomerName { get; set; }
 

@@ -12,7 +12,6 @@ using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.Utility.Common;
-
 using OMS.App.Helper;
 
 namespace OMS.App.Controllers
@@ -55,7 +54,7 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["orderid"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["time2"]);
@@ -65,22 +64,22 @@ namespace OMS.App.Controllers
             int _reason = VariableHelper.SaferequestInt(Request.Form["reason"]);
             int _process_status = VariableHelper.SaferequestInt(Request.Form["proccess_status"]);
             int _stock_status = VariableHelper.SaferequestInt(Request.Form["stock_status"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((vc.OrderNo like {0}) or (vc.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((vc.OrderNo like {0}) or (vc.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,vc.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,vc.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,vc.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,vc.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -93,26 +92,26 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (!string.IsNullOrEmpty(_customer))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
                 }
 
                 if (!string.IsNullOrEmpty(_paytype))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "od.PaymentType={0}", Param = _paytype });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.PaymentType={0}", Param = _paytype });
                 }
 
                 if (_reason > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.Reason={0}", Param = _reason });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.Reason={0}", Param = _reason });
                 }
 
                 if (_process_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.Status={0}", Param = _process_status });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.Status={0}", Param = _process_status });
                 }
 
                 if (_stock_status > 0)
@@ -120,19 +119,19 @@ namespace OMS.App.Controllers
                     switch (_stock_status)
                     {
                         case 1:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiIsRead={0}", Param = 0 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiIsRead={0}", Param = 0 });
                             break;
                         case 2:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
                             break;
                         case 3:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
                             break;
                         case 4:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
                             break;
                         default:
                             break;
@@ -140,7 +139,7 @@ namespace OMS.App.Controllers
                 }
 
                 //查询
-                var _list = db.GetPage<dynamic>("select vc.Id,vc.OrderNo,vc.SubOrderNo,vc.MallName,vc.RefundAmount,vc.RefundPoint,vc.RefundExpress,vc.Remark,vc.AddUserName,vc.ManualUserID,vc.CreateDate,vc.AcceptUserDate,vc.AcceptUserName,vc.RefundUserName,vc.ApiIsRead,vc.Quantity as CancelQuantity,vc.[Status],vc.[Type],vc.IsSystemCancel,vc.ApiReplyDate,vc.ApiReplyMsg,vc.RefundUserDate,vc.RefundRemark,vc.IsDelete,vc.ApiStatus,od.SKU,od.ProductName,od.PaymentType,oe.Receive,isnull(c.Name,'') As CustomerName from View_OrderCancel as vc inner join View_OrderDetail as od on vc.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vc.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vc.Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.SqlQueryGetPage<CancelOrderQuery>(db, "select vc.Id,vc.OrderNo,vc.SubOrderNo,vc.MallName,vc.RefundAmount,vc.RefundPoint,vc.RefundExpress,vc.Remark,vc.AddUserName,vc.ManualUserID,vc.CreateDate,vc.AcceptUserDate,vc.AcceptUserName,vc.RefundUserName,vc.ApiIsRead,vc.Quantity as CancelQuantity,vc.[Status],vc.[Type],vc.IsSystemCancel,vc.ApiReplyDate,vc.ApiReplyMsg,vc.RefundUserDate,vc.RefundRemark,vc.IsDelete,vc.ApiStatus,od.SKU,od.ProductName,od.PaymentType,oe.Receive,isnull(c.Name,'') As CustomerName from View_OrderCancel as vc inner join View_OrderDetail as od on vc.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vc.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vc.Id desc", _sqlWhere, VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]));
                 //数据解密并脱敏
                 foreach (var item in _list.Items)
                 {
@@ -168,7 +167,7 @@ namespace OMS.App.Controllers
                                s12 = VariableHelper.FormateMoney(OrderHelper.MathRound(dy.RefundAmount + dy.RefundExpress)),
                                s13 = OrderHelper.GetProcessStatusDisplay(dy.Status, true),
                                s14 = string.Format("{0}<br/>{1}{2}", dy.AddUserName, dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), (!string.IsNullOrEmpty(dy.Remark)) ? "<br/>" + dy.Remark : ""),
-                               s15 = (!dy.IsSystemCancel) ? OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, true) + ((dy.ApiReplyDate != null) ? "<br/>" + dy.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? "<br/>" + dy.ApiReplyMsg : "") : "",
+                               s15 = (!dy.IsSystemCancel) ? OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, true) + ((dy.ApiReplyDate != null) ? "<br/>" + dy.ApiReplyDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? "<br/>" + dy.ApiReplyMsg : "") : "",
                                s16 = string.Format("{0}", ((dy.AcceptUserDate != null) ? dy.AcceptUserName + "<br/>" + VariableHelper.FormateTime(dy.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : "")),
                                s17 = string.Format("{0}", ((dy.RefundUserDate != null) ? dy.RefundUserName + "<br/>" + VariableHelper.FormateTime(dy.RefundUserDate, "yyyy-MM-dd HH:mm:ss") : ""))
                            }
@@ -264,15 +263,12 @@ namespace OMS.App.Controllers
                             int _RefundPoint = 0;
                             decimal _Avag_ExpressFee = 0;
                             bool _IsCOD = (objOrder.PaymentType == (int)PayType.CashOnDelivery);
-                            bool _IsSystemCancel = false;
-                            int _ProcessStatus = 0;
                             int _AcceptUserId = 0;
                             DateTime? _AcceptUserDate = null;
                             string _AcceptRemark = string.Empty;
                             int _RefundUserId = 0;
                             DateTime? _RefundUserDate = null;
                             string _RefundRemark = string.Empty;
-                            int _ProductStatus = 0;
                             //套装不允许单个取消
                             List<string> objSetCodes = objOrderDetail_List.Where(p => _SelectID_Array.Contains(p.Id.ToString()) && p.IsSet).GroupBy(p => p.SetCode).Select(o => o.Key).ToList();
                             if (objSetCodes.Count > 0)
@@ -349,52 +345,7 @@ namespace OMS.App.Controllers
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordercancel_edit_message_quantity_error"]));
                                     }
-                                    //判断是否是内部取消
-                                    //1.是否处于Received
-                                    if (objOrderDetail.Status == (int)ProductStatus.Received)
-                                    {
-                                        _IsSystemCancel = true;
-                                    }
-                                    else
-                                    {
-                                        _IsSystemCancel = false;
-                                    }
-                                    //如果是内部取消,如果是Demandware/Tumi/Micros的非COD订单需要等待确认付款,不然则直接完成
-                                    if (_IsSystemCancel)
-                                    {
-                                        _AcceptUserId = 0;
-                                        _AcceptUserDate = DateTime.Now;
-                                        _AcceptRemark = string.Empty;
-                                        if (objOrder.PlatformType == (int)PlatformType.TUMI_Japan || objOrder.PlatformType == (int)PlatformType.Micros_Japan)
-                                        {
-                                            if (_IsCOD)
-                                            {
-                                                _ProcessStatus = (int)ProcessStatus.CancelComplete;
-                                                _RefundUserId = 0;
-                                                _RefundUserDate = DateTime.Now;
-                                                _RefundRemark = "The system automatically confirms the refund";
-                                                _ProductStatus = (int)ProductStatus.CancelComplete;
-                                            }
-                                            else
-                                            {
-                                                _ProcessStatus = (int)ProcessStatus.WaitRefund;
-                                                _ProductStatus = (int)ProductStatus.Cancel;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            _ProcessStatus = (int)ProcessStatus.CancelComplete;
-                                            _RefundUserId = 0;
-                                            _RefundUserDate = DateTime.Now;
-                                            _RefundRemark = "The system automatically confirms the refund";
-                                            _ProductStatus = (int)ProductStatus.CancelComplete;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        _ProcessStatus = (int)ProcessStatus.Cancel;
-                                        _ProductStatus = (int)ProductStatus.Cancel;
-                                    }
+                                    int _NewStatus = (int)ProductStatus.Cancel;
                                     //取消流程表
                                     objOrderCancel = new OrderCancel()
                                     {
@@ -411,7 +362,7 @@ namespace OMS.App.Controllers
                                         FromApi = false,
                                         SubOrderNo = objOrderDetail.SubOrderNo,
                                         Quantity = _Quantity,
-                                        Status = _ProcessStatus,
+                                        Status = (int)ProcessStatus.Cancel,
                                         RequestId = _RequestId,
                                         RefundAmount = _RefundAmount,
                                         RefundPoint = _RefundPoint,
@@ -419,7 +370,7 @@ namespace OMS.App.Controllers
                                         RefundUserId = _RefundUserId,
                                         RefundUserDate = _RefundUserDate,
                                         RefundRemark = _RefundRemark,
-                                        IsSystemCancel = _IsSystemCancel,
+                                        IsSystemCancel = false,
                                         ManualUserId = 0,
                                         ManualUserDate = null,
                                         ManualRemark = string.Empty,
@@ -427,65 +378,31 @@ namespace OMS.App.Controllers
                                     };
                                     db.OrderCancel.Add(objOrderCancel);
                                     db.SaveChanges();
-                                    //如果是系统内部直接取消
-                                    if (_IsSystemCancel)
+                                    //插入api表
+                                    objOrderChangeRecord = new OrderChangeRecord()
                                     {
-                                        //插入api表,如果是内部取消，则不显示仓库处理情况
-                                        objOrderChangeRecord = new OrderChangeRecord()
-                                        {
-                                            OrderNo = objOrderDetail.OrderNo,
-                                            SubOrderNo = objOrderDetail.SubOrderNo,
-                                            Type = (int)OrderChangeType.Cancel,
-                                            DetailTableName = OrderCancelProcessService.TableName,
-                                            DetailId = objOrderCancel.Id,
-                                            UserId = this.CurrentLoginUser.Userid,
-                                            Status = 1,
-                                            Remarks = string.Empty,
-                                            ApiIsRead = false,
-                                            ApiReadDate = null,
-                                            ApiReplyDate = null,
-                                            ApiReplyMsg = string.Empty,
-                                            AddDate = DateTime.Now,
-                                            IsDelete = true
-                                        };
-                                        db.OrderChangeRecord.Add(objOrderChangeRecord);
-                                        db.SaveChanges();
-                                        //标识订单为自动取消
-                                        objOrderDetail.IsSystemCancel = true;
-                                    }
-                                    else
-                                    {
-                                        //插入api表
-                                        objOrderChangeRecord = new OrderChangeRecord()
-                                        {
-                                            OrderNo = objOrderDetail.OrderNo,
-                                            SubOrderNo = objOrderDetail.SubOrderNo,
-                                            Type = (int)OrderChangeType.Cancel,
-                                            DetailTableName = OrderCancelProcessService.TableName,
-                                            DetailId = objOrderCancel.Id,
-                                            UserId = this.CurrentLoginUser.Userid,
-                                            Status = 0,
-                                            Remarks = string.Empty,
-                                            ApiIsRead = false,
-                                            ApiReadDate = null,
-                                            ApiReplyDate = null,
-                                            ApiReplyMsg = string.Empty,
-                                            AddDate = DateTime.Now,
-                                            IsDelete = false
-                                        };
-                                        db.OrderChangeRecord.Add(objOrderChangeRecord);
-                                        db.SaveChanges();
-                                    }
+                                        OrderNo = objOrderDetail.OrderNo,
+                                        SubOrderNo = objOrderDetail.SubOrderNo,
+                                        Type = (int)OrderChangeType.Cancel,
+                                        DetailTableName = OrderCancelProcessService.TableName,
+                                        DetailId = objOrderCancel.Id,
+                                        UserId = this.CurrentLoginUser.Userid,
+                                        Status = 0,
+                                        Remarks = string.Empty,
+                                        ApiIsRead = false,
+                                        ApiReadDate = null,
+                                        ApiReplyDate = null,
+                                        ApiReplyMsg = string.Empty,
+                                        AddDate = DateTime.Now,
+                                        IsDelete = false
+                                    };
+                                    db.OrderChangeRecord.Add(objOrderChangeRecord);
+                                    db.SaveChanges();
                                     //修改子订单取消数量
                                     objOrderDetail.CancelQuantity = ((objOrderDetail.CancelQuantity + _Quantity) >= objOrderDetail.Quantity) ? objOrderDetail.Quantity : (objOrderDetail.CancelQuantity + _Quantity);
                                     //修改子订单状态
-                                    objOrderDetail.Status = _ProductStatus;
+                                    objOrderDetail.Status = _NewStatus;
                                     objOrderDetail.EditDate = DateTime.Now;
-                                    //如果取消完成,判断是否需要完结主订单
-                                    if (_ProductStatus == (int)ProductStatus.CancelComplete)
-                                    {
-                                        objOrderDetail.CompleteDate = DateTime.Now;
-                                    }
                                     //添加子订单log
                                     objOrderLog = new OrderLog()
                                     {
@@ -493,8 +410,8 @@ namespace OMS.App.Controllers
                                         SubOrderNo = objOrderDetail.SubOrderNo,
                                         UserId = this.CurrentLoginUser.Userid,
                                         OriginStatus = _OrgStatus,
-                                        NewStatus = _ProductStatus,
-                                        Msg = "Cancel Processing",
+                                        NewStatus = _NewStatus,
+                                        Msg = "Cancel processing",
                                         CreateDate = DateTime.Now
                                     };
                                     db.OrderLog.Add(objOrderLog);
@@ -818,7 +735,7 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["OrderNumber"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["Time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["Time2"]);
@@ -828,22 +745,22 @@ namespace OMS.App.Controllers
             int _reason = VariableHelper.SaferequestInt(Request.Form["Reason"]);
             int _process_status = VariableHelper.SaferequestInt(Request.Form["ProcessStatus"]);
             int _stock_status = VariableHelper.SaferequestInt(Request.Form["StockStatus"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((vc.OrderNo like {0}) or (vc.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((vc.OrderNo like {0}) or (vc.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,vc.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,vc.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,vc.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,vc.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -856,26 +773,26 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (!string.IsNullOrEmpty(_customer))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
                 }
 
                 if (!string.IsNullOrEmpty(_paytype))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "od.PaymentType={0}", Param = _paytype });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.PaymentType={0}", Param = _paytype });
                 }
 
                 if (_reason > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.Reason={0}", Param = _reason });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.Reason={0}", Param = _reason });
                 }
 
                 if (_process_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.Status={0}", Param = _process_status });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.Status={0}", Param = _process_status });
                 }
 
                 if (_stock_status > 0)
@@ -883,19 +800,19 @@ namespace OMS.App.Controllers
                     switch (_stock_status)
                     {
                         case 1:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiIsRead={0}", Param = 0 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiIsRead={0}", Param = 0 });
                             break;
                         case 2:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
                             break;
                         case 3:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
                             break;
                         case 4:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vc.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
                             break;
                         default:
                             break;
@@ -922,7 +839,7 @@ namespace OMS.App.Controllers
 
                 //查询
                 DataRow _dr = null;
-                var _list = db.Fetch<dynamic>("select vc.Id,vc.OrderNo,vc.SubOrderNo,vc.MallName,vc.RefundAmount,vc.RefundPoint,vc.RefundExpress,vc.Remark,vc.AddUserName,vc.ManualUserID,vc.CreateDate,vc.AcceptUserDate,vc.AcceptUserName,vc.RefundUserName,vc.ApiIsRead,vc.Quantity as CancelQuantity,vc.[Status],vc.[Type],vc.IsSystemCancel,vc.ApiReplyDate,vc.ApiReplyMsg,vc.RefundUserDate,vc.RefundRemark,vc.IsDelete,vc.ApiStatus,od.SKU,od.ProductName,od.PaymentType,oe.Receive,isnull(c.Name,'') As CustomerName from View_OrderCancel as vc inner join View_OrderDetail as od on vc.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vc.SubOrderNo=oe.SubOrderNo left join Customer as c on od.CustomerNo=c.CustomerNo order by vc.Id desc", _SqlWhere);
+                var _list = this.BaseEntityRepository.SqlQueryGetList<CancelOrderQuery>(db, "select vc.Id,vc.OrderNo,vc.SubOrderNo,vc.MallName,vc.RefundAmount,vc.RefundPoint,vc.RefundExpress,vc.Remark,vc.AddUserName,vc.ManualUserID,vc.CreateDate,vc.AcceptUserDate,vc.AcceptUserName,vc.RefundUserName,vc.ApiIsRead,vc.Quantity as CancelQuantity,vc.[Status],vc.[Type],vc.IsSystemCancel,vc.ApiReplyDate,vc.ApiReplyMsg,vc.RefundUserDate,vc.RefundRemark,vc.IsDelete,vc.ApiStatus,od.SKU,od.ProductName,od.PaymentType,oe.Receive,isnull(c.Name,'') As CustomerName from View_OrderCancel as vc inner join View_OrderDetail as od on vc.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vc.SubOrderNo=oe.SubOrderNo left join Customer as c on od.CustomerNo=c.CustomerNo order by vc.Id desc", _sqlWhere);
 
                 foreach (var dy in _list)
                 {
@@ -944,7 +861,7 @@ namespace OMS.App.Controllers
                     _dr[10] = VariableHelper.FormateMoney(OrderHelper.MathRound(dy.RefundAmount + dy.RefundExpress));
                     _dr[11] = OrderHelper.GetProcessStatusDisplay(dy.Status, false);
                     _dr[12] = string.Format("{0} {1}{2}", dy.AddUserName, dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), (!string.IsNullOrEmpty(dy.Remark)) ? " " + dy.Remark : "");
-                    _dr[13] = (!dy.IsSystemCancel) ? OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, false) + ((dy.ApiReplyDate != null) ? " " + dy.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? " " + dy.ApiReplyMsg : "") : "";
+                    _dr[13] = (!dy.IsSystemCancel) ? OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, false) + ((dy.ApiReplyDate != null) ? " " + dy.ApiReplyDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? " " + dy.ApiReplyMsg : "") : "";
                     _dr[14] = string.Format("{0}", ((dy.AcceptUserDate != null) ? dy.AcceptUserName + " " + VariableHelper.FormateTime(dy.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""));
                     _dr[15] = string.Format("{0}", ((dy.RefundUserDate != null) ? dy.RefundUserName + " " + VariableHelper.FormateTime(dy.RefundUserDate, "yyyy-MM-dd HH:mm:ss") : ""));
                     dt.Rows.Add(_dr);

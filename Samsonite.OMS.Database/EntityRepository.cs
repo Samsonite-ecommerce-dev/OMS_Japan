@@ -135,6 +135,21 @@ namespace Samsonite.OMS.Database
 
         #region SQL语句
         /// <summary>
+        /// SqlQuery列表
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="db"></param>
+        /// <param name="sql"></param>
+        /// <param name="sqlWhere"></param>
+        /// <returns></returns>
+        public List<TEntity> SqlQueryGetList<TEntity>(ebEntities db, string sql, List<SqlQueryCondition> sqlWhere)
+        {
+            //查询语句
+            SqlQuerySql _sqlQuerySql = this.BuildSql(sql, sqlWhere);
+            return db.Database.SqlQuery<TEntity>(_sqlQuerySql.SQL, _sqlQuerySql.Args).ToList();
+        }
+
+        /// <summary>
         /// SqlQuery翻页
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>

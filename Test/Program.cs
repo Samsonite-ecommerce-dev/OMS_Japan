@@ -1,32 +1,14 @@
-﻿using OMS.API.Models.Warehouse;
-using OMS.Service.Base;
+﻿using OMS.Service.Base;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
-using Samsonite.OMS.ECommerce;
-using Samsonite.OMS.Encryption;
-using Samsonite.OMS.Service;
-using Samsonite.OMS.Service.AppConfig;
-using Samsonite.OMS.Service.Sap.Materials;
-using Samsonite.OMS.Service.Sap.Poslog;
-using Samsonite.Utility.Common;
 using SagawaSdk;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Entity;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
 using SagawaSdk.Request;
-using SagawaSdk.Response;
 using SagawaSdk.Domain;
 using Samsonite.OMS.ECommerce.Japan;
 using static Samsonite.OMS.Database.EntityRepository;
@@ -46,39 +28,8 @@ namespace Test
             //(new TestWebAPI()).TestPlatform();
             //(new TestWebAPI()).TestSagawaGoBack();
 
-            DeBug();
-            //PDFToImage();
-            //CreateQRImg();
-            //Clock();
-            //Threading();
-            //TestEmail();
-            //SendSMEmail();
+            //DeBug();
             //ServicetTest();
-            //FtpTest();
-            //ImportSapSku();
-            //ImportSapPrice();
-            //DWOrderDetailTest();
-            //DwInventoryAndPricebookTest();
-            //HandledReservationOrders();
-            //ImportDwProductPrices();
-            //TestDwProductImport();
-            //ImportProductPrice();
-            //TestApi.ApiPostDelivery();
-            //CountDailyProduct();
-            //GetDocument();
-            //ECAPITest();
-            //TestYahoo();
-            //ReadFile();
-            //CreateDN();
-            //TestShopeeDownFile();
-
-
-            //TestSap.Test();
-
-            //TestRemote();
-
-            //---WMS---
-            //GetInventory();
 
             //SagawaSdkTest();
 
@@ -104,17 +55,17 @@ namespace Test
             //    //}
             //}
             List<SqlQueryCondition> _sqlWhere = new List<SqlQueryCondition>();
-            //预售订单
-            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsReservation={0}", Param = 1 });
-            //过滤套装主订单
-            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsSetOrigin={0}", Param = 0 });
-            //不显示无效的订单
-            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsDelete={0}", Param = 0 });
+            ////预售订单
+            //_sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsReservation={0}", Param = 1 });
+            ////过滤套装主订单
+            //_sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsSetOrigin={0}", Param = 0 });
+            ////不显示无效的订单
+            //_sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsDelete={0}", Param = 0 });
 
             EntityRepository entityRepository = new EntityRepository();
             using (var db = new ebEntities())
             {
-                var _list = entityRepository.SqlQueryGetPage<ReserveOrderQuery>(db, "select od.Id,od.OrderNo,od.SubOrderNo,o.MallSapCode,o.MallName,o.PaymentDate,o.CreateDate,od.SKU,od.ProductName,od.Quantity,od.Status,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.IsReservation,od.ReservationDate,od.ReservationRemark,od.ShippingStatus,od.IsError,isnull((select Name from Customer where Customer.CustomerNo=o.CustomerNo),'')As CustomerName,r.[Receive],r.ReceiveTel,r.ReceiveCel,r.ReceiveAddr from OrderDetail as od inner join [Order] as o on od.OrderNo=o.OrderNo inner join OrderReceive as r on r.SubOrderNo =od.SubOrderNo order by od.Id desc", _sqlWhere, 1,10);
+                var _list = entityRepository.SqlQueryGetPage<CancelOrderQuery>(db, "select vc.Id,vc.OrderNo,vc.SubOrderNo,vc.MallName,vc.RefundAmount,vc.RefundPoint,vc.RefundExpress,vc.Remark,vc.AddUserName,vc.ManualUserID,vc.CreateDate,vc.AcceptUserDate,vc.AcceptUserName,vc.RefundUserName,vc.ApiIsRead,vc.Quantity as CancelQuantity,vc.[Status],vc.[Type],vc.IsSystemCancel,vc.ApiReplyDate,vc.ApiReplyMsg,vc.RefundUserDate,vc.RefundRemark,vc.IsDelete,vc.ApiStatus,od.SKU,od.ProductName,od.PaymentType,oe.Receive,isnull(c.Name,'') As CustomerName from View_OrderCancel as vc inner join View_OrderDetail as od on vc.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vc.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vc.Id desc", _sqlWhere, 1,10);
                 Console.WriteLine(_list.TotalItems);
                 foreach (var item in _list.Items)
                 {
@@ -123,60 +74,8 @@ namespace Test
             }
         }
 
-        private static void PDFToImage()
-        {
-            //string path = @"D:\Test\pdf\200428NM9BGTFX.pdf";
-            //string urlPath = @"D:\Test\pdf\";
-            //string fileName = "200428NM9BGTFX";
-            //string path = @"D:\Project\Order Management System\Singapore\OMS.App\Document/ShippingDoc/Shopee/2021-04/210404728RX66S.pdf";
-            //string urlPath = @"D:\Project\Order Management System\Singapore\OMS.App\Document/ShippingDoc/Shopee/2021-04/";
-            //string fileName = "210404728RX66S";
-            //PDFHelper.ConvertPDFToImage(path, urlPath, fileName, ImageFormat.Jpeg, 2);
-
-            //Console.WriteLine("Image:Success");
-
-            ////img 置入html
-            //StreamWriter writer = null;
-            //try
-            //{
-            //    var data = @"<!DOCTYPE html><html><head><meta charset='utf-8'><title>Label</title></head><body><div style='text-align: center'><img style='width:525px;margin:auto;' src='{{fileName}}' alt='{{fileName}}' /></div></body></html>";
-
-            //    data = data.Replace("{{fileName}}", $"{urlPath}{fileName}1.Jpeg");
-
-            //    writer = new StreamWriter($"{urlPath}{fileName}.html", false, Encoding.UTF8);
-            //    writer.Write(data);
-            //}
-            //catch (Exception ex)
-            //{
-            //    throw ex;
-            //}
-            //finally
-            //{
-            //    writer.Close();
-            //}
-            //Console.WriteLine("Html:ok");
-        }
-
-        private static void SaveOrder(TradeDto dto)
-        {
-            using (var db = new ebEntities())
-            {
-                EncryptionFactory.Create(dto.Customer).Encrypt();
-
-                db.Customer.Add(dto.Customer);
-                db.SaveChanges();
-            }
-        }
-
         private static void ServicetTest()
         {
-            //DemandwareAPI objDemandwareAPI = new DemandwareAPI();
-            //List<ClaimInfoDto> objDWClaimInfoDto_List = objDemandwareAPI.GetClaims();
-            //Console.WriteLine(objDWClaimInfoDto_List.Count);
-            //foreach (var x in objDWClaimInfoDto_List)
-            //{
-            //    Console.WriteLine(x.SubOrderId);
-            //}
 
             using (var db = new ebEntities())
             {

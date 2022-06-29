@@ -34,14 +34,14 @@ namespace Test
         public TestWebAPI()
         {
             //测试
-            //this.localSite = "http://127.0.0.1:8095";
-            this.localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
+            this.localSite = "http://127.0.0.1:8095";
+            //this.localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
             //正式
             //this.localSite = "https://tumi-jpomsapi.samsonite-asia.com";
 
             this.version = "1.0";
             this.format = "json";
-            this.method = "md5";
+            //this.method = "md5";
             this.method = GlobalConfig.SIGN_METHOD_SHA256;
         }
 
@@ -61,10 +61,10 @@ namespace Test
             //访问接口
             Console.WriteLine("Begin to run Warehouse interface...");
             //WHGetOrders();
-            WHGetChangedOrders();
+            //WHGetChangedOrders();
             //WHPostInventory();
             //WHPostDelivery();
-            //WHPostReply();
+            WHPostReply();
             //WHUpdateShipmentStatus();
             //WHUpdateWMSStatus();
             Console.WriteLine("Run Warehouse interface finished...");
@@ -80,6 +80,7 @@ namespace Test
                 objParams.Add("userid", this.appId);
                 objParams.Add("version", this.version);
                 objParams.Add("format", this.format);
+                objParams.Add("method", this.method);
                 objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
                 //传递参数
                 objParams.Add("startdate", "20220301000000");
@@ -106,6 +107,7 @@ namespace Test
                 objParams.Add("userid", this.appId);
                 objParams.Add("version", this.version);
                 objParams.Add("format", this.format);
+                objParams.Add("method", this.method);
                 objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
                 //传递参数
                 objParams.Add("startdate", "20220328000000");
@@ -128,6 +130,7 @@ namespace Test
             objParams.Add("userid", this.appId);
             objParams.Add("version", this.version);
             objParams.Add("format", this.format);
+            objParams.Add("method", this.method);
             objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
             objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
 
@@ -178,6 +181,7 @@ namespace Test
             objParams.Add("userid", this.appId);
             objParams.Add("version", this.version);
             objParams.Add("format", this.format);
+            objParams.Add("method", this.method);
             objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
             objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
 
@@ -210,47 +214,48 @@ namespace Test
             objParams.Add("userid", this.appId);
             objParams.Add("version", this.version);
             objParams.Add("format", this.format);
+            objParams.Add("method", this.method);
             objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
             objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
 
-            //普通订单接受回复
+            ////普通订单接受回复
+            //List<PostReplyRequest> postData = new List<PostReplyRequest>() {
+            //    new PostReplyRequest()
+            //    {
+            //        MallCode="1197417",
+            //        OrderNo = "TUSG00013609",
+            //        SubOrderNo="TUSG00013609_1",
+            //        Type=1,
+            //        ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
+            //        ReplyState=(int)WarehouseStatus.DealSuccessful,
+            //        Message="ok"
+            //    },
+            //    new PostReplyRequest()
+            //    {
+            //        MallCode="1234567",
+            //        OrderNo = "TUSG00010608",
+            //        SubOrderNo="TUSG00010608_2",
+            //        Type=0,
+            //        ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
+            //        ReplyState=(int)WarehouseStatus.DealSuccessful,
+            //        Message="ok"
+            //    }
+            //};
+
+            //取消订单回复
             List<PostReplyRequest> postData = new List<PostReplyRequest>() {
                 new PostReplyRequest()
                 {
-                    MallCode="1234567",
-                    OrderNo = "TUSG00010608",
-                    SubOrderNo="TUSG00010608_1",
-                    Type=0,
+                    MallCode = "1197417",
+                    OrderNo = "TUSG00010608X",
+                    SubOrderNo="TUSG00010608X_2",
+                    Type=(int)OrderChangeType.Cancel,
                     ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
-                    ReplyState=(int)WarehouseStatus.DealSuccessful,
-                    Message="ok"
-                },
-                new PostReplyRequest()
-                {
-                    MallCode="1234567",
-                    OrderNo = "TUSG00010608",
-                    SubOrderNo="TUSG00010608_2",
-                    Type=0,
-                    ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
-                    ReplyState=(int)WarehouseStatus.DealSuccessful,
-                    Message="ok"
+                    ReplyState=(int)WarehouseStatus.DealFail,
+                    Message="fail...",
+                    RecordId=11282
                 }
             };
-
-            ////取消订单回复
-            //List<object> postData = new List<object>() {
-            //    new
-            //    {
-            //        mallCode = "1129057",
-            //        orderNo = "208214493",
-            //        subOrderNo="208214493_1",
-            //        type=(int)OrderChangeType.Cancel,
-            //        replyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
-            //        replyState=(int)WarehouseStatus.DealSuccessful,
-            //        message="successful...",
-            //        recordId=26
-            //    }
-            //};
 
             ////删除取消订单回复
             //List<object> postData = new List<object>() {
@@ -360,6 +365,7 @@ namespace Test
             objParams.Add("userid", this.appId);
             objParams.Add("version", this.version);
             objParams.Add("format", this.format);
+            objParams.Add("method", this.method);
             objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
             objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
 
@@ -392,6 +398,7 @@ namespace Test
             objParams.Add("userid", this.appId);
             objParams.Add("version", this.version);
             objParams.Add("format", this.format);
+            objParams.Add("method", this.method);
             objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
             objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
 
@@ -434,8 +441,8 @@ namespace Test
 
             //访问接口
             Console.WriteLine("Begin to run Platform interface...");
-            //this.PlatformGetStores();
-            this.PlatformPostOrders();
+            this.PlatformGetStores();
+            //this.PlatformPostOrders();
             //this.PlatformGetOrdersDetail();
             //this.PlatformGetInventorys();
             Console.WriteLine("Run Platform interface finished...");
@@ -693,11 +700,11 @@ namespace Test
                 //    }
                 //};
 
-                //TUSG00010908Y
+                //TUSG00010908Z
                 List<PostOrdersRequest> postData = new List<PostOrdersRequest>() {
                     new PostOrdersRequest()
                     {
-                        OrderNo = "TUSG00010908Y",
+                        OrderNo = "TUSG00010908Z",
                         MallSapCode="1197417",
                         OrderDate="2022-03-14T11:08:17.000Z",
                         CreateBy="storefront",

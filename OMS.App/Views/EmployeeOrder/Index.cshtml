@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
     var _OrderTypeList = (List<object[]>)ViewData["order_type"];
-    var _BrandList = (List<string>)ViewData["brand_list"];
+    var _BrandList = (List<object[]>)ViewData["brand_list"];
     var _OrderStateList = (List<object[]>)ViewData["orderstate_list"];
     var _ProductStateList = (List<object[]>)ViewData["productstate_list"];
     var _WMSProcessStateList = (List<object[]>)ViewData["wmsprocessstate_list"];
@@ -161,7 +161,7 @@
                                 <option value="" selected="selected">--@ViewBag.LanguagePack["common_all"]--</option>
                                 @foreach (var _o in _BrandList)
                                 {
-                                    <option value="@_o">@_o</option>
+                                    <option value="@_o[0]">@_o[1]</option>
                                 }
                             </select>
                         </td>

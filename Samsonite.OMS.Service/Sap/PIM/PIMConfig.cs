@@ -18,8 +18,8 @@ namespace Samsonite.OMS.Service.Sap.PIM
                 SapFTPDto objSapWMSDto = new SapFTPDto()
                 {
                     COType = CompanyType.SAM,
-                    //ID=10默认为PIM的Samsonite的配置
-                    Ftp = FtpService.GetFtp(10, true),
+                    //ID=0默认为PIM的Samsonite的配置
+                    Ftp = FtpService.GetFtp(0, true),
                     RemotePath = "/materials",
                     FileExt = "csv",
                     LocalSavePath = @"DownFromFTP\SAP\PIM\Samsonite"
@@ -38,8 +38,8 @@ namespace Samsonite.OMS.Service.Sap.PIM
                 SapFTPDto objSapWMSDto = new SapFTPDto()
                 {
                     COType = CompanyType.TUMI,
-                    //ID=16默认为PIM的Tumi的配置
-                    Ftp = FtpService.GetFtp(16, true),
+                    //ID=2默认为PIM的Tumi的配置
+                    Ftp = FtpService.GetFtp(2, true),
                     RemotePath = "/materials",
                     FileExt = "csv",
                     LocalSavePath = @"DownFromFTP\SAP\PIM\Tumi"

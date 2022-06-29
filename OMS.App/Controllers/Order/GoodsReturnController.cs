@@ -54,7 +54,7 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["orderid"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["time2"]);
@@ -64,22 +64,22 @@ namespace OMS.App.Controllers
             int _reason = VariableHelper.SaferequestInt(Request.Form["reason"]);
             int _process_status = VariableHelper.SaferequestInt(Request.Form["proccess_status"]);
             int _stock_status = VariableHelper.SaferequestInt(Request.Form["stock_status"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((vr.OrderNo like {0}) or (vr.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((vr.OrderNo like {0}) or (vr.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,vr.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,vr.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,vr.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,vr.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -92,26 +92,26 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (!string.IsNullOrEmpty(_customer))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
                 }
 
                 if (!string.IsNullOrEmpty(_paytype))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "od.PaymentType={0}", Param = _paytype });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.PaymentType={0}", Param = _paytype });
                 }
 
                 if (_reason > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.Reason={0}", Param = _reason });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.Reason={0}", Param = _reason });
                 }
 
                 if (_process_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.Status={0}", Param = _process_status });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.Status={0}", Param = _process_status });
                 }
 
                 if (_stock_status > 0)
@@ -119,19 +119,19 @@ namespace OMS.App.Controllers
                     switch (_stock_status)
                     {
                         case 1:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiIsRead={0}", Param = 0 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiIsRead={0}", Param = 0 });
                             break;
                         case 2:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
                             break;
                         case 3:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
                             break;
                         case 4:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
                             break;
                         default:
                             break;
@@ -139,10 +139,10 @@ namespace OMS.App.Controllers
                 }
 
                 //不显示换货生成的退款记录
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.IsFromExchange={0}", Param = 0 });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.IsFromExchange={0}", Param = 0 });
 
                 //查询
-                var _list = db.GetPage<dynamic>("select vr.Id,vr.OrderNo,vr.SubOrderNo,vr.Quantity,vr.Remark,vr.CreateDate,vr.ApiIsRead,vr.Quantity as ReturnQuantity,vr.[Status],vr.[Type],vr.AcceptUserId,vr.ManualUserID,vr.ApiReplyDate,vr.ApiReplyMsg,vr.AcceptUserDate,vr.AcceptRemark,vr.RefundUserDate,vr.RefundRemark,vr.IsDelete,od.SKU,od.ProductName,vr.[Status] as ProcessStatus,vr.RefundAmount,vr.RefundPoint,vr.RefundExpress,vr.RefundSurcharge,vr.IsFromExchange,vr.ShippingCompany,vr.ShippingNo,vr.ApiStatus,vr.AddUserName,vr.AcceptUserName,vr.RefundUserName,vr.MallName,od.PaymentType,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderReturn as vr inner join View_OrderDetail as od on vr.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vr.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vr.Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.SqlQueryGetPage<ReturnOrderQuery>(db, "select vr.Id,vr.OrderNo,vr.SubOrderNo,vr.MallName,vr.Quantity,vr.Remark,vr.CreateDate,vr.Quantity as ReturnQuantity,vr.[Status],vr.[Type],vr.AddUserName,vr.ManualUserID,vr.AcceptUserId,vr.AcceptUserName,vr.AcceptUserDate,vr.AcceptRemark,vr.RefundUserName,vr.RefundUserDate,vr.RefundRemark,vr.[Status] as ProcessStatus,vr.IsDelete,vr.RefundAmount,vr.RefundPoint,vr.RefundExpress,vr.RefundSurcharge,vr.IsFromExchange,vr.ShippingCompany,vr.ShippingNo,vr.ApiStatus,vr.ApiIsRead,vr.ApiReplyDate,vr.ApiReplyMsg,od.SKU,od.ProductName,od.PaymentType,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderReturn as vr inner join View_OrderDetail as od on vr.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vr.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vr.Id desc", _sqlWhere, VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]));
                 //数据解密并脱敏
                 foreach (var item in _list.Items)
                 {
@@ -171,7 +171,7 @@ namespace OMS.App.Controllers
                                s13 = VariableHelper.FormateMoney(OrderHelper.MathRound(dy.RefundAmount + dy.RefundExpress - dy.RefundSurcharge)),
                                s14 = OrderHelper.GetProcessStatusDisplay(dy.Status, true),
                                s15 = string.Format("{0}<br/>{1}{2}", dy.AddUserName, dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), (!string.IsNullOrEmpty(dy.Remark)) ? "<br/>" + dy.Remark : ""),
-                               s16 = OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, true) + ((dy.ApiReplyDate != null) ? "<br/>" + dy.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? "<br/>" + dy.ApiReplyMsg : ""),
+                               s16 = OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, true) + ((dy.ApiReplyDate != null) ? "<br/>" + dy.ApiReplyDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? "<br/>" + dy.ApiReplyMsg : ""),
                                s17 = string.Format("{0}", ((dy.AcceptUserDate != null) ? dy.AcceptUserName + "<br/>" + VariableHelper.FormateTime(dy.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : "")),
                                s18 = string.Format("{0}", ((dy.RefundUserDate != null) ? dy.RefundUserName + "<br/>" + VariableHelper.FormateTime(dy.RefundUserDate, "yyyy-MM-dd HH:mm:ss") : ""))
                            }
@@ -425,7 +425,7 @@ namespace OMS.App.Controllers
                                     //添加子订单log
                                     objOrderLog = new OrderLog()
                                     {
-                                        Msg = "GoodsReturn Processing",
+                                        Msg = "Goods return processing",
                                         OrderNo = objOrderDetail.OrderNo,
                                         SubOrderNo = objOrderDetail.SubOrderNo,
                                         UserId = this.CurrentLoginUser.Userid,
@@ -925,7 +925,7 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["OrderNumber"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["Time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["Time2"]);
@@ -935,22 +935,22 @@ namespace OMS.App.Controllers
             int _reason = VariableHelper.SaferequestInt(Request.Form["Reason"]);
             int _process_status = VariableHelper.SaferequestInt(Request.Form["ProcessStatus"]);
             int _stock_status = VariableHelper.SaferequestInt(Request.Form["StockStatus"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((vr.OrderNo like {0}) or (vr.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((vr.OrderNo like {0}) or (vr.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,vr.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,vr.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,vr.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,vr.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -963,26 +963,26 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (!string.IsNullOrEmpty(_customer))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
                 }
 
                 if (!string.IsNullOrEmpty(_paytype))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "od.PaymentType={0}", Param = _paytype });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.PaymentType={0}", Param = _paytype });
                 }
 
                 if (_reason > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.Reason={0}", Param = _reason });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.Reason={0}", Param = _reason });
                 }
 
                 if (_process_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.Status={0}", Param = _process_status });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.Status={0}", Param = _process_status });
                 }
 
                 if (_stock_status > 0)
@@ -990,19 +990,19 @@ namespace OMS.App.Controllers
                     switch (_stock_status)
                     {
                         case 1:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiIsRead={0}", Param = 0 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiIsRead={0}", Param = 0 });
                             break;
                         case 2:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
                             break;
                         case 3:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
                             break;
                         case 4:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
                             break;
                         default:
                             break;
@@ -1010,7 +1010,7 @@ namespace OMS.App.Controllers
                 }
 
                 //不显示换货生成的退款记录
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "vr.IsFromExchange={0}", Param = 0 });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "vr.IsFromExchange={0}", Param = 0 });
 
                 DataTable dt = new DataTable();
                 dt.Columns.Add(_LanguagePack["goodsreturn_index_order_number"]);
@@ -1033,7 +1033,7 @@ namespace OMS.App.Controllers
 
                 //查询
                 DataRow _dr = null;
-                var _list = db.Fetch<dynamic>("select vr.Id,vr.OrderNo,vr.SubOrderNo,vr.Quantity,vr.Remark,vr.CreateDate,vr.ApiIsRead,vr.Quantity as ReturnQuantity,vr.[Status],vr.[Type],vr.AcceptUserId,vr.ManualUserID,vr.ApiReplyDate,vr.ApiReplyMsg,vr.AcceptUserDate,vr.AcceptRemark,vr.RefundUserDate,vr.RefundRemark,vr.IsDelete,od.SKU,od.ProductName,vr.[Status] as ProcessStatus,vr.RefundAmount,vr.RefundPoint,vr.RefundExpress,vr.RefundSurcharge,vr.IsFromExchange,vr.ShippingCompany,vr.ShippingNo,vr.ApiStatus,vr.AddUserName,vr.AcceptUserName,vr.RefundUserName,vr.MallName,od.PaymentType,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderReturn as vr inner join View_OrderDetail as od on vr.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vr.SubOrderNo=oe.SubOrderNo left join Customer as c on od.CustomerNo=c.CustomerNo order by vr.Id desc", _SqlWhere);
+                var _list = this.BaseEntityRepository.SqlQueryGetList<ReturnOrderQuery>(db, "select vr.Id,vr.OrderNo,vr.SubOrderNo,vr.Quantity,vr.Remark,vr.CreateDate,vr.ApiIsRead,vr.Quantity as ReturnQuantity,vr.[Status],vr.[Type],vr.AcceptUserId,vr.ManualUserID,vr.ApiReplyDate,vr.ApiReplyMsg,vr.AcceptUserDate,vr.AcceptRemark,vr.RefundUserDate,vr.RefundRemark,vr.IsDelete,od.SKU,od.ProductName,vr.[Status] as ProcessStatus,vr.RefundAmount,vr.RefundPoint,vr.RefundExpress,vr.RefundSurcharge,vr.IsFromExchange,vr.ShippingCompany,vr.ShippingNo,vr.ApiStatus,vr.AddUserName,vr.AcceptUserName,vr.RefundUserName,vr.MallName,od.PaymentType,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderReturn as vr inner join View_OrderDetail as od on vr.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vr.SubOrderNo=oe.SubOrderNo left join Customer as c on od.CustomerNo=c.CustomerNo order by vr.Id desc", _sqlWhere);
 
                 foreach (var dy in _list)
                 {
@@ -1055,7 +1055,7 @@ namespace OMS.App.Controllers
                     _dr[11] = VariableHelper.FormateMoney(OrderHelper.MathRound(dy.RefundAmount + dy.RefundExpress - dy.RefundSurcharge));
                     _dr[12] = OrderHelper.GetProcessStatusDisplay(dy.Status, false);
                     _dr[13] = string.Format("{0} {1}{2}", dy.AddUserName, dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), (!string.IsNullOrEmpty(dy.Remark)) ? " " + dy.Remark : "");
-                    _dr[14] = OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, false) + ((dy.ApiReplyDate != null) ? " " + dy.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? " " + dy.ApiReplyMsg : "");
+                    _dr[14] = OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, false) + ((dy.ApiReplyDate != null) ? " " + dy.ApiReplyDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? " " + dy.ApiReplyMsg : "");
                     _dr[15] = string.Format("{0}", ((dy.AcceptUserDate != null) ? dy.AcceptUserName + " " + VariableHelper.FormateTime(dy.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""));
                     _dr[16] = string.Format("{0}", ((dy.RefundUserDate != null) ? dy.RefundUserName + " " + VariableHelper.FormateTime(dy.RefundUserDate, "yyyy-MM-dd HH:mm:ss") : ""));
                     dt.Rows.Add(_dr);

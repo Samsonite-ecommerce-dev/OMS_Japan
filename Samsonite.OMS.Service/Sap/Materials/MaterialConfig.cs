@@ -18,8 +18,8 @@ namespace Samsonite.OMS.Service.Sap.Materials
                 SapMaterialDto objSapMaterialDto = new SapMaterialDto()
                 {
                     COType = CompanyType.SAM,
-                    //ID=1默认为Samsonite的配置
-                    Ftp = FtpService.GetFtp(1, true),
+                    //ID=0默认为Samsonite的配置
+                    Ftp = FtpService.GetFtp(0, true),
                     EANPath = "/materials",
                     EANExt = "txt",
                     PricePath = "/pricelist",
@@ -41,8 +41,8 @@ namespace Samsonite.OMS.Service.Sap.Materials
                 SapMaterialDto objSapMaterialDto = new SapMaterialDto()
                 {
                     COType = CompanyType.TUMI,
-                    //ID=2默认为Tumi的配置
-                    Ftp = FtpService.GetFtp(2, true),
+                    //ID=1默认为Tumi的配置
+                    Ftp = FtpService.GetFtp(1, true),
                     EANPath = "/materials",
                     EANExt = "txt",
                     PricePath = "/pricelist",

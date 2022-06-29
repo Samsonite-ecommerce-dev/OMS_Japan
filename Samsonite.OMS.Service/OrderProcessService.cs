@@ -578,34 +578,13 @@ namespace Samsonite.OMS.Service
                         if (objView_OrderCancel.Status == (int)ProcessStatus.Cancel || objView_OrderCancel.Status == (int)ProcessStatus.CancelWHSure)
                         {
                             int _platformID = objDB.Mall.Where(p => p.SapCode == objView_OrderCancel.MallSapCode).Select(o => o.PlatformCode).SingleOrDefault();
-                            //如果是Demandware/Tumi/Micros需要等待确认退款,其它的订单直接完成付款
-                            if (_platformID == (int)PlatformType.TUMI_Japan || _platformID == (int)PlatformType.Micros_Japan)
-                            {
-                                //如果是COD订单,则跳过付款,直接完成
-                                if (objView_OrderCancel.IsFromCOD)
-                                {
-                                    //设置取消流程状态为取消成功
-                                    objDB.Database.ExecuteSqlCommand("update OrderCancel set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4},RefundUserId={5},RefundUserDate={6},RefundRemark={7} where Id={0}", objView_OrderCancel.Id, (int)ProcessStatus.CancelComplete, UserLoginService.GetCurrentUserID, objResTime, objRemark, 0, objResTime, "The system automatically confirms the refund");
-                                    //设置产品状态
-                                    OrderProcessService.SetSubOrderStatus(objView_OrderCancel.SubOrderNo, (int)ProductStatus.CancelComplete, "Cancel process completed", objDB);
-                                    //判断是否需要完结主订单
-                                    OrderProcessService.CompleteOrder(objView_OrderCancel.OrderNo, objDB);
-                                }
-                                else
-                                {
-                                    //设置取消流程状态为仓库确认
-                                    objDB.Database.ExecuteSqlCommand("update OrderCancel set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where Id={0}", objView_OrderCancel.Id, (int)ProcessStatus.WaitRefund, UserLoginService.GetCurrentUserID, objResTime, objRemark);
-                                }
-                            }
-                            else
-                            {
-                                //设置取消流程状态为取消成功
-                                objDB.Database.ExecuteSqlCommand("update OrderCancel set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4},RefundUserId={5},RefundUserDate={6},RefundRemark={7} where Id={0}", objView_OrderCancel.Id, (int)ProcessStatus.CancelComplete, UserLoginService.GetCurrentUserID, objResTime, objRemark, 0, objResTime, "The system automatically confirms the refund");
-                                //设置产品状态
-                                OrderProcessService.SetSubOrderStatus(objView_OrderCancel.SubOrderNo, (int)ProductStatus.CancelComplete, "Cancel process completed", objDB);
-                                //判断是否需要完结主订单
-                                OrderProcessService.CompleteOrder(objView_OrderCancel.OrderNo, objDB);
-                            }
+                            //无需确认退款,因为款项是放在Payment Gateway中,Shipped之后才能收到款项
+                            //设置取消流程状态为取消成功
+                            objDB.Database.ExecuteSqlCommand("update OrderCancel set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4},RefundUserId={5},RefundUserDate={6},RefundRemark={7} where Id={0}", objView_OrderCancel.Id, (int)ProcessStatus.CancelComplete, UserLoginService.GetCurrentUserID, objResTime, objRemark, 0, objResTime, "The system automatically confirms the refund");
+                            //设置产品状态
+                            OrderProcessService.SetSubOrderStatus(objView_OrderCancel.SubOrderNo, (int)ProductStatus.CancelComplete, "Cancel process completed", objDB);
+                            //判断是否需要完结主订单
+                            OrderProcessService.CompleteOrder(objView_OrderCancel.OrderNo, objDB);
                         }
                         else
                         {
@@ -1312,14 +1291,10 @@ namespace Samsonite.OMS.Service
                     //查看流程状态
                     if (objView_OrderExchange.Status == (int)ProcessStatus.Exchange)
                     {
-                        //设置退货流程状态为删除
-                        objDB.Database.ExecuteSqlCommand("update OrderReturn set [Status]={0} where Id={1}", (int)ProcessStatus.Delete, objView_OrderExchange.DetailId);
                         //设置换货流程状态为删除
                         objDB.Database.ExecuteSqlCommand("update OrderExchange set [Status]={0} where Id={1}", (int)ProcessStatus.Delete, objView_OrderExchange.Id);
                         //设置api表状态为删除
-                        objDB.Database.ExecuteSqlCommand("update OrderChangeRecord set IsDelete=1 where Id={0}", objView_OrderExchange.ReturnDetailId);
-                        //删除关联的新子订单
-                        objDB.Database.ExecuteSqlCommand("delete from OrderDetail where OrderNo={0} and SubOrderNo={1} and IsExchangeNew=1", objView_OrderExchange.OrderNo, objView_OrderExchange.NewSubOrderNo);
+                        objDB.Database.ExecuteSqlCommand("update OrderChangeRecord set IsDelete=1 where Id={0}", objView_OrderExchange.ChangeID);
                         //回滚产品信息
                         RollBack(objView_OrderExchange, objDB);
                         //返回数据
@@ -1375,8 +1350,55 @@ namespace Samsonite.OMS.Service
                 View_OrderExchange objView_OrderExchange = objDB.View_OrderExchange.Where(p => p.Id == objID && p.Type == (int)OrderChangeType.Return).SingleOrDefault();
                 if (objView_OrderExchange != null)
                 {
-                    var _WHResponse = OrderReturnProcessService.WHResponse(objView_OrderExchange.DetailId, objResult, objResTime, objRemark, objDB);
-                    if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
+                    //只要有回复就不再重复发送该请求
+                    objDB.Database.ExecuteSqlCommand($"update OrderChangeRecord set ApiIsRead=1,Status={objResult},ApiReadDate='{objResTime.ToString("yyyy-MM-dd HH:mm:ss")}',ApiReplyMsg=N'{objRemark}',ApiReplyDate='{objResTime.ToString("yyyy-MM-dd HH:mm:ss")}',isDelete=1 where id={objView_OrderExchange.ChangeID}");
+                    //具体操作
+                    if (objResult == (int)WarehouseStatus.Dealing)
+                    {
+                        //查看流程状态
+                        if (objView_OrderExchange.Status == (int)ProcessStatus.Return)
+                        {
+                            //设置流程状态为仓库确认
+                            objDB.Database.ExecuteSqlCommand("update OrderReturn set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where Id={0}", objView_OrderExchange.Id, (int)ProcessStatus.ReturnWHSure, UserLoginService.GetCurrentUserID, objResTime, objRemark);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("{0}:{1}", objView_OrderExchange.SubOrderNo, "The process status is incorrect."));
+                        }
+                    }
+                    else if (objResult == (int)WarehouseStatus.DealSuccessful)
+                    {
+                        //查看流程状态
+                        if (objView_OrderExchange.Status == (int)ProcessStatus.Exchange || objView_OrderExchange.Status == (int)ProcessStatus.ExchangeWHSure)
+                        {
+                            var _WHResponse = OrderExchangeProcessService.ReceiptSure(objView_OrderExchange.Id, objResTime, objRemark, objDB);
+                            if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("{0}:{1}", objView_OrderExchange.SubOrderNo, "The process status is incorrect."));
+                        }
+                    }
+                    else if (objResult == (int)WarehouseStatus.DealFail)
+                    {
+                        //查看流程状态
+                        if (objView_OrderExchange.Status == (int)ProcessStatus.Exchange || objView_OrderExchange.Status == (int)ProcessStatus.ExchangeWHSure)
+                        {
+                            //设置流程状态为失败
+                            objDB.Database.ExecuteSqlCommand("update OrderExchange set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where Id={0}", objView_OrderExchange.Id, (int)ProcessStatus.ExchangeFail, UserLoginService.GetCurrentUserID, objResTime, objRemark);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("{0}:{1}", objView_OrderExchange.SubOrderNo, "The process status is incorrect."));
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception(string.Format("{0}:{1}", objView_OrderExchange.SubOrderNo, "The WH reply is incorrect."));
+                    }
+                    //返回数据
+                    _result[0] = true;
+                    _result[1] = string.Empty;
 
                     //返回数据
                     _result[0] = true;
@@ -1420,21 +1442,15 @@ namespace Samsonite.OMS.Service
                     {
                         if (objResult)
                         {
-                            //设置退货流程状态为成功
-                            objDB.Database.ExecuteSqlCommand("update OrderReturn set [Status]={1},ManualUserId={2},ManualRemark={3},ManualUserDate={4} where Id={0}", objView_OrderExchange.DetailId, (int)ProcessStatus.ReturnWHSure, UserLoginService.GetCurrentUserID, objRemark, DateTime.Now);
                             //设置换货流程状态为成功
                             objDB.Database.ExecuteSqlCommand("update OrderExchange set [Status]={1},ManualUserId={2},ManualRemark={3},ManualUserDate={4} where Id={0}", objView_OrderExchange.Id, (int)ProcessStatus.ExchangeWHSure, UserLoginService.GetCurrentUserID, objRemark, DateTime.Now);
                         }
                         else
                         {
-                            //设置退货流程状态为删除
-                            objDB.Database.ExecuteSqlCommand("update OrderReturn set [Status]={1},ManualUserId={2},ManualRemark={3},ManualUserDate={4} where Id={0}", objView_OrderExchange.DetailId, (int)ProcessStatus.Delete, UserLoginService.GetCurrentUserID, objRemark, DateTime.Now);
                             //设置换货流程状态为删除
                             objDB.Database.ExecuteSqlCommand("update OrderExchange set [Status]={1},ManualUserId={2},ManualRemark={3},ManualUserDate={4} where Id={0}", objView_OrderExchange.Id, (int)ProcessStatus.Delete, UserLoginService.GetCurrentUserID, objRemark, DateTime.Now);
                             //设置api表状态为删除
-                            objDB.Database.ExecuteSqlCommand("update OrderChangeRecord set IsDelete=1 where Id={0}", objView_OrderExchange.ReturnDetailId);
-                            //删除关联的新子订单
-                            objDB.Database.ExecuteSqlCommand("delete from OrderDetail where OrderNo={0} and SubOrderNo={1} and IsExchangeNew=1", objView_OrderExchange.OrderNo, objView_OrderExchange.NewSubOrderNo);
+                            objDB.Database.ExecuteSqlCommand("update OrderChangeRecord set IsDelete=1 where DetailId={0}", objView_OrderExchange.ChangeID);
                             //回滚产品信息
                             RollBack(objView_OrderExchange, objDB);
                         }
@@ -1464,12 +1480,11 @@ namespace Samsonite.OMS.Service
         /// 收货确认
         /// </summary>
         /// <param name="objID">OrderExchange主键ID</param>
-        /// <param name="objChangeID">OrderChangeRecord主键ID</param>
         /// <param name="objReceiptTime"></param>
         /// <param name="objRemark"></param>
         /// <param name="objDB"></param>
         /// <returns></returns>
-        public static object[] ReceiptSure(Int64 objID, Int64 objChangeID, DateTime objReceiptTime, string objRemark, ebEntities objDB = null)
+        public static object[] ReceiptSure(Int64 objID, DateTime objReceiptTime, string objRemark, ebEntities objDB = null)
         {
             //加载语言包
             var _LanguagePack = LanguageService.Get();
@@ -1482,10 +1497,6 @@ namespace Samsonite.OMS.Service
                 if (objID > 0)
                 {
                     objView_OrderExchange = objDB.View_OrderExchange.Where(p => p.Id == objID).SingleOrDefault();
-                }
-                if (objChangeID > 0)
-                {
-                    objView_OrderExchange = objDB.View_OrderExchange.Where(p => p.ReturnDetailId == objChangeID).SingleOrDefault();
                 }
                 if (objView_OrderExchange != null)
                 {
@@ -1502,38 +1513,8 @@ namespace Samsonite.OMS.Service
                         //查看流程状态
                         if (objView_OrderExchange.Status == (int)ProcessStatus.Exchange || objView_OrderExchange.Status == (int)ProcessStatus.ExchangeWHSure)
                         {
-                            //设置退款流程状态为退货完成
-                            objDB.Database.ExecuteSqlCommand("update OrderReturn set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where Id={0}", objView_OrderExchange.DetailId, (int)ProcessStatus.ReturnComplete, UserLoginService.GetCurrentUserID, objReceiptTime, objRemark);
                             //设置换货流程状态为收货确认
                             objDB.Database.ExecuteSqlCommand("update OrderExchange set [Status]={1},AcceptUserId={2},AcceptUserDate={3},AcceptRemark={4} where Id={0}", objView_OrderExchange.Id, (int)ProcessStatus.ExchangeAcceptComfirm, UserLoginService.GetCurrentUserID, objReceiptTime, objRemark);
-                            //为新订单创建OrderChangeRecord
-                            OrderDetail objOrderDetail = objDB.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.NewSubOrderNo && p.Status == (int)ProductStatus.ExchangeNew).SingleOrDefault();
-                            if (objOrderDetail != null)
-                            {
-                                //更新仓库状态为0
-                                objOrderDetail.ShippingStatus = (int)WarehouseProcessStatus.Wait;
-                                objDB.SaveChanges();
-                                //创建OrderChangeRecord
-                                OrderChangeRecord objOrderChangeRecord = new OrderChangeRecord()
-                                {
-                                    OrderNo = objOrderDetail.OrderNo,
-                                    SubOrderNo = objView_OrderExchange.NewSubOrderNo,
-                                    Type = (int)OrderChangeType.NewOrder,
-                                    DetailTableName = "OrderDetail",
-                                    DetailId = objOrderDetail.Id,
-                                    UserId = UserLoginService.GetCurrentUserID,
-                                    Status = 0,
-                                    Remarks = string.Empty,
-                                    ApiIsRead = false,
-                                    ApiReadDate = null,
-                                    ApiReplyDate = null,
-                                    ApiReplyMsg = string.Empty,
-                                    AddDate = DateTime.Now,
-                                    IsDelete = false
-                                };
-                                objDB.OrderChangeRecord.Add(objOrderChangeRecord);
-                                objDB.SaveChanges();
-                            }
                             //返回数据
                             _result[0] = true;
                             _result[1] = string.Empty;
@@ -1571,7 +1552,7 @@ namespace Samsonite.OMS.Service
             if (objDB == null) objDB = new ebEntities();
             try
             {
-                View_OrderExchange objView_OrderExchange = objDB.View_OrderExchange.Where(p => p.MallSapCode == objMallSapCode && p.OrderNo == objOrderNo && p.NewSubOrderNo == objSubOrderNo).OrderByDescending(p => p.Id).FirstOrDefault();
+                View_OrderExchange objView_OrderExchange = objDB.View_OrderExchange.Where(p => p.MallSapCode == objMallSapCode && p.OrderNo == objOrderNo && p.SubOrderNo == objSubOrderNo).OrderByDescending(p => p.Id).FirstOrDefault();
                 if (objView_OrderExchange != null)
                 {
                     if (objView_OrderExchange.Status == (int)ProcessStatus.ExchangeAcceptComfirm)

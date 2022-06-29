@@ -23,12 +23,11 @@ namespace Samsonite.OMS.Database
         public int Reason { get; set; }
         public string Remark { get; set; }
         public string SubOrderNo { get; set; }
-        public string NewSubOrderNo { get; set; }
+        public string NewSKU { get; set; }
         public int Quantity { get; set; }
         public decimal DifferenceAmount { get; set; }
         public decimal ExpressAmount { get; set; }
         public bool FromApi { get; set; }
-        public long ReturnDetailId { get; set; }
         public int Status { get; set; }
         public string ShippingCompany { get; set; }
         public string ShippingNo { get; set; }

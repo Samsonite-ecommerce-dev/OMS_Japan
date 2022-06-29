@@ -164,11 +164,12 @@ namespace OMS.Service.Application
         {
             string _msg = string.Empty;
             //******下载Samsonite信息******//
-            _msg = DownSamsoniteData();
+            //_msg = DownSamsoniteData();
             //****************************//
 
             //******下载Tumi信息******//
-            _msg += "<br/>" + DownTumiData();
+            //_msg += "<br/>" + DownTumiData();
+            _msg += DownTumiData();
             //****************************//
 
             //重置错误时间

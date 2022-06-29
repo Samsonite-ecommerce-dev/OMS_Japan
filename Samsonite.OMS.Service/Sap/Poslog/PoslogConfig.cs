@@ -20,8 +20,8 @@ namespace Samsonite.OMS.Service.Sap.Poslog
                 return new SapFTPDto()
                 {
                     COType = CompanyType.SAM,
-                    //ID=7默认为Poslog的配置
-                    Ftp = FtpService.GetFtp(7),
+                    //ID=6默认为Poslog的配置
+                    Ftp = FtpService.GetFtp(6),
                     RemotePath = "/sales",
                     FileExt = "xml",
                     LocalSavePath = "/DownFromFTP/Poslog/Sales"
@@ -39,8 +39,8 @@ namespace Samsonite.OMS.Service.Sap.Poslog
                 return new SapFTPDto()
                 {
                     COType = CompanyType.SAM,
-                    //ID=7默认为Poslog的配置
-                    Ftp = FtpService.GetFtp(7),
+                    //ID=6默认为Poslog的配置
+                    Ftp = FtpService.GetFtp(6),
                     RemotePath = "/transfer",
                     FileExt = "xml",
                     LocalSavePath = "/DownFromFTP/Poslog/Transfer"
@@ -65,8 +65,8 @@ namespace Samsonite.OMS.Service.Sap.Poslog
                 return new SapFTPDto()
                 {
                     COType = CompanyType.SAM,
-                    //ID=11默认为Poslog的回复配置
-                    Ftp = FtpService.GetFtp(11, true),
+                    //ID=7默认为Poslog的回复配置
+                    Ftp = FtpService.GetFtp(7, true),
                     RemotePath = "/",
                     FileExt = "txt",
                     LocalSavePath = "/DownFromFTP/Poslog/Sales Relpy"

@@ -82,6 +82,7 @@ namespace Samsonite.OMS.Service
                         }
                         db.SaveChanges();
                         //----------------------------订单信息------------------------------
+                        dto.Order.CustomerNo = objCustomer.CustomerNo;
                         db.Order.Add(dto.Order);
                         db.SaveChanges();
                         //----------------------------收货地址----------------------------------------
@@ -253,36 +254,14 @@ namespace Samsonite.OMS.Service
                                 {
                                     throw new Exception($"Sub order No.:{objOrderDetail.SubOrderNo} Quantity must be more than 0.");
                                 }
-
                                 int _OrgStatus = objOrderDetail.ProductStatus;
-                                //判断是否是内部取消
-                                //1.是否处于pending/Received
-                                //2.是否在生成D/N(仓库状态在ToWMS)之前
-                                bool _IsSystemCancel = false;
-                                if (objOrderDetail.ProductStatus == (int)ProductStatus.Received)
-                                {
-                                    if (objOrderDetail.ShippingStatus < (int)WarehouseProcessStatus.ToWMS)
-                                    {
-                                        _IsSystemCancel = true;
-                                    }
-                                    else
-                                    {
-                                        _IsSystemCancel = false;
-                                    }
-                                }
-                                else
-                                {
-                                    _IsSystemCancel = false;
-                                }
                                 bool _IsCOD = (objOrderDetail.PaymentType == (int)PayType.CashOnDelivery);
-                                int _ProcessStatus = 0;
                                 int _AcceptUserId = 0;
                                 DateTime? _AcceptUserDate = null;
                                 string _AcceptRemark = string.Empty;
                                 int _RefundUserId = 0;
                                 DateTime? _RefundUserDate = null;
                                 string _RefundRemark = string.Empty;
-                                int _ProductStatus = 0;
                                 //计算退款积分和金额
                                 decimal _RefundPoint = 0;
                                 decimal _RefundAmount = 0;
@@ -295,42 +274,7 @@ namespace Samsonite.OMS.Service
                                     //_RefundPoint=Math.Round(_RefundPoint * objClaim.Quantity / objOrderDetail.Quantity, _AmountAccuracy);
                                     _RefundAmount = Math.Round(_RefundAmount * objClaim.Quantity / objOrderDetail.Quantity, _AmountAccuracy);
                                 }
-                                //如果是内部取消,如果是Demandware/Tumi/Micros的非COD订单需要等待确认付款,不然则直接完成
-                                if (_IsSystemCancel)
-                                {
-                                    _AcceptUserId = 0;
-                                    _AcceptUserDate = DateTime.Now;
-                                    _AcceptRemark = string.Empty;
-                                    if (objOrderDetail.PlatformType == (int)PlatformType.TUMI_Japan || objOrderDetail.PlatformType == (int)PlatformType.Micros_Japan)
-                                    {
-                                        if (_IsCOD)
-                                        {
-                                            _ProcessStatus = (int)ProcessStatus.CancelComplete;
-                                            _RefundUserId = 0;
-                                            _RefundUserDate = DateTime.Now;
-                                            _RefundRemark = "The system automatically confirms the refund";
-                                            _ProductStatus = (int)ProductStatus.CancelComplete;
-                                        }
-                                        else
-                                        {
-                                            _ProcessStatus = (int)ProcessStatus.WaitRefund;
-                                            _ProductStatus = (int)ProductStatus.Cancel;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        _ProcessStatus = (int)ProcessStatus.CancelComplete;
-                                        _RefundUserId = 0;
-                                        _RefundUserDate = DateTime.Now;
-                                        _RefundRemark = "The system automatically confirms the refund";
-                                        _ProductStatus = (int)ProductStatus.CancelComplete;
-                                    }
-                                }
-                                else
-                                {
-                                    _ProcessStatus = (int)ProcessStatus.Cancel;
-                                    _ProductStatus = (int)ProductStatus.Cancel;
-                                }
+                                int _NewStatus = (int)ProductStatus.Cancel;
                                 //OrderCancel
                                 OrderCancel objOrderCancel = new OrderCancel
                                 {
@@ -347,7 +291,7 @@ namespace Samsonite.OMS.Service
                                     FromApi = true,
                                     SubOrderNo = objClaim.SubOrderNo,
                                     Quantity = objOrderDetail.Quantity,
-                                    Status = _ProcessStatus,
+                                    Status = (int)ProcessStatus.Cancel,
                                     RequestId = objClaim.RequestId,
                                     RefundPoint = _RefundPoint,
                                     RefundAmount = _RefundAmount,
@@ -355,7 +299,7 @@ namespace Samsonite.OMS.Service
                                     RefundUserId = _RefundUserId,
                                     RefundUserDate = _RefundUserDate,
                                     RefundRemark = _RefundRemark,
-                                    IsSystemCancel = _IsSystemCancel,
+                                    IsSystemCancel = false,
                                     ManualUserId = 0,
                                     ManualUserDate = null,
                                     ManualRemark = string.Empty,
@@ -363,65 +307,27 @@ namespace Samsonite.OMS.Service
                                 };
                                 db.OrderCancel.Add(objOrderCancel);
                                 db.SaveChanges();
-                                //查看订单是否是内部取消
-                                if (!_IsSystemCancel)
+                                //往OrderChangeRecord写记录,通过API传给WMS
+                                db.OrderChangeRecord.Add(new OrderChangeRecord
                                 {
-                                    //往OrderChangeRecord写记录,通过API传给WMS
-                                    db.OrderChangeRecord.Add(new OrderChangeRecord
-                                    {
-                                        OrderNo = objOrderCancel.OrderNo,
-                                        SubOrderNo = objOrderCancel.SubOrderNo,
-                                        Type = (int)OrderChangeType.Cancel,
-                                        DetailId = objOrderCancel.Id,
-                                        DetailTableName = OrderCancelProcessService.TableName,
-                                        UserId = 0,
-                                        Status = 0,
-                                        Remarks = string.Empty,
-                                        ApiIsRead = false,
-                                        ApiReadDate = null,
-                                        ApiReplyDate = null,
-                                        ApiReplyMsg = string.Empty,
-                                        AddDate = DateTime.Now,
-                                        IsDelete = false
-                                    });
-                                }
-                                else
-                                {
-                                    //往OrderChangeRecord写记录,通过API传给WMS
-                                    db.OrderChangeRecord.Add(new OrderChangeRecord
-                                    {
-                                        OrderNo = objOrderCancel.OrderNo,
-                                        SubOrderNo = objOrderCancel.SubOrderNo,
-                                        Type = (int)OrderChangeType.Cancel,
-                                        DetailTableName = OrderCancelProcessService.TableName,
-                                        DetailId = objOrderCancel.Id,
-                                        UserId = 0,
-                                        Status = 1,
-                                        Remarks = string.Empty,
-                                        ApiIsRead = false,
-                                        ApiReadDate = null,
-                                        ApiReplyDate = null,
-                                        ApiReplyMsg = string.Empty,
-                                        AddDate = DateTime.Now,
-                                        IsDelete = true
-                                    });
-
-                                    objOrderDetail.IsSystemCancel = true;
-                                }
-
-                                //如果流程直接完成,更新最终完成时间
-                                if (_ProductStatus == (int)ProductStatus.CancelComplete)
-                                {
-                                    //更新子订单状态和数量
-                                    //如果是内部取消,需要标识订单为已经取消
-                                    db.Database.ExecuteSqlCommand("update OrderDetail set Status={1},EditDate={2},CompleteDate={2},CancelQuantity={3},IsSystemCancel={4} where SubOrderNo={0}", objOrderDetail.SubOrderNo, _ProductStatus, DateTime.Now, objOrderCancel.Quantity, (_IsSystemCancel) ? 1 : 0);
-                                }
-                                else
-                                {
-                                    //更新子订单状态和数量
-                                    //如果是内部取消,需要标识订单为已经取消
-                                    db.Database.ExecuteSqlCommand("update OrderDetail set Status={1},EditDate={2},CancelQuantity={3},IsSystemCancel={4} where SubOrderNo={0}", objOrderDetail.SubOrderNo, _ProductStatus, DateTime.Now, objOrderCancel.Quantity, (_IsSystemCancel) ? 1 : 0);
-                                }
+                                    OrderNo = objOrderCancel.OrderNo,
+                                    SubOrderNo = objOrderCancel.SubOrderNo,
+                                    Type = (int)OrderChangeType.Cancel,
+                                    DetailId = objOrderCancel.Id,
+                                    DetailTableName = OrderCancelProcessService.TableName,
+                                    UserId = 0,
+                                    Status = 0,
+                                    Remarks = string.Empty,
+                                    ApiIsRead = false,
+                                    ApiReadDate = null,
+                                    ApiReplyDate = null,
+                                    ApiReplyMsg = string.Empty,
+                                    AddDate = DateTime.Now,
+                                    IsDelete = false
+                                });
+                                //更新子订单状态和数量
+                                //如果是内部取消,需要标识订单为已经取消
+                                db.Database.ExecuteSqlCommand("update OrderDetail set Status={1},EditDate={2},CancelQuantity={3},IsSystemCancel={4} where SubOrderNo={0}", objOrderDetail.SubOrderNo, _NewStatus, DateTime.Now, objOrderCancel.Quantity, false);
 
                                 //写子订单状态变化日志
                                 db.OrderLog.Add(new OrderLog
@@ -430,14 +336,14 @@ namespace Samsonite.OMS.Service
                                     SubOrderNo = objOrderDetail.SubOrderNo,
                                     UserId = 0,
                                     OriginStatus = _OrgStatus,
-                                    NewStatus = _ProductStatus,
+                                    NewStatus = _NewStatus,
                                     Msg = "Create cancel order from API",
                                     CreateDate = DateTime.Now
                                 });
                                 db.SaveChanges();
 
                                 //如果取消成功
-                                if (_ProductStatus == (int)ProductStatus.CancelComplete)
+                                if (_NewStatus == (int)ProductStatus.CancelComplete)
                                 {
                                     //判断是否需要完结主订单
                                     OrderProcessService.CompleteOrder(objOrderDetail.OrderNo, db);
@@ -588,8 +494,6 @@ namespace Samsonite.OMS.Service
         {
             //金额精准度
             int _AmountAccuracy = ConfigService.GetAmountAccuracyConfig();
-            //默认使用Ninja Van
-            ExpressCompany objExpressCompany = ExpressCompanyService.GetExpressCompany(AppGlobalService.DEFAULT_EXPRESS_COMPANY_ID);
             using (var db = new ebEntities())
             {
                 using (var Trans = db.Database.BeginTransaction())
@@ -617,8 +521,8 @@ namespace Samsonite.OMS.Service
                             string _New_SubOrderNo = OrderService.CreateExchangeSubOrderNo(objOrderDetail.SubOrderNo);
                             //获取最新的收货信息
                             ReceiveDto objReceiveDto = OrderReceiveService.GetNewestReceive(objClaim.OrderNo, objClaim.SubOrderNo);
-                            //OrderReturn
-                            OrderReturn objOrderReturn = new OrderReturn()
+                            //OrderExchange
+                            OrderExchange objOrderExchange = new OrderExchange
                             {
                                 OrderNo = objClaim.OrderNo,
                                 MallSapCode = objClaim.MallSapCode,
@@ -627,46 +531,33 @@ namespace Samsonite.OMS.Service
                                 CreateDate = objClaim.ClaimDate,
                                 Reason = objClaim.ClaimReason,
                                 Remark = objClaim.ClaimMemo,
-                                FromApi = true,
                                 SubOrderNo = objClaim.SubOrderNo,
-                                Quantity = objOrderDetail.Quantity,
-                                Status = (int)ProcessStatus.Return,
-                                ShippingCompany = string.Empty,
-                                ShippingNo = string.Empty,
-                                RequestId = objClaim.RequestId,
-                                CollectionType = objClaim.CollectionType,
-                                CustomerName = (!string.IsNullOrEmpty(objClaim.CollectName)) ? objClaim.CollectName : objReceiveDto.Receiver,
-                                Tel = (!string.IsNullOrEmpty(objClaim.CollectPhone)) ? objClaim.CollectPhone : objReceiveDto.Tel,
-                                Mobile = objReceiveDto.Mobile,
-                                Zipcode = objReceiveDto.ZipCode,
-                                Addr = (!string.IsNullOrEmpty(objClaim.CollectAddress)) ? objClaim.CollectAddress : objReceiveDto.Address,
+                                Quantity = objClaim.Quantity,
+                                NewSKU= objOrderDetail.SKU,
+                                DifferenceAmount = 0,
+                                ExpressAmount = 0,
                                 AcceptUserId = 0,
                                 AcceptUserDate = null,
                                 AcceptRemark = string.Empty,
-                                RefundUserId = 0,
-                                RefundPoint = 0,
-                                RefundAmount = 0,
-                                RefundExpress = 0,
-                                RefundSurcharge = 0,
-                                RefundUserDate = null,
-                                RefundRemark = objClaim.ClaimMemo,
-                                IsFromExchange = true,
+                                FromApi = true,
+                                Status = (int)ProcessStatus.Exchange,
+                                SendUserId = 0,
+                                SendUserDate = null,
+                                SendRemark = string.Empty,
                                 ManualUserId = 0,
                                 ManualUserDate = null,
                                 ManualRemark = string.Empty
                             };
-                            //数据加密
-                            EncryptionFactory.Create(objOrderReturn).Encrypt();
-                            db.OrderReturn.Add(objOrderReturn);
+                            db.OrderExchange.Add(objOrderExchange);
                             db.SaveChanges();
                             //插入api表
                             OrderChangeRecord objOrderChangeRecord = new OrderChangeRecord()
                             {
                                 OrderNo = objOrderDetail.OrderNo,
                                 SubOrderNo = objOrderDetail.SubOrderNo,
-                                Type = (int)OrderChangeType.Return,
+                                Type = (int)OrderChangeType.Exchange,
                                 DetailTableName = OrderReturnProcessService.TableName,
-                                DetailId = objOrderReturn.Id,
+                                DetailId = objOrderExchange.Id,
                                 UserId = 0,
                                 Status = 0,
                                 Remarks = string.Empty,
@@ -679,35 +570,7 @@ namespace Samsonite.OMS.Service
                             };
                             db.OrderChangeRecord.Add(objOrderChangeRecord);
                             db.SaveChanges();
-                            //OrderExchange
-                            OrderExchange objOrderExchange = new OrderExchange
-                            {
-                                OrderNo = objClaim.OrderNo,
-                                MallSapCode = objOrderReturn.MallSapCode,
-                                UserId = 0,
-                                AddDate = DateTime.Now,
-                                CreateDate = objClaim.ClaimDate,
-                                Reason = objClaim.ClaimReason,
-                                Remark = objClaim.ClaimMemo,
-                                SubOrderNo = objClaim.SubOrderNo,
-                                Quantity = objClaim.Quantity,
-                                NewSubOrderNo = _New_SubOrderNo,
-                                DifferenceAmount = 0,
-                                ExpressAmount = 0,
-                                AcceptUserId = 0,
-                                AcceptUserDate = null,
-                                AcceptRemark = string.Empty,
-                                FromApi = true,
-                                ReturnDetailId = objOrderChangeRecord.Id,
-                                Status = (int)ProcessStatus.Exchange,
-                                SendUserId = 0,
-                                SendUserDate = null,
-                                SendRemark = string.Empty,
-                                ManualUserId = 0,
-                                ManualUserDate = null,
-                                ManualRemark = string.Empty
-                            };
-                            db.OrderExchange.Add(objOrderExchange);
+                            
                             //更新子订单状态和数量
                             db.Database.ExecuteSqlCommand("update OrderDetail set Status={1},EditDate={2},ExchangeQuantity={3} where SubOrderNo={0}", objOrderDetail.SubOrderNo, (int)ProductStatus.Exchange, DateTime.Now, objClaim.Quantity);
                             //添加子订单log
@@ -721,115 +584,6 @@ namespace Samsonite.OMS.Service
                                 NewStatus = (int)ProductStatus.Exchange,
                                 CreateDate = DateTime.Now
                             });
-                            //添加新订单
-                            db.OrderDetail.Add(new OrderDetail()
-                            {
-                                OrderId = objOrderDetail.OrderId,
-                                OrderNo = objOrderDetail.OrderNo,
-                                SubOrderNo = _New_SubOrderNo,
-                                ParentSubOrderNo = objOrderDetail.ParentSubOrderNo,
-                                CreateDate = DateTime.Now,
-                                MallProductId = objOrderDetail.MallProductId,
-                                MallSkuId = objOrderDetail.MallSkuId,
-                                ProductName = objOrderDetail.ProductName,
-                                ProductPic = objOrderDetail.ProductPic,
-                                ProductId = objOrderDetail.ProductId,
-                                SetCode = objOrderDetail.SetCode,
-                                SKU = objOrderDetail.SKU,
-                                SkuProperties = objOrderDetail.SkuProperties,
-                                SkuGrade = objOrderDetail.SkuGrade,
-                                Quantity = objClaim.Quantity,
-                                RRPPrice = objOrderDetail.RRPPrice,
-                                SupplyPrice = objOrderDetail.SupplyPrice,
-                                SellingPrice = objOrderDetail.SellingPrice,
-                                PaymentAmount = Math.Round(objOrderDetail.PaymentAmount / objOrderDetail.Quantity * objClaim.Quantity, _AmountAccuracy),
-                                ActualPaymentAmount = Math.Round(objOrderDetail.ActualPaymentAmount / objOrderDetail.Quantity * objClaim.Quantity, 2),
-                                Status = (int)ProductStatus.ExchangeNew,
-                                EBStatus = string.Empty,
-                                ShippingProvider = objOrderDetail.ShippingProvider,
-                                ShippingType = objOrderDetail.Status,
-                                //收货确认之后ShippingType变成0,然后生成D/N
-                                ShippingStatus = (int)WarehouseProcessStatus.Delete,
-                                DeliveringPlant = objOrderDetail.DeliveringPlant,
-                                CancelQuantity = 0,
-                                ReturnQuantity = 0,
-                                ExchangeQuantity = 0,
-                                RejectQuantity = 0,
-                                Tax = objOrderDetail.Tax,
-                                //不在设置成预购订单
-                                IsReservation = false,
-                                ReservationDate = null,
-                                ReservationRemark = string.Empty,
-                                IsSet = objOrderDetail.IsSet,
-                                IsSetOrigin = objOrderDetail.IsSetOrigin,
-                                IsPre = objOrderDetail.IsPre,
-                                IsUrgent = objOrderDetail.IsUrgent,
-                                IsExchangeNew = true,
-                                IsSystemCancel = objOrderDetail.IsSystemCancel,
-                                IsEmployee = objOrderDetail.IsEmployee,
-                                TaxRate = objOrderDetail.TaxRate,
-                                IsGift = objOrderDetail.IsGift,
-                                ExtraRequest = objOrderDetail.ExtraRequest,
-                                AddDate = DateTime.Now,
-                                EditDate = DateTime.Now,
-                                CompleteDate = null,
-                                IsStop = objOrderDetail.IsStop,
-                                IsError = objOrderDetail.IsError,
-                                ErrorMsg = objOrderDetail.ErrorMsg,
-                                ErrorRemark = string.Empty,
-                                IsDelete = objOrderDetail.IsDelete
-                            });
-                            //添加对应的收货地址
-                            OrderReceive objOrderReceive = db.OrderReceive.Where(p => p.SubOrderNo == objOrderDetail.SubOrderNo).SingleOrDefault();
-                            if (objOrderReceive != null)
-                            {
-                                db.OrderReceive.Add(new OrderReceive()
-                                {
-                                    OrderId = objOrderReceive.OrderId,
-                                    OrderNo = objOrderReceive.OrderNo,
-                                    SubOrderNo = _New_SubOrderNo,
-                                    Receive = objOrderReceive.Receive,
-                                    ReceiveTel = objOrderReceive.ReceiveTel,
-                                    ReceiveCel = objOrderReceive.ReceiveCel,
-                                    ReceiveZipcode = objOrderReceive.ReceiveZipcode,
-                                    ReceiveAddr = objOrderReceive.ReceiveAddr,
-                                    AddDate = DateTime.Now,
-                                    CustomerNo = objOrderReceive.CustomerNo,
-                                    Country = objOrderReceive.Country,
-                                    Province = objOrderReceive.Province,
-                                    City = objOrderReceive.City,
-                                    District = objOrderReceive.District,
-                                    Town = objOrderReceive.Town,
-                                    ShipmentID = objOrderReceive.ShipmentID,
-                                    ShippingType = objOrderReceive.ShippingType,
-                                    Address1 = objOrderReceive.Address1,
-                                    Address2 = objOrderReceive.Address2
-                                });
-                            }
-                            //添加换货新订单的快递信息
-                            Deliverys objDeliverys = new Deliverys()
-                            {
-                                OrderNo = objOrderDetail.OrderNo,
-                                SubOrderNo = _New_SubOrderNo,
-                                MallSapCode = objOrderDetail.MallSapCode,
-                                ExpressId = objExpressCompany.Id,
-                                ExpressName = objExpressCompany.ExpressName,
-                                InvoiceNo = string.Empty,
-                                Packages = 1,
-                                ExpressType = string.Empty,
-                                ExpressAmount = 0,
-                                Warehouse = string.Empty,
-                                ReceiveTime = string.Empty,
-                                ClearUpTime = string.Empty,
-                                DeliveryDate = string.Empty,
-                                ExpressStatus = 0,
-                                ExpressMsg = string.Empty,
-                                Remark = string.Empty,
-                                DeliveryChangeUrl = string.Empty,
-                                CreateDate = DateTime.Now,
-                                IsNeedPush = false
-                            };
-                            db.Deliverys.Add(objDeliverys);
                             db.SaveChanges();
                         }
                         Trans.Commit();
@@ -929,8 +683,6 @@ namespace Samsonite.OMS.Service
                                 CreateDate = DateTime.Now
                             });
                             db.SaveChanges();
-                            //判断产品是否已经全部完成,如果全部为完成,就设置主订单状态为 Complete
-                            //OrderProcessService.CompleteOrder(objOrderDetail.OrderNo, db);
                         }
                         Trans.Commit();
                     }

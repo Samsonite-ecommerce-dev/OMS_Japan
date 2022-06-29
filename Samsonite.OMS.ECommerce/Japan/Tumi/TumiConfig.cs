@@ -90,8 +90,8 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                 SapFTPDto objSapWMSDto = new SapFTPDto()
                 {
                     COType = CompanyType.TUMI,
-                    //ID=15默认为Tumi的在售产品的配置
-                    Ftp = FtpService.GetFtp(15, true),
+                    //ID=3默认为Tumi的在售产品的配置
+                    Ftp = FtpService.GetFtp(3, true),
                     RemotePath = "/product_assortment",
                     FileExt = "xml",
                     LocalSavePath = @"DownFromFTP\SAP\Assortment\Tumi"

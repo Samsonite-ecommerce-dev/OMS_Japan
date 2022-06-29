@@ -54,13 +54,16 @@ namespace OMS.App.Controllers
                     _lambda = _lambda.Where(p => p.Ip.Contains(_keyword) || p.Url.Contains(_keyword));
                 }
 
-                if (_state == 1)
+                if (_state > 0)
                 {
-                    _lambda = _lambda.Where(p => !p.State);
-                }
-                else
-                {
-                    _lambda = _lambda.Where(p => p.State);
+                    if (_state == 1)
+                    {
+                        _lambda = _lambda.Where(p => !p.State);
+                    }
+                    else if (_state == 2)
+                    {
+                        _lambda = _lambda.Where(p => p.State);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(_time))

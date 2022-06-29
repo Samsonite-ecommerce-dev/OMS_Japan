@@ -49,29 +49,29 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["orderid"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["time2"]);
             string[] _storeid = VariableHelper.SaferequestStringArray(Request.Form["store"]);
             int _process_status = VariableHelper.SaferequestInt(Request.Form["proccess_status"]);
             int _stock_status = VariableHelper.SaferequestInt(Request.Form["stock_status"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((OrderNo like {0}) or (SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((OrderNo like {0}) or (SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,AddDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,AddDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,AddDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,AddDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -84,11 +84,11 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (_process_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "Status={0}", Param = _process_status });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "Status={0}", Param = _process_status });
                 }
 
                 if (_stock_status > 0)
@@ -96,19 +96,19 @@ namespace OMS.App.Controllers
                     switch (_stock_status)
                     {
                         case 1:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiIsRead={0}", Param = 0 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiIsRead={0}", Param = 0 });
                             break;
                         case 2:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
                             break;
                         case 3:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
                             break;
                         case 4:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
                             break;
                         default:
                             break;
@@ -116,7 +116,7 @@ namespace OMS.App.Controllers
                 }
 
                 //查询
-                var _list = db.GetPage<View_OrderModify>("select * from View_OrderModify order by Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.SqlQueryGetPage<View_OrderModify>(db, "select * from View_OrderModify order by Id desc", _sqlWhere, VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]));
                 //数据解密并脱敏
                 foreach (var item in _list.Items)
                 {
@@ -232,8 +232,6 @@ namespace OMS.App.Controllers
                             List<OrderDetail> objOrderDetail_List = db.OrderDetail.Where(p => p.OrderNo == objOrder.OrderNo && !p.IsSetOrigin && !p.IsDelete).ToList();
                             //初始化预售信息
                             int _OrgStatus = 0;
-                            //是否内部编辑
-                            bool _IsSystemModify = false;
                             for (int t = 0; t < _SelectID_Array.Length; t++)
                             {
                                 _Sort = VariableHelper.SaferequestInt(_Sort_Array[t]);
@@ -269,28 +267,11 @@ namespace OMS.App.Controllers
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["common_data_no_avail"]));
                                     }
 
-                                    //判断在发货前和待处理之后才允许编辑信息
+                                    //判断在上传快递号之前允许编辑信息
                                     List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing };
                                     if (!objAllowStatus.Contains(objOrderDetail.Status))
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordermodify_edit_message_state_no_allow"]));
-                                    }
-                                    else
-                                    {
-                                        //只有Demandware的订单在Pedding状态允许编辑,其它订单都不允许
-                                        //注:Tumi/Micros订单需要修改错误的邮编等信息,从而解决因为错误的收货信息而无法在Sagawa申请快递号的问题
-                                        if (objOrderDetail.Status == (int)ProductStatus.Received)
-                                        {
-                                            if (objOrder.PlatformType == (int)PlatformType.TUMI_Japan || objOrder.PlatformType == (int)PlatformType.Micros_Japan)
-                                            {
-                                                //如果是DW的订单在pending状态下需要自动完成
-                                                _IsSystemModify = true;
-                                            }
-                                            else
-                                            {
-                                                throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordermodify_edit_message_state_no_allow"]));
-                                            }
-                                        }
                                     }
 
                                     //查询是否已经存在未处理完成的修改记录,如果存在则不再重复插入
@@ -318,13 +299,13 @@ namespace OMS.App.Controllers
                                         UserId = this.CurrentLoginUser.Userid,
                                         AddDate = DateTime.Now,
                                         Remark = _Remark,
-                                        AcceptUserId = (_IsSystemModify) ? this.CurrentLoginUser.Userid : 0,
-                                        AcceptUserDate = (_IsSystemModify) ? VariableHelper.SaferequestNullTime(DateTime.Now) : null,
+                                        AcceptUserId = 0,
+                                        AcceptUserDate = null,
                                         AcceptRemark = string.Empty,
                                         FromApi = false,
                                         SubOrderNo = objOrderDetail.SubOrderNo,
-                                        Status = (_IsSystemModify) ? (int)ProcessStatus.ModifyComplete : (int)ProcessStatus.Modify,
-                                        IsSystemModify = _IsSystemModify,
+                                        Status = (int)ProcessStatus.Modify,
+                                        IsSystemModify = false,
                                         ManualUserId = 0,
                                         ManualUserDate = null,
                                         ManualRemark = string.Empty
@@ -334,55 +315,31 @@ namespace OMS.App.Controllers
                                     db.OrderModify.Add(objOrderModify);
                                     db.SaveChanges();
                                     //插入api表
-                                    //如果是系统内部直接编辑
-                                    if (_IsSystemModify)
+                                    objOrderChangeRecord = new OrderChangeRecord()
                                     {
-                                        objOrderChangeRecord = new OrderChangeRecord()
-                                        {
-                                            OrderNo = objOrderDetail.OrderNo,
-                                            SubOrderNo = objOrderDetail.SubOrderNo,
-                                            Type = (int)OrderChangeType.Modify,
-                                            DetailTableName = OrderModifyProcessService.TableName,
-                                            DetailId = objOrderModify.Id,
-                                            UserId = this.CurrentLoginUser.Userid,
-                                            Status = 1,
-                                            Remarks = string.Empty,
-                                            ApiIsRead = false,
-                                            ApiReadDate = null,
-                                            ApiReplyDate = null,
-                                            ApiReplyMsg = string.Empty,
-                                            AddDate = DateTime.Now,
-                                            IsDelete = true
-                                        };
-                                    }
-                                    else
-                                    {
-                                        objOrderChangeRecord = new OrderChangeRecord()
-                                        {
-                                            OrderNo = objOrderDetail.OrderNo,
-                                            SubOrderNo = objOrderDetail.SubOrderNo,
-                                            Type = (int)OrderChangeType.Modify,
-                                            DetailTableName = OrderModifyProcessService.TableName,
-                                            DetailId = objOrderModify.Id,
-                                            UserId = this.CurrentLoginUser.Userid,
-                                            Status = 0,
-                                            Remarks = string.Empty,
-                                            ApiIsRead = false,
-                                            ApiReadDate = null,
-                                            ApiReplyDate = null,
-                                            ApiReplyMsg = string.Empty,
-                                            AddDate = DateTime.Now,
-                                            IsDelete = false
-                                        };
-                                    }
+                                        OrderNo = objOrderDetail.OrderNo,
+                                        SubOrderNo = objOrderDetail.SubOrderNo,
+                                        Type = (int)OrderChangeType.Modify,
+                                        DetailTableName = OrderModifyProcessService.TableName,
+                                        DetailId = objOrderModify.Id,
+                                        UserId = this.CurrentLoginUser.Userid,
+                                        Status = 0,
+                                        Remarks = string.Empty,
+                                        ApiIsRead = false,
+                                        ApiReadDate = null,
+                                        ApiReplyDate = null,
+                                        ApiReplyMsg = string.Empty,
+                                        AddDate = DateTime.Now,
+                                        IsDelete = false
+                                    };
                                     db.OrderChangeRecord.Add(objOrderChangeRecord);
                                     //修改子订单状态
-                                    objOrderDetail.Status = (_IsSystemModify) ? _OrgStatus : (int)ProductStatus.Modify;
+                                    objOrderDetail.Status = (int)ProductStatus.Modify;
                                     objOrderDetail.EditDate = DateTime.Now;
                                     //添加子订单log
                                     objOrderLog = new OrderLog()
                                     {
-                                        Msg = "Modify Processing",
+                                        Msg = "Modify processing",
                                         OrderNo = objOrderDetail.OrderNo,
                                         SubOrderNo = objOrderDetail.SubOrderNo,
                                         UserId = this.CurrentLoginUser.Userid,
@@ -391,22 +348,6 @@ namespace OMS.App.Controllers
                                         CreateDate = DateTime.Now
                                     };
                                     db.OrderLog.Add(objOrderLog);
-                                    //如果是内部编辑
-                                    if (_IsSystemModify)
-                                    {
-                                        //添加子订单log
-                                        objOrderLog = new OrderLog()
-                                        {
-                                            Msg = "Modify complete,then rollback the product status",
-                                            OrderNo = objOrderDetail.OrderNo,
-                                            SubOrderNo = objOrderDetail.SubOrderNo,
-                                            UserId = this.CurrentLoginUser.Userid,
-                                            OriginStatus = (int)ProductStatus.Modify,
-                                            NewStatus = _OrgStatus,
-                                            CreateDate = DateTime.Now
-                                        };
-                                        db.OrderLog.Add(objOrderLog);
-                                    }
                                 }
                                 else
                                 {
@@ -752,29 +693,29 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["OrderNumber"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["Time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["Time2"]);
             string[] _storeid = VariableHelper.SaferequestStringArray(Request.Form["StoreName"]);
             int _process_status = VariableHelper.SaferequestInt(Request.Form["ProcessStatus"]);
             int _stock_status = VariableHelper.SaferequestInt(Request.Form["StockStatus"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((OrderNo like {0}) or (SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((OrderNo like {0}) or (SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,AddDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,AddDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,AddDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,AddDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -787,11 +728,11 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (_process_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "Status={0}", Param = _process_status });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "Status={0}", Param = _process_status });
                 }
 
                 if (_stock_status > 0)
@@ -799,19 +740,19 @@ namespace OMS.App.Controllers
                     switch (_stock_status)
                     {
                         case 1:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiIsRead={0}", Param = 0 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiIsRead={0}", Param = 0 });
                             break;
                         case 2:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
                             break;
                         case 3:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
                             break;
                         case 4:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
                             break;
                         default:
                             break;
@@ -835,7 +776,7 @@ namespace OMS.App.Controllers
 
                 //查询
                 DataRow _dr = null;
-                var _list = db.Fetch<View_OrderModify>("select * from View_OrderModify order by Id desc", _SqlWhere);
+                var _list = this.BaseEntityRepository.SqlQueryGetList<View_OrderModify>(db, "select * from View_OrderModify order by Id desc", _sqlWhere);
                 foreach (var dy in _list)
                 {
                     //数据解密并脱敏

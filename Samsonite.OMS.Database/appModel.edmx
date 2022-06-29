@@ -574,12 +574,11 @@
           <Property Name="Reason" Type="int" Nullable="false" />
           <Property Name="Remark" Type="nvarchar" MaxLength="500" />
           <Property Name="SubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="NewSubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="NewSKU" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="DifferenceAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="ExpressAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="FromApi" Type="bit" Nullable="false" />
-          <Property Name="ReturnDetailId" Type="bigint" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
           <Property Name="ShippingCompany" Type="nvarchar" MaxLength="50" />
           <Property Name="ShippingNo" Type="nvarchar" MaxLength="50" />
@@ -2018,11 +2017,10 @@
             <PropertyRef Name="AddDate" />
             <PropertyRef Name="CreateDate" />
             <PropertyRef Name="SubOrderNo" />
-            <PropertyRef Name="NewSubOrderNo" />
+            <PropertyRef Name="NewSKU" />
             <PropertyRef Name="Quantity" />
             <PropertyRef Name="AcceptUserId" />
             <PropertyRef Name="FromApi" />
-            <PropertyRef Name="ReturnDetailId" />
             <PropertyRef Name="Status" />
             <PropertyRef Name="SendUserId" />
             <PropertyRef Name="ManualUserId" />
@@ -2036,7 +2034,6 @@
             <PropertyRef Name="ApiStatus" />
             <PropertyRef Name="ApiIsRead" />
             <PropertyRef Name="IsDelete" />
-            <PropertyRef Name="DetailId" />
             <PropertyRef Name="Reason" />
             <PropertyRef Name="DifferenceAmount" />
             <PropertyRef Name="ExpressAmount" />
@@ -2049,13 +2046,12 @@
           <Property Name="CreateDate" Type="datetime" Nullable="false" />
           <Property Name="Remark" Type="nvarchar" MaxLength="500" />
           <Property Name="SubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="NewSubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="NewSKU" Type="nvarchar" MaxLength="50" Nullable="false" />
           <Property Name="Quantity" Type="int" Nullable="false" />
           <Property Name="AcceptUserId" Type="int" Nullable="false" />
           <Property Name="AcceptUserDate" Type="datetime" />
           <Property Name="AcceptRemark" Type="nvarchar" MaxLength="500" />
           <Property Name="FromApi" Type="bit" Nullable="false" />
-          <Property Name="ReturnDetailId" Type="bigint" Nullable="false" />
           <Property Name="Status" Type="int" Nullable="false" />
           <Property Name="SendUserId" Type="int" Nullable="false" />
           <Property Name="SendUserDate" Type="datetime" />
@@ -2076,7 +2072,6 @@
           <Property Name="ApiReplyDate" Type="datetime" />
           <Property Name="ApiReplyMsg" Type="nvarchar" MaxLength="200" />
           <Property Name="IsDelete" Type="bit" Nullable="false" />
-          <Property Name="DetailId" Type="bigint" Nullable="false" />
           <Property Name="Reason" Type="int" Nullable="false" />
           <Property Name="DifferenceAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
           <Property Name="ExpressAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
@@ -2933,13 +2928,12 @@
     [View_OrderExchange].[CreateDate] AS [CreateDate], 
     [View_OrderExchange].[Remark] AS [Remark], 
     [View_OrderExchange].[SubOrderNo] AS [SubOrderNo], 
-    [View_OrderExchange].[NewSubOrderNo] AS [NewSubOrderNo], 
+    [View_OrderExchange].[NewSKU] AS [NewSKU], 
     [View_OrderExchange].[Quantity] AS [Quantity], 
     [View_OrderExchange].[AcceptUserId] AS [AcceptUserId], 
     [View_OrderExchange].[AcceptUserDate] AS [AcceptUserDate], 
     [View_OrderExchange].[AcceptRemark] AS [AcceptRemark], 
     [View_OrderExchange].[FromApi] AS [FromApi], 
-    [View_OrderExchange].[ReturnDetailId] AS [ReturnDetailId], 
     [View_OrderExchange].[Status] AS [Status], 
     [View_OrderExchange].[SendUserId] AS [SendUserId], 
     [View_OrderExchange].[SendUserDate] AS [SendUserDate], 
@@ -2960,7 +2954,6 @@
     [View_OrderExchange].[ApiReplyDate] AS [ApiReplyDate], 
     [View_OrderExchange].[ApiReplyMsg] AS [ApiReplyMsg], 
     [View_OrderExchange].[IsDelete] AS [IsDelete], 
-    [View_OrderExchange].[DetailId] AS [DetailId], 
     [View_OrderExchange].[Reason] AS [Reason], 
     [View_OrderExchange].[DifferenceAmount] AS [DifferenceAmount], 
     [View_OrderExchange].[ExpressAmount] AS [ExpressAmount], 
@@ -3858,12 +3851,11 @@
           <Property Name="Reason" Type="Int32" Nullable="false" />
           <Property Name="Remark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="SubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="NewSubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NewSKU" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Quantity" Type="Int32" Nullable="false" />
           <Property Name="DifferenceAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
           <Property Name="ExpressAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
           <Property Name="FromApi" Type="Boolean" Nullable="false" />
-          <Property Name="ReturnDetailId" Type="Int64" Nullable="false" />
           <Property Name="Status" Type="Int32" Nullable="false" />
           <Property Name="ShippingCompany" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="ShippingNo" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
@@ -5282,11 +5274,10 @@
             <PropertyRef Name="AddDate" />
             <PropertyRef Name="CreateDate" />
             <PropertyRef Name="SubOrderNo" />
-            <PropertyRef Name="NewSubOrderNo" />
+            <PropertyRef Name="NewSKU" />
             <PropertyRef Name="Quantity" />
             <PropertyRef Name="AcceptUserId" />
             <PropertyRef Name="FromApi" />
-            <PropertyRef Name="ReturnDetailId" />
             <PropertyRef Name="Status" />
             <PropertyRef Name="SendUserId" />
             <PropertyRef Name="ManualUserId" />
@@ -5300,7 +5291,6 @@
             <PropertyRef Name="ApiStatus" />
             <PropertyRef Name="ApiIsRead" />
             <PropertyRef Name="IsDelete" />
-            <PropertyRef Name="DetailId" />
             <PropertyRef Name="Reason" />
             <PropertyRef Name="DifferenceAmount" />
             <PropertyRef Name="ExpressAmount" />
@@ -5313,13 +5303,12 @@
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="Remark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="SubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="NewSubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NewSKU" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="Quantity" Type="Int32" Nullable="false" />
           <Property Name="AcceptUserId" Type="Int32" Nullable="false" />
           <Property Name="AcceptUserDate" Type="DateTime" Precision="3" />
           <Property Name="AcceptRemark" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="FromApi" Type="Boolean" Nullable="false" />
-          <Property Name="ReturnDetailId" Type="Int64" Nullable="false" />
           <Property Name="Status" Type="Int32" Nullable="false" />
           <Property Name="SendUserId" Type="Int32" Nullable="false" />
           <Property Name="SendUserDate" Type="DateTime" Precision="3" />
@@ -5340,7 +5329,6 @@
           <Property Name="ApiReplyDate" Type="DateTime" Precision="3" />
           <Property Name="ApiReplyMsg" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
           <Property Name="IsDelete" Type="Boolean" Nullable="false" />
-          <Property Name="DetailId" Type="Int64" Nullable="false" />
           <Property Name="Reason" Type="Int32" Nullable="false" />
           <Property Name="DifferenceAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
           <Property Name="ExpressAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
@@ -6301,12 +6289,11 @@
                 <ScalarProperty Name="ShippingNo" ColumnName="ShippingNo" />
                 <ScalarProperty Name="ShippingCompany" ColumnName="ShippingCompany" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="ReturnDetailId" ColumnName="ReturnDetailId" />
                 <ScalarProperty Name="FromApi" ColumnName="FromApi" />
                 <ScalarProperty Name="ExpressAmount" ColumnName="ExpressAmount" />
                 <ScalarProperty Name="DifferenceAmount" ColumnName="DifferenceAmount" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="NewSubOrderNo" ColumnName="NewSubOrderNo" />
+                <ScalarProperty Name="NewSKU" ColumnName="NewSKU" />
                 <ScalarProperty Name="SubOrderNo" ColumnName="SubOrderNo" />
                 <ScalarProperty Name="Remark" ColumnName="Remark" />
                 <ScalarProperty Name="Reason" ColumnName="Reason" />
@@ -7547,7 +7534,6 @@
                 <ScalarProperty Name="ExpressAmount" ColumnName="ExpressAmount" />
                 <ScalarProperty Name="DifferenceAmount" ColumnName="DifferenceAmount" />
                 <ScalarProperty Name="Reason" ColumnName="Reason" />
-                <ScalarProperty Name="DetailId" ColumnName="DetailId" />
                 <ScalarProperty Name="IsDelete" ColumnName="IsDelete" />
                 <ScalarProperty Name="ApiReplyMsg" ColumnName="ApiReplyMsg" />
                 <ScalarProperty Name="ApiReplyDate" ColumnName="ApiReplyDate" />
@@ -7568,13 +7554,12 @@
                 <ScalarProperty Name="SendUserDate" ColumnName="SendUserDate" />
                 <ScalarProperty Name="SendUserId" ColumnName="SendUserId" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="ReturnDetailId" ColumnName="ReturnDetailId" />
                 <ScalarProperty Name="FromApi" ColumnName="FromApi" />
                 <ScalarProperty Name="AcceptRemark" ColumnName="AcceptRemark" />
                 <ScalarProperty Name="AcceptUserDate" ColumnName="AcceptUserDate" />
                 <ScalarProperty Name="AcceptUserId" ColumnName="AcceptUserId" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
-                <ScalarProperty Name="NewSubOrderNo" ColumnName="NewSubOrderNo" />
+                <ScalarProperty Name="NewSKU" ColumnName="NewSKU" />
                 <ScalarProperty Name="SubOrderNo" ColumnName="SubOrderNo" />
                 <ScalarProperty Name="Remark" ColumnName="Remark" />
                 <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />

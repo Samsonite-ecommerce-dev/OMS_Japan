@@ -457,188 +457,188 @@ namespace OMS.API.Implments.Warehouse
                     return null;
                 }
             }
-            //新订单(换货新订单或者预售订单)
-            else if (objRecord.Type == (int)OrderChangeType.NewOrder)
-            {
-                string bundleName = string.Empty;
-                List<MonogramModel> monograms = new List<MonogramModel>();
-                GiftCardModel giftCard = new GiftCardModel();
-                bool isGifts = false;
-                List<OrderGiftModel> gifts = new List<OrderGiftModel>();
-                /***订单过滤条件
-                1.如果该订单下存在Pending状态的未删除的子订单,则整个订单均不发送
-                ***/
-                var item = (from o in db.Order
-                            join od in db.OrderDetail.Where(p => (new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.ExchangeNew }).Contains(p.Status) && !p.IsStop && !p.IsSystemCancel && !p.IsExchangeNew && !p.IsSetOrigin && !p.IsError && !p.IsDelete && !(db.OrderWMSReply.Where(o => o.Status && o.SubOrderNo == p.SubOrderNo).Any()) && p.Id == objRecord.DetailId) on o.Id equals od.OrderId
-                            join r in db.OrderReceive on od.SubOrderNo equals r.SubOrderNo
-                            select new OrderQueryModel()
-                            {
-                                MallSapCode = o.MallSapCode,
-                                OrderNo = o.OrderNo,
-                                SubOrderNo = od.SubOrderNo,
-                                PlatformType = o.PlatformType,
-                                PaymentType = o.PaymentType,
-                                OrderAmount = o.OrderAmount,
-                                OrderPaymentAmount = o.PaymentAmount,
-                                DeliveryFee = o.DeliveryFee,
-                                Remark = o.Remark,
-                                CreateDate = o.CreateDate,
-                                ProductName = od.ProductName,
-                                ProductId = od.ProductId,
-                                Sku = od.SKU,
-                                SupplyPrice = od.SupplyPrice,
-                                SellingPrice = od.SellingPrice,
-                                PaymentAmount = od.PaymentAmount,
-                                ActualPaymentAmount = od.ActualPaymentAmount,
-                                Quantity = od.Quantity,
-                                Status = od.Status,
-                                IsReservation = od.IsReservation,
-                                ReservationDate = od.ReservationDate,
-                                IsSet = od.IsSet,
-                                SetCode = od.SetCode,
-                                ShippingType = od.ShippingType.ToString(),
-                                Receive = r.Receive,
-                                ReceiveTel = r.ReceiveTel,
-                                ReceiveCel = r.ReceiveCel,
-                                ReceiveZipcode = r.ReceiveZipcode,
-                                ReceiveProvince = r.Province,
-                                ReceiveCity = r.City,
-                                ReceiveDistrict = r.District,
-                                ReceiveAddr = r.ReceiveAddr,
-                                ReceiveAddr1 = r.Address1,
-                                ReceiveAddr2 = r.Address2
-                            }).SingleOrDefault();
-                if (item != null)
-                {
-                    //从换货流程中读取最新地址
-                    var objOrderExchange = (from oe in db.OrderExchange.Where(p => p.NewSubOrderNo == objRecord.SubOrderNo)
-                                            join od in db.View_OrderReturn on oe.ReturnDetailId equals od.ChangeID
-                                            select new
-                                            {
-                                                Receiver = od.CustomerName,
-                                                Tel = od.Tel,
-                                                Mobile = od.Mobile,
-                                                Zipcode = od.Zipcode,
-                                                Addr = od.Addr
-                                            }).SingleOrDefault();
-                    if (objOrderExchange != null)
-                    {
-                        item.Receive = objOrderExchange.Receiver;
-                        item.ReceiveTel = objOrderExchange.Tel;
-                        item.ReceiveCel = objOrderExchange.Mobile;
-                        item.ReceiveZipcode = objOrderExchange.Zipcode;
-                        item.ReceiveAddr = objOrderExchange.Addr;
-                    }
+            ////新订单(换货新订单或者预售订单)
+            //else if (objRecord.Type == (int)OrderChangeType.NewOrder)
+            //{
+            //    string bundleName = string.Empty;
+            //    List<MonogramModel> monograms = new List<MonogramModel>();
+            //    GiftCardModel giftCard = new GiftCardModel();
+            //    bool isGifts = false;
+            //    List<OrderGiftModel> gifts = new List<OrderGiftModel>();
+            //    /***订单过滤条件
+            //    1.如果该订单下存在Pending状态的未删除的子订单,则整个订单均不发送
+            //    ***/
+            //    var item = (from o in db.Order
+            //                join od in db.OrderDetail.Where(p => (new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.ExchangeNew }).Contains(p.Status) && !p.IsStop && !p.IsSystemCancel && !p.IsExchangeNew && !p.IsSetOrigin && !p.IsError && !p.IsDelete && !(db.OrderWMSReply.Where(o => o.Status && o.SubOrderNo == p.SubOrderNo).Any()) && p.Id == objRecord.DetailId) on o.Id equals od.OrderId
+            //                join r in db.OrderReceive on od.SubOrderNo equals r.SubOrderNo
+            //                select new OrderQueryModel()
+            //                {
+            //                    MallSapCode = o.MallSapCode,
+            //                    OrderNo = o.OrderNo,
+            //                    SubOrderNo = od.SubOrderNo,
+            //                    PlatformType = o.PlatformType,
+            //                    PaymentType = o.PaymentType,
+            //                    OrderAmount = o.OrderAmount,
+            //                    OrderPaymentAmount = o.PaymentAmount,
+            //                    DeliveryFee = o.DeliveryFee,
+            //                    Remark = o.Remark,
+            //                    CreateDate = o.CreateDate,
+            //                    ProductName = od.ProductName,
+            //                    ProductId = od.ProductId,
+            //                    Sku = od.SKU,
+            //                    SupplyPrice = od.SupplyPrice,
+            //                    SellingPrice = od.SellingPrice,
+            //                    PaymentAmount = od.PaymentAmount,
+            //                    ActualPaymentAmount = od.ActualPaymentAmount,
+            //                    Quantity = od.Quantity,
+            //                    Status = od.Status,
+            //                    IsReservation = od.IsReservation,
+            //                    ReservationDate = od.ReservationDate,
+            //                    IsSet = od.IsSet,
+            //                    SetCode = od.SetCode,
+            //                    ShippingType = od.ShippingType.ToString(),
+            //                    Receive = r.Receive,
+            //                    ReceiveTel = r.ReceiveTel,
+            //                    ReceiveCel = r.ReceiveCel,
+            //                    ReceiveZipcode = r.ReceiveZipcode,
+            //                    ReceiveProvince = r.Province,
+            //                    ReceiveCity = r.City,
+            //                    ReceiveDistrict = r.District,
+            //                    ReceiveAddr = r.ReceiveAddr,
+            //                    ReceiveAddr1 = r.Address1,
+            //                    ReceiveAddr2 = r.Address2
+            //                }).SingleOrDefault();
+            //    if (item != null)
+            //    {
+            //        //从换货流程中读取最新地址
+            //        var objOrderExchange = (from oe in db.OrderExchange.Where(p => p.NewSubOrderNo == objRecord.SubOrderNo)
+            //                                join od in db.View_OrderReturn on oe.ReturnDetailId equals od.ChangeID
+            //                                select new
+            //                                {
+            //                                    Receiver = od.CustomerName,
+            //                                    Tel = od.Tel,
+            //                                    Mobile = od.Mobile,
+            //                                    Zipcode = od.Zipcode,
+            //                                    Addr = od.Addr
+            //                                }).SingleOrDefault();
+            //        if (objOrderExchange != null)
+            //        {
+            //            item.Receive = objOrderExchange.Receiver;
+            //            item.ReceiveTel = objOrderExchange.Tel;
+            //            item.ReceiveCel = objOrderExchange.Mobile;
+            //            item.ReceiveZipcode = objOrderExchange.Zipcode;
+            //            item.ReceiveAddr = objOrderExchange.Addr;
+            //        }
 
-                    //产品属性
-                    var orderValueAddedServices = db.OrderValueAddedService.Where(p => p.OrderNo == item.OrderNo).ToList();
-                    monograms = new List<MonogramModel>();
-                    List<OrderValueAddedService> orderValueAddedServices_monogram = orderValueAddedServices.Where(p => p.SubOrderNo == item.SubOrderNo && p.Type == (int)ValueAddedServicesType.Monogram).ToList();
-                    if (orderValueAddedServices_monogram.Count > 0)
-                    {
-                        foreach (var o in orderValueAddedServices_monogram)
-                        {
-                            var tmp = JsonHelper.JsonDeserialize<MonogramDto>(o.MonoValue);
-                            tmp.Location = o.MonoLocation;
-                            monograms.Add(new MonogramModel()
-                            {
-                                Text = tmp.Text,
-                                Font = tmp.TextFont,
-                                Color = tmp.TextColor,
-                                Location = tmp.Location,
-                                PatchID = tmp.PatchID
-                            });
-                        }
-                    }
+            //        //产品属性
+            //        var orderValueAddedServices = db.OrderValueAddedService.Where(p => p.OrderNo == item.OrderNo).ToList();
+            //        monograms = new List<MonogramModel>();
+            //        List<OrderValueAddedService> orderValueAddedServices_monogram = orderValueAddedServices.Where(p => p.SubOrderNo == item.SubOrderNo && p.Type == (int)ValueAddedServicesType.Monogram).ToList();
+            //        if (orderValueAddedServices_monogram.Count > 0)
+            //        {
+            //            foreach (var o in orderValueAddedServices_monogram)
+            //            {
+            //                var tmp = JsonHelper.JsonDeserialize<MonogramDto>(o.MonoValue);
+            //                tmp.Location = o.MonoLocation;
+            //                monograms.Add(new MonogramModel()
+            //                {
+            //                    Text = tmp.Text,
+            //                    Font = tmp.TextFont,
+            //                    Color = tmp.TextColor,
+            //                    Location = tmp.Location,
+            //                    PatchID = tmp.PatchID
+            //                });
+            //            }
+            //        }
 
-                    giftCard = new GiftCardModel();
-                    OrderValueAddedService orderValueAddedService_giftcard = orderValueAddedServices.Where(p => p.SubOrderNo == item.SubOrderNo && p.Type == (int)ValueAddedServicesType.GiftCard).FirstOrDefault();
-                    if (orderValueAddedService_giftcard != null)
-                    {
-                        var tmp = JsonHelper.JsonDeserialize<GiftCardDto>(orderValueAddedService_giftcard.MonoValue);
-                        giftCard.Message = tmp.Message;
-                        giftCard.Recipient = tmp.Recipient;
-                        giftCard.Sender = tmp.Sender;
-                        giftCard.Font = tmp.Font;
-                        giftCard.GiftCardID = tmp.GiftCardID;
-                    }
+            //        giftCard = new GiftCardModel();
+            //        OrderValueAddedService orderValueAddedService_giftcard = orderValueAddedServices.Where(p => p.SubOrderNo == item.SubOrderNo && p.Type == (int)ValueAddedServicesType.GiftCard).FirstOrDefault();
+            //        if (orderValueAddedService_giftcard != null)
+            //        {
+            //            var tmp = JsonHelper.JsonDeserialize<GiftCardDto>(orderValueAddedService_giftcard.MonoValue);
+            //            giftCard.Message = tmp.Message;
+            //            giftCard.Recipient = tmp.Recipient;
+            //            giftCard.Sender = tmp.Sender;
+            //            giftCard.Font = tmp.Font;
+            //            giftCard.GiftCardID = tmp.GiftCardID;
+            //        }
 
-                    //如果是套装
-                    if (item.IsSet)
-                    {
-                        var _p = objProductList.Where(p => p.SKU == item.SetCode).FirstOrDefault();
-                        if (_p != null)
-                        {
-                            bundleName = _p.Description;
-                        }
-                    }
+            //        //如果是套装
+            //        if (item.IsSet)
+            //        {
+            //            var _p = objProductList.Where(p => p.SKU == item.SetCode).FirstOrDefault();
+            //            if (_p != null)
+            //            {
+            //                bundleName = _p.Description;
+            //            }
+            //        }
 
-                    //读取赠品信息
-                    List<OrderGift> objGift_list = db.OrderGift.Where(p => p.OrderNo == objRecord.OrderNo && p.SubOrderNo == objRecord.SubOrderNo).ToList();
-                    if (objGift_list.Count > 0)
-                    {
-                        isGifts = true;
-                        gifts = new List<OrderGiftModel>();
-                        foreach (var _g in objGift_list)
-                        {
-                            gifts.Add(new OrderGiftModel()
-                            {
-                                giftSku = _g.Sku,
-                                giftQuantity = _g.Quantity
-                            });
-                        }
-                    }
-                    //解密数据
-                    EncryptionFactory.Create(item, new string[] { "Receive", "ReceiveTel", "ReceiveCel", "ReceiveAddr", "ReceiveAddr1", "ReceiveAddr2" }).Decrypt();
+            //        //读取赠品信息
+            //        List<OrderGift> objGift_list = db.OrderGift.Where(p => p.OrderNo == objRecord.OrderNo && p.SubOrderNo == objRecord.SubOrderNo).ToList();
+            //        if (objGift_list.Count > 0)
+            //        {
+            //            isGifts = true;
+            //            gifts = new List<OrderGiftModel>();
+            //            foreach (var _g in objGift_list)
+            //            {
+            //                gifts.Add(new OrderGiftModel()
+            //                {
+            //                    giftSku = _g.Sku,
+            //                    giftQuantity = _g.Quantity
+            //                });
+            //            }
+            //        }
+            //        //解密数据
+            //        EncryptionFactory.Create(item, new string[] { "Receive", "ReceiveTel", "ReceiveCel", "ReceiveAddr", "ReceiveAddr1", "ReceiveAddr2" }).Decrypt();
 
-                    //返回数据
-                    GetOrdersItem _o = new GetOrdersItem
-                    {
-                        mallCode = item.MallSapCode,
-                        orderNo = item.OrderNo,
-                        subOrderNo = item.SubOrderNo,
-                        orderDate = item.CreateDate.ToString("yyyyMMddHHmm"),
-                        paymentType = APIHelper.GetPaymentType(item.PaymentType),
-                        salePrice = item.SellingPrice,
-                        //付款金额总金额(扣除折扣后面的真实支付金额)
-                        orderPrice = item.ActualPaymentAmount,
-                        sku = item.Sku,
-                        quantity = item.Quantity,
-                        productId = item.ProductId,
-                        productName = item.ProductName,
-                        productStatus = item.Status,
-                        deliveryNo = string.Empty,
-                        deliveryDoc = string.Empty,
-                        isReservation = item.IsReservation,
-                        reservationDate = (item.ReservationDate == null) ? "" : item.ReservationDate.Value.ToString("yyyyMMddHHmm"),
-                        monograms = monograms,
-                        giftWrapping = giftCard,
-                        isSet = item.IsSet,
-                        setName = bundleName,
-                        isGifts = isGifts,
-                        freeGiftID = gifts,
-                        shippingType = item.ShippingType,
-                        receiver = VariableHelper.SaferequestNull(item.Receive),
-                        receiveTel = VariableHelper.SaferequestNull(item.ReceiveTel),
-                        receiveCel = VariableHelper.SaferequestNull(item.ReceiveCel),
-                        receiveZipcode = VariableHelper.SaferequestNull(item.ReceiveZipcode),
-                        receiveProvince = VariableHelper.SaferequestNull(item.ReceiveProvince),
-                        receiveCity = VariableHelper.SaferequestNull(item.ReceiveCity),
-                        receiveDistrict = VariableHelper.SaferequestNull(item.ReceiveDistrict),
-                        receiveAddr = VariableHelper.SaferequestNull(item.ReceiveAddr),
-                        receiveAddr1 = VariableHelper.SaferequestNull(item.ReceiveAddr1),
-                        receiveAddr2 = VariableHelper.SaferequestNull(item.ReceiveAddr2),
-                        remark = VariableHelper.SaferequestNull(item.Remark)
-                    };
-                    objModel.mallCode = item.MallSapCode;
-                    objModel.data = _o;
-                    return objModel;
-                }
-                else
-                {
-                    return null;
-                }
-            }
+            //        //返回数据
+            //        GetOrdersItem _o = new GetOrdersItem
+            //        {
+            //            mallCode = item.MallSapCode,
+            //            orderNo = item.OrderNo,
+            //            subOrderNo = item.SubOrderNo,
+            //            orderDate = item.CreateDate.ToString("yyyyMMddHHmm"),
+            //            paymentType = APIHelper.GetPaymentType(item.PaymentType),
+            //            salePrice = item.SellingPrice,
+            //            //付款金额总金额(扣除折扣后面的真实支付金额)
+            //            orderPrice = item.ActualPaymentAmount,
+            //            sku = item.Sku,
+            //            quantity = item.Quantity,
+            //            productId = item.ProductId,
+            //            productName = item.ProductName,
+            //            productStatus = item.Status,
+            //            deliveryNo = string.Empty,
+            //            deliveryDoc = string.Empty,
+            //            isReservation = item.IsReservation,
+            //            reservationDate = (item.ReservationDate == null) ? "" : item.ReservationDate.Value.ToString("yyyyMMddHHmm"),
+            //            monograms = monograms,
+            //            giftWrapping = giftCard,
+            //            isSet = item.IsSet,
+            //            setName = bundleName,
+            //            isGifts = isGifts,
+            //            freeGiftID = gifts,
+            //            shippingType = item.ShippingType,
+            //            receiver = VariableHelper.SaferequestNull(item.Receive),
+            //            receiveTel = VariableHelper.SaferequestNull(item.ReceiveTel),
+            //            receiveCel = VariableHelper.SaferequestNull(item.ReceiveCel),
+            //            receiveZipcode = VariableHelper.SaferequestNull(item.ReceiveZipcode),
+            //            receiveProvince = VariableHelper.SaferequestNull(item.ReceiveProvince),
+            //            receiveCity = VariableHelper.SaferequestNull(item.ReceiveCity),
+            //            receiveDistrict = VariableHelper.SaferequestNull(item.ReceiveDistrict),
+            //            receiveAddr = VariableHelper.SaferequestNull(item.ReceiveAddr),
+            //            receiveAddr1 = VariableHelper.SaferequestNull(item.ReceiveAddr1),
+            //            receiveAddr2 = VariableHelper.SaferequestNull(item.ReceiveAddr2),
+            //            remark = VariableHelper.SaferequestNull(item.Remark)
+            //        };
+            //        objModel.mallCode = item.MallSapCode;
+            //        objModel.data = _o;
+            //        return objModel;
+            //    }
+            //    else
+            //    {
+            //        return null;
+            //    }
+            //}
             else
             {
                 return null;

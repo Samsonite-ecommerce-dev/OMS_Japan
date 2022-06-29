@@ -19,7 +19,7 @@ namespace OMS.App.Controllers
     public class GoodsExchangeController : BaseController
     {
         //
-        // GET: /GoodsReturn/
+        // GET: /GoodsExchange/
 
         #region 查询
         [UserPowerAuthorize]
@@ -252,12 +252,8 @@ namespace OMS.App.Controllers
                             //读取子订单
                             List<OrderDetail> objOrderDetail_List = db.OrderDetail.Where(p => p.OrderNo == _OrderNo && !p.IsSetOrigin && !p.IsExchangeNew).ToList();
                             OrderDetail objOrderDetail = new OrderDetail();
-                            OrderReturn objOrderReturn = new OrderReturn();
-                            OrderReceive objOrderReceive = new OrderReceive();
-                            OrderCancel objOrderCancel = new OrderCancel();
-                            OrderChangeRecord objOrderChangeRecord = new OrderChangeRecord();
                             OrderExchange objOrderExchange = new OrderExchange();
-                            Deliverys objDeliverys = new Deliverys();
+                            OrderChangeRecord objOrderChangeRecord = new OrderChangeRecord();
                             OrderLog objOrderLog = new OrderLog();
                             int _OrgStatus = 0;
                             string _New_SubOrderNo = string.Empty;
@@ -302,47 +298,32 @@ namespace OMS.App.Controllers
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["goodsexchange_edit_message_quantity_error"]));
                                     }
-                                    //退货流程表
-                                    objOrderReturn = new OrderReturn()
+                                    //添加换货记录
+                                    objOrderExchange = new OrderExchange()
                                     {
-                                        OrderNo = objOrderDetail.OrderNo,
+                                        OrderNo = objOrder.OrderNo,
                                         MallSapCode = objOrder.MallSapCode,
                                         UserId = this.CurrentLoginUser.Userid,
                                         AddDate = DateTime.Now,
                                         CreateDate = _ExchangeTime,
                                         Reason = _Reason,
                                         Remark = _Remark,
-                                        FromApi = false,
                                         SubOrderNo = objOrderDetail.SubOrderNo,
+                                        NewSKU= _NewSku_Array[t],
                                         Quantity = _Quantity,
-                                        Status = (int)ProcessStatus.Return,
-                                        ShippingCompany = (!string.IsNullOrEmpty(_ShippingNo)) ? _ShippingCompany : "",
-                                        ShippingNo = _ShippingNo,
-                                        RequestId = _RequestId,
-                                        CollectionType = 0,
-                                        CustomerName = _Receiver,
-                                        Tel = _Tel,
-                                        Mobile = _Mobile,
-                                        Zipcode = _Zipcode,
-                                        Addr = _Addr,
                                         AcceptUserId = 0,
                                         AcceptUserDate = null,
                                         AcceptRemark = string.Empty,
-                                        RefundUserId = 0,
-                                        RefundAmount = 0,
-                                        RefundPoint = 0,
-                                        RefundExpress = 0,
-                                        RefundSurcharge = 0,
-                                        RefundUserDate = null,
-                                        RefundRemark = _Remark,
-                                        IsFromExchange = true,
+                                        FromApi = false,
+                                        Status = (int)ProcessStatus.Exchange,
+                                        SendUserId = 0,
+                                        SendUserDate = null,
+                                        SendRemark = string.Empty,
                                         ManualUserId = 0,
                                         ManualUserDate = null,
                                         ManualRemark = string.Empty
                                     };
-                                    //数据加密
-                                    EncryptionFactory.Create(objOrderReturn).Encrypt();
-                                    db.OrderReturn.Add(objOrderReturn);
+                                    db.OrderExchange.Add(objOrderExchange);
                                     db.SaveChanges();
                                     //插入api表
                                     objOrderChangeRecord = new OrderChangeRecord()
@@ -351,7 +332,7 @@ namespace OMS.App.Controllers
                                         SubOrderNo = objOrderDetail.SubOrderNo,
                                         Type = (int)OrderChangeType.Return,
                                         DetailTableName = OrderReturnProcessService.TableName,
-                                        DetailId = objOrderReturn.Id,
+                                        DetailId = objOrderExchange.Id,
                                         UserId = this.CurrentLoginUser.Userid,
                                         Status = 0,
                                         Remarks = string.Empty,
@@ -364,33 +345,6 @@ namespace OMS.App.Controllers
                                     };
                                     db.OrderChangeRecord.Add(objOrderChangeRecord);
                                     db.SaveChanges();
-                                    //添加换货记录
-                                    objOrderExchange = new OrderExchange()
-                                    {
-                                        OrderNo = objOrder.OrderNo,
-                                        MallSapCode = objOrder.MallSapCode,
-                                        UserId = this.CurrentLoginUser.Userid,
-                                        AddDate = DateTime.Now,
-                                        CreateDate = _ExchangeTime,
-                                        Reason = _Reason,
-                                        Remark = _Remark,
-                                        SubOrderNo = objOrderDetail.SubOrderNo,
-                                        NewSubOrderNo = _New_SubOrderNo,
-                                        Quantity = _Quantity,
-                                        AcceptUserId = 0,
-                                        AcceptUserDate = null,
-                                        AcceptRemark = string.Empty,
-                                        FromApi = false,
-                                        ReturnDetailId = objOrderChangeRecord.Id,
-                                        Status = (int)ProcessStatus.Exchange,
-                                        SendUserId = 0,
-                                        SendUserDate = null,
-                                        SendRemark = string.Empty,
-                                        ManualUserId = 0,
-                                        ManualUserDate = null,
-                                        ManualRemark = string.Empty
-                                    };
-                                    db.OrderExchange.Add(objOrderExchange);
                                     //修改子订单换货数量
                                     objOrderDetail.ExchangeQuantity = ((objOrderDetail.ExchangeQuantity + _Quantity) >= objOrderDetail.Quantity) ? objOrderDetail.Quantity : (objOrderDetail.ExchangeQuantity + _Quantity);
                                     //修改子订单状态
@@ -399,7 +353,7 @@ namespace OMS.App.Controllers
                                     //添加子订单log
                                     objOrderLog = new OrderLog()
                                     {
-                                        Msg = "GoodsExchange Processing-Exchange",
+                                        Msg = "Goods exchange processing",
                                         OrderNo = objOrderDetail.OrderNo,
                                         SubOrderNo = objOrderDetail.SubOrderNo,
                                         UserId = this.CurrentLoginUser.Userid,
@@ -408,117 +362,6 @@ namespace OMS.App.Controllers
                                         CreateDate = DateTime.Now
                                     };
                                     db.OrderLog.Add(objOrderLog);
-                                    db.SaveChanges();
-                                    //添加新订单
-                                    db.OrderDetail.Add(new OrderDetail()
-                                    {
-                                        OrderId = objOrderDetail.OrderId,
-                                        OrderNo = objOrderDetail.OrderNo,
-                                        SubOrderNo = _New_SubOrderNo,
-                                        ParentSubOrderNo = objOrderDetail.ParentSubOrderNo,
-                                        CreateDate = DateTime.Now,
-                                        MallProductId = objOrderDetail.MallProductId,
-                                        MallSkuId = objOrderDetail.MallSkuId,
-                                        ProductName = objOrderDetail.ProductName,
-                                        ProductPic = objOrderDetail.ProductPic,
-                                        ProductId = objOrderDetail.ProductId,
-                                        SetCode = objOrderDetail.SetCode,
-                                        SKU = _NewSku_Array[t],
-                                        SkuProperties = objOrderDetail.SkuProperties,
-                                        SkuGrade = objOrderDetail.SkuGrade,
-                                        Quantity = VariableHelper.SaferequestInt(_Quantity_Array[t]),
-                                        RRPPrice = objOrderDetail.RRPPrice,
-                                        SupplyPrice = objOrderDetail.SupplyPrice,
-                                        SellingPrice = objOrderDetail.SellingPrice,
-                                        PaymentAmount = objOrderDetail.PaymentAmount / objOrderDetail.Quantity * VariableHelper.SaferequestInt(_Quantity_Array[t]),
-                                        ActualPaymentAmount = objOrderDetail.ActualPaymentAmount / objOrderDetail.Quantity * VariableHelper.SaferequestInt(_Quantity_Array[t]),
-                                        Status = (int)ProductStatus.ExchangeNew,
-                                        EBStatus = string.Empty,
-                                        ShippingProvider = objOrderDetail.ShippingProvider,
-                                        ShippingType = objOrderDetail.ShippingType,
-                                        //收货确认之后ShippingType标成0,然后生成D/N
-                                        ShippingStatus = (int)WarehouseProcessStatus.Delete,
-                                        DeliveringPlant= objOrderDetail.DeliveringPlant,
-                                        CancelQuantity = 0,
-                                        ReturnQuantity = 0,
-                                        ExchangeQuantity = 0,
-                                        RejectQuantity = 0,
-                                        Tax = objOrderDetail.Tax,
-                                        //不在设置成预购订单
-                                        IsReservation = false,
-                                        ReservationDate = null,
-                                        ReservationRemark = string.Empty,
-                                        IsSet = objOrderDetail.IsSet,
-                                        IsSetOrigin = objOrderDetail.IsSetOrigin,
-                                        IsPre = objOrderDetail.IsPre,
-                                        IsUrgent = objOrderDetail.IsUrgent,
-                                        IsEmployee = objOrderDetail.IsEmployee,
-                                        IsExchangeNew = true,
-                                        IsSystemCancel = objOrderDetail.IsSystemCancel,
-                                        TaxRate = objOrderDetail.TaxRate,
-                                        IsGift = objOrderDetail.IsGift,
-                                        AddDate = DateTime.Now,
-                                        EditDate = DateTime.Now,
-                                        CompleteDate = null,
-                                        ExtraRequest = objOrderDetail.ExtraRequest,
-                                        IsStop= objOrderDetail.IsStop,
-                                        IsError = objOrderDetail.IsError,
-                                        ErrorRemark = string.Empty,
-                                        ErrorMsg = objOrderDetail.ErrorMsg,
-                                        IsDelete = objOrderDetail.IsDelete,
-                                    });
-                                    //添加对应的收货地址
-                                    objOrderReceive = db.OrderReceive.Where(p => p.SubOrderNo == objOrderDetail.SubOrderNo).SingleOrDefault();
-                                    if (objOrderReceive != null)
-                                    {
-                                        db.OrderReceive.Add(new OrderReceive()
-                                        {
-                                            OrderId = objOrderReceive.OrderId,
-                                            OrderNo = objOrderReceive.OrderNo,
-                                            SubOrderNo = _New_SubOrderNo,
-                                            Receive = objOrderReceive.Receive,
-                                            ReceiveTel = objOrderReceive.ReceiveTel,
-                                            ReceiveCel = objOrderReceive.ReceiveCel,
-                                            ReceiveZipcode = objOrderReceive.ReceiveZipcode,
-                                            ReceiveAddr = objOrderReceive.ReceiveAddr,
-                                            ReceiveEmail = objOrderReceive.ReceiveEmail,
-                                            AddDate = DateTime.Now,
-                                            CustomerNo = objOrderReceive.CustomerNo,
-                                            Country = objOrderReceive.Country,
-                                            Province = objOrderReceive.Province,
-                                            City = objOrderReceive.City,
-                                            District = objOrderReceive.District,
-                                            Town = objOrderReceive.Town,
-                                            ShipmentID = objOrderReceive.ShipmentID,
-                                            ShippingType = objOrderReceive.ShippingType,
-                                            Address1 = objOrderReceive.Address1,
-                                            Address2 = objOrderReceive.Address2
-                                        });
-                                    }
-                                    //添加换货新订单的快递信息
-                                    objDeliverys = new Deliverys()
-                                    {
-                                        OrderNo = objOrderDetail.OrderNo,
-                                        SubOrderNo = _New_SubOrderNo,
-                                        MallSapCode = objOrder.MallSapCode,
-                                        ExpressId = objExpressCompany.Id,
-                                        ExpressName = objExpressCompany.ExpressName,
-                                        InvoiceNo = string.Empty,
-                                        Packages = 1,
-                                        ExpressType = string.Empty,
-                                        ExpressAmount = 0,
-                                        Warehouse = string.Empty,
-                                        ReceiveTime = string.Empty,
-                                        ClearUpTime = string.Empty,
-                                        DeliveryDate = string.Empty,
-                                        ExpressStatus = 0,
-                                        ExpressMsg = string.Empty,
-                                        Remark = string.Empty,
-                                        DeliveryChangeUrl=string.Empty,
-                                        CreateDate = DateTime.Now,
-                                        IsNeedPush = false
-                                    };
-                                    db.Deliverys.Add(objDeliverys);
                                     db.SaveChanges();
                                 }
                                 else
@@ -572,14 +415,8 @@ namespace OMS.App.Controllers
                     if (objView_OrderExchange.Status == (int)ProcessStatus.Exchange)
                     {
                         ViewData["order_detail"] = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.SubOrderNo).SingleOrDefault();
-                        ViewBag.NewSku = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.NewSubOrderNo).Select(p => p.SKU).SingleOrDefault();
                         //快递公司
                         ViewData["express_list"] = ExpressCompanyService.GetExpressCompanyObject();
-                        //退货流程
-                        OrderReturn objOrderReturn = db.OrderReturn.Where(p => p.Id == objView_OrderExchange.DetailId).SingleOrDefault();
-                        //数据解密
-                        EncryptionFactory.Create(objOrderReturn).Decrypt();
-                        ViewData["order_return"] = objOrderReturn;
 
                         return View(objView_OrderExchange);
                     }
@@ -652,13 +489,10 @@ namespace OMS.App.Controllers
 
                                 if (objView_OrderExchange.Status == (int)ProcessStatus.Exchange)
                                 {
-                                    db.Database.ExecuteSqlCommand("update OrderReturn set Quantity={1},ShippingCompany={2},ShippingNo={3},CustomerName={4},Tel={5},Mobile={6},Zipcode={7},Addr={8} where Id={0}", objView_OrderExchange.DetailId, _Quantity, _ShippingCompany, _ShippingNo, _Receiver, _Tel, _Mobile, _Zipcode, _Addr);
+                                    //修改Exchange的数量
+                                    db.Database.ExecuteSqlCommand("update OrderExchange set NewSKU={1},Quantity={2},ShippingCompany={3},ShippingNo={4},CustomerName={5},Tel={6},Mobile={7},Zipcode={8},Addr={9},Remark={10} where Id={0}", objView_OrderExchange.Id, _NewSku, _Quantity, _ShippingCompany, _ShippingNo, _Receiver, _Tel, _Mobile, _Zipcode, _Addr, _Remark);
                                     //更新换货数量
                                     db.Database.ExecuteSqlCommand("update OrderDetail set ExchangeQuantity=ExchangeQuantity+{0} where SubOrderNo={1}", (_Quantity - objView_OrderExchange.Quantity), objView_OrderExchange.SubOrderNo);
-                                    //修改新子产品记录
-                                    db.Database.ExecuteSqlCommand("update OrderDetail set SKU={0},Quantity={1} where SubOrderNo={2}", _NewSku, _Quantity, objView_OrderExchange.NewSubOrderNo);
-                                    //修改Exchange的数量
-                                    db.Database.ExecuteSqlCommand("update OrderExchange set Quantity={1},Remark={2} where Id={0}", objView_OrderExchange.Id, _Quantity, _Remark);
                                     db.SaveChanges();
                                     Trans.Commit();
                                     //返回信息
@@ -860,35 +694,35 @@ namespace OMS.App.Controllers
                 if (objView_OrderExchange != null)
                 {
                     ViewData["order_detail"] = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.SubOrderNo).SingleOrDefault();
-                    OrderDetail objOrderDetail = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.NewSubOrderNo).SingleOrDefault();
-                    if (objOrderDetail != null)
-                    {
-                        ViewBag.NewSku = objOrderDetail.SKU;
-                        ViewBag.NewProductName = objOrderDetail.ProductName;
-                    }
-                    else
-                    {
-                        ViewBag.NewSku = string.Empty;
-                        ViewBag.NewProductName = string.Empty;
-                    }
+                    //OrderDetail objOrderDetail = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.NewSubOrderNo).SingleOrDefault();
+                    //if (objOrderDetail != null)
+                    //{
+                    //    ViewBag.NewSku = objOrderDetail.SKU;
+                    //    ViewBag.NewProductName = objOrderDetail.ProductName;
+                    //}
+                    //else
+                    //{
+                    //    ViewBag.NewSku = string.Empty;
+                    //    ViewBag.NewProductName = string.Empty;
+                    //}
 
-                    //退货信息
-                    OrderReturn objOrderReturn = db.OrderReturn.Where(p => p.Id == objView_OrderExchange.DetailId).SingleOrDefault();
-                    //数据解密
-                    EncryptionFactory.Create(objOrderReturn).Decrypt();
-                    ViewData["order_return"] = objOrderReturn;
-                    //换货新订单快递信息
-                    var NewDelivery = db.Deliverys.Where(p => p.OrderNo == objView_OrderExchange.OrderNo && p.SubOrderNo == objView_OrderExchange.NewSubOrderNo).FirstOrDefault();
-                    if (NewDelivery != null)
-                    {
-                        ViewBag.NewOrderDelivery = "<i class=\"fa fa-archive color_info\"></i>";
-                        if (!string.IsNullOrEmpty(NewDelivery.ExpressName)) ViewBag.NewOrderDelivery += NewDelivery.ExpressName;
-                        if (!string.IsNullOrEmpty(NewDelivery.InvoiceNo)) ViewBag.NewOrderDelivery += "," + NewDelivery.InvoiceNo;
-                    }
-                    else
-                    {
-                        ViewBag.NewOrderDelivery = string.Empty;
-                    }
+                    ////退货信息
+                    //OrderReturn objOrderReturn = db.OrderReturn.Where(p => p.Id == objView_OrderExchange.DetailId).SingleOrDefault();
+                    ////数据解密
+                    //EncryptionFactory.Create(objOrderReturn).Decrypt();
+                    //ViewData["order_return"] = objOrderReturn;
+                    ////换货新订单快递信息
+                    //var NewDelivery = db.Deliverys.Where(p => p.OrderNo == objView_OrderExchange.OrderNo && p.SubOrderNo == objView_OrderExchange.NewSubOrderNo).FirstOrDefault();
+                    //if (NewDelivery != null)
+                    //{
+                    //    ViewBag.NewOrderDelivery = "<i class=\"fa fa-archive color_info\"></i>";
+                    //    if (!string.IsNullOrEmpty(NewDelivery.ExpressName)) ViewBag.NewOrderDelivery += NewDelivery.ExpressName;
+                    //    if (!string.IsNullOrEmpty(NewDelivery.InvoiceNo)) ViewBag.NewOrderDelivery += "," + NewDelivery.InvoiceNo;
+                    //}
+                    //else
+                    //{
+                    //    ViewBag.NewOrderDelivery = string.Empty;
+                    //}
 
                     return View(objView_OrderExchange);
                 }

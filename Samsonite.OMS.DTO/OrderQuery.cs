@@ -211,6 +211,186 @@ namespace Samsonite.OMS.DTO
         public string InvoiceNo { get; set; }
     }
 
+    public class CancelOrderQuery
+    {
+        public Int64 Id { get; set; }
+
+        public string OrderNo { get; set; }
+
+        public string SubOrderNo { get; set; }
+
+        public string MallName { get; set; }
+
+        public decimal RefundAmount { get; set; }
+
+        public decimal RefundPoint { get; set; }
+
+        public decimal RefundExpress { get; set; }
+
+        public string Remark { get; set; }
+
+        public string AddUserName { get; set; }
+
+        public int ManualUserID { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public DateTime? AcceptUserDate { get; set; }
+
+        public string AcceptUserName { get; set; }
+
+        public string RefundUserName { get; set; }
+
+        public bool ApiIsRead { get; set; }
+
+        public int CancelQuantity { get; set; }
+
+        public int Status { get; set; }
+
+        public int Type { get; set; }
+
+        public bool IsSystemCancel { get; set; }
+
+        public DateTime? ApiReplyDate { get; set; }
+
+        public string ApiReplyMsg { get; set; }
+
+        public DateTime? RefundUserDate { get; set; }
+
+        public string RefundRemark { get; set; }
+
+        public bool IsDelete { get; set; }
+
+        public int ApiStatus { get; set; }
+
+        public string SKU { get; set; }
+
+        public string ProductName { get; set; }
+
+        public int PaymentType { get; set; }
+
+        public string Receive { get; set; }
+
+        public string CustomerName { get; set; }
+    }
+
+    public class ReturnOrderQuery
+    {
+        public Int64 Id { get; set; }
+
+        public string OrderNo { get; set; }
+
+        public string SubOrderNo { get; set; }
+
+        public string MallName { get; set; }
+
+        public int Quantity { get; set; }
+
+        public string Remark { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public int ReturnQuantity { get; set; }
+
+        public int Status { get; set; }
+
+        public int Type { get; set; }
+
+        public string AddUserName { get; set; }
+
+        public int ManualUserID { get; set; }
+
+        public int AcceptUserId { get; set; }
+
+        public string AcceptUserName { get; set; }
+
+        public DateTime? AcceptUserDate { get; set; }
+
+        public string AcceptRemark { get; set; }
+
+        public string RefundUserName { get; set; }
+
+        public DateTime? RefundUserDate { get; set; }
+
+        public string RefundRemark { get; set; }
+
+        public int ProcessStatus { get; set; }
+
+
+        public bool IsDelete { get; set; }
+
+        public decimal RefundAmount { get; set; }
+
+        public decimal RefundPoint { get; set; }
+
+        public decimal RefundExpress { get; set; }
+
+        public decimal RefundSurcharge { get; set; }
+
+        public bool IsFromExchange { get; set; }
+
+        public string ShippingCompany { get; set; }
+
+        public string ShippingNo { get; set; }
+
+        public int ApiStatus { get; set; }
+
+        public bool ApiIsRead { get; set; }
+
+        public DateTime? ApiReplyDate { get; set; }
+
+        public string ApiReplyMsg { get; set; }
+
+        public string SKU { get; set; }
+
+        public string ProductName { get; set; }
+
+        public int PaymentType { get; set; }
+
+        public string Receive { get; set; }
+
+        public string CustomerName { get; set; }
+    }
+
+    public class RejectOrderQuery
+    {
+        public Int64 Id { get; set; }
+
+        public string OrderNo { get; set; }
+
+        public string SubOrderNo { get; set; }
+
+        public string MallName { get; set; }
+
+        public int Quantity { get; set; }
+
+        public int Status { get; set; }
+
+        public string AddUserName { get; set; }
+
+        public string Remark { get; set; }
+
+        public string AcceptUserName { get; set; }
+
+        public DateTime? AcceptUserDate { get; set; }
+
+        public string AcceptRemark { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public int RejectQuantity { get; set; }
+
+        public string SKU { get; set; }
+
+        public string ProductName { get; set; }
+
+        public int PaymentType { get; set; }
+
+        public string Receive { get; set; }
+
+        public string CustomerName { get; set; }
+    }
+
     public class ReserveOrderQuery
     {
         public Int64 Id { get; set; }

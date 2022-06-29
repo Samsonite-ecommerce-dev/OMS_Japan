@@ -22,13 +22,12 @@ namespace Samsonite.OMS.Database
         public System.DateTime CreateDate { get; set; }
         public string Remark { get; set; }
         public string SubOrderNo { get; set; }
-        public string NewSubOrderNo { get; set; }
+        public string NewSKU { get; set; }
         public int Quantity { get; set; }
         public int AcceptUserId { get; set; }
         public Nullable<System.DateTime> AcceptUserDate { get; set; }
         public string AcceptRemark { get; set; }
         public bool FromApi { get; set; }
-        public long ReturnDetailId { get; set; }
         public int Status { get; set; }
         public int SendUserId { get; set; }
         public Nullable<System.DateTime> SendUserDate { get; set; }
@@ -49,7 +48,6 @@ namespace Samsonite.OMS.Database
         public Nullable<System.DateTime> ApiReplyDate { get; set; }
         public string ApiReplyMsg { get; set; }
         public bool IsDelete { get; set; }
-        public long DetailId { get; set; }
         public int Reason { get; set; }
         public decimal DifferenceAmount { get; set; }
         public decimal ExpressAmount { get; set; }

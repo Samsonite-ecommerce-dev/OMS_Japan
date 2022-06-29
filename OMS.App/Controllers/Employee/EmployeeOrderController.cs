@@ -35,7 +35,7 @@ namespace OMS.App.Controllers
             //订单类型
             ViewData["order_type"] = OrderHelper.OrderTypeObject();
             //品牌列表
-            ViewData["brand_list"] = BrandService.GetBrandOption();
+            ViewData["brand_list"] = BrandService.GetBrands();
             //订单状态
             ViewData["orderstate_list"] = OrderHelper.OrderStatusObject();
             //产品状态
@@ -416,7 +416,7 @@ namespace OMS.App.Controllers
             int _order_type = VariableHelper.SaferequestInt(Request.Form["OrderType"]);
             string[] _storeid = VariableHelper.SaferequestStringArray(Request.Form["StoreName"]);
             string _sku_id = VariableHelper.SaferequestStr(Request.Form["SkuID"]);
-            string _product_brand = VariableHelper.SaferequestStr(Request.Form["ProductBrand"]);
+            int _product_brand = VariableHelper.SaferequestInt(Request.Form["ProductBrand"]);
             string _price_min = VariableHelper.SaferequestNull(Request.Form["ProductPriceMin"]);
             string _price_max = VariableHelper.SaferequestNull(Request.Form["ProductPriceMax"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["Time1"]);
@@ -444,15 +444,15 @@ namespace OMS.App.Controllers
             using (var db = new ebEntities())
             {
                 //查询条件
-                List<String> _SqlWhere = new List<string>();
+                List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
                 if (!string.IsNullOrEmpty(_orderNo))
                 {
-                    _SqlWhere.Add("((od.OrderNo like '%" + _orderNo + "%') or (od.SubOrderNo like '%" + _orderNo + "%'))");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((od.OrderNo like {0}) or (od.SubOrderNo like {0}))", Param = "%" + _orderNo + "%" });
                 }
 
                 if (_order_type > 0)
                 {
-                    _SqlWhere.Add("o.OrderType =" + _order_type);
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.OrderType={0}", Param = _order_type });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -469,56 +469,60 @@ namespace OMS.App.Controllers
 
                 if (_UserMalls.Count == 1)
                 {
-                    _SqlWhere.Add("o.MallSapCode=" + _UserMalls.First());
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.MallSapCode={0}", Param = _UserMalls.First() });
                 }
                 else
                 {
-                    _SqlWhere.Add("o.MallSapCode in (select item from strToIntTable('" + string.Join(",", _SearchStores) + "',','))");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.MallSapCode in (select item from strToIntTable('" + string.Join(",", _SearchStores) + "',','))", Param = null });
                 }
 
                 if (!string.IsNullOrEmpty(_sku_id))
                 {
-                    _SqlWhere.Add("(od.SKU like '%" + _sku_id + "%')");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((od.SKU like {0}) or (od.SetCode like {0}))", Param = "%" + _sku_id + "%" });
                 }
 
-                if (!string.IsNullOrEmpty(_product_brand))
+                if (_product_brand > 0)
                 {
-                    _SqlWhere.Add("(select top 1 name from Product where Product.SKU=od.SKU)='" + _product_brand + "'");
+                    string _Brands = string.Join(",", BrandService.GetSons(_product_brand));
+                    if (!string.IsNullOrEmpty(_Brands))
+                    {
+                        _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "charindex((select top 1 name from Product where Product.SKU=od.SKU),'" + _Brands + "')>0", Param = null });
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(_express))
                 {
-                    _SqlWhere.Add("ds.InvoiceNo like '%" + _express + "%'");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ds.InvoiceNo={0}", Param = "%" + _express + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_express_status))
                 {
-                    _SqlWhere.Add("ds.ExpressStatus =" + VariableHelper.SaferequestInt(_express_status));
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ds.ExpressStatus={0}", Param = VariableHelper.SaferequestInt(_express_status) });
                 }
 
                 if (!string.IsNullOrEmpty(_price_min))
                 {
-                    _SqlWhere.Add("o.PaymentAmount>=" + VariableHelper.SaferequestDecimal(_price_min));
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.PaymentAmount>={0}", Param = VariableHelper.SaferequestDecimal(_price_min) });
                 }
 
                 if (!string.IsNullOrEmpty(_price_max))
                 {
-                    _SqlWhere.Add("o.PaymentAmount<=" + VariableHelper.SaferequestDecimal(_price_max));
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.PaymentAmount<={0}", Param = VariableHelper.SaferequestDecimal(_price_max) });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add("datediff(second,o.CreateDate,'" + VariableHelper.SaferequestTime(_time1).ToString("yyyy-MM-dd HH:mm:ss") + "')<=0");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(second, o.CreateDate, {0}) <= 0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add("datediff(second,o.CreateDate,'" + VariableHelper.SaferequestTime(_time2).ToString("yyyy-MM-dd HH:mm:ss") + "')>=0");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(second, o.CreateDate, {0}) >= 0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 if (_order_status != null)
                 {
-                    _SqlWhere.Add("o.Status in (" + string.Join(",", _order_status) + ")");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.Status in (" + string.Join(", ", _order_status) + ")", Param = null });
                 }
 
                 if (_product_status != null)
@@ -563,100 +567,101 @@ namespace OMS.App.Controllers
                     {
                         _psList.Add((int)ProductStatus.Reject);
                     }
+
                     if (_psList.Count > 0)
                     {
-                        _SqlWhere.Add("od.[Status] in (" + string.Join(",", _psList) + ")");
+                        _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.Status in (" + string.Join(", ", _psList) + ")", Param = null });
                     }
                 }
 
                 if (!string.IsNullOrEmpty(_email))
                 {
-                    _SqlWhere.Add("c.Email = '" + EncryptionBase.EncryptString(_email) + "'");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "c.Email={0}", Param = EncryptionBase.EncryptString(_email) });
                 }
 
                 if (!string.IsNullOrEmpty(_customer))
                 {
-                    _SqlWhere.Add("c.Name = '" + EncryptionBase.EncryptString(_customer) + "'");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "c.Name={0}", Param = EncryptionBase.EncryptString(_customer) });
                 }
 
                 if (!string.IsNullOrEmpty(_receiver))
                 {
-                    _SqlWhere.Add("oe.Receive = '" + EncryptionBase.EncryptString(_receiver) + "'");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "oe.Receive={0}", Param = EncryptionBase.EncryptString(_receiver) });
                 }
 
                 if (!string.IsNullOrEmpty(_contact))
                 {
-                    _SqlWhere.Add("((oe.ReceiveTel = '" + EncryptionBase.EncryptString(_contact) + "') or (oe.ReceiveCel = '" + EncryptionBase.EncryptString(_contact) + "'))");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((oe.ReceiveTel={0}) or (oe.ReceiveCel={0}))", Param = EncryptionBase.EncryptString(_contact) });
                 }
 
                 if (!string.IsNullOrEmpty(_shipping_status))
                 {
-                    _SqlWhere.Add("od.ShippingStatus=" + VariableHelper.SaferequestInt(_shipping_status));
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.ShippingStatus={0}", Param = VariableHelper.SaferequestInt(_shipping_status) });
                 }
 
                 if (_payment_status != null)
                 {
-                    _SqlWhere.Add("o.PaymentType in (" + string.Join(",", _payment_status) + ")");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.PaymentType in (" + string.Join(",", _payment_status) + ")", Param = null });
                 }
 
                 if (_shippping_method > 0)
                 {
                     if (_shippping_method == (int)ShippingMethod.ExpressShipping)
                     {
-                        _SqlWhere.Add("o.ShippingMethod=" + (int)ShippingMethod.ExpressShipping);
+                        _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.ShippingMethod={0}", Param = (int)ShippingMethod.ExpressShipping });
                     }
                     else
                     {
-                        _SqlWhere.Add("o.ShippingMethod=" + (int)ShippingMethod.StandardShipping);
+                        _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.ShippingMethod={0}", Param = (int)ShippingMethod.StandardShipping });
                     }
                 }
 
                 if (!string.IsNullOrEmpty(_deliveryfee_min))
                 {
-                    _SqlWhere.Add("o.DeliveryFee>=" + VariableHelper.SaferequestDecimal(_deliveryfee_min));
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.DeliveryFee>={0}", Param = VariableHelper.SaferequestDecimal(_deliveryfee_min) });
                 }
 
                 if (!string.IsNullOrEmpty(_deliveryfee_max))
                 {
-                    _SqlWhere.Add("o.DeliveryFee<=" + VariableHelper.SaferequestDecimal(_deliveryfee_max));
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.DeliveryFee<={0}", Param = VariableHelper.SaferequestDecimal(_deliveryfee_max) });
                 }
 
                 if (_is_reserve > 0)
                 {
-                    _SqlWhere.Add("od.IsReservation=1");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsReservation={0}", Param = 1 });
                 }
 
                 if (_is_bundle > 0)
                 {
-                    _SqlWhere.Add("od.IsSet=1");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsSet={0}", Param = 1 });
                 }
 
                 if (_is_gift > 0)
                 {
-                    _SqlWhere.Add("(select count(*) from OrderGift where o.OrderNo=OrderGift.OrderNo)>0");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(select count(*) from OrderGift where o.OrderNo=OrderGift.OrderNo)>0", Param = null });
                 }
 
                 if (_is_monogram > 0)
                 {
-                    _SqlWhere.Add("(select count(*) from OrderValueAddedService where o.OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.Monogram + ")>0");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(select count(*) from OrderValueAddedService where o.OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.Monogram + ")>0", Param = null });
                 }
 
                 if (!string.IsNullOrEmpty(_promotion_name))
                 {
-                    _SqlWhere.Add("(select count(*) from OrderDetailAdjustment where o.OrderNo=OrderDetailAdjustment.OrderNo and OrderDetailAdjustment.LineitemText like '%" + _promotion_name + "%')>0");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(select count(*) from OrderDetailAdjustment where o.OrderNo=OrderDetailAdjustment.OrderNo and OrderDetailAdjustment.LineitemText like '%" + _promotion_name + "%')>0", Param = null });
                 }
 
                 if (!string.IsNullOrEmpty(_coupon_code))
                 {
-                    _SqlWhere.Add("(select count(*) from OrderDetailAdjustment where o.OrderNo=OrderDetailAdjustment.OrderNo and OrderDetailAdjustment.CouponId like '%" + _coupon_code + "%')>0");
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(select count(*) from OrderDetailAdjustment where o.OrderNo=OrderDetailAdjustment.OrderNo and OrderDetailAdjustment.CouponId like '%" + _coupon_code + "%')>0", Param = null });
                 }
 
                 //员工订单
-                _SqlWhere.Add("od.IsEmployee=1");
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsEmployee={0}", Param = 1 });
                 //过滤套装原始订单
-                _SqlWhere.Add("od.IsSetOrigin=0");
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsSetOrigin={0}", Param = 0 });
                 //过滤无效的订单
-                _SqlWhere.Add("od.IsDelete=0");
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsDelete={0}", Param = 0 });
 
                 DataTable dt = new DataTable();
                 dt.Columns.Add(_LanguagePack["employeeorder_index_order_number"]);
@@ -691,7 +696,7 @@ namespace OMS.App.Controllers
                 dt.Columns.Add(_LanguagePack["employeeorder_index_product_gift"]);
                 //读取数据
                 DataRow _dr = null;
-                var _list = db.Database.SqlQuery<OrderQueryExport>("select o.Id,o.OrderNo,o.MallName,o.MallSapCode,o.OrderType,o.OrderAmount,o.PaymentAmount As OrderPaymentAmount,o.PaymentType,o.DeliveryFee,o.BalanceAmount,o.PointAmount,o.OrderSource,o.ShippingMethod,o.PaymentDate,isnull(c.Name,'')As UserName,isnull(c.Email,'')As UserEmail,o.[Status],o.CreateDate as OrderTime,oe.[Receive],oe.ReceiveTel,oe.ReceiveCel,oe.ReceiveZipcode,oe.ReceiveAddr,oe.Province as ReceiveProvince,oe.City as ReceiveCity,oe.District as ReceiveDistrict,od.SubOrderNo,od.SKU,od.ProductName,od.RRPPrice,od.SupplyPrice,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.Quantity,od.CancelQuantity,od.ReturnQuantity,od.ExchangeQuantity,od.RejectQuantity,od.ReservationDate,od.ShippingStatus,od.[Status] As ProductStatus,od.IsExchangeNew,od.CreateDate,('') as Gifts,Isnull(ds.InvoiceNo,'') as InvoiceNo from OrderDetail as od inner join [order] as o on od.OrderNo =o.OrderNo inner join OrderReceive as oe on od.SubOrderNo = oe.SubOrderNo left join Deliverys as ds on od.SubOrderNo=ds.SubOrderNo left join Customer as c on o.CustomerNo = c.CustomerNo " + ((_SqlWhere.Count > 0) ? " where " + string.Join(" and ", _SqlWhere) : "") + " order by o.CreateDate desc");
+                var _list = this.BaseEntityRepository.SqlQueryGetList<OrderQueryExport>(db, "select o.Id,o.OrderNo,o.MallName,o.MallSapCode,o.OrderType,o.OrderAmount,o.PaymentAmount As OrderPaymentAmount,o.PaymentType,o.DeliveryFee,o.BalanceAmount,o.PointAmount,o.OrderSource,o.ShippingMethod,o.PaymentDate,isnull(c.Name,'')As UserName,isnull(c.Email,'')As UserEmail,o.[Status],o.CreateDate as OrderTime,oe.[Receive],oe.ReceiveTel,oe.ReceiveCel,oe.ReceiveZipcode,oe.ReceiveAddr,oe.Province as ReceiveProvince,oe.City as ReceiveCity,oe.District as ReceiveDistrict,od.SubOrderNo,od.SKU,od.ProductName,od.RRPPrice,od.SupplyPrice,od.SellingPrice,od.PaymentAmount,od.ActualPaymentAmount,od.Quantity,od.CancelQuantity,od.ReturnQuantity,od.ExchangeQuantity,od.RejectQuantity,od.ReservationDate,od.ShippingStatus,od.[Status] As ProductStatus,od.IsExchangeNew,od.CreateDate,('') as Gifts,Isnull(ds.InvoiceNo,'') as InvoiceNo from OrderDetail as od inner join [order] as o on od.OrderNo =o.OrderNo inner join OrderReceive as oe on od.SubOrderNo = oe.SubOrderNo left join Deliverys as ds on od.SubOrderNo=ds.SubOrderNo left join Customer as c on o.CustomerNo = c.CustomerNo order by o.CreateDate desc", _sqlWhere);
                 var _orderNos = _list.GroupBy(p => p.OrderNo).Select(o => o.Key).ToList();
                 List<OrderModify> orderModifies = new List<OrderModify>();
                 List<OrderGift> orderGifts = new List<OrderGift>();

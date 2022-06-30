@@ -397,8 +397,7 @@ namespace OMS.App.Helper
         public static List<object[]> ProccessModifyStatusObject()
         {
             List<object[]> _result = new List<object[]>();
-            //List<int> _PL = new List<int>() { (int)ProcessStatus.Modify, (int)ProcessStatus.ModifyWHSure, (int)ProcessStatus.ModifyComplete, (int)ProcessStatus.ModifyFail, (int)ProcessStatus.Delete };
-            List<int> _PL = new List<int>() { (int)ProcessStatus.Modify, (int)ProcessStatus.ModifyComplete, (int)ProcessStatus.ModifyFail, (int)ProcessStatus.Delete };
+            List<int> _PL = new List<int>() { (int)ProcessStatus.Modify, (int)ProcessStatus.ModifyWHSure, (int)ProcessStatus.ModifyComplete, (int)ProcessStatus.ModifyFail, (int)ProcessStatus.Delete };
             foreach (var _o in ProcessStatusReflect().Where(p => _PL.Contains(p.ID)).OrderBy(p => p.ID))
             {
                 _result.Add(new object[] { _o.ID, _o.Display });
@@ -413,8 +412,7 @@ namespace OMS.App.Helper
         public static List<object[]> ProccessCancelStatusObject()
         {
             List<object[]> _result = new List<object[]>();
-            //List<int> _PL = new List<int>() { (int)ProcessStatus.Cancel, (int)ProcessStatus.CancelWHSure, (int)ProcessStatus.WaitRefund, (int)ProcessStatus.CancelComplete, (int)ProcessStatus.CancelFail, (int)ProcessStatus.Delete };
-            List<int> _PL = new List<int>() { (int)ProcessStatus.Cancel, (int)ProcessStatus.WaitRefund, (int)ProcessStatus.CancelComplete, (int)ProcessStatus.CancelFail, (int)ProcessStatus.Delete };
+            List<int> _PL = new List<int>() { (int)ProcessStatus.Cancel, (int)ProcessStatus.CancelWHSure, (int)ProcessStatus.WaitRefund, (int)ProcessStatus.CancelComplete, (int)ProcessStatus.CancelFail, (int)ProcessStatus.Delete };
             foreach (var _o in ProcessStatusReflect().Where(p => _PL.Contains(p.ID)).OrderBy(p => p.ID))
             {
                 _result.Add(new object[] { _o.ID, _o.Display });
@@ -429,8 +427,7 @@ namespace OMS.App.Helper
         public static List<object[]> ProccessReturnStatusObject()
         {
             List<object[]> _result = new List<object[]>();
-            //List<int> _PL = new List<int>() { (int)ProcessStatus.Return, (int)ProcessStatus.ReturnWHSure, (int)ProcessStatus.ReturnAcceptComfirm, (int)ProcessStatus.ReturnComplete, (int)ProcessStatus.ReturnFail, (int)ProcessStatus.Delete };
-            List<int> _PL = new List<int>() { (int)ProcessStatus.Return, (int)ProcessStatus.ReturnAcceptComfirm, (int)ProcessStatus.ReturnComplete, (int)ProcessStatus.ReturnFail, (int)ProcessStatus.Delete };
+            List<int> _PL = new List<int>() { (int)ProcessStatus.Return, (int)ProcessStatus.ReturnWHSure, (int)ProcessStatus.ReturnAcceptComfirm, (int)ProcessStatus.ReturnComplete, (int)ProcessStatus.ReturnFail, (int)ProcessStatus.Delete };
             foreach (var _o in ProcessStatusReflect().Where(p => _PL.Contains(p.ID)).OrderBy(p => p.ID))
             {
                 _result.Add(new object[] { _o.ID, _o.Display });
@@ -445,8 +442,7 @@ namespace OMS.App.Helper
         public static List<object[]> ProccessExchangeStatusObject()
         {
             List<object[]> _result = new List<object[]>();
-            //List<int> _PL = new List<int>() { (int)ProcessStatus.Exchange, (int)ProcessStatus.ExchangeWHSure, (int)ProcessStatus.ExchangeAcceptComfirm, (int)ProcessStatus.ExchangeComplete, (int)ProcessStatus.ExchangeFail, (int)ProcessStatus.Delete };
-            List<int> _PL = new List<int>() { (int)ProcessStatus.Exchange, (int)ProcessStatus.ExchangeAcceptComfirm, (int)ProcessStatus.ExchangeComplete, (int)ProcessStatus.ExchangeFail, (int)ProcessStatus.Delete };
+            List<int> _PL = new List<int>() { (int)ProcessStatus.Exchange, (int)ProcessStatus.ExchangeWHSure, (int)ProcessStatus.ExchangeComplete, (int)ProcessStatus.ExchangeFail, (int)ProcessStatus.Delete };
             foreach (var _o in ProcessStatusReflect().Where(p => _PL.Contains(p.ID)).OrderBy(p => p.ID))
             {
                 _result.Add(new object[] { _o.ID, _o.Display

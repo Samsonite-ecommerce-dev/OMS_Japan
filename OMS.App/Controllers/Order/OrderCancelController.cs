@@ -263,6 +263,7 @@ namespace OMS.App.Controllers
                             int _RefundPoint = 0;
                             decimal _Avag_ExpressFee = 0;
                             bool _IsCOD = (objOrder.PaymentType == (int)PayType.CashOnDelivery);
+                            bool _IsSystemCancel = false;
                             int _AcceptUserId = 0;
                             DateTime? _AcceptUserDate = null;
                             string _AcceptRemark = string.Empty;
@@ -323,7 +324,7 @@ namespace OMS.App.Controllers
                                     }
 
                                     //判断在发货前和待处理之后才允许取消信息
-                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing, (int)ProductStatus.ReceivedGoods };
+                                    List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing, (int)ProductStatus.ReceivedGoods, (int)ProductStatus.InDelivery };
                                     if (!objAllowStatus.Contains(objOrderDetail.Status))
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordercancel_edit_message_state_no_allow"]));
@@ -344,6 +345,16 @@ namespace OMS.App.Controllers
                                     if (_Quantity <= 0)
                                     {
                                         throw new Exception(string.Format("{0}:{1}", objOrderDetail.SubOrderNo, _LanguagePack["ordercancel_edit_message_quantity_error"]));
+                                    }
+                                    //判断是否是内部取消
+                                    //注:是否处于Received/Processing
+                                    if (objOrderDetail.Status == (int)ProductStatus.Received || objOrderDetail.Status == (int)ProductStatus.Processing)
+                                    {
+                                        _IsSystemCancel = true;
+                                    }
+                                    else
+                                    {
+                                        _IsSystemCancel = false;
                                     }
                                     int _NewStatus = (int)ProductStatus.Cancel;
                                     //取消流程表
@@ -370,7 +381,7 @@ namespace OMS.App.Controllers
                                         RefundUserId = _RefundUserId,
                                         RefundUserDate = _RefundUserDate,
                                         RefundRemark = _RefundRemark,
-                                        IsSystemCancel = false,
+                                        IsSystemCancel = _IsSystemCancel,
                                         ManualUserId = 0,
                                         ManualUserDate = null,
                                         ManualRemark = string.Empty,

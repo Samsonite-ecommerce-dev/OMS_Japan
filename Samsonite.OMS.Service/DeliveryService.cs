@@ -185,8 +185,6 @@ namespace Samsonite.OMS.Service
                                             NewStatus = (int)ProductStatus.Delivered
                                         });
                                         db.SaveChanges();
-                                        //修改换货记录里面的状态
-                                        OrderExchangeProcessService.DeliverySure(view_OrderDetail.MallSapCode, view_OrderDetail.OrderNo, view_OrderDetail.SubOrderNo, db);
                                         //判断产品是否已经全部收货，如果全部为收货，就设置主订单状态为 Complete
                                         OrderProcessService.CompleteOrder(view_OrderDetail.OrderNo, db);
                                     }
@@ -198,22 +196,6 @@ namespace Samsonite.OMS.Service
                         {
                             db.Deliverys.Add(delivery);
                             db.SaveChanges();
-                            //修改产品状态
-                            var _result = db.Database.ExecuteSqlCommand("update OrderDetail set Status={2},EditDate={3} where OrderNo={0} and SubOrderNo={1}", view_OrderDetail.OrderNo, view_OrderDetail.SubOrderNo, (int)ProductStatus.Processing, DateTime.Now);
-                            if (_result > 0)
-                            {
-                                //记录订单状态
-                                db.OrderLog.Add(new OrderLog
-                                {
-                                    Msg = remark,
-                                    OrderNo = delivery.OrderNo,
-                                    SubOrderNo = delivery.SubOrderNo,
-                                    CreateDate = DateTime.Now,
-                                    OriginStatus = view_OrderDetail.ProductStatus,
-                                    NewStatus = (int)ProductStatus.Processing
-                                });
-                                db.SaveChanges();
-                            }
                         }
                         Trans.Commit();
                     }

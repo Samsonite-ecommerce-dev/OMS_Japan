@@ -45,6 +45,7 @@
     <Compile Include="EncryptionConfig.cs" />
     <Compile Include="EncryptionFactory.cs" />
     <Compile Include="Field\OrderExchangeEncryption.cs" />
+    <Compile Include="Field\View_OrderExchangeEncryption.cs" />
     <Compile Include="Field\View_UserEmployee.cs" />
     <Compile Include="Field\UserEmployeeEncryption.cs" />
     <Compile Include="Field\View_OrderReturnEncryption.cs" />

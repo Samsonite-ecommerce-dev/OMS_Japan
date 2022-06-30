@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var _m = Model;
     var _OrderDetail = (Samsonite.OMS.Database.OrderDetail)ViewData["order_detail"];
-    var _OrderReturn = (Samsonite.OMS.Database.OrderReturn)ViewData["order_return"];
+    var _ReasonList = (List<object[]>)ViewData["reason_list"];
     var _ExpressList = (List<Samsonite.OMS.Database.ExpressCompany>)ViewData["express_list"];
     int _Effect_Quantity = Samsonite.Utility.Common.VariableHelper.SaferequestPositiveInt(_OrderDetail.Quantity - _OrderDetail.CancelQuantity - _OrderDetail.ReturnQuantity - _OrderDetail.ExchangeQuantity - _OrderDetail.RejectQuantity);
 }
@@ -34,14 +34,14 @@
                             <span>
                                 @_OrderDetail.SKU
                                 <i class="fa fa-exchange color_primary"></i>
-                                <input class="select_sku" name="NewSku" type="text" value="@ViewBag.NewSku" prompt="@ViewBag.LanguagePack["goodsexchange_edit_select_message"]" />
+                                <input class="select_sku" name="NewSku" type="text" value="@_m.NewSKU" prompt="@ViewBag.LanguagePack["goodsexchange_edit_select_message"]" />
                             </span>
                         </td>
                         <th>
                             @ViewBag.LanguagePack["goodsexchange_edit_select_quantity"]：
                         </th>
                         <td>
-                            <select id="Quantity" name="Quantity" class="easyui-combobox">
+                            <select id="Quantity" name="Quantity" class="easyui-combobox input-mini">
                                 @for (int i = (_Effect_Quantity + _m.Quantity); i > 0; i--)
                                 {
                                     if (_m.Quantity == i)
@@ -64,7 +64,7 @@
                             <select name="ShippingCompany" class="easyui-combobox input-large">
                                 @foreach (var _o in _ExpressList)
                                 {
-                                    if (_o.ExpressName == _OrderReturn.ShippingCompany)
+                                    if (_o.ExpressName == _m.ShippingCompany)
                                     {
                                         <option value="@_o.ExpressName" selected="selected">@_o.ExpressName</option>
                                     }
@@ -79,43 +79,65 @@
                             @ViewBag.LanguagePack["goodsexchange_edit_logistics_number"]：
                         </th>
                         <td>
-                            <input name="ShippingNo" type="text" class="easyui-textbox input-large" value="@_OrderReturn.ShippingNo" />
+                            <input name="ShippingNo" type="text" class="easyui-textbox input-large" value="@_m.ShippingNo" />
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            @ViewBag.LanguagePack["goodsreturn_edit_receiver"]：
+                            @ViewBag.LanguagePack["goodsexchange_edit_receiver"]：
                         </th>
                         <td>
-                            <input id="Receiver" name="Receiver" type="text" class="easyui-textbox input-large" value="@_OrderReturn.CustomerName" />
+                            <input id="Receiver" name="Receiver" type="text" class="easyui-textbox input-large" value="@_m.CustomerName" />
                         </td>
                         <th>
-                            @ViewBag.LanguagePack["goodsreturn_edit_tel"]：
+                            @ViewBag.LanguagePack["goodsexchange_edit_tel"]：
                         </th>
                         <td>
-                            <input id="Tel" name="Tel" type="text" class="easyui-textbox input-large" value="@_OrderReturn.Tel" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            @ViewBag.LanguagePack["goodsreturn_edit_mobile"]：
-                        </th>
-                        <td>
-                            <input id="Mobile" name="Mobile" type="text" class="easyui-textbox input-large" value="@_OrderReturn.Mobile" />
-                        </td>
-                        <th>
-                            @ViewBag.LanguagePack["goodsreturn_edit_zipcode"]：
-                        </th>
-                        <td>
-                            <input id="Zipcode" name="Zipcode" type="text" class="easyui-textbox input-large" value="@_OrderReturn.Zipcode" />
+                            <input id="Tel" name="Tel" type="text" class="easyui-textbox input-large" value="@_m.Tel" />
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            @ViewBag.LanguagePack["goodsreturn_edit_address"]：
+                            @ViewBag.LanguagePack["goodsexchange_edit_mobile"]：
+                        </th>
+                        <td>
+                            <input id="Mobile" name="Mobile" type="text" class="easyui-textbox input-large" value="@_m.Mobile" />
+                        </td>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_zipcode"]：
+                        </th>
+                        <td>
+                            <input id="Zipcode" name="Zipcode" type="text" class="easyui-textbox input-large" value="@_m.Zipcode" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_address"]：
                         </th>
                         <td colspan="3">
-                            <input id="Addr" name="Addr" type="text" class="easyui-textbox input-xxlarge" value="@_OrderReturn.Addr" />
+                            <input id="Addr" name="Addr" type="text" class="easyui-textbox input-xxlarge" value="@_m.Addr" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            @ViewBag.LanguagePack["goodsexchange_edit_reason"]：
+                        </th>
+                        <td colspan="3">
+                            <select name="Reason" class="easyui-combobox">
+                                @{
+                                    foreach (var _o in _ReasonList)
+                                    {
+                                        if (Samsonite.Utility.Common.VariableHelper.SaferequestInt(_o[0]) == _m.Reason)
+                                        {
+                                            <option value="@_o[0]" selected="selected">@_o[1]</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@_o[0]">@_o[1]</option>
+                                        }
+                                    }
+                                }
+                            </select>
                         </td>
                     </tr>
                     <tr>
@@ -143,7 +165,7 @@
                 textField: 's1',
                 queryParams: {
                     //price: '@_OrderDetail.SellingPrice',
-                    sku: '@_OrderDetail.SKU'
+                    sku: '@_m.NewSKU'
                 },
                 multiple: false,
                 pagination:false,

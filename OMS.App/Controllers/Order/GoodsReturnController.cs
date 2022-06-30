@@ -5,7 +5,6 @@ using System.Data;
 using System.Linq;
 using System.IO;
 using System.Web.Mvc;
-using OMS.App.Helper;
 
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
@@ -13,6 +12,7 @@ using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.Utility.Common;
+using OMS.App.Helper;
 
 namespace OMS.App.Controllers
 {
@@ -539,20 +539,20 @@ namespace OMS.App.Controllers
                 {
                     try
                     {
-                        View_OrderReturn objView_OrderReturn = db.View_OrderReturn.Where(p => p.Id == _ID && p.Type == (int)OrderChangeType.Return && !p.IsFromExchange).SingleOrDefault();
-                        if (objView_OrderReturn != null)
+                        OrderReturn objOrderReturn = db.OrderReturn.Where(p => p.Id == _ID && !p.IsFromExchange).SingleOrDefault();
+                        if (objOrderReturn != null)
                         {
-                            View_OrderDetail objOrderDetail = db.View_OrderDetail.Where(p => p.SubOrderNo == objView_OrderReturn.SubOrderNo).SingleOrDefault();
+                            OrderDetail objOrderDetail = db.OrderDetail.Where(p => p.SubOrderNo == objOrderReturn.SubOrderNo).SingleOrDefault();
                             if (objOrderDetail != null)
                             {
                                 //计算有效数量
-                                int _Effect_Quantity = objOrderDetail.Quantity - objOrderDetail.CancelQuantity - objOrderDetail.ReturnQuantity - objOrderDetail.ExchangeQuantity - objOrderDetail.RejectQuantity + objView_OrderReturn.Quantity;
+                                int _Effect_Quantity = objOrderDetail.Quantity - objOrderDetail.CancelQuantity - objOrderDetail.ReturnQuantity - objOrderDetail.ExchangeQuantity - objOrderDetail.RejectQuantity + objOrderReturn.Quantity;
                                 if (_Quantity > _Effect_Quantity)
                                     _Quantity = _Effect_Quantity;
                                 //退货数量需要大于零
                                 if (_Quantity == 0)
                                 {
-                                    throw new Exception(string.Format("{0}:{1}", objView_OrderReturn.SubOrderNo, _LanguagePack["goodsreturn_edit_message_quantity_error"]));
+                                    throw new Exception(string.Format("{0}:{1}", objOrderReturn.SubOrderNo, _LanguagePack["goodsreturn_edit_message_quantity_error"]));
                                 }
                                 else
                                 {
@@ -563,35 +563,28 @@ namespace OMS.App.Controllers
                                     }
                                 }
 
-                                if (objView_OrderReturn.Status == (int)ProcessStatus.Return)
+                                if (objOrderReturn.Status == (int)ProcessStatus.Return)
                                 {
-                                    OrderReturn objOrderReturn = db.OrderReturn.Where(p => p.Id == objView_OrderReturn.Id).SingleOrDefault();
-                                    if (objOrderReturn != null)
-                                    {
-                                        objOrderReturn.Quantity = _Quantity;
-                                        objOrderReturn.RefundAmount = _RefundAmount;
-                                        objOrderReturn.RefundExpress = _ExpressFee;
-                                        objOrderReturn.RefundSurcharge = _ReduceExpressFee;
-                                        objOrderReturn.ShippingCompany = _ShippingCompany;
-                                        objOrderReturn.ShippingNo = _ShippingNo;
-                                        objOrderReturn.CollectionType = 0;
-                                        objOrderReturn.CustomerName = _Receiver;
-                                        objOrderReturn.Tel = _Tel;
-                                        objOrderReturn.Mobile = _Mobile;
-                                        objOrderReturn.Zipcode = _Zipcode;
-                                        objOrderReturn.Addr = _Addr;
-                                        objOrderReturn.Reason = _Reason;
-                                        objOrderReturn.Remark = _Remark;
-                                        //数据加密
-                                        EncryptionFactory.Create(objOrderReturn).Encrypt();
-                                        //更新产品退货数量
-                                        db.Database.ExecuteSqlCommand("update OrderDetail set ReturnQuantity=ReturnQuantity+{0} where SubOrderNo={1}", (_Quantity - objOrderReturn.Quantity), objView_OrderReturn.SubOrderNo);
-                                        db.SaveChanges();
-                                    }
-                                    else
-                                    {
-                                        throw new Exception(_LanguagePack["goodsreturn_edit_message_no_message"]);
-                                    }
+                                    //更新退货信息
+                                    objOrderReturn.Quantity = _Quantity;
+                                    objOrderReturn.RefundAmount = _RefundAmount;
+                                    objOrderReturn.RefundExpress = _ExpressFee;
+                                    objOrderReturn.RefundSurcharge = _ReduceExpressFee;
+                                    objOrderReturn.ShippingCompany = _ShippingCompany;
+                                    objOrderReturn.ShippingNo = _ShippingNo;
+                                    objOrderReturn.CollectionType = 0;
+                                    objOrderReturn.CustomerName = _Receiver;
+                                    objOrderReturn.Tel = _Tel;
+                                    objOrderReturn.Mobile = _Mobile;
+                                    objOrderReturn.Zipcode = _Zipcode;
+                                    objOrderReturn.Addr = _Addr;
+                                    objOrderReturn.Reason = _Reason;
+                                    objOrderReturn.Remark = _Remark;
+                                    //数据加密
+                                    EncryptionFactory.Create(objOrderReturn).Encrypt();
+                                    //更新产品退货数量
+                                    objOrderDetail.ReturnQuantity += _Quantity - objOrderReturn.Quantity;
+                                    db.SaveChanges();
                                 }
                                 else
                                 {

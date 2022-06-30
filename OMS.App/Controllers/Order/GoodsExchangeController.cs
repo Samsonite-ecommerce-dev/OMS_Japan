@@ -54,7 +54,7 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["orderid"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["time2"]);
@@ -64,22 +64,22 @@ namespace OMS.App.Controllers
             int _reason = VariableHelper.SaferequestInt(Request.Form["reason"]);
             int _process_status = VariableHelper.SaferequestInt(Request.Form["proccess_status"]);
             int _stock_status = VariableHelper.SaferequestInt(Request.Form["stock_status"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((ve.OrderNo like {0}) or (ve.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((ve.OrderNo like {0}) or (ve.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,ve.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,ve.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,ve.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,ve.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -92,26 +92,26 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (!string.IsNullOrEmpty(_customer))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
                 }
 
                 if (!string.IsNullOrEmpty(_paytype))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "o.PaymentType={0}", Param = _paytype });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.PaymentType={0}", Param = _paytype });
                 }
 
                 if (_reason > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.Reason={0}", Param = _reason });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.Reason={0}", Param = _reason });
                 }
 
                 if (_process_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.Status={0}", Param = _process_status });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.Status={0}", Param = _process_status });
                 }
 
                 if (_stock_status > 0)
@@ -119,19 +119,19 @@ namespace OMS.App.Controllers
                     switch (_stock_status)
                     {
                         case 1:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiIsRead={0}", Param = 0 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiIsRead={0}", Param = 0 });
                             break;
                         case 2:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
                             break;
                         case 3:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
                             break;
                         case 4:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
                             break;
                         default:
                             break;
@@ -139,7 +139,7 @@ namespace OMS.App.Controllers
                 }
 
                 //查询
-                var _list = db.GetPage<dynamic>("select ve.Id,ve.Status,ve.OrderNo,ve.SubOrderNo,ve.NewSubOrderNo,ve.MallName,ve.AcceptUserId,ve.AcceptUserName,ve.AcceptUserDate,ve.ManualUserID,ve.Quantity,ve.AddUserName,ve.CreateDate,ve.Remark,ve.ApiIsRead,ve.ApiStatus,ve.ApiReplyDate,ve.ApiReplyMsg,o.PaymentType,isnull((select SKU from OrderDetail where OrderDetail.SubOrderNo=ve.SubOrderNo),'') As OldSKU,isnull((select top 1 SKU from OrderDetail where OrderDetail.SubOrderNo=ve.NewSubOrderNo),'') As NewSKU,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderExchange as ve inner join [Order] as o on ve.OrderNo = o.OrderNo inner join OrderReceive as oe on ve.SubOrderNo=oe.SubOrderNo inner join Customer as c on o.CustomerNo=c.CustomerNo order by ve.Id desc", _SqlWhere, VariableHelper.SaferequestInt(Request.Form["rows"]), VariableHelper.SaferequestInt(Request.Form["page"]));
+                var _list = this.BaseEntityRepository.SqlQueryGetPage<ExchangeOrderQuery>(db, "select ve.Id,ve.OrderNo,ve.SubOrderNo,ve.MallName,ve.NewSku,ve.ShippingNo,ve.Status,ve.Quantity,ve.AcceptUserId,ve.AcceptUserName,ve.AcceptUserDate,ve.AcceptRemark,ve.ManualUserID,ve.AddUserName,ve.CreateDate,ve.Remark,ve.ApiIsRead,ve.ApiStatus,ve.ApiReplyDate,ve.ApiReplyMsg,o.PaymentType,isnull((select SKU from OrderDetail where OrderDetail.SubOrderNo=ve.SubOrderNo),'') As SKU,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderExchange as ve inner join [Order] as o on ve.OrderNo = o.OrderNo inner join OrderReceive as oe on ve.SubOrderNo=oe.SubOrderNo inner join Customer as c on o.CustomerNo=c.CustomerNo order by ve.Id desc", _sqlWhere, VariableHelper.SaferequestInt(Request.Form["page"]), VariableHelper.SaferequestInt(Request.Form["rows"]));
                 //数据解密并脱敏
                 foreach (var item in _list.Items)
                 {
@@ -158,13 +158,13 @@ namespace OMS.App.Controllers
                                s3 = dy.MallName,
                                s4 = dy.CustomerName,
                                s5 = dy.Receive,
-                               s6 = dy.OldSKU,
-                               s7 = dy.Quantity,
-                               s8 = dy.NewSubOrderNo,
-                               s9 = dy.NewSKU,
+                               s6 = dy.SKU,
+                               s7 = dy.NewSku,
+                               s8 = dy.Quantity,
+                               s9 = dy.ShippingNo,
                                s10 = OrderHelper.GetProcessStatusDisplay(dy.Status, true),
                                s11 = string.Format("{0}<br/>{1}{2}", dy.AddUserName, dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), (!string.IsNullOrEmpty(dy.Remark)) ? "<br/>" + dy.Remark : ""),
-                               s12 = OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, true) + ((dy.ApiReplyDate != null) ? "<br/>" + dy.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? "<br/>" + dy.ApiReplyMsg : ""),
+                               s12 = OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, true) + ((dy.ApiReplyDate != null) ? "<br/>" + dy.ApiReplyDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? "<br/>" + dy.ApiReplyMsg : ""),
                                s13 = string.Format("{0}", ((dy.AcceptUserDate != null) ? dy.AcceptUserName + "<br/>" + VariableHelper.FormateTime(dy.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""))
                            }
                 };
@@ -309,13 +309,23 @@ namespace OMS.App.Controllers
                                         Reason = _Reason,
                                         Remark = _Remark,
                                         SubOrderNo = objOrderDetail.SubOrderNo,
-                                        NewSKU= _NewSku_Array[t],
+                                        NewSKU = _NewSku_Array[t],
                                         Quantity = _Quantity,
+                                        DifferenceAmount = 0,
+                                        ExpressAmount = 0,
+                                        FromApi = false,
+                                        Status = (int)ProcessStatus.Exchange,
+                                        ShippingCompany = string.Empty,
+                                        ShippingNo = string.Empty,
+                                        RequestId = _RequestId,
+                                        CustomerName = _Receiver,
+                                        Addr = _Addr,
+                                        Tel = _Tel,
+                                        Mobile = _Mobile,
+                                        Zipcode = _Zipcode,
                                         AcceptUserId = 0,
                                         AcceptUserDate = null,
                                         AcceptRemark = string.Empty,
-                                        FromApi = false,
-                                        Status = (int)ProcessStatus.Exchange,
                                         SendUserId = 0,
                                         SendUserDate = null,
                                         SendRemark = string.Empty,
@@ -323,6 +333,8 @@ namespace OMS.App.Controllers
                                         ManualUserDate = null,
                                         ManualRemark = string.Empty
                                     };
+                                    //数据加密
+                                    EncryptionFactory.Create(objOrderExchange).Encrypt();
                                     db.OrderExchange.Add(objOrderExchange);
                                     db.SaveChanges();
                                     //插入api表
@@ -330,8 +342,8 @@ namespace OMS.App.Controllers
                                     {
                                         OrderNo = objOrderDetail.OrderNo,
                                         SubOrderNo = objOrderDetail.SubOrderNo,
-                                        Type = (int)OrderChangeType.Return,
-                                        DetailTableName = OrderReturnProcessService.TableName,
+                                        Type = (int)OrderChangeType.Exchange,
+                                        DetailTableName = OrderExchangeProcessService.TableName,
                                         DetailId = objOrderExchange.Id,
                                         UserId = this.CurrentLoginUser.Userid,
                                         Status = 0,
@@ -414,9 +426,14 @@ namespace OMS.App.Controllers
                 {
                     if (objView_OrderExchange.Status == (int)ProcessStatus.Exchange)
                     {
+                        //数据解密
+                        EncryptionFactory.Create(objView_OrderExchange).Decrypt();
+
                         ViewData["order_detail"] = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.SubOrderNo).SingleOrDefault();
                         //快递公司
                         ViewData["express_list"] = ExpressCompanyService.GetExpressCompanyObject();
+                        //理由
+                        ViewData["reason_list"] = OrderExchangeProcessService.ReasonReflect();
 
                         return View(objView_OrderExchange);
                     }
@@ -445,17 +462,12 @@ namespace OMS.App.Controllers
             string _ShippingCompany = VariableHelper.SaferequestStr(Request.Form["ShippingCompany"]);
             string _ShippingNo = VariableHelper.SaferequestStr(Request.Form["ShippingNo"]);
             string _Remark = VariableHelper.SaferequestStr(Request.Form["Remark"]);
+            int _Reason = VariableHelper.SaferequestInt(Request.Form["Reason"]);
             string _Receiver = VariableHelper.SaferequestStr(Request.Form["Receiver"]);
             string _Tel = VariableHelper.SaferequestStr(Request.Form["Tel"]);
             string _Mobile = VariableHelper.SaferequestStr(Request.Form["Mobile"]);
             string _Zipcode = VariableHelper.SaferequestStr(Request.Form["Zipcode"]);
             string _Addr = VariableHelper.SaferequestStr(Request.Form["Addr"]);
-
-            //数据加密
-            _Receiver = EncryptionBase.EncryptString(_Receiver);
-            _Tel = EncryptionBase.EncryptString(_Tel);
-            _Mobile = EncryptionBase.EncryptString(_Mobile);
-            _Addr = EncryptionBase.EncryptString(_Addr);
 
             using (var db = new ebEntities())
             {
@@ -463,20 +475,20 @@ namespace OMS.App.Controllers
                 {
                     try
                     {
-                        View_OrderExchange objView_OrderExchange = db.View_OrderExchange.Where(p => p.Id == _ID).SingleOrDefault();
-                        if (objView_OrderExchange != null)
+                        OrderExchange objOrderExchange = db.OrderExchange.Where(p => p.Id == _ID).SingleOrDefault();
+                        if (objOrderExchange != null)
                         {
-                            OrderDetail objOrderDetail = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.SubOrderNo).SingleOrDefault();
+                            OrderDetail objOrderDetail = db.OrderDetail.Where(p => p.SubOrderNo == objOrderExchange.SubOrderNo).SingleOrDefault();
                             if (objOrderDetail != null)
                             {
                                 //计算有效数量
-                                int _Effect_Quantity = objOrderDetail.Quantity - objOrderDetail.CancelQuantity - objOrderDetail.ReturnQuantity - objOrderDetail.ExchangeQuantity - objOrderDetail.RejectQuantity + objView_OrderExchange.Quantity;
+                                int _Effect_Quantity = objOrderDetail.Quantity - objOrderDetail.CancelQuantity - objOrderDetail.ReturnQuantity - objOrderDetail.ExchangeQuantity - objOrderDetail.RejectQuantity + objOrderExchange.Quantity;
                                 if (_Quantity > _Effect_Quantity)
                                     _Quantity = _Effect_Quantity;
                                 //换货数量需要大于零
                                 if (_Quantity == 0)
                                 {
-                                    throw new Exception(string.Format("{0}:{1}", objView_OrderExchange.SubOrderNo, _LanguagePack["goodsexchange_edit_message_quantity_error"]));
+                                    throw new Exception(string.Format("{0}:{1}", objOrderExchange.SubOrderNo, _LanguagePack["goodsexchange_edit_message_quantity_error"]));
                                 }
                                 else
                                 {
@@ -487,12 +499,24 @@ namespace OMS.App.Controllers
                                     }
                                 }
 
-                                if (objView_OrderExchange.Status == (int)ProcessStatus.Exchange)
+                                if (objOrderExchange.Status == (int)ProcessStatus.Exchange)
                                 {
-                                    //修改Exchange的数量
-                                    db.Database.ExecuteSqlCommand("update OrderExchange set NewSKU={1},Quantity={2},ShippingCompany={3},ShippingNo={4},CustomerName={5},Tel={6},Mobile={7},Zipcode={8},Addr={9},Remark={10} where Id={0}", objView_OrderExchange.Id, _NewSku, _Quantity, _ShippingCompany, _ShippingNo, _Receiver, _Tel, _Mobile, _Zipcode, _Addr, _Remark);
+                                    //更新换货信息
+                                    objOrderExchange.NewSKU = _NewSku;
+                                    objOrderExchange.Quantity = _Quantity;
+                                    objOrderExchange.ShippingCompany = _ShippingCompany;
+                                    objOrderExchange.ShippingNo = _ShippingNo;
+                                    objOrderExchange.CustomerName = _Receiver;
+                                    objOrderExchange.Tel = _Tel;
+                                    objOrderExchange.Mobile = _Mobile;
+                                    objOrderExchange.Zipcode = _Zipcode;
+                                    objOrderExchange.Addr = _Addr;
+                                    objOrderExchange.Reason = _Reason;
+                                    objOrderExchange.Remark = _Remark;
+                                    //数据加密
+                                    EncryptionFactory.Create(objOrderExchange).Encrypt();
                                     //更新换货数量
-                                    db.Database.ExecuteSqlCommand("update OrderDetail set ExchangeQuantity=ExchangeQuantity+{0} where SubOrderNo={1}", (_Quantity - objView_OrderExchange.Quantity), objView_OrderExchange.SubOrderNo);
+                                    objOrderDetail.ExchangeQuantity += _Quantity - objOrderExchange.Quantity;
                                     db.SaveChanges();
                                     Trans.Commit();
                                     //返回信息
@@ -693,36 +717,10 @@ namespace OMS.App.Controllers
                 var objView_OrderExchange = db.View_OrderExchange.Where(p => p.Id == _ID).SingleOrDefault();
                 if (objView_OrderExchange != null)
                 {
-                    ViewData["order_detail"] = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.SubOrderNo).SingleOrDefault();
-                    //OrderDetail objOrderDetail = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.NewSubOrderNo).SingleOrDefault();
-                    //if (objOrderDetail != null)
-                    //{
-                    //    ViewBag.NewSku = objOrderDetail.SKU;
-                    //    ViewBag.NewProductName = objOrderDetail.ProductName;
-                    //}
-                    //else
-                    //{
-                    //    ViewBag.NewSku = string.Empty;
-                    //    ViewBag.NewProductName = string.Empty;
-                    //}
+                    //数据解密
+                    EncryptionFactory.Create(objView_OrderExchange).Decrypt();
 
-                    ////退货信息
-                    //OrderReturn objOrderReturn = db.OrderReturn.Where(p => p.Id == objView_OrderExchange.DetailId).SingleOrDefault();
-                    ////数据解密
-                    //EncryptionFactory.Create(objOrderReturn).Decrypt();
-                    //ViewData["order_return"] = objOrderReturn;
-                    ////换货新订单快递信息
-                    //var NewDelivery = db.Deliverys.Where(p => p.OrderNo == objView_OrderExchange.OrderNo && p.SubOrderNo == objView_OrderExchange.NewSubOrderNo).FirstOrDefault();
-                    //if (NewDelivery != null)
-                    //{
-                    //    ViewBag.NewOrderDelivery = "<i class=\"fa fa-archive color_info\"></i>";
-                    //    if (!string.IsNullOrEmpty(NewDelivery.ExpressName)) ViewBag.NewOrderDelivery += NewDelivery.ExpressName;
-                    //    if (!string.IsNullOrEmpty(NewDelivery.InvoiceNo)) ViewBag.NewOrderDelivery += "," + NewDelivery.InvoiceNo;
-                    //}
-                    //else
-                    //{
-                    //    ViewBag.NewOrderDelivery = string.Empty;
-                    //}
+                    ViewData["order_detail"] = db.OrderDetail.Where(p => p.SubOrderNo == objView_OrderExchange.SubOrderNo).SingleOrDefault();
 
                     return View(objView_OrderExchange);
                 }
@@ -743,7 +741,7 @@ namespace OMS.App.Controllers
             var _LanguagePack = this.GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
+            List<EntityRepository.SqlQueryCondition> _sqlWhere = new List<EntityRepository.SqlQueryCondition>();
             string _orderid = VariableHelper.SaferequestStr(Request.Form["OrderNumber"]);
             string _time1 = VariableHelper.SaferequestStr(Request.Form["Time1"]);
             string _time2 = VariableHelper.SaferequestStr(Request.Form["Time2"]);
@@ -753,22 +751,22 @@ namespace OMS.App.Controllers
             int _reason = VariableHelper.SaferequestInt(Request.Form["Reason"]);
             int _process_status = VariableHelper.SaferequestInt(Request.Form["ProcessStatus"]);
             int _stock_status = VariableHelper.SaferequestInt(Request.Form["StockStatus"]);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //搜索条件
                 if (!string.IsNullOrEmpty(_orderid))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((ve.OrderNo like {0}) or (ve.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "((ve.OrderNo like {0}) or (ve.SubOrderNo like {0}))", Param = "%" + _orderid + "%" });
                 }
 
                 if (!string.IsNullOrEmpty(_time1))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,ve.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,ve.CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(_time1) });
                 }
 
                 if (!string.IsNullOrEmpty(_time2))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(day,ve.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "datediff(day,ve.CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(_time2) });
                 }
 
                 //默认显示当前账号允许看到的店铺订单
@@ -781,26 +779,26 @@ namespace OMS.App.Controllers
                 {
                     _UserMalls = this.CurrentLoginUser.UserMalls;
                 }
-                _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
+                _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
 
                 if (!string.IsNullOrEmpty(_customer))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(oe.Receive={0} or c.Name={0})", Param = EncryptionBase.EncryptString(_customer) });
                 }
 
                 if (!string.IsNullOrEmpty(_paytype))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "o.PaymentType={0}", Param = _paytype });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "o.PaymentType={0}", Param = _paytype });
                 }
 
                 if (_reason > -1)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.Reason={0}", Param = _reason });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.Reason={0}", Param = _reason });
                 }
 
                 if (_process_status > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.Status={0}", Param = _process_status });
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.Status={0}", Param = _process_status });
                 }
 
                 if (_stock_status > 0)
@@ -808,19 +806,19 @@ namespace OMS.App.Controllers
                     switch (_stock_status)
                     {
                         case 1:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiIsRead={0}", Param = 0 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiIsRead={0}", Param = 0 });
                             break;
                         case 2:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.DealSuccessful });
                             break;
                         case 3:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.DealFail });
                             break;
                         case 4:
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
-                            _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiIsRead={0}", Param = 1 });
+                            _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "ve.ApiStatus={0}", Param = (int)WarehouseStatus.Dealing });
                             break;
                         default:
                             break;
@@ -835,8 +833,8 @@ namespace OMS.App.Controllers
                 dt.Columns.Add(_LanguagePack["goodsexchange_index_receiver"]);
                 dt.Columns.Add(_LanguagePack["goodsexchange_index_sku"]);
                 dt.Columns.Add(_LanguagePack["goodsexchange_index_quantity"]);
-                dt.Columns.Add(_LanguagePack["goodsexchange_index_new_sub_order_number"]);
                 dt.Columns.Add(_LanguagePack["goodsexchange_index_new_sku"]);
+                dt.Columns.Add(_LanguagePack["goodsexchange_index_logistics_message"]);
                 dt.Columns.Add(_LanguagePack["goodsexchange_index_state"]);
                 dt.Columns.Add(_LanguagePack["goodsexchange_index_oper_message"]);
                 dt.Columns.Add(_LanguagePack["goodsexchange_index_stock_reply"]);
@@ -844,7 +842,7 @@ namespace OMS.App.Controllers
 
                 //查询
                 DataRow _dr = null;
-                var _list = db.Fetch<dynamic>("select ve.Id,ve.Status,ve.OrderNo,ve.SubOrderNo,ve.NewSubOrderNo,ve.MallName,ve.AcceptUserId,ve.AcceptUserName,ve.AcceptUserDate,ve.ManualUserID,ve.Quantity,ve.AddUserName,ve.CreateDate,ve.Remark,ve.ApiIsRead,ve.ApiStatus,ve.ApiReplyDate,ve.ApiReplyMsg,o.PaymentType,isnull((select SKU from OrderDetail where OrderDetail.SubOrderNo=ve.SubOrderNo),'') As OldSKU,isnull((select top 1 SKU from OrderDetail where OrderDetail.SubOrderNo=ve.NewSubOrderNo),'') As NewSKU,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderExchange as ve inner join [Order] as o on ve.OrderNo = o.OrderNo inner join OrderReceive as oe on ve.SubOrderNo=oe.SubOrderNo left join Customer as c on o.CustomerNo=c.CustomerNo order by ve.Id desc", _SqlWhere);
+                var _list = this.BaseEntityRepository.SqlQueryGetList<ExchangeOrderQuery>(db, "select ve.Id,ve.OrderNo,ve.SubOrderNo,ve.MallName,ve.NewSku,ve.ShippingNo,ve.Status,ve.Quantity,ve.AcceptUserId,ve.AcceptUserName,ve.AcceptUserDate,ve.AcceptRemark,ve.ManualUserID,ve.AddUserName,ve.CreateDate,ve.Remark,ve.ApiIsRead,ve.ApiStatus,ve.ApiReplyDate,ve.ApiReplyMsg,o.PaymentType,isnull((select SKU from OrderDetail where OrderDetail.SubOrderNo=ve.SubOrderNo),'') As SKU,oe.Receive,isnull(c.Name,'')As CustomerName from View_OrderExchange as ve inner join [Order] as o on ve.OrderNo = o.OrderNo inner join OrderReceive as oe on ve.SubOrderNo=oe.SubOrderNo inner join Customer as c on o.CustomerNo=c.CustomerNo order by ve.Id desc", _sqlWhere);
 
                 foreach (var dy in _list)
                 {
@@ -857,13 +855,13 @@ namespace OMS.App.Controllers
                     _dr[2] = dy.MallName;
                     _dr[3] = dy.CustomerName;
                     _dr[4] = dy.Receive;
-                    _dr[5] = dy.OldSKU;
-                    _dr[6] = dy.Quantity;
-                    _dr[7] = dy.NewSubOrderNo;
-                    _dr[8] = dy.NewSKU;
+                    _dr[5] = dy.SKU;
+                    _dr[6] = dy.NewSku;
+                    _dr[7] = dy.Quantity;
+                    _dr[8] = dy.ShippingNo;
                     _dr[9] = OrderHelper.GetProcessStatusDisplay(dy.Status, false);
                     _dr[10] = string.Format("{0} {1}{2}", dy.AddUserName, dy.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"), (!string.IsNullOrEmpty(dy.Remark)) ? " " + dy.Remark : "");
-                    _dr[11] = OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, false) + ((dy.ApiReplyDate != null) ? " " + dy.ApiReplyDate.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? " " + dy.ApiReplyMsg : "");
+                    _dr[11] = OrderHelper.GetWarehouseStatusDisplay(dy.ApiIsRead, dy.ApiStatus, false) + ((dy.ApiReplyDate != null) ? " " + dy.ApiReplyDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : "") + ((dy.ApiReplyMsg != null) ? " " + dy.ApiReplyMsg : "");
                     _dr[12] = string.Format("{0}", ((dy.AcceptUserDate != null) ? dy.AcceptUserName + " " + VariableHelper.FormateTime(dy.AcceptUserDate, "yyyy-MM-dd HH:mm:ss") : ""));
                     dt.Rows.Add(_dr);
                 }

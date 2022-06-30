@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 using System.Collections.Generic;
 
 using Samsonite.OMS.DTO;
@@ -242,7 +241,7 @@ namespace Samsonite.OMS.Service
                             var objExistCancelOrder = db.OrderCancel.Where(o => o.SubOrderNo == objOrderDetail.SubOrderNo && o.RequestId == objClaim.RequestId).FirstOrDefault();
                             if (objExistCancelOrder == null)
                             {
-                                List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing, (int)ProductStatus.ReceivedGoods };
+                                List<int> objAllowStatus = new List<int>() { (int)ProductStatus.Received, (int)ProductStatus.Processing, (int)ProductStatus.ReceivedGoods, (int)ProductStatus.InDelivery };
                                 if (!objAllowStatus.Contains(objOrderDetail.ProductStatus))
                                 {
                                     throw new Exception($"Sub order No.:{objOrderDetail.SubOrderNo} Status is not correct, it can not be cancel.");
@@ -256,6 +255,7 @@ namespace Samsonite.OMS.Service
                                 }
                                 int _OrgStatus = objOrderDetail.ProductStatus;
                                 bool _IsCOD = (objOrderDetail.PaymentType == (int)PayType.CashOnDelivery);
+                                bool _IsSystemCancel = false;
                                 int _AcceptUserId = 0;
                                 DateTime? _AcceptUserDate = null;
                                 string _AcceptRemark = string.Empty;
@@ -273,6 +273,16 @@ namespace Samsonite.OMS.Service
                                     //根据取消数计算积分和金额
                                     //_RefundPoint=Math.Round(_RefundPoint * objClaim.Quantity / objOrderDetail.Quantity, _AmountAccuracy);
                                     _RefundAmount = Math.Round(_RefundAmount * objClaim.Quantity / objOrderDetail.Quantity, _AmountAccuracy);
+                                }
+                                //判断是否是内部取消
+                                //注:是否处于Received/Processing
+                                if (objOrderDetail.Status == (int)ProductStatus.Received || objOrderDetail.Status == (int)ProductStatus.Processing)
+                                {
+                                    _IsSystemCancel = true;
+                                }
+                                else
+                                {
+                                    _IsSystemCancel = false;
                                 }
                                 int _NewStatus = (int)ProductStatus.Cancel;
                                 //OrderCancel
@@ -299,7 +309,7 @@ namespace Samsonite.OMS.Service
                                     RefundUserId = _RefundUserId,
                                     RefundUserDate = _RefundUserDate,
                                     RefundRemark = _RefundRemark,
-                                    IsSystemCancel = false,
+                                    IsSystemCancel = _IsSystemCancel,
                                     ManualUserId = 0,
                                     ManualUserDate = null,
                                     ManualRemark = string.Empty,
@@ -556,7 +566,7 @@ namespace Samsonite.OMS.Service
                                 OrderNo = objOrderDetail.OrderNo,
                                 SubOrderNo = objOrderDetail.SubOrderNo,
                                 Type = (int)OrderChangeType.Exchange,
-                                DetailTableName = OrderReturnProcessService.TableName,
+                                DetailTableName = OrderExchangeProcessService.TableName,
                                 DetailId = objOrderExchange.Id,
                                 UserId = 0,
                                 Status = 0,
@@ -846,9 +856,7 @@ namespace Samsonite.OMS.Service
                             CreateDate = DateTime.Now
                         });
                         objDB.SaveChanges();
-                        //修改换货记录里面的状态
-                        OrderExchangeProcessService.DeliverySure(objView_OrderDetail.MallSapCode, objView_OrderDetail.OrderNo, objView_OrderDetail.SubOrderNo);
-                        //判断产品是否已经全部收货，如果全部为收货，就设置主订单状态为 Complete
+                        //判断产品是否已经全部收货，如果全部为收货，就设置主订单状态为Complete
                         OrderProcessService.CompleteOrder(objView_OrderDetail.OrderNo);
                     }
                 }

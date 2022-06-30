@@ -23,7 +23,7 @@ namespace Test
             //TestApiMicros.Test();
 
             //---api---
-            //(new TestWebAPI()).TestWarehouse();
+            (new TestWebAPI()).TestWarehouse();
             //(new TestWebAPI()).TestClickCollect();
             //(new TestWebAPI()).TestPlatform();
             //(new TestWebAPI()).TestSagawaGoBack();

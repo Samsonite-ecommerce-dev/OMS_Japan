@@ -2,7 +2,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var _m = Model;
     var _OrderDetail = (Samsonite.OMS.Database.OrderDetail)ViewData["order_detail"];
-    var _OrderReturn = (Samsonite.OMS.Database.OrderReturn)ViewData["order_return"];
 }
 <div class="main">
     <div class="main_edit">
@@ -43,15 +42,15 @@
                         <th>
                             @ViewBag.LanguagePack["goodsexchange_detail_new_sku"]：
                         </th>
-                        <td>
-                            @ViewBag.NewSku
+                        <td colspan="3">
+                            @_m.NewSKU
                         </td>
-                        <th>
+                        @*<th>
                             @ViewBag.LanguagePack["goodsexchange_detail_new_productname"]：
                         </th>
                         <td>
-                            @ViewBag.NewProductName
-                        </td>
+                            
+                        </td>*@
                     </tr>
                     <tr>
                         <th>
@@ -86,17 +85,9 @@
                             @ViewBag.LanguagePack["goodsexchange_detail_receive_logistics"]：
                         </th>
                         <td colspan="3">
-                            <i class="fa fa-archive color_info"></i>@Samsonite.OMS.Service.ExpressCompanyService.GetExpressMessage(_OrderReturn.ShippingCompany, _OrderReturn.ShippingNo)
+                            <i class="fa fa-archive color_info"></i>@Samsonite.OMS.Service.ExpressCompanyService.GetExpressMessage(_m.ShippingCompany, _m.ShippingNo)
                             <br />
-                            <i class="fa fa-truck color_success"></i>@Samsonite.OMS.Service.OrderReceiveService.GetReceiveMessage(new Samsonite.OMS.DTO.ReceiveDto() { Receiver = _OrderReturn.CustomerName, Tel = _OrderReturn.Tel, Mobile = _OrderReturn.Mobile, ZipCode = _OrderReturn.Zipcode, Address = _OrderReturn.Addr })
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            @ViewBag.LanguagePack["goodsexchange_detail_send_logistics"]：
-                        </th>
-                        <td colspan="3">
-                            @Html.Raw(ViewBag.NewOrderDelivery)
+                            <i class="fa fa-truck color_success"></i>@Samsonite.OMS.Service.OrderReceiveService.GetReceiveMessage(new Samsonite.OMS.DTO.ReceiveDto() { Receiver = _m.CustomerName, Tel = _m.Tel, Mobile = _m.Mobile, ZipCode = _m.Zipcode, Address = _m.Addr })
                         </td>
                     </tr>
                     <tr>

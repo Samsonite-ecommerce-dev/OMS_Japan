@@ -22,6 +22,7 @@ namespace Samsonite.OMS.Encryption
             _result.Add(typeof(UserEmployee), typeof(UserEmployeeEncryption));
             _result.Add(typeof(View_OrderModify), typeof(View_OrderModifyEncryption));
             _result.Add(typeof(View_OrderReturn), typeof(View_OrderReturnEncryption));
+            _result.Add(typeof(View_OrderExchange), typeof(View_OrderExchangeEncryption));
             _result.Add(typeof(View_UserEmployee), typeof(View_UserEmployeeEncryption));
             return _result;
         }

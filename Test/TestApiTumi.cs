@@ -49,7 +49,7 @@ namespace Test
 
         public static void Test()
         {
-            ImportDWOrders();
+            //ImportDWOrders();
             //ImportDWClaimOrders();
             //ImportDWProducts();
             //PushDWPrices();
@@ -57,7 +57,7 @@ namespace Test
             //SendInventory();
             //SendPrice();
             //ExpressPickUp();
-            //GetExpressFromPlatform();
+            GetExpressFromPlatform();
             //PosLog();
 
             Console.ReadKey();
@@ -340,13 +340,13 @@ namespace Test
         {
             using (var db = new ebEntities())
             {
-                string _OrderNo = "TUSG00010608";
+                string _OrderNo = "TUSG00010608A";
                 List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();
-                foreach (var _o in objView_OrderDetail_List.Where(p => p.SubOrderNo == "TUSG00010608_1"))
+                foreach (var _o in objView_OrderDetail_List)
                 {
                     if (_o.ProductStatus == (int)ProductStatus.Processing)
                     {
-                        OrderService.OrderStatus_ProcessingToInDelivery(_o, "The express company had picked it up", db);
+                        OrderService.OrderStatus_ProcessingToInDelivery(_o, "The express company had picked it up!", db);
                     }
                 }
                 Console.WriteLine("ok");
@@ -360,13 +360,13 @@ namespace Test
                 TumiAPI objTumiAPI = TumiAPIClient();
                 //objTumiAPI.GetExpressFromPlatform();
 
-                string _OrderNo = "TUSG00010508";
+                string _OrderNo = "TUSG00010608A";
                 List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();
                 foreach (var _o in objView_OrderDetail_List)
                 {
                     if (_o.ProductStatus == (int)ProductStatus.InDelivery)
                     {
-                        OrderService.OrderStatus_InDeliveryToDelivered(_o, "", db);
+                        OrderService.OrderStatus_InDeliveryToDelivered(_o, "The customer had receive the goods!", db);
                     }
                 }
                 Console.WriteLine("ok");

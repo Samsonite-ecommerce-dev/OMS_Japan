@@ -352,6 +352,58 @@ namespace Samsonite.OMS.DTO
         public string CustomerName { get; set; }
     }
 
+    public class ExchangeOrderQuery
+    {
+        public Int64 Id { get; set; }
+
+        public string OrderNo { get; set; }
+
+        public string SubOrderNo { get; set; }
+
+        public string MallName { get; set; }
+
+        public string NewSku { get; set; }
+
+        public string ShippingNo { get; set; }
+
+        public int Status { get; set; }
+
+        public int Quantity { get; set; }
+
+        public int AcceptUserId { get; set; }
+
+        public string AcceptUserName { get; set; }
+
+        public DateTime? AcceptUserDate { get; set; }
+
+        public string AcceptRemark { get; set; }
+
+        public int ManualUserID { get; set; }
+
+        public string AddUserName { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public string Remark { get; set; }
+
+
+        public int ApiStatus { get; set; }
+
+        public bool ApiIsRead { get; set; }
+
+        public DateTime? ApiReplyDate { get; set; }
+
+        public string ApiReplyMsg { get; set; }
+
+        public string SKU { get; set; }
+
+        public int PaymentType { get; set; }
+
+        public string Receive { get; set; }
+
+        public string CustomerName { get; set; }
+    }
+
     public class RejectOrderQuery
     {
         public Int64 Id { get; set; }

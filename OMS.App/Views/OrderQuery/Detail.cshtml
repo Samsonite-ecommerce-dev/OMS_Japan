@@ -304,13 +304,16 @@
                                         <tr>
                                             <th>@ViewBag.LanguagePack["orderquery_detail_delivery_change_url"]</th>
                                             <td colspan="5">
-                                                @if (_Delivery.DeliveryChangeUrl.IndexOf("http") > -1)
+                                                @if (!string.IsNullOrEmpty(_Delivery.DeliveryChangeUrl))
                                                 {
-                                                    <a href="@_Delivery.DeliveryChangeUrl" class="href-blue-line" target="_blank">@_Delivery.DeliveryChangeUrl</a>
-                                                }
-                                                else
-                                                {
-                                                    @_Delivery.DeliveryChangeUrl;
+                                                    if (_Delivery.DeliveryChangeUrl.IndexOf("http") > -1)
+                                                    {
+                                                        <a href="@_Delivery.DeliveryChangeUrl" class="href-blue-line" target="_blank">@_Delivery.DeliveryChangeUrl</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        @_Delivery.DeliveryChangeUrl;
+                                                    }
                                                 }
                                             </td>
                                         </tr>

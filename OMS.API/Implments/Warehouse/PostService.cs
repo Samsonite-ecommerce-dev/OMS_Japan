@@ -178,6 +178,7 @@ namespace OMS.API.Implments.Warehouse
                         ExpressStatus = 0,
                         ExpressMsg = string.Empty,
                         Remark = string.Empty,
+                        DeliveryChangeUrl = string.Empty,
                         //默认都不需要在推送状态
                         IsNeedPush = false
                     };
@@ -565,6 +566,8 @@ namespace OMS.API.Implments.Warehouse
                     else if (item.Type == (int)ReplyType.Exchange)
                     {
                         //如果回复处理中/成功/失败,则进行操作
+                        var _WHResponse = OrderExchangeProcessService.WHResponse(objOrderChangeRecord.DetailId, item.ReplyState, VariableHelper.SaferequestTime(item.ReplyDate), item.Message, db);
+                        if (!Convert.ToBoolean(_WHResponse[0])) throw new Exception(_WHResponse[1].ToString());
                     }
                     else if (item.Type == (int)ReplyType.Return)
                     {

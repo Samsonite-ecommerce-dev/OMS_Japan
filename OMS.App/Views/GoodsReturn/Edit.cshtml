@@ -2,7 +2,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     var _m = Model;
     var _OrderDetail = (Samsonite.OMS.Database.View_OrderDetail)ViewData["order_detail"];
-    var _CollectTypeList = (List<object[]>)ViewData["collecttype_list"];
     var _ReasonList = (List<object[]>)ViewData["reason_list"];
     var _ExpressList = (List<Samsonite.OMS.Database.ExpressCompany>)ViewData["express_list"];
     int _Effect_Quantity = Samsonite.Utility.Common.VariableHelper.SaferequestPositiveInt(_OrderDetail.Quantity - _OrderDetail.CancelQuantity - _OrderDetail.ReturnQuantity - _OrderDetail.ExchangeQuantity - _OrderDetail.RejectQuantity);

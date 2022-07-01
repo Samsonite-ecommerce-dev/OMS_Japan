@@ -1459,8 +1459,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
             SagawaExtend objSagawaExtend = new SagawaExtend();
             //普通订单
             _result.ResultData.AddRange(objSagawaExtend.GetExpress(this.MallSapCode, TumiConfig.timeAgo).ResultData);
-            ////换货订单
-            //_result.ResultData.AddRange(objSagawaExtend.GetExpress_ExChangeNewOrder(this.MallSapCode, TumiConfig.timeAgo).ResultData);
             return _result;
         }
 

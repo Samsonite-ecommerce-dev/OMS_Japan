@@ -67,10 +67,11 @@ namespace Samsonite.OMS.ECommerce.Japan
             {
                 int pageSize = 20;
                 //读取最近一定天数的订单
-                //过滤换货新订单和套装原始订单(因为状态是InDelivery,所以此处其实读取不到套装原始订单) 
-                DateTime _time = DateTime.Now.AddDays(objTimeAgo);
-                var objView_OrderDetail_Delivery_List = (from a in db.View_OrderDetail.Where(p => p.MallSapCode == objMallSapCode && p.ProductStatus == (int)ProductStatus.InDelivery && !(p.IsSet && p.IsSetOrigin) && !p.IsExchangeNew && p.OrderTime >= _time)
-                                                         join b in db.Deliverys on a.SubOrderNo equals b.SubOrderNo
+                //过滤掉没有上传快递号的订单
+                DateTime _time = DateTime.Now.AddDays(-300);
+                var allowStatus = new List<int>() { (int)ProductStatus.Processing, (int)ProductStatus.InDelivery };
+                var objView_OrderDetail_Delivery_List = (from a in db.View_OrderDetail.Where(p => p.MallSapCode == objMallSapCode && allowStatus.Contains(p.ProductStatus) && !(p.IsSet && p.IsSetOrigin) && !p.IsExchangeNew && p.OrderTime >= _time)
+                                                         join b in db.Deliverys.Where(p => !string.IsNullOrEmpty(p.InvoiceNo)) on a.SubOrderNo equals b.SubOrderNo
                                                          select new
                                                          {
                                                              detail = a,
@@ -109,14 +110,21 @@ namespace Samsonite.OMS.ECommerce.Japan
                                 var expressStatus = this.ParseExpressStatus(express.CurrentInfo.Status);
                                 var tmpDeliverys = orderDetail_DeliveryTmp.Where(b => b.deliverys.InvoiceNo == expressNo).ToList();
                                 //存储具体物流信息
-                                var historyInfos = from histoty in express.HistoryInfos
+                                var historyInfos = from histoty in express.HistoryInfos.OrderByDescending(p => p.Date)
                                                    select new
                                                    {
-                                                       trace = $"{DateTime.ParseExact(histoty.Date, "ddMMyyyy", System.Globalization.CultureInfo.InvariantCulture).ToShortDateString()} {histoty.Message} {histoty.Status}",
+                                                       trace = $"{DateTime.ParseExact(histoty.Date, "yyyyMMddHHmm", System.Globalization.CultureInfo.InvariantCulture).ToString("yyyy-MM-dd HH:mm")} {histoty.Message} {histoty.Status}",
                                                    };
-                                var expressMsg = string.Format("<br/>", historyInfos.Select(p => p.trace));
+                                var expressMsg = string.Join("<br/>", historyInfos.Select(p => p.trace));
+                                //写入快递信息
                                 foreach (var item in tmpDeliverys)
                                 {
+                                    //如果状态是Processing,则在获取到快递信息之后,设置状态为InDelivery
+                                    if (item.detail.ProductStatus == (int)ProductStatus.Processing)
+                                    {
+                                        OrderService.OrderStatus_ProcessingToInDelivery(item.detail, "The express company had picked it up!", db);
+                                    }
+
                                     //更新信息
                                     var changeData = $"{SagawaConfig.ChangeUrl}{express.HaiyoInfo.HenkData}";
                                     db.Database.ExecuteSqlCommand("update Deliverys set ExpressStatus={1},ExpressMsg={2},DeliveryChangeUrl={3} where Id={0}", item.deliverys.Id, expressStatus, expressMsg, changeData);
@@ -126,6 +134,7 @@ namespace Samsonite.OMS.ECommerce.Japan
                                     {
                                         OrderService.OrderStatus_InDeliveryToDelivered(item.detail, "Get the Express Status from Sagawa", db);
                                     }
+
                                     //派送失败
                                     if (expressStatus == ExpressStatus.ReturnSigned)
                                     {

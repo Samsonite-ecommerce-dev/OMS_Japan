@@ -565,7 +565,7 @@ namespace OMS.App.Helper
             _result.Add(new DefineEnum() { ID = (int)ExpressStatus.PendingPickUp, Display = _LanguagePack["common_expressstatus_p0"], Css = "color_primary" });
             _result.Add(new DefineEnum() { ID = (int)ExpressStatus.PickedUp, Display = _LanguagePack["common_expressstatus_p1"], Css = "color_primary" });
             _result.Add(new DefineEnum() { ID = (int)ExpressStatus.InTransit, Display = _LanguagePack["common_expressstatus_p2"], Css = "color_info" });
-            //_result.Add(new DefineEnum() { ID = (int)ExpressStatus.OutForDelivery, Display = _LanguagePack["common_expressstatus_p3"], Css = "color_info" });
+            _result.Add(new DefineEnum() { ID = (int)ExpressStatus.OutForDelivery, Display = _LanguagePack["common_expressstatus_p3"], Css = "color_info" });
             _result.Add(new DefineEnum() { ID = (int)ExpressStatus.Signed, Display = _LanguagePack["common_expressstatus_p4"], Css = "color_success" });
             _result.Add(new DefineEnum() { ID = (int)ExpressStatus.RepeatSend, Display = _LanguagePack["common_expressstatus_p5"], Css = "color_warning" });
             _result.Add(new DefineEnum() { ID = (int)ExpressStatus.Return, Display = _LanguagePack["common_expressstatus_p6"], Css = "color_warning" });

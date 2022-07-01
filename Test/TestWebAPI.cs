@@ -34,8 +34,8 @@ namespace Test
         public TestWebAPI()
         {
             //测试
-            this.localSite = "http://127.0.0.1:8095";
-            //this.localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
+            //this.localSite = "http://127.0.0.1:8095";
+            this.localSite = "https://tumi-jpomsapitest.samsonite-asia.com";
             //正式
             //this.localSite = "https://tumi-jpomsapi.samsonite-asia.com";
 
@@ -189,12 +189,12 @@ namespace Test
                 new PostDeliverysRequest
                 {
                     MallCode="1197417",
-                    OrderNo = "TUSG00010608A",
-                    SubOrderNo="TUSG00010608A_1",
+                    OrderNo = "TUSG00010608B",
+                    SubOrderNo="TUSG00010608B_1",
                     Sku="",
                     DeliveryCode="",
                     Company="SAGAWA EXPRESS",
-                    DeliveryNo="609472272771",
+                    DeliveryNo="619472272771",
                     Packages=1,
                     Type="",
                     ReceiveCost=0,
@@ -206,12 +206,12 @@ namespace Test
                 new PostDeliverysRequest
                 {
                     MallCode="1197417",
-                    OrderNo = "TUSG00010608A",
-                    SubOrderNo="TUSG00010608A_2",
+                    OrderNo = "TUSG00010608B",
+                    SubOrderNo="TUSG00010608B_2",
                     Sku="",
                     DeliveryCode="",
                     Company="SAGAWA EXPRESS",
-                    DeliveryNo="609472272772",
+                    DeliveryNo="619472272772",
                     Packages=1,
                     Type="",
                     ReceiveCost=0,
@@ -223,12 +223,12 @@ namespace Test
                 new PostDeliverysRequest
                 {
                     MallCode="1197417",
-                    OrderNo = "TUSG00010608A",
-                    SubOrderNo="TUSG00010608A_3",
+                    OrderNo = "TUSG00010608B",
+                    SubOrderNo="TUSG00010608B_3",
                     Sku="",
                     DeliveryCode="",
                     Company="SAGAWA EXPRESS",
-                    DeliveryNo="609472272773",
+                    DeliveryNo="619472272773",
                     Packages=1,
                     Type="",
                     ReceiveCost=0,
@@ -257,8 +257,8 @@ namespace Test
             //    new PostReplyRequest()
             //    {
             //        MallCode="1197417",
-            //        OrderNo = "TUSG00010608A",
-            //        SubOrderNo="TUSG00010608A_1",
+            //        OrderNo = "TUSG00010608B",
+            //        SubOrderNo="TUSG00010608B_1",
             //        Type=0,
             //        ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
             //        ReplyState=(int)WarehouseStatus.DealSuccessful,
@@ -267,8 +267,8 @@ namespace Test
             //    new PostReplyRequest()
             //    {
             //        MallCode="1197417",
-            //        OrderNo = "TUSG00010608A",
-            //        SubOrderNo="TUSG00010608A_2",
+            //        OrderNo = "TUSG00010608B",
+            //        SubOrderNo="TUSG00010608B_2",
             //        Type=0,
             //        ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
             //        ReplyState=(int)WarehouseStatus.DealSuccessful,
@@ -277,8 +277,8 @@ namespace Test
             //    new PostReplyRequest()
             //    {
             //        MallCode="1197417",
-            //        OrderNo = "TUSG00010608A",
-            //        SubOrderNo="TUSG00010608A_3",
+            //        OrderNo = "TUSG00010608B",
+            //        SubOrderNo="TUSG00010608B_3",
             //        Type=0,
             //        ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
             //        ReplyState=(int)WarehouseStatus.DealSuccessful,
@@ -352,12 +352,12 @@ namespace Test
                 {
                     mallCode = "1197417",
                     orderNo = "TUSG00010608A",
-                    subOrderNo="TUSG00010608A_1",
+                    subOrderNo="TUSG00010608A_3",
                     type=(int)OrderChangeType.Exchange,
                     replyDate="",
-                    replyState=(int)WarehouseStatus.DealSuccessful,
-                    message="Successful...",
-                    recordId=11288
+                    replyState=(int)WarehouseStatus.DealFail,
+                    message="Fail...",
+                    recordId=11291
                 }
             };
 

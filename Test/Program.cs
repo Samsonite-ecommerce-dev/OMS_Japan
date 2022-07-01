@@ -23,7 +23,7 @@ namespace Test
             //TestApiMicros.Test();
 
             //---api---
-            (new TestWebAPI()).TestWarehouse();
+            //(new TestWebAPI()).TestWarehouse();
             //(new TestWebAPI()).TestClickCollect();
             //(new TestWebAPI()).TestPlatform();
             //(new TestWebAPI()).TestSagawaGoBack();
@@ -62,16 +62,20 @@ namespace Test
             ////不显示无效的订单
             //_sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsDelete={0}", Param = 0 });
 
-            EntityRepository entityRepository = new EntityRepository();
-            using (var db = new ebEntities())
-            {
-                var _list = entityRepository.SqlQueryGetPage<CancelOrderQuery>(db, "select vc.Id,vc.OrderNo,vc.SubOrderNo,vc.MallName,vc.RefundAmount,vc.RefundPoint,vc.RefundExpress,vc.Remark,vc.AddUserName,vc.ManualUserID,vc.CreateDate,vc.AcceptUserDate,vc.AcceptUserName,vc.RefundUserName,vc.ApiIsRead,vc.Quantity as CancelQuantity,vc.[Status],vc.[Type],vc.IsSystemCancel,vc.ApiReplyDate,vc.ApiReplyMsg,vc.RefundUserDate,vc.RefundRemark,vc.IsDelete,vc.ApiStatus,od.SKU,od.ProductName,od.PaymentType,oe.Receive,isnull(c.Name,'') As CustomerName from View_OrderCancel as vc inner join View_OrderDetail as od on vc.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vc.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vc.Id desc", _sqlWhere, 1,10);
-                Console.WriteLine(_list.TotalItems);
-                foreach (var item in _list.Items)
-                {
-                    Console.WriteLine(item.OrderNo);
-                }
-            }
+            //EntityRepository entityRepository = new EntityRepository();
+            //using (var db = new ebEntities())
+            //{
+            //    var _list = entityRepository.SqlQueryGetPage<CancelOrderQuery>(db, "select vc.Id,vc.OrderNo,vc.SubOrderNo,vc.MallName,vc.RefundAmount,vc.RefundPoint,vc.RefundExpress,vc.Remark,vc.AddUserName,vc.ManualUserID,vc.CreateDate,vc.AcceptUserDate,vc.AcceptUserName,vc.RefundUserName,vc.ApiIsRead,vc.Quantity as CancelQuantity,vc.[Status],vc.[Type],vc.IsSystemCancel,vc.ApiReplyDate,vc.ApiReplyMsg,vc.RefundUserDate,vc.RefundRemark,vc.IsDelete,vc.ApiStatus,od.SKU,od.ProductName,od.PaymentType,oe.Receive,isnull(c.Name,'') As CustomerName from View_OrderCancel as vc inner join View_OrderDetail as od on vc.SubOrderNo=od.SubOrderNo inner join OrderReceive as oe on vc.SubOrderNo=oe.SubOrderNo inner join Customer as c on od.CustomerNo=c.CustomerNo order by vc.Id desc", _sqlWhere, 1,10);
+            //    Console.WriteLine(_list.TotalItems);
+            //    foreach (var item in _list.Items)
+            //    {
+            //        Console.WriteLine(item.OrderNo);
+            //    }
+            //}
+
+            string xx = "202206011123";
+            var y=DateTime.ParseExact(xx, "yyyyMMddHHmm", System.Globalization.CultureInfo.InvariantCulture).ToString("yyyy-MM-dd HH:mm");
+            Console.WriteLine(y);
         }
 
         private static void ServicetTest()

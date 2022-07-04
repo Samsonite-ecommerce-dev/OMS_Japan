@@ -31,9 +31,9 @@ namespace Samsonite.OMS.DTO
         /// </summary>
         Modify = 4,
 
-        /// <summary>
-        /// 表示需要发货的新订单
-        /// </summary>
-        NewOrder = 9
+        ///// <summary>
+        ///// 表示需要发货的新订单
+        ///// </summary>
+        //NewOrder = 9
     }
 }

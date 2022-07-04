@@ -60,7 +60,6 @@ namespace Samsonite.OMS.Service
         public static DeliveryDto SaveDeliverys(Deliverys item, string deliveryCode, string remark)
         {
             DeliveryDto resultObj = new DeliveryDto();
-
             using (var db = new ebEntities())
             {
                 try
@@ -207,6 +206,42 @@ namespace Samsonite.OMS.Service
                 }
             }
         }
-        #endregion
+
+        /// <summary>
+        /// 保存换货订单快递号
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="deliveryCode"></param>
+        /// <param name="remark"></param>
+        /// <returns></returns>
+        public static DeliveryDto SaveExchangeDeliverys(Deliverys item, string deliveryCode, string remark)
+        {
+            DeliveryDto resultObj = new DeliveryDto();
+            using (var db = new ebEntities())
+            {
+                try
+                {
+                    var objOrderExchange = db.OrderExchange.Where(p => p.MallSapCode == item.MallSapCode && p.OrderNo == item.OrderNo && p.SubOrderNo == item.SubOrderNo && p.Status != (int)ProcessStatus.Delete).OrderByDescending(p => p.Id).FirstOrDefault();
+                    if (objOrderExchange != null)
+                    {
+                        objOrderExchange.ShippingCompany = item.ExpressName;
+                        objOrderExchange.ShippingNo = item.InvoiceNo;
+                        db.SaveChanges();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    resultObj.Result = false;
+                    resultObj.ResultMsg = ex.Message;
+                    resultObj.MallSapCode = item.MallSapCode;
+                    resultObj.OrderNo = item.OrderNo;
+                    resultObj.SubOrderNo = item.SubOrderNo;
+                    resultObj.DeliveryName = item.ExpressName;
+                    resultObj.DeliveryInvoice = item.InvoiceNo;
+                }
+            }
+            return resultObj;
+            #endregion
+        }
     }
 }

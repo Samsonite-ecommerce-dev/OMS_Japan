@@ -115,6 +115,7 @@ namespace OMS.API.Implments.Warehouse
                 item.MallCode = VariableHelper.SaferequestStr(item.MallCode);
                 item.OrderNo = VariableHelper.SaferequestStr(item.OrderNo);
                 item.SubOrderNo = VariableHelper.SaferequestStr(item.SubOrderNo);
+                item.DeliveryType = VariableHelper.SaferequestInt(item.DeliveryType);
                 item.Company = VariableHelper.SaferequestStr(item.Company);
                 item.DeliveryNo = VariableHelper.SaferequestStr(item.DeliveryNo);
                 item.Type = VariableHelper.SaferequestStr(item.Type);
@@ -159,6 +160,7 @@ namespace OMS.API.Implments.Warehouse
                     {
                         throw new Exception("Please input a Delivery Invoice!");
                     }
+
                     //保存快递信息
                     Deliverys objDeliverys = new Deliverys()
                     {
@@ -182,8 +184,21 @@ namespace OMS.API.Implments.Warehouse
                         //默认都不需要在推送状态
                         IsNeedPush = false
                     };
+
                     //保存快递信息
-                    DeliveryDto objDeliveryDto = DeliveryService.SaveDeliverys(objDeliverys, item.DeliveryCode, "WMS post the Delivery");
+                    DeliveryDto objDeliveryDto = new DeliveryDto();
+                    //如果是换货订单的快递号
+                    if (item.DeliveryType == (int)OrderChangeType.Exchange)
+                    {
+                        //保存换货订单快递信息
+                        objDeliveryDto = DeliveryService.SaveExchangeDeliverys(objDeliverys, item.DeliveryCode, "WMS post the Delivery");
+                    }
+                    else
+                    {
+
+                        //保存普通订单快递信息
+                        objDeliveryDto = DeliveryService.SaveDeliverys(objDeliverys, item.DeliveryCode, "WMS post the Delivery");
+                    }
                     _result.Add(new PostDeliverysResponse()
                     {
                         Result = objDeliveryDto.Result,

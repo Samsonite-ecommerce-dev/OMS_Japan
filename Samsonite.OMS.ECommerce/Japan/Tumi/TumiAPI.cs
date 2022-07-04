@@ -15,6 +15,7 @@ using Samsonite.OMS.ECommerce.Dto;
 using Samsonite.OMS.ECommerce.Result;
 using Samsonite.OMS.Encryption;
 using Newtonsoft.Json;
+using System.Data.Entity.SqlServer;
 
 namespace Samsonite.OMS.ECommerce.Japan.Tumi
 {
@@ -932,7 +933,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
             _result.FailData = new List<DwOrderDetailDto>();
 
             StringBuilder objBuilder = new StringBuilder();
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 objBuilder.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
                 objBuilder.AppendLine("<orders xmlns=\"http://www.demandware.com/xml/impex/order/2006-10-31\">");
@@ -961,12 +962,12 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
 
                         foreach (var detail in dto.Details)
                         {
-                            //套装信息
-                            List<dynamic> objSet_List = new List<dynamic>();
-                            if (detail.IsSet)
-                            {
-                                objSet_List = db.Fetch<dynamic>("select od.SKU,od.Quantity,p.MallProductId,p.GroupDesc from OrderDetail as od inner join Product as p on  od.SKU = p.SKU where OrderNo = @0 and od.IsSet = 1 and od.IsSetOrigin = 0", detail.OrderNo);
-                            }
+                            ////套装信息
+                            //List<dynamic> objSet_List = new List<dynamic>();
+                            //if (detail.IsSet)
+                            //{
+                            //    objSet_List = db.Fetch<dynamic>("select od.SKU,od.Quantity,p.MallProductId,p.GroupDesc from OrderDetail as od inner join Product as p on  od.SKU = p.SKU where OrderNo = @0 and od.IsSet = 1 and od.IsSetOrigin = 0", detail.OrderNo);
+                            //}
                             //快递号
                             string _trackingNumber = string.Empty;
                             string _delivery_date = string.Empty;
@@ -1008,7 +1009,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                                 //如果是套装
                                 if (detail.IsSet)
                                 {
-                                    List<OrderCancel> objCancels = db.Fetch<OrderCancel>($"select * from OrderCancel where OrderNo=@0 and SubOrderNo like '{detail.SubOrderNo}%' and Status!=@1", detail.OrderNo, (int)ProcessStatus.Delete);
+                                    List<OrderCancel> objCancels = db.OrderCancel.Where(p => p.OrderNo == detail.OrderNo && p.SubOrderNo.Contains(detail.SubOrderNo) && p.Status != (int)ProcessStatus.Delete).ToList();
                                     List<string> objRequestIDs = objCancels.GroupBy(p => p.RequestId).Select(o => o.Key).ToList();
                                     foreach (var _o in objRequestIDs)
                                     {
@@ -1025,7 +1026,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                                 }
                                 else
                                 {
-                                    objOrderCancel_List = db.Fetch<OrderCancel>("select * from OrderCancel where SubOrderNo=@0 and Status!=@1", detail.SubOrderNo, (int)ProcessStatus.Delete);
+                                    objOrderCancel_List = db.OrderCancel.Where(p => p.SubOrderNo == detail.SubOrderNo && p.Status != (int)ProcessStatus.Delete).ToList();
                                 }
                                 //循环多次请求
                                 foreach (var _cancel in objOrderCancel_List)
@@ -1059,7 +1060,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                                 //如果是套装
                                 if (detail.IsSet)
                                 {
-                                    List<OrderReturn> objReturns = db.Fetch<OrderReturn>($"select * from OrderReturn where OrderNo=@0 and IsFromExchange=0 and SubOrderNo like '{detail.SubOrderNo}%' and Status!=@1", detail.OrderNo, (int)ProcessStatus.Delete);
+                                    List<OrderReturn> objReturns = db.OrderReturn.Where(p => p.OrderNo == detail.OrderNo && !p.IsFromExchange && p.SubOrderNo.Contains(detail.SubOrderNo) && p.Status != (int)ProcessStatus.Delete).ToList();
                                     List<string> objRequestIDs = objReturns.GroupBy(p => p.RequestId).Select(o => o.Key).ToList();
                                     foreach (var _o in objRequestIDs)
                                     {
@@ -1076,7 +1077,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                                 }
                                 else
                                 {
-                                    objOrderReturn_List = db.Fetch<OrderReturn>("select * from OrderReturn where SubOrderNo=@0 and IsFromExchange=0 and Status!=@1", detail.SubOrderNo, (int)ProcessStatus.Delete);
+                                    objOrderReturn_List = db.OrderReturn.Where(p => p.SubOrderNo == detail.SubOrderNo && !p.IsFromExchange && p.Status != (int)ProcessStatus.Delete).ToList();
                                 }
                                 //循环多次请求
                                 foreach (var _return in objOrderReturn_List)
@@ -1113,11 +1114,11 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                             //**********exchange Status**********
                             if (detail.ExchangeQuantity > 0)
                             {
-                                List<dynamic> objOrderExchange_List = new List<dynamic>();
+                                List<OrderExchange> objOrderExchange_List = new List<OrderExchange>();
                                 //如果是套装
                                 if (detail.IsSet)
                                 {
-                                    List<dynamic> objExchanges = db.Fetch<dynamic>($"select RequestId,CustomerName,Tel,Addr,CollectionType,OrderExchange.Reason,OrderExchange.Remark,OrderExchange.NewSubOrderNo,OrderExchange.Quantity,OrderExchange.Status from OrderExchange inner join View_OrderReturn on OrderExchange.ReturnDetailId=View_OrderReturn.ChangeID where OrderExchange.OrderNo=@0 and OrderExchange.SubOrderNo like'{detail.SubOrderNo}%' and View_OrderReturn.Status!=@1 and OrderExchange.Status!=@1 and View_OrderReturn.IsFromExchange=1", detail.OrderNo, (int)ProcessStatus.Delete);
+                                    List<OrderExchange> objExchanges = db.OrderExchange.Where(p => p.OrderNo == detail.OrderNo && p.SubOrderNo.Contains(detail.SubOrderNo) && p.Status != (int)ProcessStatus.Delete).ToList();
                                     List<string> objRequestIDs = objExchanges.GroupBy(p => (string)p.RequestId).Select(o => o.Key).ToList();
                                     foreach (var _o in objRequestIDs)
                                     {
@@ -1128,18 +1129,14 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                                 }
                                 else
                                 {
-                                    objOrderExchange_List = db.Fetch<dynamic>($"select RequestId,CustomerName,Tel,Addr,CollectionType,OrderExchange.Reason,OrderExchange.Remark,OrderExchange.NewSubOrderNo,OrderExchange.Quantity,OrderExchange.[Status] from OrderExchange inner join View_OrderReturn on OrderExchange.ReturnDetailId=View_OrderReturn.ChangeID where OrderExchange.SubOrderNo=@0 and View_OrderReturn.Status!=@1 and OrderExchange.Status!=@1 and View_OrderReturn.IsFromExchange=1", detail.SubOrderNo, (int)ProcessStatus.Delete);
+                                    objOrderExchange_List = db.OrderExchange.Where(p => p.OrderNo == detail.SubOrderNo && p.Status != (int)ProcessStatus.Delete).ToList();
                                 }
                                 //循环多次请求
                                 foreach (var _exchange in objOrderExchange_List)
                                 {
                                     //读取新发货的快递号
-                                    var objNewDeliverys = dto.Deliveryes.Where(p => p.SubOrderNo == _exchange.NewSubOrderNo).FirstOrDefault();
-                                    if (objNewDeliverys != null)
-                                    {
-                                        _trackingNumber = (!string.IsNullOrEmpty(objNewDeliverys.InvoiceNo)) ? objNewDeliverys.InvoiceNo : "";
-                                        _delivery_date = (objNewDeliverys.DeliveryDate != null) ? objNewDeliverys.DeliveryDate : "";
-                                    }
+                                    _trackingNumber = (!string.IsNullOrEmpty(_exchange.ShippingNo)) ? _exchange.ShippingNo : "";
+                                    //_delivery_date = (OrderExchange.DeliveryDate != null) ? OrderExchange.DeliveryDate : "";
                                     //换货
                                     xmlBuilder.AppendLine("<product-lineitem>");
                                     xmlBuilder.AppendLine($"<request-id>{(!string.IsNullOrEmpty(_exchange.RequestId) ? _exchange.RequestId : "")}</request-id>");
@@ -1822,16 +1819,16 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
             CommonResult<DetailResult> _result = new CommonResult<DetailResult>();
             List<DwOrderDetailDto> orderDtos = new List<DwOrderDetailDto>();
             //读取需要推送的产品信息
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 try
                 {
                     //显示已经被WMS处理过的订单
-                    var orders = db.Fetch<Order>("select * from [order] where (select count(*) from OrderDetail where OrderDetail.OrderId=[order].Id and datediff(minute,@0,OrderDetail.EditDate)>=0 and datediff(minute,@1,OrderDetail.EditDate)<=0 and IsDelete=0 and Status!=@2) >0 and [Order].MallSapCode=@3", objStartTime.ToString("yyyy-MM-dd HH:mm:ss"), objEndTime.ToString("yyyy-MM-dd HH:mm:ss"), (int)ProductStatus.Modify, this.MallSapCode);
+                    var orders = db.Order.Where(p => db.OrderDetail.Where(o => o.OrderId == p.Id && SqlFunctions.DateDiff("minute", objStartTime, o.EditDate) >= 0 && SqlFunctions.DateDiff("minute", objEndTime, o.EditDate) <= 0 && !o.IsDelete && o.Status != (int)ProductStatus.Modify).Any() && p.MallSapCode == this.MallSapCode).ToList();
                     foreach (var order in orders)
                     {
                         //过滤换货新订单
-                        List<OrderDetail> objOrderDetails = db.Fetch<OrderDetail>($"select * from [dbo].[OrderDetail] where orderId = {order.Id} and IsExchangeNew=0");
+                        List<OrderDetail> objOrderDetails = db.OrderDetail.Where(p => p.OrderId == order.Id && !p.IsExchangeNew).ToList();
                         //发送数据
                         DwOrderDetailDto dto = new DwOrderDetailDto { Order = order };
                         foreach (var _detail in objOrderDetails)
@@ -1854,24 +1851,24 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                         }
 
                         //收货信息
-                        dto.Receive = db.Fetch<OrderReceive>($"select * from OrderReceive where orderNo=@0", order.OrderNo);
+                        dto.Receive = db.OrderReceive.Where(p => p.OrderId == order.Id).ToList();
                         //解密相关字段信息
                         foreach (var item in dto.Receive)
                         {
                             EncryptionFactory.Create(item).Decrypt();
                         }
                         //客户信息
-                        dto.Customer = db.SingleOrDefault<Database.Customer>($"select top 1 * from Customer where CustomerNo=@0", order.CustomerNo);
+                        dto.Customer = db.Customer.Where(p => p.CustomerNo == order.CustomerNo).SingleOrDefault();
                         //解密相关字段信息
                         EncryptionFactory.Create(dto.Customer).Decrypt();
 
                         //赠品
-                        dto.Gifts = db.Fetch<OrderGift>($"select * from OrderGift where orderNo=@0", order.OrderNo);
+                        dto.Gifts = db.OrderGift.Where(p => p.OrderNo == order.OrderNo).ToList();
                         //快递信息
-                        dto.Deliveryes = db.Fetch<Deliverys>($"select * from Deliverys where orderNo=@0", order.OrderNo);
-                        dto.Payment = db.Fetch<OrderPayment>($"select * from OrderPayment where orderNo=@0", order.OrderNo);
-                        dto.PaymentGift = db.Fetch<OrderPaymentGift>($"select * from OrderPaymentGift where orderNo=@0", order.OrderNo);
-                        dto.DetailAdjustment = db.Fetch<OrderDetailAdjustment>($"select * from OrderDetailAdjustment where orderNo=@0", order.OrderNo);
+                        dto.Deliveryes = db.Deliverys.Where(p => p.OrderNo == order.OrderNo).ToList();
+                        dto.Payment = db.OrderPayment.Where(p => p.OrderNo == order.OrderNo).ToList();
+                        dto.PaymentGift = db.OrderPaymentGift.Where(p => p.OrderNo == order.OrderNo).ToList();
+                        dto.DetailAdjustment = db.OrderDetailAdjustment.Where(p => p.OrderNo == order.OrderNo).ToList();
                         orderDtos.Add(dto);
                     }
                     //如果存在需要推送的价格信息

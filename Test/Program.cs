@@ -19,7 +19,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            //TestApiTumi.Test();
+            TestApiTumi.Test();
             //TestApiMicros.Test();
 
             //---api---
@@ -140,7 +140,15 @@ namespace Test
                         new RegDeliveryRequest()
                         {
                             ExpressNo = "980000000766"
-                        }
+                        },
+                        //new RegDeliveryRequest()
+                        //{
+                        //    ExpressNo = "1234567"
+                        //},
+                        //new RegDeliveryRequest()
+                        //{
+                        //    ExpressNo = "22222222"
+                        //}
                     },
                     Url = $"https://tumi-jpomstest.samsonite-asia.com/{SagawaConfig.GoBackUrl}",
                     ApiKey = SagawaConfig.GoBackToken
@@ -149,39 +157,12 @@ namespace Test
             var req = defaultClient.Execute(_req);
             if (!req.ResultCode.Equals("0") || !req.ResultCode.Equals("2"))
             {
-                Console.WriteLine(req.Expresses[0].ExpressNo + "|" + req.Expresses[0].Message);
+                Console.WriteLine(req.ErrExpresses[0].ExpressNo + "|" + req.ErrExpresses[0].Message);
             }
             else
             {
                 Console.WriteLine($"{req.ErrorInfo.Code}:{req.ErrorInfo.Message}");
             }
-        }
-
-        private static void TestRemote()
-        {
-            //20190728.wmv
-            //20191123.wmv
-
-            //20200323.wmv
-            //20200324.wmv
-            //20200325.wmv
-            //20201011.wmv
-            //20201227.wmv
-
-            string url = "http://xxx";
-            DateTime beginDate = Convert.ToDateTime("2021-01-01");
-            DateTime endDate = Convert.ToDateTime("2021-12-31");
-            for (var i = beginDate; i <= endDate; i = i.AddDays(1))
-            {
-                var tmpUrl = $"{url}/{i.ToString("yyyyMMdd")}.wmv";
-                var isExists = RemoteIsExist(tmpUrl);
-
-                if (isExists)
-                {
-                    Console.WriteLine(tmpUrl + ":" + isExists);
-                }
-            }
-            Console.WriteLine("-------------------------------");
         }
 
         private static bool RemoteIsExist(string url)

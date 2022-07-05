@@ -56,8 +56,9 @@ namespace Test
             //PushOrderDetail();
             //SendInventory();
             //SendPrice();
+            SetReadyToShip();
             //ExpressPickUp();
-            GetExpressFromPlatform();
+            //GetExpressFromPlatform();
             //PosLog();
 
             Console.ReadKey();
@@ -334,6 +335,13 @@ namespace Test
                     throw ex;
                 }
             }
+        }
+
+        public static void SetReadyToShip()
+        {
+            TumiAPI TumiAPI = TumiAPIClient();
+            var result = TumiAPI.SetReadyToShip();
+            Console.WriteLine("ok");
         }
 
         public static void ExpressPickUp()

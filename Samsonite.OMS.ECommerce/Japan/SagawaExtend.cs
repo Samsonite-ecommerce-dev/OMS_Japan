@@ -4,6 +4,7 @@ using System.Linq;
 
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
+using Samsonite.OMS.ECommerce.Japan.Tumi;
 using Samsonite.OMS.ECommerce.Result;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
@@ -53,14 +54,218 @@ namespace Samsonite.OMS.ECommerce.Japan
             }
         }
 
+        #region 注册快递号变更信息
+        /// <summary>
+        /// 注册平台快递变更信息
+        /// </summary>
+        /// <param name="objMallSapCode"></param>
+        /// <param name="objTimeAgo"></param>
+        /// <returns></returns>
+        public CommonResult<DeliveryResult> RegDeliverys(string objMallSapCode)
+        {
+            CommonResult<DeliveryResult> _result = new CommonResult<DeliveryResult>();
+            using (var db = new ebEntities())
+            {
+                int pageSize = 10;
+                //读取最近一定天数的订单
+                //仓库已经上传了快递号
+                //过滤掉已经注册成功的订单
+                //DateTime _time = DateTime.Now.AddDays(TumiConfig.timeAgo);
+                DateTime _time = DateTime.Now.AddDays(-365);
+                var objDelivery_List = db.View_OrderDetail_Deliverys.Where(p => p.MallSapCode == objMallSapCode && p.Status == (int)ProductStatus.Processing && !string.IsNullOrEmpty(p.InvoiceNo) && p.IsNeedPush && db.ECommercePushRecord.Where(o => o.PushType == (int)ECommercePushType.PushTrackingCode && o.RelatedId == p.DeliveryID).Count() < TumiConfig.maxPushCount && p.CreateDate >= _time).ToList();
+                int _TotalPage = PagerHelper.CountTotalPage(objDelivery_List.Count, pageSize);
+                for (int t = 1; t <= _TotalPage; t++)
+                {
+                    var deliveryTmps = objDelivery_List.Skip(pageSize * (t - 1)).Take(pageSize).ToList();
+                    var invoiceNoTmps = deliveryTmps.GroupBy(p => p.InvoiceNo).Select(o => o.Key).ToList();
+                    try
+                    {
+                        var _req = new RegChangeableDeliveryRequest()
+                        {
+                            PostBody = new RegChangeableDeliveryInfo()
+                            {
+                                ExpressList = (from item in invoiceNoTmps
+                                               select new RegDeliveryRequest()
+                                               {
+                                                   ExpressNo = item
+                                               }).ToList(),
+                                Url = $"{AppGlobalService.HTTP_URL}/{SagawaConfig.GoBackUrl}",
+                                ApiKey = SagawaConfig.GoBackToken
+                            }
+                        };
+                        var _rsp = defaultClient.Execute(_req);
+                        //0:Running Normally
+                        if (_rsp.ResultCode.Equals("0"))
+                        {
+                            foreach (var item in deliveryTmps)
+                            {
+                                //设置成无需上传
+                                db.Database.ExecuteSqlCommand("Update Deliverys set IsNeedPush=0 where Id={0}", item.DeliveryID);
+
+                                //写入成功日志
+                                ECommercePushRecordService.SavePushDeliveryLog(new ECommercePushRecord()
+                                {
+                                    PushType = (int)ECommercePushType.PushTrackingCode,
+                                    RelatedTableName = "Deliverys",
+                                    RelatedId = item.DeliveryID,
+                                    PushMessage = item.InvoiceNo,
+                                    PushResult = true,
+                                    PushResultMessage = string.Empty,
+                                    PushCount = 1,
+                                    IsDelete = false,
+                                    EditTime = DateTime.Now,
+                                    AddTime = DateTime.Now
+                                }, db);
+
+                                //返回结果
+                                _result.ResultData.Add(new CommonResultData<DeliveryResult>()
+                                {
+                                    Data = new DeliveryResult()
+                                    {
+                                        MallSapCode = item.MallSapCode,
+                                        OrderNo = item.OrderNo,
+                                        SubOrderNo = item.SubOrderNo,
+                                        InvoiceNo = item.InvoiceNo
+                                    },
+                                    Result = true,
+                                    ResultMessage = string.Empty
+                                });
+                            }
+                        }
+                        //1: End error（Missing mandatory field error）
+                        //2: End warning（error for some package）
+                        else if (_rsp.ResultCode.Equals("1") || _rsp.ResultCode.Equals("2"))
+                        {
+                            //成功部分信息
+                            var failInvoiceNos = _rsp.ErrExpresses.Select(p => p.ExpressNo).ToList();
+                            var successExpresses = deliveryTmps.Where(p => !failInvoiceNos.Contains(p.InvoiceNo)).ToList();
+                            foreach (var item in successExpresses)
+                            {
+                                //设置成无需上传
+                                db.Database.ExecuteSqlCommand("Update Deliverys set IsNeedPush=0 where Id={0}", item.DeliveryID);
+
+                                //写入成功日志
+                                ECommercePushRecordService.SavePushDeliveryLog(new ECommercePushRecord()
+                                {
+                                    PushType = (int)ECommercePushType.PushTrackingCode,
+                                    RelatedTableName = "Deliverys",
+                                    RelatedId = item.DeliveryID,
+                                    PushMessage = item.InvoiceNo,
+                                    PushResult = true,
+                                    PushResultMessage = string.Empty,
+                                    PushCount = 1,
+                                    IsDelete = false,
+                                    EditTime = DateTime.Now,
+                                    AddTime = DateTime.Now
+                                }, db);
+
+                                //返回结果
+                                _result.ResultData.Add(new CommonResultData<DeliveryResult>()
+                                {
+                                    Data = new DeliveryResult()
+                                    {
+                                        MallSapCode = item.MallSapCode,
+                                        OrderNo = item.OrderNo,
+                                        SubOrderNo = item.SubOrderNo,
+                                        InvoiceNo = item.InvoiceNo
+                                    },
+                                    Result = true,
+                                    ResultMessage = string.Empty
+                                });
+                            }
+
+                            //错误部分信息
+                            foreach (var item in _rsp.ErrExpresses)
+                            {
+                                var tmps = deliveryTmps.Where(p => p.InvoiceNo == item.ExpressNo).ToList();
+                                foreach (var errorItem in tmps)
+                                {
+                                    //写入失败日志
+                                    ECommercePushRecordService.SavePushDeliveryLog(new ECommercePushRecord()
+                                    {
+                                        PushType = (int)ECommercePushType.PushTrackingCode,
+                                        RelatedTableName = "Deliverys",
+                                        RelatedId = errorItem.DeliveryID,
+                                        PushMessage = errorItem.InvoiceNo,
+                                        PushResult = false,
+                                        PushResultMessage = item.Message,
+                                        PushCount = 1,
+                                        IsDelete = false,
+                                        EditTime = DateTime.Now,
+                                        AddTime = DateTime.Now
+                                    }, db);
+
+
+                                    //返回结果
+                                    _result.ResultData.Add(new CommonResultData<DeliveryResult>()
+                                    {
+                                        Data = new DeliveryResult()
+                                        {
+                                            MallSapCode = errorItem.MallSapCode,
+                                            OrderNo = errorItem.OrderNo,
+                                            SubOrderNo = errorItem.SubOrderNo,
+                                            InvoiceNo = errorItem.InvoiceNo
+                                        },
+                                        Result = false,
+                                        ResultMessage = item.Message
+                                    });
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw new ECommerceException(_rsp.ErrorInfo.Code.ToString(), _rsp.ErrorInfo.Message);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //返回结果
+                        foreach (var item in deliveryTmps)
+                        {
+                            //写入失败日志
+                            ECommercePushRecordService.SavePushDeliveryLog(new ECommercePushRecord()
+                            {
+                                PushType = (int)ECommercePushType.PushTrackingCode,
+                                RelatedTableName = "Deliverys",
+                                RelatedId = item.DeliveryID,
+                                PushMessage = item.InvoiceNo,
+                                PushResult = false,
+                                PushResultMessage = ex.Message,
+                                PushCount = 1,
+                                IsDelete = false,
+                                EditTime = DateTime.Now,
+                                AddTime = DateTime.Now
+                            }, db);
+
+
+                            //返回结果
+                            _result.ResultData.Add(new CommonResultData<DeliveryResult>()
+                            {
+                                Data = new DeliveryResult()
+                                {
+                                    MallSapCode = item.MallSapCode,
+                                    OrderNo = item.OrderNo,
+                                    SubOrderNo = item.SubOrderNo,
+                                    InvoiceNo = item.InvoiceNo
+                                },
+                                Result = false,
+                                ResultMessage = ex.Message
+                            });
+                        }
+                    }
+                }
+            }
+            return _result;
+        }
+        #endregion
+
         #region 从平台获取订单状态
         /// <summary>
         /// 从平台获取订单状态
         /// </summary>
         /// <param name="objMallSapCode"></param>
-        /// <param name="objTimeAgo"></param>
         /// <returns></returns>
-        public CommonResult<ExpressResult> GetExpress(string objMallSapCode, int objTimeAgo)
+        public CommonResult<ExpressResult> GetExpress(string objMallSapCode)
         {
             CommonResult<ExpressResult> _result = new CommonResult<ExpressResult>();
             using (var db = new ebEntities())
@@ -68,7 +273,7 @@ namespace Samsonite.OMS.ECommerce.Japan
                 int pageSize = 20;
                 //读取最近一定天数的订单
                 //过滤掉没有上传快递号的订单
-                DateTime _time = DateTime.Now.AddDays(-300);
+                DateTime _time = DateTime.Now.AddDays(TumiConfig.timeAgo);
                 var allowStatus = new List<int>() { (int)ProductStatus.Processing, (int)ProductStatus.InDelivery };
                 var objView_OrderDetail_Delivery_List = (from a in db.View_OrderDetail.Where(p => p.MallSapCode == objMallSapCode && allowStatus.Contains(p.ProductStatus) && !(p.IsSet && p.IsSetOrigin) && !p.IsExchangeNew && p.OrderTime >= _time)
                                                          join b in db.Deliverys.Where(p => !string.IsNullOrEmpty(p.InvoiceNo)) on a.SubOrderNo equals b.SubOrderNo

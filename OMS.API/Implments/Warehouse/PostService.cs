@@ -181,8 +181,8 @@ namespace OMS.API.Implments.Warehouse
                         ExpressMsg = string.Empty,
                         Remark = string.Empty,
                         DeliveryChangeUrl = string.Empty,
-                        //默认都不需要在推送状态
-                        IsNeedPush = false
+                        //此处需要设置成true,已执行ReadyToShip
+                        IsNeedPush = true
                     };
 
                     //保存快递信息

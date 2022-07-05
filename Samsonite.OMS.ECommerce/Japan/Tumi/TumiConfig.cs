@@ -10,7 +10,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         //读取最近90天的数据
         public const int timeAgo = -90;
         //获取快递号和推送快递号的次数限制
-        public const int maxPushCount = 20;
+        public const int maxPushCount = 1000;
         //紧急物流状态值
         public const string ExpressShippingValue = "2553682";
 

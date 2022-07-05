@@ -84,17 +84,6 @@ namespace Samsonite.OMS.Service
                             item.OrderNo = objOrderDetail.OrderNo;
                             item.SubOrderNo = objOrderDetail.SubOrderNo;
                             item.CreateDate = DateTime.Now;
-                            //如果快递号已经存在,则不在进行推送
-                            var existInvoice = db.Deliverys.Where(p => p.OrderNo == item.OrderNo && p.SubOrderNo != item.SubOrderNo && p.InvoiceNo == item.InvoiceNo && p.MallSapCode == item.MallSapCode).FirstOrDefault();
-                            if (existInvoice != null)
-                            {
-                                item.IsNeedPush = false;
-                            }
-                            //如果换货订单,则直接默认无需发送快递号
-                            if (objOrderDetail.IsExchangeNew)
-                            {
-                                item.IsNeedPush = false;
-                            }
                             //保存快递号
                             SaveOrUpdate(objOrderDetail, item, remark);
                         }

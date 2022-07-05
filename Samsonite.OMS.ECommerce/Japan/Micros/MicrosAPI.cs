@@ -34,6 +34,12 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
             }
         }
 
+        private SagawaExtend _sagawaExtend;
+        public MicrosAPI()
+        {
+            _sagawaExtend = new SagawaExtend();
+        }
+
         #region 方法
         /// <summary>
         /// 解析订单
@@ -588,6 +594,15 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
         #endregion
 
         #region 推送状态
+        /// <summary>
+        /// 推送ReadyToShip状态到平台
+        /// </summary>
+        /// <param name="objDeliverys_List"></param>
+        /// <returns></returns>
+        public CommonResult<DeliveryResult> SetReadyToShip()
+        {
+            return _sagawaExtend.RegDeliverys(this.MallSapCode);
+        }
         #endregion
 
         #region 获取平台订单状态
@@ -597,13 +612,8 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
         /// <returns></returns>
         public CommonResult<ExpressResult> GetExpressFromPlatform()
         {
-            CommonResult<ExpressResult> _result = new CommonResult<ExpressResult>();
-            SagawaExtend objSagawaExtend = new SagawaExtend();
             //普通订单
-            _result.ResultData.AddRange(objSagawaExtend.GetExpress(this.MallSapCode, MicrosConfig.timeAgo).ResultData);
-            ////换货订单
-            //_result.ResultData.AddRange(objSagawaExtend.GetExpress_ExChangeNewOrder(this.MallSapCode, MicrosConfig.timeAgo).ResultData);
-            return _result;
+            return _sagawaExtend.GetExpress(this.MallSapCode);
         }
 
         #endregion

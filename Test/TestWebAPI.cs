@@ -63,8 +63,8 @@ namespace Test
             //WHGetOrders();
             //WHGetChangedOrders();
             //WHPostInventory();
-            //WHPostDelivery();
-            WHPostReply();
+            WHPostDelivery();
+            //WHPostReply();
             //WHUpdateShipmentStatus();
             //WHUpdateWMSStatus();
             Console.WriteLine("Run Warehouse interface finished...");
@@ -189,12 +189,14 @@ namespace Test
                 new PostDeliverysRequest
                 {
                     MallCode="1197417",
-                    OrderNo = "TUSG00010608B",
-                    SubOrderNo="TUSG00010608B_1",
+                    OrderNo = "TUSG00010608C",
+                    SubOrderNo="TUSG00010608C_1",
+                    DeliveryType=0,
+                    //DeliveryType=(int)OrderChangeType.Exchange,
                     Sku="",
                     DeliveryCode="",
                     Company="SAGAWA EXPRESS",
-                    DeliveryNo="619472272771",
+                    DeliveryNo="980000000755",
                     Packages=1,
                     Type="",
                     ReceiveCost=0,
@@ -206,12 +208,12 @@ namespace Test
                 new PostDeliverysRequest
                 {
                     MallCode="1197417",
-                    OrderNo = "TUSG00010608B",
-                    SubOrderNo="TUSG00010608B_2",
+                    OrderNo = "TUSG00010608C",
+                    SubOrderNo="TUSG00010608C_2",
                     Sku="",
                     DeliveryCode="",
                     Company="SAGAWA EXPRESS",
-                    DeliveryNo="619472272772",
+                    DeliveryNo="980000000766",
                     Packages=1,
                     Type="",
                     ReceiveCost=0,
@@ -223,12 +225,12 @@ namespace Test
                 new PostDeliverysRequest
                 {
                     MallCode="1197417",
-                    OrderNo = "TUSG00010608B",
-                    SubOrderNo="TUSG00010608B_3",
+                    OrderNo = "TUSG00010608C",
+                    SubOrderNo="TUSG00010608C_3",
                     Sku="",
                     DeliveryCode="",
                     Company="SAGAWA EXPRESS",
-                    DeliveryNo="619472272773",
+                    DeliveryNo="980000000766",
                     Packages=1,
                     Type="",
                     ReceiveCost=0,
@@ -252,39 +254,39 @@ namespace Test
             objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
             objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
 
-            ////普通订单接受回复
-            //List<PostReplyRequest> postData = new List<PostReplyRequest>() {
-            //    new PostReplyRequest()
-            //    {
-            //        MallCode="1197417",
-            //        OrderNo = "TUSG00010608B",
-            //        SubOrderNo="TUSG00010608B_1",
-            //        Type=0,
-            //        ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
-            //        ReplyState=(int)WarehouseStatus.DealSuccessful,
-            //        Message="ok"
-            //    },
-            //    new PostReplyRequest()
-            //    {
-            //        MallCode="1197417",
-            //        OrderNo = "TUSG00010608B",
-            //        SubOrderNo="TUSG00010608B_2",
-            //        Type=0,
-            //        ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
-            //        ReplyState=(int)WarehouseStatus.DealSuccessful,
-            //        Message="ok"
-            //    },
-            //    new PostReplyRequest()
-            //    {
-            //        MallCode="1197417",
-            //        OrderNo = "TUSG00010608B",
-            //        SubOrderNo="TUSG00010608B_3",
-            //        Type=0,
-            //        ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
-            //        ReplyState=(int)WarehouseStatus.DealSuccessful,
-            //        Message="ok"
-            //    }
-            //};
+            //普通订单接受回复
+            List<PostReplyRequest> postData = new List<PostReplyRequest>() {
+                new PostReplyRequest()
+                {
+                    MallCode="1197417",
+                    OrderNo = "TUSG00010608C",
+                    SubOrderNo="TUSG00010608C_1",
+                    Type=0,
+                    ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    ReplyState=(int)WarehouseStatus.DealSuccessful,
+                    Message="ok"
+                },
+                new PostReplyRequest()
+                {
+                    MallCode="1197417",
+                    OrderNo = "TUSG00010608C",
+                    SubOrderNo="TUSG00010608C_2",
+                    Type=0,
+                    ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    ReplyState=(int)WarehouseStatus.DealSuccessful,
+                    Message="ok"
+                },
+                new PostReplyRequest()
+                {
+                    MallCode="1197417",
+                    OrderNo = "TUSG00010608C",
+                    SubOrderNo="TUSG00010608C_3",
+                    Type=0,
+                    ReplyDate=DateTime.Now.ToString("yyyyMMddHHmmss"),
+                    ReplyState=(int)WarehouseStatus.DealSuccessful,
+                    Message="ok"
+                }
+            };
 
             ////取消订单回复
             //List<PostReplyRequest> postData = new List<PostReplyRequest>() {
@@ -346,20 +348,20 @@ namespace Test
             //    }
             //};
 
-            //换货订单回复
-            List<object> postData = new List<object>() {
-                new
-                {
-                    mallCode = "1197417",
-                    orderNo = "TUSG00010608A",
-                    subOrderNo="TUSG00010608A_3",
-                    type=(int)OrderChangeType.Exchange,
-                    replyDate="",
-                    replyState=(int)WarehouseStatus.DealFail,
-                    message="Fail...",
-                    recordId=11291
-                }
-            };
+            ////换货订单回复
+            //List<object> postData = new List<object>() {
+            //    new
+            //    {
+            //        mallCode = "1197417",
+            //        orderNo = "TUSG00010608A",
+            //        subOrderNo="TUSG00010608A_3",
+            //        type=(int)OrderChangeType.Exchange,
+            //        replyDate="",
+            //        replyState=(int)WarehouseStatus.DealFail,
+            //        message="Fail...",
+            //        recordId=11291
+            //    }
+            //};
 
             ////紧急订单回复
             //List<PostReplyModel> postData = new List<PostReplyModel>() {

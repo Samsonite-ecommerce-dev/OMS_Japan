@@ -37,7 +37,7 @@ namespace Samsonite.OMS.DTO
         /// </summary>
         Received = 0,
         /// <summary>
-        /// 仓库已读取
+        /// 仓库已处理
         /// </summary>
         Processing = 1,
         /// <summary>

@@ -87,6 +87,8 @@ namespace Samsonite.OMS.Service
                         //----------------------------收货地址----------------------------------------
                         foreach (var item in _orderReceives)
                         {
+                            item.OrderId = dto.Order.Id;
+                            item.CustomerNo = objCustomer.CustomerNo;
                             db.OrderReceive.Add(item);
                             db.SaveChanges();
                         }
@@ -543,7 +545,7 @@ namespace Samsonite.OMS.Service
                                 Remark = objClaim.ClaimMemo,
                                 SubOrderNo = objClaim.SubOrderNo,
                                 Quantity = objClaim.Quantity,
-                                NewSKU= objOrderDetail.SKU,
+                                NewSKU = objOrderDetail.SKU,
                                 DifferenceAmount = 0,
                                 ExpressAmount = 0,
                                 AcceptUserId = 0,
@@ -580,7 +582,7 @@ namespace Samsonite.OMS.Service
                             };
                             db.OrderChangeRecord.Add(objOrderChangeRecord);
                             db.SaveChanges();
-                            
+
                             //更新子订单状态和数量
                             db.Database.ExecuteSqlCommand("update OrderDetail set Status={1},EditDate={2},ExchangeQuantity={3} where SubOrderNo={0}", objOrderDetail.SubOrderNo, (int)ProductStatus.Exchange, DateTime.Now, objClaim.Quantity);
                             //添加子订单log

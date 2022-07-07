@@ -12,6 +12,7 @@ using SagawaSdk.Request;
 using SagawaSdk.Domain;
 using Samsonite.OMS.ECommerce.Japan;
 using static Samsonite.OMS.Database.EntityRepository;
+using Samsonite.OMS.Service;
 
 namespace Test
 {
@@ -19,7 +20,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            TestApiTumi.Test();
+            //TestApiTumi.Test();
             //TestApiMicros.Test();
 
             //---api---
@@ -54,7 +55,6 @@ namespace Test
             //    //    Console.WriteLine(item.OrderNo + "-" + item.SubOrderNo);
             //    //}
             //}
-            List<SqlQueryCondition> _sqlWhere = new List<SqlQueryCondition>();
             ////预售订单
             //_sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "od.IsReservation={0}", Param = 1 });
             ////过滤套装主订单
@@ -73,9 +73,17 @@ namespace Test
             //    }
             //}
 
-            string xx = "202206011123";
-            var y=DateTime.ParseExact(xx, "yyyyMMddHHmm", System.Globalization.CultureInfo.InvariantCulture).ToString("yyyy-MM-dd HH:mm");
-            Console.WriteLine(y);
+            //string xx = "202206011123";
+            //var y=DateTime.ParseExact(xx, "yyyyMMddHHmm", System.Globalization.CultureInfo.InvariantCulture).ToString("yyyy-MM-dd HH:mm");
+            //Console.WriteLine(y);
+
+            AnalysisService analysisService = new AnalysisService();
+            for (var t=DateTime.Now.AddDays(-60); t>= DateTime.Now.AddDays(-150);t=t.AddDays(-1))
+            {
+                Console.WriteLine(t.ToString("yyyy-MM-dd"));
+                analysisService.OrderDailyStatistics(t);
+            }
+            Console.WriteLine("ok");
         }
 
         private static void ServicetTest()

@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
-using Samsonite.OMS.Encryption;
 
 namespace Samsonite.OMS.Service
 {

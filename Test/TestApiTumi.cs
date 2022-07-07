@@ -49,14 +49,14 @@ namespace Test
 
         public static void Test()
         {
-            //ImportDWOrders();
+            ImportDWOrders();
             //ImportDWClaimOrders();
             //ImportDWProducts();
             //PushDWPrices();
             //PushOrderDetail();
             //SendInventory();
             //SendPrice();
-            SetReadyToShip();
+            //SetReadyToShip();
             //ExpressPickUp();
             //GetExpressFromPlatform();
             //PosLog();

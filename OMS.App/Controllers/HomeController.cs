@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -68,74 +70,39 @@ namespace OMS.App.Controllers
         {
             //加载语言包
             ViewBag.LanguagePack = this.GetLanguagePack;
-            //读取最新10条订单信息
-            using (var db = new DynamicRepository())
+
+            //信息对象
+            HomeSummary objHomeSummary = new HomeSummary();
+
+            using (var db = new ebEntities())
             {
                 //今日信息提示
-                string _sql = string.Empty;
-                _sql += "select IsNull((select count(*) from (select OrderNo from View_OrderDetail where datediff(day, OrderTime, @0) = 0 and Isdelete=0 group by OrderNo) as tmp), 0) AS NewOrder";
-                _sql += ",IsNull((select count(*) from OrderModify where datediff(day, AddDate, @0) = 0),0) AS NewModifyOrder";
-                _sql += ",IsNull((select count(*) from OrderCancel where datediff(day, CreateDate, @0) = 0),0) AS NewCancelOrder";
-                _sql += ",IsNull((select count(*) from OrderReturn where datediff(day, CreateDate, @0) = 0 and IsFromExchange = 0),0) AS NewReturnOrder";
-                _sql += ",IsNull((select count(*) from OrderExchange where datediff(day, CreateDate, @0) = 0),0) AS NewExchangeOrder";
-                _sql += ",IsNull((select count(*) from OrderReject where datediff(day, CreateDate, @0) = 0),0) AS NewRejectOrder";
-                _sql += ",IsNull((select count(*) from OrderDetail where datediff(day, CreateDate, @0) = 0 and IsSetOrigin=0 and IsExchangeNew = 0 and IsError = 1 and IsDelete=0),0) AS ExceptionOrder";
-                _sql += ",IsNull((select count(*) from OrderWMSReply where datediff(day, ApiReplyDate, @0) = 0 and [Status] = 0),0) AS WMSPostReply";
-                _sql += ",IsNull((select count(*) from OrderClaimCache where datediff(day, ClaimDate, @0) = 0 and [Status] = 0),0) AS ExceptionClaim";
-                _sql += ",IsNull((select count(*) from View_Orderdetail as od inner join ECommercePushRecord as epr on epr.PushType=" + (int)ECommercePushType.RequireTrackingCode + " and epr.RelatedId=od.Id where datediff(day, epr.EditTime, @0) = 0 and epr.PushResult = 0 and od.ProductStatus=" + (int)ProductStatus.Received + " and epr.IsDelete=0),0) AS ExceptionRequireDelivery";
-                _sql += ",IsNull((select count(*) from Deliverys as ds inner join View_OrderDetail as od on ds.SubOrderNo=od.SubOrderNo inner join ECommercePushRecord as epr on epr.PushType=" + (int)ECommercePushType.PushTrackingCode + " and epr.RelatedId=ds.Id where datediff(day, epr.EditTime, @0) = 0 and epr.PushResult = 0 and od.ProductStatus=" + (int)ProductStatus.InDelivery + " and epr.IsDelete=0),0) AS ExceptionPushDelivery";
-                _sql += ",IsNull((select count(*) from MallProduct as mp inner join ECommercePushInventoryRecord as epr on epr.PushType in (" + (int)ECommercePushType.PushInventory + "," + (int)ECommercePushType.PushWarningInventory + ") and epr.RelatedId=mp.Id where datediff(day, epr.AddTime, @0) = 0 and epr.PushResult=0 and epr.IsDelete=0),0) AS ExceptionInventory";
-                _sql += ",IsNull((select count(*) from MallProduct as mp inner join ECommercePushPriceRecord as epr on epr.PushType=" + (int)ECommercePushType.PushPrice + " and epr.RelatedId=mp.Id where datediff(day, epr.AddTime, @0) = 0 and epr.PushResult=0 and epr.IsDelete=0),0) AS ExceptionPrice";
-                var _AlertMessage = db.SingleOrDefault<dynamic>(_sql, DateTime.Now.ToString("yyyy-MM-dd"));
-                if (_AlertMessage != null)
+                var _summaryToday = db.Database.SqlQuery<HomeSummaryToday>("exec Proc_HomeSummary_Today {0}", DateTime.Now).SingleOrDefault();
+                if (_summaryToday != null)
                 {
-                    ViewBag.NewOrder = _AlertMessage.NewOrder;
-                    ViewBag.NewModifyOrder = _AlertMessage.NewModifyOrder;
-                    ViewBag.NewCancelOrder = _AlertMessage.NewCancelOrder;
-                    ViewBag.NewReturnOrder = _AlertMessage.NewReturnOrder;
-                    ViewBag.NewExchangeOrder = _AlertMessage.NewExchangeOrder;
-                    ViewBag.NewRejectOrder = _AlertMessage.NewRejectOrder;
-                    ViewBag.ExceptionOrder = _AlertMessage.ExceptionOrder;
-                    ViewBag.WMSPostReply = _AlertMessage.WMSPostReply;
-                    ViewBag.ExceptionClaim = _AlertMessage.ExceptionClaim;
-                    ViewBag.ExceptionRequireDelivery = _AlertMessage.ExceptionRequireDelivery;
-                    ViewBag.ExceptionPushDelivery = _AlertMessage.ExceptionPushDelivery;
-                    ViewBag.ExceptionInventory = _AlertMessage.ExceptionInventory;
-                    ViewBag.ExceptionPrice = _AlertMessage.ExceptionPrice;
+                    objHomeSummary.SummaryTodayInfo = _summaryToday;
                 }
                 //最新订单
-                ViewData["order_list"] = db.Fetch<Order>("select top 10 OrderNo,MallName,CreateDate from [Order] order by CreateDate desc");
+                objHomeSummary.NewOrders = db.Database.SqlQuery<HomeSummaryNewOrder>("select top 10 OrderNo,MallName,CreateDate from [Order] order by CreateDate desc").ToList();
                 //最新错误订单
-                ViewData["exception_order_list"] = db.Fetch<dynamic>("select top 10 OrderNo,SubOrderNo,ErrorMsg,MallName,OrderTime from View_OrderDetail where IsError=1 and ProductStatus>=@0 and IsDelete=0 order by OrderTime desc", (int)ProductStatus.Received);
+                objHomeSummary.ExceptionOrders = db.Database.SqlQuery<HomeSummaryExceptionOrder>("select top 10 OrderNo,SubOrderNo,MallName,OrderTime,ErrorMsg from View_OrderDetail where IsError=1 and ProductStatus>={0} and IsDelete=0 order by OrderTime desc", (int)ProductStatus.Received).ToList();
                 //最新仓库回复
-                ViewData["wms_postreply_list"] = db.Fetch<dynamic>("select top 10 od.OrderNo,od.SubOrderNo,ows.ApiReplyMsg,o.MallName from OrderDetail as od inner join [Order] as o on od.OrderNo=o.OrderNo inner join OrderWMSReply as ows on od.SubOrderNo=ows.SubOrderNo where ows.Status=0 order by od.CreateDate desc");
+                objHomeSummary.WMSPostreplys = db.Database.SqlQuery<HomeSummaryWMSPostreply>("select top 10 od.OrderNo,od.SubOrderNo,od.MallName,ows.ApiReplyMsg from View_OrderDetail as od inner join OrderWMSReply as ows on od.SubOrderNo=ows.SubOrderNo where ows.Status=0 order by od.OrderTime desc").ToList();
                 //最新请求列表
-                ViewData["claim_list"] = db.Fetch<dynamic>("select top 10 oc.OrderNo,oc.SubOrderNo,oc.ClaimType,oc.ErrorMessage,isnull(m.Name,'') as MallName from OrderClaimCache as oc left join Mall as m on oc.MallSapCode=m.SapCode where Status=0 order by oc.ClaimDate desc");
+                objHomeSummary.Claims = db.Database.SqlQuery<HomeSummaryClaim>("select top 10 oc.OrderNo,oc.SubOrderNo,oc.ClaimType,oc.ErrorMessage,isnull(m.Name,'') as MallName from OrderClaimCache as oc left join Mall as m on oc.MallSapCode=m.SapCode where Status=0 order by oc.ClaimDate desc").ToList();
                 //最新快递获取列表
-                ViewData["delivery_require_list"] = db.Fetch<dynamic>("select top 10 od.OrderNo,od.SubOrderNo,od.MallName,epr.PushResultMessage as ErrorMessage from View_OrderDetail as od inner join ECommercePushRecord as epr on epr.RelatedId=od.DetailId and epr.PushType=" + (int)ECommercePushType.RequireTrackingCode + " where epr.PushResult=0 and od.ProductStatus=" + (int)ProductStatus.Received + " and epr.IsDelete=0 order by epr.EditTime desc");
+                objHomeSummary.DeliveryRequires = db.Database.SqlQuery<HomeSummaryDeliveryRequire>("select top 10 od.OrderNo,od.SubOrderNo,od.MallName,epr.PushResultMessage as ErrorMessage from View_OrderDetail as od inner join ECommercePushRecord as epr on epr.RelatedId=od.DetailId and epr.PushType={0} where epr.PushResult=0 and od.ProductStatus={1} and epr.IsDelete=0 order by epr.EditTime desc", (int)ECommercePushType.RequireTrackingCode, (int)ProductStatus.Received).ToList();
                 //最新快递推送列表
-                ViewData["delivery_push_list"] = db.Fetch<dynamic>("select top 10 od.OrderNo,od.SubOrderNo,od.MallName,ds.InvoiceNo,epr.PushResultMessage as ErrorMessage from Deliverys as ds inner join View_OrderDetail as od on ds.SubOrderNo=od.SubOrderNo inner join ECommercePushRecord as epr on epr.RelatedId=ds.Id and epr.PushType=" + (int)ECommercePushType.PushTrackingCode + " where epr.PushResult=0 and od.ProductStatus=" + (int)ProductStatus.InDelivery + " and epr.IsDelete=0 order by epr.EditTime desc");
+                objHomeSummary.PushRequires = db.Database.SqlQuery<HomeSummaryPushRequire>("select top 10 od.OrderNo,od.SubOrderNo,od.MallName,ds.InvoiceNo,epr.PushResultMessage as ErrorMessage from Deliverys as ds inner join View_OrderDetail as od on ds.SubOrderNo=od.SubOrderNo inner join ECommercePushRecord as epr on epr.RelatedId=ds.Id and epr.PushType={0} where epr.PushResult=0 and od.ProductStatus={1} and epr.IsDelete=0 order by epr.EditTime desc", (int)ECommercePushType.PushTrackingCode, (int)ProductStatus.Processing).ToList();
                 //最近30天统计
-                ViewBag.OrderQuantity = 0;
-                ViewBag.ItemQuantity = 0;
-                ViewBag.CancelQuantity = 0;
-                ViewBag.ReturnQuantity = 0;
-                ViewBag.ExchangeQuantity = 0;
-                ViewBag.TotalOrderPayment = 0;
-                var _TotalMessage = db.SingleOrDefault<dynamic>("select isnull(SUM(OrderQuantity),0) As OrderQuantity,isnull(SUM(Quantity),0) As Quantity,isnull(SUM(CancelQuantity),0) As CancelQuantity,isnull(SUM(ReturnQuantity),0) As ReturnQuantity,isnull(SUM(ExchangeQuantity),0) As ExchangeQuantity,isnull(SUM(RejectQuantity),0) As RejectQuantity,isnull(SUM(TotalOrderPayment),0) As TotalOrderPayment from AnalysisDailyOrder where datediff(day,[Date],@0)<= 0 and datediff(day,[Date],@1)>= 0 and TimeZoon=0", DateTime.Now.AddDays(-29).ToString("yyyy-MM-dd"), DateTime.Now.ToString("yyyy-MM-dd"));
-                if (_TotalMessage != null)
+                var _summaryThirtyDay = db.Database.SqlQuery<HomeSummaryThirtyDay>("exec Proc_HomeSummary_ThirtyDay {0},{1}", DateTime.Now.AddDays(-29), DateTime.Now).SingleOrDefault();
+                if (_summaryThirtyDay != null)
                 {
-                    ViewBag.OrderQuantity = _TotalMessage.OrderQuantity;
-                    ViewBag.ItemQuantity = _TotalMessage.Quantity;
-                    ViewBag.CancelQuantity = _TotalMessage.CancelQuantity;
-                    ViewBag.ReturnQuantity = _TotalMessage.ReturnQuantity;
-                    ViewBag.ExchangeQuantity = _TotalMessage.ExchangeQuantity;
-                    ViewBag.RejectQuantity = _TotalMessage.RejectQuantity;
-                    ViewBag.TotalOrderPayment = _TotalMessage.TotalOrderPayment;
+                    objHomeSummary.SummaryThirtyDayInfo = _summaryThirtyDay;
                 }
             }
 
-            return View();
+            return View(objHomeSummary);
         }
 
         [UserLoginAuthorize(Type = UserLoginAuthorize.ResultType.Json)]
@@ -146,7 +113,9 @@ namespace OMS.App.Controllers
 
             ContentResult _result = new ContentResult();
             int _Type = VariableHelper.SaferequestInt(Request.Form["type"]);
-            using (var db = new DynamicRepository())
+            var _beginTime = DateTime.Now.AddDays(-29);
+            var _endTime = DateTime.Now;
+            using (var db = new ebEntities())
             {
                 switch (_Type)
                 {
@@ -154,7 +123,7 @@ namespace OMS.App.Controllers
                         //店铺列表
                         List<Mall> objMall_List = MallService.GetMallOption();
                         //最近30天各店铺销售统计
-                        var objStoreSales_List = db.Fetch<AnalysisDailyOrder>("select MallSapCode,Quantity from AnalysisDailyOrder where datediff(day,[Date],@0)<= 0 and datediff(day,[Date],@1)>= 0 and timezoon=0", DateTime.Now.AddDays(-29).ToString("yyyy-MM-dd"), DateTime.Now.ToString("yyyy-MM-dd"));
+                        var objStoreSales_List = db.AnalysisDailyOrder.Where(p => SqlFunctions.DateDiff("day", p.Date, _beginTime) <= 0 && SqlFunctions.DateDiff("day", p.Date, _endTime) >= 0 && p.TimeZoon == 0).AsNoTracking().ToList();
                         //数据
                         List<EChartsHelper.Pie.Config.Para.Data> _pies = new List<EChartsHelper.Pie.Config.Para.Data>();
                         foreach (var dy in objMall_List)
@@ -169,7 +138,7 @@ namespace OMS.App.Controllers
                             }
                         }
                         //读取micros店铺
-                        var objMicrosMalls = db.Fetch<Mall>("select SapCode from Mall where PlatformCode=@0", (int)PlatformType.Micros_Japan).Select(p => p.SapCode).ToList();
+                        var objMicrosMalls = db.Mall.Where(p => p.PlatformCode == (int)PlatformType.Micros_Japan).Select(o => o.SapCode).ToList();
                         //mircos数据合并成一个店铺
                         if (objMicrosMalls.Count > 0)
                         {
@@ -200,7 +169,7 @@ namespace OMS.App.Controllers
                     case 2:
                         //最近30天各产品销售统计
                         List<CommonReport> _list = new List<CommonReport>();
-                        var objProductSales_List = db.Fetch<AnalysisDailyProduct>("select Sku,Quantity from AnalysisDailyProduct where datediff(day,[Date],@0)<= 0 and datediff(day,[Date],@1)>= 0", DateTime.Now.AddDays(-29).ToString("yyyy-MM-dd"), DateTime.Now.ToString("yyyy-MM-dd"));
+                        var objProductSales_List = db.AnalysisDailyProduct.Where(p => SqlFunctions.DateDiff("day", p.Date, _beginTime) <= 0 && SqlFunctions.DateDiff("day", p.Date, _endTime) >= 0).Select(o => new { o.Sku, o.Quantity }).AsNoTracking().ToList();
                         List<string> _Skus = objProductSales_List.GroupBy(p => p.Sku).Select(o => o.Key).ToList();
                         foreach (string _str in _Skus)
                         {
@@ -236,7 +205,15 @@ namespace OMS.App.Controllers
                         List<string> objBrands = BrandService.GetBrandOption();
                         //最近30天各产品销售统计
                         List<CommonReport> _list1 = new List<CommonReport>();
-                        var objBrandSales_List = db.Fetch<dynamic>("select ap.Quantity,p.Name as Brand from AnalysisDailyProduct as ap inner join Product as p on ap.Sku=p.Sku where datediff(day,ap.[Date],@0)<= 0 and datediff(day,ap.[Date],@1)>= 0", DateTime.Now.AddDays(-29).ToString("yyyy-MM-dd"), DateTime.Now.ToString("yyyy-MM-dd"));
+
+                        var objBrandSales_List = (from adp in db.AnalysisDailyProduct.Where(p => SqlFunctions.DateDiff("day", p.Date, _beginTime) <= 0 && SqlFunctions.DateDiff("day", p.Date, _endTime) >= 0)
+                                                  join p in db.Product on adp.Sku equals p.SKU
+                                                  select new
+                                                  {
+                                                      Quantity = adp.Quantity,
+                                                      Brand = p.Name
+                                                  }).AsNoTracking().ToList();
+
                         foreach (string _str in objBrands)
                         {
                             _list1.Add(new CommonReport()

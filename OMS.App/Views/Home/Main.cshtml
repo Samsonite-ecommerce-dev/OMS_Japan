@@ -1,11 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var _OrderList = (List<Samsonite.OMS.Database.Order>)ViewData["order_list"];
-    var _ExceptionList = (List<dynamic>)ViewData["exception_order_list"];
-    var _WMSPostReplyList = (List<dynamic>)ViewData["wms_postreply_list"];
-    var _ClaimList = (List<dynamic>)ViewData["claim_list"];
-    var _RequireDeliveryList = (List<dynamic>)ViewData["delivery_require_list"];
-    var _PushDeliveryList = (List<dynamic>)ViewData["delivery_push_list"];
+    var _m = (Samsonite.OMS.DTO.HomeSummary)Model;
 }
 <div class="home">
     <!--今日信息-->
@@ -13,19 +8,19 @@
         <div class="head">@ViewBag.LanguagePack["home_main_todaymessage"]</div>
         <div class="table_list" style="height:376px;">
             <ul>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_neworder"]:</span><a id="h1" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewOrder</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_modifyorder"]:</span><a id="h2" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewModifyOrder</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_cancelorder"]:</span><a id="h3" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewCancelOrder</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_returnorder"]:</span><a id="h4" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewReturnOrder</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_exchangeorder"]:</span><a id="h5" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewExchangeOrder</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_rejectorder"]:</span><a id="h6" href="javascript:void(0);" class="href-orange-line">@ViewBag.NewRejectOrder</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errororder"]:</span><a id="h7" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_neworder"]:</span><a id="h1" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.NewOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_modifyorder"]:</span><a id="h2" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.NewModifyOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_cancelorder"]:</span><a id="h3" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.NewCancelOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_returnorder"]:</span><a id="h4" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.NewReturnOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_exchangeorder"]:</span><a id="h5" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.NewExchangeOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_rejectorder"]:</span><a id="h6" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.NewRejectOrder</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errororder"]:</span><a id="h7" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.ExceptionOrder</a></li>
                 <li class="display_none"><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_postreply"]:</span><a id="h8" href="javascript:void(0);" class="href-orange-line">@ViewBag.WMSPostReply</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorclaim"]:</span><a id="h9" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionClaim</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errordelivery_res"]:</span><a id="h10" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionRequireDelivery</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errordelivery"]:</span><a id="h11" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionPushDelivery</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorinventory"]:</span><a id="h12" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionInventory</a></li>
-                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorprice"]:</span><a id="h13" href="javascript:void(0);" class="href-orange-line">@ViewBag.ExceptionPrice</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorclaim"]:</span><a id="h9" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.ExceptionClaim</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errordelivery_res"]:</span><a id="h10" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.ExceptionRequireDelivery</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errordelivery"]:</span><a id="h11" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.ExceptionPushDelivery</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorinventory"]:</span><a id="h12" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.ExceptionInventory</a></li>
+                <li><span><i class="fa fa-snowflake-o small_icon"></i>@ViewBag.LanguagePack["home_main_todaymessage_errorprice"]:</span><a id="h13" href="javascript:void(0);" class="href-orange-line">@_m.SummaryTodayInfo.ExceptionPrice</a></li>
             </ul>
         </div>
     </div>
@@ -34,7 +29,7 @@
             <div title="@ViewBag.LanguagePack["home_main_todaymessage_neworder"]">
                 <table>
                     <tbody>
-                        @foreach (var _o in _OrderList)
+                        @foreach (var _o in _m.NewOrders)
                         {
                             <tr>
                                 <td width="75%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.OrderNo</a></td>
@@ -47,7 +42,7 @@
             <div title="@ViewBag.LanguagePack["home_main_todaymessage_errororder"]">
                 <table>
                     <tbody>
-                        @foreach (var _o in _ExceptionList)
+                        @foreach (var _o in _m.ExceptionOrders)
                         {
                             <tr>
                                 <td width="50%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
@@ -60,7 +55,7 @@
             <div title="@ViewBag.LanguagePack["home_main_todaymessage_postreply"]">
                 <table>
                     <tbody>
-                        @foreach (var _o in _WMSPostReplyList)
+                        @foreach (var _o in _m.WMSPostreplys)
                         {
                             <tr>
                                 <td width="50%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
@@ -73,7 +68,7 @@
             <div title="@ViewBag.LanguagePack["home_main_todaymessage_errorclaim"]">
                 <table>
                     <tbody>
-                        @foreach (var _o in _ClaimList)
+                        @foreach (var _o in _m.Claims)
                         {
                             <tr>
                                 <td width="40%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
@@ -84,10 +79,10 @@
                     </tbody>
                 </table>
             </div>
-            <div title="@ViewBag.LanguagePack["home_main_todaymessage_errordelivery_res"]">
+            @*<div title="@ViewBag.LanguagePack["home_main_todaymessage_errordelivery_res"]">
                 <table>
                     <tbody>
-                        @foreach (var _o in _RequireDeliveryList)
+                        @foreach (var _o in _m.DeliveryRequires)
                         {
                             <tr>
                                 <td width="50%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
@@ -96,11 +91,11 @@
                         }
                     </tbody>
                 </table>
-            </div>
+            </div>*@
             <div title="@ViewBag.LanguagePack["home_main_todaymessage_errordelivery"]">
                 <table>
                     <tbody>
-                        @foreach (var _o in _PushDeliveryList)
+                        @foreach (var _o in _m.PushRequires)
                         {
                             <tr>
                                 <td width="35%"><i class="fa fa-caret-right"></i>[@_o.MallName]&nbsp;<a href="javascript:void(0);" class="href-blue-line" onclick="artDialogExtend.Dialog.Open('@Url.Action("Detail", "OrderQuery")?ID=@_o.OrderNo',{title:'Order Detail-@_o.OrderNo',width:'100%',height:'100%'})">@_o.SubOrderNo</a></td>
@@ -118,15 +113,15 @@
         <div class="head">@ViewBag.LanguagePack["home_main_last_sales"]</div>
         <div class="table_list" style="height:280px;">
             <ul>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_order_quantity"]:</span>@ViewBag.OrderQuantity</li>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_item_quantity"]:</span>@ViewBag.ItemQuantity</li>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_avge_sales"]:</span>@(ViewBag.ItemQuantity / 30)</li>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_cancel_quantity"]:</span>@ViewBag.CancelQuantity</li>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_return_quantity"]:</span>@ViewBag.ReturnQuantity</li>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_exchange_quantity"]:</span>@ViewBag.ExchangeQuantity</li>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_reject_quantity"]:</span>@ViewBag.RejectQuantity</li>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_payment"]:</span>@Samsonite.Utility.Common.VariableHelper.FormateMoney(ViewBag.TotalOrderPayment)</li>
-                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_avge_payment"]:</span>@Samsonite.Utility.Common.VariableHelper.FormateMoney(Math.Ceiling(ViewBag.TotalOrderPayment / 30))</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_order_quantity"]:</span>@_m.SummaryThirtyDayInfo.OrderQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_item_quantity"]:</span>@_m.SummaryThirtyDayInfo.Quantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_avge_sales"]:</span>@(_m.SummaryThirtyDayInfo.Quantity / 30)</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_cancel_quantity"]:</span>@_m.SummaryThirtyDayInfo.CancelQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_return_quantity"]:</span>@_m.SummaryThirtyDayInfo.ReturnQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_exchange_quantity"]:</span>@_m.SummaryThirtyDayInfo.ExchangeQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_reject_quantity"]:</span>@_m.SummaryThirtyDayInfo.RejectQuantity</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_payment"]:</span>@Samsonite.Utility.Common.VariableHelper.FormateMoney(_m.SummaryThirtyDayInfo.TotalOrderPayment)</li>
+                <li><span><i class="fa fa-caret-right"></i>@ViewBag.LanguagePack["home_main_last_sales_avge_payment"]:</span>@Samsonite.Utility.Common.VariableHelper.FormateMoney(Math.Ceiling(_m.SummaryThirtyDayInfo.TotalOrderPayment / 30))</li>
             </ul>
         </div>
     </div>

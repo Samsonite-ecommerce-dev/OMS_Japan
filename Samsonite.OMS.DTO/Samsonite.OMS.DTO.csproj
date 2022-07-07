@@ -72,6 +72,7 @@
     <Compile Include="Enum\ProcessStatus.cs" />
     <Compile Include="Enum\ProductType.cs" />
     <Compile Include="Enum\MallType.cs" />
+    <Compile Include="HomeSummary.cs" />
     <Compile Include="ShippingMethodDto.cs" />
     <Compile Include="ValueAddedServicesDto.cs" />
     <Compile Include="OrderQuery.cs" />

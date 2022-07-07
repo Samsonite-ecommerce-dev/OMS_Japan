@@ -81,25 +81,27 @@
         <EntityTypeShape EntityType="Samsonite.OMS.Database.UserRoles" Width="1.5" PointX="20.75" PointY="26.75" />
         <EntityTypeShape EntityType="Samsonite.OMS.Database.WarehouseInfo" Width="1.5" PointX="26.75" PointY="22.75" />
         <EntityTypeShape EntityType="Samsonite.OMS.Database.WebApiAccount" Width="1.5" PointX="0.75" PointY="27.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.WebApiRoles" Width="1.5" PointX="14.75" PointY="27.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_Brand" Width="1.5" PointX="22.75" PointY="27.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_DeliverysNote" Width="1.5" PointX="28.75" PointY="0.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_Mall_Platform" Width="1.5" PointX="28.75" PointY="4.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_MallDetail" Width="1.5" PointX="6.75" PointY="28.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_MallProductInventory" Width="1.5" PointX="8.75" PointY="28.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderCancel" Width="1.5" PointX="28.75" PointY="10.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderDetail" Width="1.5" PointX="10.75" PointY="28.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderDetail_Deliverys" Width="1.5" PointX="28.75" PointY="20.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderDetail_Receive" Width="1.5" PointX="24.75" PointY="28.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderExchange" Width="1.5" PointX="2.75" PointY="29.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderModify" Width="1.5" PointX="16.75" PointY="29.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderReject" Width="1.5" PointX="18.75" PointY="29.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderReturn" Width="1.5" PointX="30.75" PointY="0.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_ProductSet" Width="1.5" PointX="30.75" PointY="11.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_ProductSetDetail" Width="1.5" PointX="12.75" PointY="30.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_Promotion" Width="1.5" PointX="30.75" PointY="16.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_SysFunction" Width="1.5" PointX="30.75" PointY="22.75" />
-        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_UserEmployee" Width="1.5" PointX="30.75" PointY="27.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.WebApiOrderPush" Width="1.5" PointX="14.75" PointY="27.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.WebApiOrderPushed" Width="1.5" PointX="22.75" PointY="27.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.WebApiRoles" Width="1.5" PointX="28.75" PointY="0.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_Brand" Width="1.5" PointX="28.75" PointY="3.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_DeliverysNote" Width="1.5" PointX="6.75" PointY="28.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_Mall_Platform" Width="1.5" PointX="28.75" PointY="7.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_MallDetail" Width="1.5" PointX="8.75" PointY="28.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_MallProductInventory" Width="1.5" PointX="10.75" PointY="28.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderCancel" Width="1.5" PointX="28.75" PointY="13.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderDetail" Width="1.5" PointX="28.75" PointY="23.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderDetail_Deliverys" Width="1.5" PointX="24.75" PointY="28.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderDetail_Receive" Width="1.5" PointX="2.75" PointY="29.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderExchange" Width="1.5" PointX="16.75" PointY="29.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderModify" Width="1.5" PointX="18.75" PointY="29.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderReject" Width="1.5" PointX="30.75" PointY="0.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_OrderReturn" Width="1.5" PointX="30.75" PointY="6.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_ProductSet" Width="1.5" PointX="30.75" PointY="17.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_ProductSetDetail" Width="1.5" PointX="30.75" PointY="22.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_Promotion" Width="1.5" PointX="30.75" PointY="26.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_SysFunction" Width="1.5" PointX="12.75" PointY="31.75" />
+        <EntityTypeShape EntityType="Samsonite.OMS.Database.View_UserEmployee" Width="1.5" PointX="20.75" PointY="31.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

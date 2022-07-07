@@ -1448,11 +1448,11 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// <summary>
         /// 推送ReadyToShip状态到平台
         /// </summary>
-        /// <param name="objDeliverys_List"></param>
+        /// <param name="objDelivery_List"></param>
         /// <returns></returns>
-        public CommonResult<DeliveryResult> SetReadyToShip()
+        public CommonResult<DeliveryResult> SetReadyToShip(List<View_OrderDetail_Deliverys> objDelivery_List = null)
         {
-            return _sagawaExtend.RegDeliverys(this.MallSapCode);
+            return _sagawaExtend.RegDeliverys(this.MallSapCode, objDelivery_List);
         }
         #endregion
 

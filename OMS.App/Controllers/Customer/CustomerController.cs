@@ -9,6 +9,7 @@ using Samsonite.OMS.Database;
 using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
+
 using OMS.App.Helper;
 
 namespace OMS.App.Controllers
@@ -278,7 +279,6 @@ namespace OMS.App.Controllers
             var _LanguagePack = GetLanguagePack;
 
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
 
             string _CustomerNo = VariableHelper.SaferequestStr(Request.Form["customerno"]);
             string _Type = VariableHelper.SaferequestStr(Request.Form["type"]);

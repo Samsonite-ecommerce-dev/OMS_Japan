@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.SqlServer;
+using System.Data.Entity;
 using System.Linq;
 
 using Samsonite.OMS.DTO;
@@ -9,6 +11,7 @@ using Samsonite.Utility.Common;
 
 using OMS.API.Models.ClickCollect;
 using OMS.API.Interface.ClickCollect;
+
 
 namespace OMS.API.Implments.ClickCollect
 {
@@ -24,91 +27,93 @@ namespace OMS.API.Implments.ClickCollect
             GetOrdersResponse _result = new GetOrdersResponse();
             //默认倒序
             if (string.IsNullOrEmpty(request.SortBy)) request.SortBy = "DESC";
-            string _orderBy = (request.SortBy.ToUpper() == "ASC") ? "asc" : "desc";
-            using (var dr = new DynamicRepository())
+            using (var db = new ebEntities())
             {
-                List<DynamicRepository.SQLCondition> _sqlWhere = new List<DynamicRepository.SQLCondition>();
                 /***订单过滤条件
                 1.只传递订单状态为In Delivery之后以及物流状态为Picked之后的普通订单
                 2.过滤订单类型:已关闭,未付款,换货新订单,预售订单,错误订单,已删除订单,原始套装主订单
                 ***/
 
+                var _lambda = db.Order.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(request.ShopSapCode))
                 {
-                    _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "[order].OffLineSapCode={0}", Param = request.ShopSapCode });
+                    _lambda = _lambda.Where(p => p.OffLineSapCode == request.ShopSapCode);
                 }
 
                 if (!string.IsNullOrEmpty(request.CreatedAfter))
                 {
-                    _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(second,[Order].CreateDate,{0})<=0", Param = VariableHelper.SaferequestTime(request.CreatedAfter) });
+                    var _createdAfter = VariableHelper.SaferequestTime(request.CreatedAfter);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("second", p.CreateDate, _createdAfter) <= 0);
                 }
 
                 if (!string.IsNullOrEmpty(request.CreatedBefore))
                 {
-                    _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(second,[Order].CreateDate,{0})>=0", Param = VariableHelper.SaferequestTime(request.CreatedBefore) });
+                    var _createdBefore = VariableHelper.SaferequestTime(request.CreatedBefore);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("second", p.CreateDate, _createdBefore) >= 0);
                 }
 
                 if (!string.IsNullOrEmpty(request.UpdateAfter))
                 {
-                    _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(second,[Order].EditDate,{0})<=0", Param = VariableHelper.SaferequestTime(request.UpdateAfter) });
+                    var _updateAfter = VariableHelper.SaferequestTime(request.UpdateAfter);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("second", p.EditDate, _updateAfter) <= 0);
                 }
 
                 if (!string.IsNullOrEmpty(request.UpdateBefore))
                 {
-                    _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "datediff(second,[Order].EditDate,{0})>=0", Param = VariableHelper.SaferequestTime(request.UpdateBefore) });
+                    var _updateBefore = VariableHelper.SaferequestTime(request.UpdateBefore);
+                    _lambda = _lambda.Where(p => SqlFunctions.DateDiff("second", p.EditDate, _updateBefore) >= 0);
                 }
 
                 if (request.Status > 0)
                 {
-                    _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "[order].Status={0}", Param = request.Status });
+                    _lambda = _lambda.Where(p => p.Status == request.Status);
                 }
 
                 if (request.ProductStatus > 0)
                 {
-                    _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(select count(*) from OrderDetail where [order].Id=OrderDetail.OrderId and OrderDetail.[Status]={0})>0", Param = request.ProductStatus });
+                    _lambda = _lambda.Where(p => db.OrderDetail.Where(o => o.OrderId == p.Id && o.Status == request.ProductStatus).Any());
                 }
 
                 //取C&C订单
-                _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "[Order].OrderType={0} ", Param = (int)OrderType.ClickCollect });
+                _lambda = _lambda.Where(p => p.OrderType == (int)OrderType.ClickCollect);
                 //取In Delivery状态的订单
-                _sqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(select count(*) from OrderDetail as od where od.OrderId=[Order].Id and od.Status<" + (int)ProductStatus.InDelivery + ")=0", Param = null });
+                _lambda = _lambda.Where(p => !db.OrderDetail.Where(o => o.OrderId == p.Id && o.Status < (int)ProductStatus.InDelivery).Any());
 
                 //查询
-                var _list = dr.GetPage<Order>($"select * from [Order] order by Id {_orderBy}", _sqlWhere, request.PageSize, request.PageIndex);
+                EntityRepository entityRepository = new EntityRepository();
+                var _list = entityRepository.GetPage(request.PageIndex, request.PageSize, _lambda.AsNoTracking(), p => p.Id, (request.SortBy == "ASC"));
                 List<long> orderIds = _list.Items.Select(p => p.Id).ToList();
                 long _totalRecord = _list.TotalItems;
                 int _totalPage = PagerHelper.CountTotalPage((int)_totalRecord, request.PageSize);
-                using (var db = new ebEntities())
+                List<GetOrdersResponse.Trade> objTrades = new List<GetOrdersResponse.Trade>();
+                List<OrderDetail> objOrderDetails = db.OrderDetail.Where(p => orderIds.Contains(p.OrderId)).ToList();
+                foreach (var item in _list.Items)
                 {
-                    List<GetOrdersResponse.Trade> objTrades = new List<GetOrdersResponse.Trade>();
-                    List<OrderDetail> objOrderDetails = db.OrderDetail.Where(p => orderIds.Contains(p.OrderId)).ToList();
-                    foreach (var item in _list.Items)
+                    objTrades.Add(new GetOrdersResponse.Trade()
                     {
-                        objTrades.Add(new GetOrdersResponse.Trade()
+                        MallSapCode = item.MallSapCode,
+                        OrderNo = item.OrderNo,
+                        OrderType = item.OrderType,
+                        PaymentType = item.PlatformType,
+                        ShopSapCode = item.OffLineSapCode,
+                        Status = item.Status,
+                        OrderDate = item.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"),
+                        Items = objOrderDetails.Where(p => p.OrderId == item.Id).Select(o => new GetOrdersResponse.Item()
                         {
-                            MallSapCode = item.MallSapCode,
-                            OrderNo = item.OrderNo,
-                            OrderType = item.OrderType,
-                            PaymentType = item.PlatformType,
-                            ShopSapCode = item.OffLineSapCode,
-                            Status = item.Status,
-                            OrderDate = item.CreateDate.ToString("yyyy-MM-dd HH:mm:ss"),
-                            Items = objOrderDetails.Where(p => p.OrderId == item.Id).Select(o => new GetOrdersResponse.Item()
-                            {
-                                SubOrderNo = o.SubOrderNo,
-                                SKU = o.SKU,
-                                Quantity = o.Quantity,
-                                Status = o.Status
-                            }).ToList()
-                        });
-                    }
-
-                    //返回信息
-                    _result.Trades = objTrades;
-                    _result.totalRecord = _totalRecord;
-                    _result.totalPage = _totalPage;
+                            SubOrderNo = o.SubOrderNo,
+                            SKU = o.SKU,
+                            Quantity = o.Quantity,
+                            Status = o.Status
+                        }).ToList()
+                    });
                 }
+
+                //返回信息
+                _result.Trades = objTrades;
+                _result.totalRecord = _totalRecord;
+                _result.totalPage = _totalPage;
             }
             return _result;
         }

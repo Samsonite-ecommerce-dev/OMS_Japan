@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Samsonite.OMS.DTO
 {
     /// <summary>
-    /// action 执行结果
+    /// 
     /// </summary>
     public class OrderQuery
     {
@@ -712,5 +712,44 @@ namespace Samsonite.OMS.DTO
         /// 是否有sku(能否在产品库内匹配到)
         /// </summary>
         public bool IsHaveSku { get; set; }
+    }
+
+    public class SendPendingRefundQuery
+    {
+        public string OrderNo { get; set; }
+
+        public string SubOrderNo { get; set; }
+
+        public string MallSapCode { get; set; }
+
+        public string MallName { get; set; }
+
+        public int PaymentType { get; set; }
+
+        public string Sku { get; set; }
+
+        public string ProductName { get; set; }
+
+        public decimal ActualPaymentAmount { get; set; }
+
+        public int Quantity { get; set; }
+
+        public decimal RefundAmount { get; set; }
+
+        public int RefundQuantity { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public string Receive { get; set; }
+
+        public string ReceiveTel { get; set; }
+
+        public string ReceiveCel { get; set; }
+
+        public string ReceiveZipcode { get; set; }
+
+        public string BrandName { get; set; }
+
+        public string CustomerName { get; set; }
     }
 }

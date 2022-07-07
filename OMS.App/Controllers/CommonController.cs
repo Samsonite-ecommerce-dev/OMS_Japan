@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.IO;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 using System.Xml;
@@ -9,6 +9,7 @@ using Samsonite.OMS.Database;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
 using Samsonite.OMS.Service.AppLanguage;
+
 using OMS.App.Helper;
 
 namespace OMS.App.Controllers
@@ -254,7 +255,6 @@ namespace OMS.App.Controllers
         public JsonResult MallByCondition_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _key = VariableHelper.SaferequestStr(Request.Form["q"]);
             string _type = VariableHelper.SaferequestStr(Request.Form["type"]);
             int _platformID = VariableHelper.SaferequestInt(Request.Form["platformID"]);
@@ -262,33 +262,35 @@ namespace OMS.App.Controllers
             if (_perpage <= 0) _perpage = 20;
             int _page = VariableHelper.SaferequestInt(Request.Form["page"]);
             if (_page <= 0) _page = 1;
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.Mall.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_key))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((Name like {0}) or (SapCode like {0}))", Param = "%" + _key + "%" });
+                    _lambda = _lambda.Where(p => p.Name.Contains(_key) && p.SapCode.Contains(_key));
                 }
 
                 if (!string.IsNullOrEmpty(_type))
                 {
                     if (_type.ToUpper() == "ONLINE")
                     {
-                        _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallType={0}", Param = (int)MallType.OnLine });
+                        _lambda = _lambda.Where(p => p.MallType == (int)MallType.OnLine);
                     }
                     else if (_type.ToUpper() == "OFFLINE")
                     {
-                        _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallType={0}", Param = (int)MallType.OffLine });
+                        _lambda = _lambda.Where(p => p.MallType == (int)MallType.OffLine);
                     }
                 }
 
                 if (_platformID > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "PlatformCode={0}", Param = _platformID });
+                    _lambda = _lambda.Where(p => p.PlatformCode == _platformID);
                 }
 
                 //查询
-                var _list = db.GetPage<Mall>("select Id,Name,SapCode from Mall order by SortID asc", _SqlWhere, _perpage, _page);
+                var _list = this.BaseEntityRepository.GetPage(_page, _perpage, _lambda.AsNoTracking(), p => p.SortID, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -348,7 +350,6 @@ namespace OMS.App.Controllers
         public JsonResult ProductSku_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _key = VariableHelper.SaferequestStr(Request.Form["q"]);
             string _mallSapCode = VariableHelper.SaferequestStr(Request.Form["mall"]);
             decimal _price = VariableHelper.SaferequestDecimal(Request.Form["price"]);
@@ -357,58 +358,73 @@ namespace OMS.App.Controllers
             if (_perpage <= 0) _perpage = 20;
             int _page = VariableHelper.SaferequestInt(Request.Form["page"]);
             if (_page <= 0) _page = 1;
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.Product.AsQueryable();
+                var _lambda2 = db.MallProduct.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_key))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "((p.SKU like {0}) or (p.Name like {0}) or (p.ProductID like {0}) or (p.GroupDesc like {0}))", Param = "%" + _key + "%" });
+                    _lambda1 = _lambda1.Where(p => p.SKU.Contains(_key) || p.Name.Contains(_key) || p.ProductId.Contains(_key) || p.GroupDesc.Contains(_key));
                 }
 
                 //如果设置了price值,表示显示等于或者小于当前价格的sku
                 if (_price > 0)
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "p.MarketPrice <={0}", Param = _price });
+                    _lambda1 = _lambda1.Where(p => p.MarketPrice <= _price);
                 }
 
                 //如果设置了sku,则表示只能查询该sku的产品
                 if (!string.IsNullOrEmpty(_sku))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "p.SKU ={0}", Param = _sku });
+                    _lambda1 = _lambda1.Where(p => p.SKU == _sku);
                 }
 
                 //如果有店铺信息,则查询的sku需要包含店铺信息
                 if (!string.IsNullOrEmpty(_mallSapCode))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "mp.MallSapCode={0}", Param = _mallSapCode });
+                    _lambda2 = _lambda2.Where(p => p.MallSapCode == _mallSapCode);
+
+                    var _lambda = from p in _lambda1
+                                  join mp in _lambda2 on p.SKU equals mp.SKU
+                                  select new
+                                  {
+                                      product = p,
+                                      mallProductId = mp.ID,
+                                      mallProductTitle = mp.MallProductTitle,
+                                      skuPrice = mp.SalesPrice
+                                  };
 
                     //查询
-                    var _list = db.GetPage<dynamic>("select p.Id,p.SKU,p.Name,p.[Description],p.Material,p.GdVal,p.ProductID,p.GroupDesc,p.SupplyPrice,p.MarketPrice,p.Quantity,MallProductTitle,isnull(mp.SalesPrice,0) as SkuPrice from Product as p inner join MallProduct as mp on p.Sku=mp.Sku where p.isCommon=1 order by mp.id asc", _SqlWhere, _perpage, _page);
+                    var _list = this.BaseEntityRepository.GetPage(_page, _perpage, _lambda.AsNoTracking(), p => p.mallProductId, true);
                     _result.Data = new
                     {
                         total = _list.TotalItems,
                         rows = from dy in _list.Items
                                select new
                                {
-                                   s0 = dy.Id,
-                                   s1 = dy.SKU,
-                                   s2 = dy.Name,
-                                   s3 = dy.GroupDesc,
-                                   s4 = dy.Material,
-                                   s5 = dy.GdVal,
-                                   s6 = dy.MallProductTitle,
-                                   s7 = VariableHelper.FormateMoney(dy.SupplyPrice),
-                                   s8 = VariableHelper.FormateMoney(dy.MarketPrice),
-                                   s9 = VariableHelper.FormateMoney(dy.SkuPrice),
-                                   s10 = dy.Quantity,
-                                   s99 = JsonSkuMessage(dy.Id, dy.SKU, dy.Description, dy.SupplyPrice, dy.MarketPrice, dy.SkuPrice)
+                                   s0 = dy.product.Id,
+                                   s1 = dy.product.SKU,
+                                   s2 = dy.product.Name,
+                                   s3 = dy.product.GroupDesc,
+                                   s4 = dy.product.Material,
+                                   s5 = dy.product.GdVal,
+                                   s6 = dy.mallProductTitle,
+                                   s7 = VariableHelper.FormateMoney(dy.product.SupplyPrice),
+                                   s8 = VariableHelper.FormateMoney(dy.product.MarketPrice),
+                                   s9 = VariableHelper.FormateMoney(dy.skuPrice),
+                                   s10 = dy.product.Quantity,
+                                   s99 = JsonSkuMessage(dy.product.Id, dy.product.SKU, dy.product.Description, dy.product.SupplyPrice, dy.product.MarketPrice, dy.skuPrice)
                                }
                     };
                 }
                 else
                 {
+                    _lambda1 = _lambda1.Where(p => p.IsCommon);
+
                     //查询
-                    var _list = db.GetPage<Product>("select p.Id,p.SKU,p.Name,p.[Description],p.GroupDesc,p.SupplyPrice,p.MarketPrice,p.SalesPrice,p.Quantity,p.Material,p.GdVal,p.ProductID from Product as p where p.isCommon=1 order by ID asc", _SqlWhere, _perpage, _page);
+                    var _list = this.BaseEntityRepository.GetPage(_page, _perpage, _lambda1.AsNoTracking(), p => p.Id, true);
                     _result.Data = new
                     {
                         total = _list.TotalItems,
@@ -466,21 +482,25 @@ namespace OMS.App.Controllers
         public JsonResult BundleSku_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _sku = VariableHelper.SaferequestStr(Request.Form["q"]);
             int _perpage = VariableHelper.SaferequestInt(Request.Form["rows"]);
             if (_perpage <= 0) _perpage = 20;
             int _page = VariableHelper.SaferequestInt(Request.Form["page"]);
             if (_page <= 0) _page = 1;
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.Product.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_sku))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "SKU like {0}", Param = "%" + _sku + "%" });
+                    _lambda = _lambda.Where(p=>p.SKU.Contains(_sku));
                 }
+
+                _lambda = _lambda.Where(p => p.IsSet);
+
                 //查询
-                var _list = db.GetPage<Product>("select Id,SKU,Name,[Description],GroupDesc,SupplyPrice,MarketPrice,SalesPrice,Quantity,Material,GdVal,ProductID from Product where isSet=1 order by ID asc", _SqlWhere, _perpage, _page);
+                var _list = this.BaseEntityRepository.GetPage(_page, _perpage, _lambda.AsNoTracking(), p => p.Id, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -511,21 +531,25 @@ namespace OMS.App.Controllers
         public JsonResult GiftSku_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _sku = VariableHelper.SaferequestStr(Request.Form["q"]);
             int _perpage = VariableHelper.SaferequestInt(Request.Form["rows"]);
             if (_perpage <= 0) _perpage = 20;
             int _page = VariableHelper.SaferequestInt(Request.Form["page"]);
             if (_page <= 0) _page = 1;
-            using (DynamicRepository db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda = db.Product.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_sku))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "SKU like {0}", Param = "%" + _sku + "%" });
+                    _lambda = _lambda.Where(p => p.SKU.Contains(_sku));
                 }
+
+                _lambda = _lambda.Where(p => p.IsGift);
+
                 //查询
-                var _list = db.GetPage<Product>("select Id,SKU,Name,[Description],GroupDesc,SupplyPrice,MarketPrice,SalesPrice,Quantity,Material,GdVal,ProductID from Product where isGift=1 order by ID asc", _SqlWhere, _perpage, _page);
+                var _list = this.BaseEntityRepository.GetPage(_page, _perpage, _lambda.AsNoTracking(), p => p.Id, true);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
@@ -558,30 +582,43 @@ namespace OMS.App.Controllers
         public JsonResult PackageGoods_Message()
         {
             JsonResult _result = new JsonResult();
-            List<DynamicRepository.SQLCondition> _SqlWhere = new List<DynamicRepository.SQLCondition>();
             string _key = VariableHelper.SaferequestStr(Request.Form["q"]);
             int _perpage = VariableHelper.SaferequestInt(Request.Form["rows"]);
             if (_perpage <= 0) _perpage = 30;
             int _page = VariableHelper.SaferequestInt(Request.Form["page"]);
             if (_page <= 0) _page = 1;
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
+                var _lambda1 = db.ProductSet.AsQueryable();
+                var _lambda2 = db.Product.AsQueryable();
+
                 //搜索条件
                 if (!string.IsNullOrEmpty(_key))
                 {
-                    _SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "(SetName like {0}) or (SetCode like {0})", Param = "%" + _key + "%" });
+                    _lambda1 = _lambda1.Where(p => p.SetName.Contains(_key) || p.SetCode.Contains(_key));
                 }
+
+                _lambda1 = _lambda1.Where(p => p.IsApproval);
+
+                var _lambda = from ps in _lambda1
+                              join p in _lambda2 on ps.SetCode equals p.SKU
+                              select new
+                              {
+                                  productSet = ps,
+                                  quantity = p.Quantity
+                              };
+
                 //查询
-                var _list = db.GetPage<dynamic>("select ps.Id,ps.SetName,ps.SetCode,p.Quantity from ProductSet as ps inner join Product as p on ps.SetCode=p.Sku where ps.IsApproval=1 order by ps.ID desc", _SqlWhere, _perpage, _page);
+                var _list = this.BaseEntityRepository.GetPage(_page, _perpage, _lambda.AsNoTracking(), p => p.productSet.Id, false);
                 _result.Data = new
                 {
                     total = _list.TotalItems,
                     rows = from dy in _list.Items
                            select new
                            {
-                               s1 = dy.SetName,
-                               s2 = dy.SetCode,
-                               s3 = dy.Quantity
+                               s1 = dy.productSet.SetName,
+                               s2 = dy.productSet.SetCode,
+                               s3 = dy.quantity
                            }
                 };
             }

@@ -61,18 +61,20 @@ namespace Samsonite.OMS.ECommerce.Japan
         /// <param name="objMallSapCode"></param>
         /// <param name="objTimeAgo"></param>
         /// <returns></returns>
-        public CommonResult<DeliveryResult> RegDeliverys(string objMallSapCode)
+        public CommonResult<DeliveryResult> RegDeliverys(string objMallSapCode, List<View_OrderDetail_Deliverys> objDelivery_List = null)
         {
             CommonResult<DeliveryResult> _result = new CommonResult<DeliveryResult>();
             using (var db = new ebEntities())
             {
                 int pageSize = 10;
-                //读取最近一定天数的订单
-                //仓库已经上传了快递号
-                //过滤掉已经注册成功的订单
-                //DateTime _time = DateTime.Now.AddDays(TumiConfig.timeAgo);
-                DateTime _time = DateTime.Now.AddDays(-365);
-                var objDelivery_List = db.View_OrderDetail_Deliverys.Where(p => p.MallSapCode == objMallSapCode && p.Status == (int)ProductStatus.Processing && !string.IsNullOrEmpty(p.InvoiceNo) && p.IsNeedPush && db.ECommercePushRecord.Where(o => o.PushType == (int)ECommercePushType.PushTrackingCode && o.RelatedId == p.DeliveryID).Count() < TumiConfig.maxPushCount && p.CreateDate >= _time).ToList();
+                DateTime _time = DateTime.Now.AddDays(TumiConfig.timeAgo);
+                if (objDelivery_List == null)
+                {
+                    //1.读取最近一定天数的订单
+                    //2.仓库已经上传了快递号
+                    //3.过滤掉已经注册成功的订单
+                    objDelivery_List = db.View_OrderDetail_Deliverys.Where(p => p.MallSapCode == objMallSapCode && p.Status == (int)ProductStatus.Processing && !string.IsNullOrEmpty(p.InvoiceNo) && p.IsNeedPush && db.ECommercePushRecord.Where(o => o.PushType == (int)ECommercePushType.PushTrackingCode && o.RelatedId == p.DeliveryID).Count() < TumiConfig.maxPushCount && p.CreateDate >= _time).ToList();
+                }
                 int _TotalPage = PagerHelper.CountTotalPage(objDelivery_List.Count, pageSize);
                 for (int t = 1; t <= _TotalPage; t++)
                 {

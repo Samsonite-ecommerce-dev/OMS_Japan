@@ -15,6 +15,7 @@ using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.Utility.Common;
+
 using OMS.App.Helper;
 
 
@@ -71,9 +72,6 @@ namespace OMS.App.Controllers
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    //if (_UserMalls.Count == 0)
-                    //    _UserMalls.Add("0");
-                    //_SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
                     _lambda = _lambda.Where(p => _UserMalls.Contains(p.MallSapCode));
                 }
 
@@ -669,9 +667,6 @@ namespace OMS.App.Controllers
                 {
                     //默认显示当前账号允许看到的店铺订单
                     var _UserMalls = this.CurrentLoginUser.UserMalls;
-                    //if (_UserMalls.Count == 0)
-                    //    _UserMalls.Add("0");
-                    //_SqlWhere.Add(new DynamicRepository.SQLCondition() { Condition = "MallSapCode in (select item from strToIntTable('" + string.Join(",", _UserMalls) + "',','))", Param = null });
                     _lambda = _lambda.Where(p => _UserMalls.Contains(p.MallSapCode));
                 }
 

@@ -187,10 +187,10 @@ namespace OMS.Service.Application
             List<string> _msg = new List<string>();
             List<string> _brandList = new List<string>();
             FileLogHelper.WriteLog($"Start to send pending refund orders.", baseModel.ThreadName);
-            using (var db = new DynamicRepository())
+            using (var db = new ebEntities())
             {
                 //读取取消订单
-                List<dynamic> objOrderCancel_List = db.Fetch<dynamic>("select od.MallName,od.MallSapCode,c.OrderNo,c.SubOrderNo,od.Sku,od.ActualPaymentAmount,c.Quantity as RefundQuantiry,od.Quantity,c.RefundAmount,c.CreateDate,od.ProductName,od.PaymentType,r.Receive,r.ReceiveTel,r.ReceiveCel,r.ReceiveZipcode,Isnull((select Name from Product as p where p.Sku=od.Sku),'') as BrandName,Isnull((select Name from Customer where Customer.CustomerNo=od.CustomerNo),'')As CustomerName from OrderCancel as c inner join View_OrderDetail as od on c.OrderNo=od.OrderNo and c.SubOrderNo=od.SubOrderNo inner join OrderReceive as r on od.SubOrderNo=r.SubOrderNo where c.Status=@0 and od.PlatformType in (" + (int)PlatformType.TUMI_Japan + ","+ (int)PlatformType.Micros_Japan + ")", (int)ProcessStatus.WaitRefund);
+                List<SendPendingRefundQuery> objOrderCancel_List = db.Database.SqlQuery<SendPendingRefundQuery>("select od.MallName,od.MallSapCode,c.OrderNo,c.SubOrderNo,od.Sku,od.ActualPaymentAmount,c.Quantity as RefundQuantity,od.Quantity,c.RefundAmount,c.CreateDate,od.ProductName,od.PaymentType,r.Receive,r.ReceiveTel,r.ReceiveCel,r.ReceiveZipcode,Isnull((select Name from Product as p where p.Sku=od.Sku),'') as BrandName,Isnull((select Name from Customer where Customer.CustomerNo=od.CustomerNo),'')As CustomerName from OrderCancel as c inner join View_OrderDetail as od on c.OrderNo=od.OrderNo and c.SubOrderNo=od.SubOrderNo inner join OrderReceive as r on od.SubOrderNo=r.SubOrderNo where c.Status={0} and od.PlatformType in (" + (int)PlatformType.TUMI_Japan + "," + (int)PlatformType.Micros_Japan + ")", (int)ProcessStatus.WaitRefund).ToList();
                 foreach (var _o in objOrderCancel_List)
                 {
                     //解密数据
@@ -203,7 +203,7 @@ namespace OMS.Service.Application
                 }
 
                 //读取退货订单
-                List<dynamic> objOrderReturn_List = db.Fetch<dynamic>("select od.MallName,od.MallSapCode,c.OrderNo,c.SubOrderNo,od.Sku,od.ActualPaymentAmount,c.Quantity as RefundQuantiry,od.Quantity,c.RefundAmount,c.CreateDate,od.ProductName,od.PaymentType,r.Receive,r.ReceiveTel,r.ReceiveCel,r.ReceiveZipcode,Isnull((select Name from Product as p where p.Sku=od.Sku),'') as BrandName,Isnull((select Name from Customer where Customer.CustomerNo=od.CustomerNo),'')As CustomerName from OrderReturn as c inner join View_OrderDetail as od on c.OrderNo=od.OrderNo and c.SubOrderNo=od.SubOrderNo inner join OrderReceive as r on od.SubOrderNo=r.SubOrderNo where c.Status=@0 and c.IsFromExchange=0 and od.PlatformType in (" +(int)PlatformType.TUMI_Japan + ","+ (int)PlatformType.Micros_Japan + ")", (int)ProcessStatus.ReturnAcceptComfirm);
+                List<SendPendingRefundQuery> objOrderReturn_List = db.Database.SqlQuery<SendPendingRefundQuery>("select od.MallName,od.MallSapCode,c.OrderNo,c.SubOrderNo,od.Sku,od.ActualPaymentAmount,c.Quantity as RefundQuantity,od.Quantity,c.RefundAmount,c.CreateDate,od.ProductName,od.PaymentType,r.Receive,r.ReceiveTel,r.ReceiveCel,r.ReceiveZipcode,Isnull((select Name from Product as p where p.Sku=od.Sku),'') as BrandName,Isnull((select Name from Customer where Customer.CustomerNo=od.CustomerNo),'')As CustomerName from OrderReturn as c inner join View_OrderDetail as od on c.OrderNo=od.OrderNo and c.SubOrderNo=od.SubOrderNo inner join OrderReceive as r on od.SubOrderNo=r.SubOrderNo where c.Status={0} and c.IsFromExchange=0 and od.PlatformType in (" + (int)PlatformType.TUMI_Japan + "," + (int)PlatformType.Micros_Japan + ")", (int)ProcessStatus.ReturnAcceptComfirm).ToList();
                 foreach (var _o in objOrderReturn_List)
                 {
                     //解密数据
@@ -252,7 +252,7 @@ namespace OMS.Service.Application
                         dr[5] = _o.Quantity;
                         dr[6] = GetPaymentType(_o.PaymentType);
                         dr[7] = VariableHelper.FormateMoney(_o.ActualPaymentAmount);
-                        dr[8] = _o.RefundQuantiry;
+                        dr[8] = _o.RefundQuantity;
                         dr[9] = VariableHelper.FormateMoney(_o.RefundAmount);
                         dr[10] = _o.CustomerName;
                         dr[11] = _o.Receive;
@@ -273,7 +273,7 @@ namespace OMS.Service.Application
                         dr[5] = _o.Quantity;
                         dr[6] = GetPaymentType(_o.PaymentType);
                         dr[7] = VariableHelper.FormateMoney(_o.ActualPaymentAmount);
-                        dr[8] = _o.RefundQuantiry;
+                        dr[8] = _o.RefundQuantity;
                         dr[9] = VariableHelper.FormateMoney(_o.RefundAmount);
                         dr[10] = _o.CustomerName;
                         dr[11] = _o.Receive;

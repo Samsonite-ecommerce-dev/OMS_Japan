@@ -16,19 +16,26 @@ using Samsonite.OMS.ECommerce.Japan;
 using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service.Sap.Poslog;
 using Samsonite.OMS.ECommerce.Japan.Micros;
+using Samsonite.OMS.Service.WebHook;
+using Samsonite.OMS.Service.WebHook.Models;
 
 namespace Test
 {
     public class TestApiMicros : ECommerceBaseService
     {
-        private static MicrosAPI MicrosAPIClinet()
+        private MicrosAPI microsAPIClient;
+        private WebHookPushOrderService webHookPushOrderService;
+        public TestApiMicros()
         {
+            //WebHook
+            webHookPushOrderService = new WebHookPushOrderService();
+            //店铺配置信息
             using (var db = new ebEntities())
             {
                 string _mallSapCode = "1197417";
                 //读取店铺信息
                 View_Mall_Platform objView_Mall_Platform = db.View_Mall_Platform.Where(p => p.SapCode == _mallSapCode && p.PlatformCode == (int)PlatformType.Micros_Japan).SingleOrDefault();
-                MicrosAPI objMicrosAPI = new MicrosAPI()
+                microsAPIClient = new MicrosAPI()
                 {
                     MallName = objView_Mall_Platform.MallName,
                     MallSapCode = objView_Mall_Platform.SapCode,
@@ -37,16 +44,15 @@ namespace Test
                     Token = objView_Mall_Platform.Token,
                     FtpID = objView_Mall_Platform.FtpID,
                     PlatformCode = objView_Mall_Platform.PlatformCode,
-                    VirtualDeliveringPlant= objView_Mall_Platform.VirtualWMSCode,
+                    VirtualDeliveringPlant = objView_Mall_Platform.VirtualWMSCode,
                     Url = objView_Mall_Platform.Url,
                     AppKey = objView_Mall_Platform.AppKey,
                     AppSecret = objView_Mall_Platform.AppSecret,
                 };
-                return objMicrosAPI;
             }
         }
 
-        public static void Test()
+        public void Test()
         {
             ImportMirOrders();
             //PushDN();
@@ -63,7 +69,7 @@ namespace Test
             Console.ReadKey();
         }
 
-        public static void GetDocument()
+        public void GetDocument()
         {
             //MicrosAPI MicrosAPI = MicrosAPIClinet();
             //using (var db = new ebEntities())
@@ -80,16 +86,13 @@ namespace Test
             Console.WriteLine("over");
         }
 
-        public static void GetExpress()
+        public void GetExpress()
         {
-            MicrosAPI MicrosAPI = MicrosAPIClinet();
-            var result = MicrosAPI.GetExpressFromPlatform();
+            var result = microsAPIClient.GetExpressFromPlatform();
         }
 
-        public static void ImportMirOrders()
+        public void ImportMirOrders()
         {
-            MicrosAPI objMicrosAPI = MicrosAPIClinet();
-
             List<string> paths = new List<string>()
             {
                  @"D:\Test\Singapore\SendSales\transaction_8888888_37.xml",
@@ -103,8 +106,8 @@ namespace Test
             };
             foreach (var path in paths)
             {
-                var x = objMicrosAPI.ParseXmlToOrder(path);
-                //foreach (var o in x)
+                var trades = microsAPIClient.ParseXmlToOrder(path);
+                //foreach (var o in trades)
                 //{
                 //    Console.WriteLine(o.Order.OrderNo);
                 //    Console.WriteLine(o.Order.MallName);
@@ -113,8 +116,15 @@ namespace Test
                 //    Console.WriteLine(o.Order.PaymentType);
                 //    Console.WriteLine(o.Order.PaymentAttribute);
                 //}
-                Console.WriteLine(x.Count);
-                ECommerceBaseService.SaveTrades(x);
+                Console.WriteLine(trades.Count);
+                var result=ECommerceBaseService.SaveTrades(trades);
+                //插入订单待推送表
+                var webHookPushOrders = result.ResultData.Where(p => p.Result).Select(o => new WebHookPushOrderRequest()
+                {
+                    OrderNo = o.Data.OrderNo,
+                    MallSapCode = o.Data.MallSapCode
+                }).ToList();
+                webHookPushOrderService.PushNewOrder(webHookPushOrders, WebHookPushTarget.CRM);
                 Console.WriteLine("ok");
 
                 //var x = objMicrosAPI.ParseXmlToOrder(path);
@@ -139,16 +149,15 @@ namespace Test
             //Console.WriteLine(x.SuccessRecord);
         }
 
-        public static void GeneratePosLog()
+        public void GeneratePosLog()
         {
             string[] mallCodes = new[] { "1170918" };
             //SapService.GeneratePosLogs(DateTime.Now.AddDays(-30),DateTime.Now.AddDays(-10), "", mallCodes);
         }
 
-        public static void PushOrderDetail()
+        public void PushOrderDetail()
         {
             /****************** MicrosAPI  Order  OrderDetail**************************/
-            MicrosAPI objMicrosAPI = new MicrosAPI();
             int _AmountAccuracy = ConfigService.GetAmountAccuracyConfig();
             string orderNo = "0000007702";
             using (var db = new ebEntities())
@@ -210,12 +219,11 @@ namespace Test
             }
         }
 
-        public static void GetExpressFromPlatform()
+        public void GetExpressFromPlatform()
         {
             using (var db = new ebEntities())
             {
-                MicrosAPI objMicrosAPI = MicrosAPIClinet();
-                //objMicrosAPI.GetExpressFromPlatform();
+                //microsAPIClient.GetExpressFromPlatform();
 
                 string _OrderNo = "13498";
                 List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();
@@ -230,10 +238,9 @@ namespace Test
             }
         }
 
-        public static void PosLog()
+        public void PosLog()
         {
-            var clinet = MicrosAPIClinet();
-            var x = PoslogService.UploadPosLogs(DateTime.Now, DateTime.Now, clinet.MallSapCode);
+            var x = PoslogService.UploadPosLogs(DateTime.Now, DateTime.Now, microsAPIClient.MallSapCode);
 
             //string orderNo = "8888888_A151";
             //using (var db = new ebEntities())

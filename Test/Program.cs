@@ -13,6 +13,8 @@ using SagawaSdk.Domain;
 using Samsonite.OMS.ECommerce.Japan;
 using static Samsonite.OMS.Database.EntityRepository;
 using Samsonite.OMS.Service;
+using Samsonite.OMS.Service.WebHook;
+using Samsonite.OMS.Service.WebHook.Models;
 
 namespace Test
 {
@@ -20,8 +22,8 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            //TestApiTumi.Test();
-            //TestApiMicros.Test();
+            (new TestApiTumi()).Test();
+            //(new TestApiMicros()).Test();
 
             //---api---
             //(new TestWebAPI()).TestWarehouse();
@@ -31,6 +33,8 @@ namespace Test
 
             //DeBug();
             //ServicetTest();
+
+            //WebHookTest();
 
             //SagawaSdkTest();
 
@@ -78,7 +82,7 @@ namespace Test
             //Console.WriteLine(y);
 
             AnalysisService analysisService = new AnalysisService();
-            for (var t=DateTime.Now.AddDays(-60); t>= DateTime.Now.AddDays(-150);t=t.AddDays(-1))
+            for (var t = DateTime.Now.AddDays(-60); t >= DateTime.Now.AddDays(-150); t = t.AddDays(-1))
             {
                 Console.WriteLine(t.ToString("yyyy-MM-dd"));
                 analysisService.OrderDailyStatistics(t);
@@ -104,6 +108,57 @@ namespace Test
                     Console.Write("Configuration information read failed.");
                 }
             }
+        }
+
+        private static void WebHookTest()
+        {
+            WebHookPushOrderService webHookPushOrderService = new WebHookPushOrderService();
+            //var orders = new List<WebHookPushOrderRequest>()
+            //{
+            //    new WebHookPushOrderRequest()
+            //    {
+            //        OrderNo="001",
+            //        MallSapCode="1234567"
+            //    },
+            //    new WebHookPushOrderRequest()
+            //    {
+            //        OrderNo="002",
+            //        MallSapCode="1234567"
+            //    },
+            //    new WebHookPushOrderRequest()
+            //    {
+            //        OrderNo="003",
+            //        MallSapCode="1234567"
+            //    },
+            //};
+            //webHookPushOrderService.PushNewOrder(orders, WebHookPushTarget.CRM);
+            var orderStatus = new List<WebHookPushOrderStatusRequest>()
+            {
+                new WebHookPushOrderStatusRequest()
+                {
+                    OrderNo="002",
+                    SubOrderNo="001-01",
+                    MallSapCode="1234567",
+                    PushType=(int)WebHookPushType.Complete
+                },
+                new WebHookPushOrderStatusRequest()
+                {
+                    OrderNo="001",
+                    SubOrderNo="001-02",
+                    MallSapCode="1234567",
+                    PushType=(int)WebHookPushType.Exchange
+                },
+                new WebHookPushOrderStatusRequest()
+                {
+                    OrderNo="001",
+                    SubOrderNo="001-03",
+                    MallSapCode="1234567",
+                    PushType=(int)WebHookPushType.Cancel
+                },
+            };
+            webHookPushOrderService.PushOrderStatus(orderStatus, WebHookPushTarget.CRM);
+
+            Console.WriteLine("ok");
         }
 
         private static void SagawaSdkTest()

@@ -16,40 +16,53 @@ using Samsonite.OMS.Service.Sap.Poslog;
 using Samsonite.OMS.ECommerce.Japan.Tumi;
 using Samsonite.Utility.Common;
 using Samsonite.OMS.Service.Sap.Poslog.Models;
+using Samsonite.OMS.Service.WebHook;
+using Samsonite.OMS.Service.WebHook.Models;
 
 namespace Test
 {
     public class TestApiTumi : ECommerceBaseService
     {
-        private static TumiAPI TumiAPIClient()
+        private TumiAPI tumiAPIClient;
+        private WebHookPushOrderService webHookPushOrderService;
+        public TestApiTumi()
         {
+            //WebHook
+            webHookPushOrderService = new WebHookPushOrderService();
+            //店铺配置信息
             using (var db = new ebEntities())
             {
                 string _mallSapCode = "1197417";
 
                 //读取店铺信息
                 View_Mall_Platform objView_Mall_Platform = db.View_Mall_Platform.Where(p => p.SapCode == _mallSapCode && p.PlatformCode == (int)PlatformType.TUMI_Japan).SingleOrDefault();
-                TumiAPI objTumiAPI = new TumiAPI()
+                if (objView_Mall_Platform != null)
                 {
-                    MallName = objView_Mall_Platform.MallName,
-                    MallSapCode = objView_Mall_Platform.SapCode,
-                    MallPrefix = objView_Mall_Platform.Prefix,
-                    UserID = objView_Mall_Platform.UserID,
-                    Token = objView_Mall_Platform.Token,
-                    FtpID = objView_Mall_Platform.FtpID,
-                    PlatformCode = objView_Mall_Platform.PlatformCode,
-                    VirtualDeliveringPlant = objView_Mall_Platform.VirtualWMSCode,
-                    Url = objView_Mall_Platform.Url,
-                    AppKey = objView_Mall_Platform.AppKey,
-                    AppSecret = objView_Mall_Platform.AppSecret,
-                };
-                return objTumiAPI;
+                    tumiAPIClient = new TumiAPI()
+                    {
+                        MallName = objView_Mall_Platform.MallName,
+                        MallSapCode = objView_Mall_Platform.SapCode,
+                        MallPrefix = objView_Mall_Platform.Prefix,
+                        UserID = objView_Mall_Platform.UserID,
+                        Token = objView_Mall_Platform.Token,
+                        FtpID = objView_Mall_Platform.FtpID,
+                        PlatformCode = objView_Mall_Platform.PlatformCode,
+                        VirtualDeliveringPlant = objView_Mall_Platform.VirtualWMSCode,
+                        Url = objView_Mall_Platform.Url,
+                        AppKey = objView_Mall_Platform.AppKey,
+                        AppSecret = objView_Mall_Platform.AppSecret,
+                    };
+                }
+                else
+                {
+                    throw new Exception("Miss mall!");
+                }
             }
         }
 
-        public static void Test()
+        public void Test()
         {
-            ImportDWOrders();
+            //ImportDWOrders();
             //ImportDWClaimOrders();
             //ImportDWProducts();
             //PushDWPrices();
@@ -64,25 +77,32 @@ namespace Test
             Console.ReadKey();
         }
 
-        public static void getOrders()
+        public void getOrders()
         {
-            TumiAPI objTumiAPI = TumiAPIClient();
-            var result = objTumiAPI.GetOrders();
+            var result = tumiAPIClient.GetOrders();
             Console.WriteLine(result.Count);
         }
 
-        public static void ImportDWOrders()
+        public void ImportDWOrders()
         {
-            TumiAPI objTumiAPI = TumiAPIClient();
-            var x = objTumiAPI.GetOrders();
-            if (x.Count > 0)
+            var trades = tumiAPIClient.GetOrders();
+            if (trades.Count > 0)
             {
-                var result = ECommerceBaseService.SaveTrades(x);
+                var result = ECommerceBaseService.SaveTrades(trades);
+
+                //插入订单待推送表
+                var webHookPushOrders = result.ResultData.Where(p => p.Result).Select(o => new WebHookPushOrderRequest()
+                {
+                    OrderNo = o.Data.OrderNo,
+                    MallSapCode = o.Data.MallSapCode
+                }).ToList();
+                webHookPushOrderService.PushNewOrder(webHookPushOrders, WebHookPushTarget.CRM);
+
                 //保存结果信息
                 var orderNos = result.ResultData.Select(p => p.Data.OrderNo).ToList();
                 foreach (var item in result.ResultData)
                 {
-                    ECommerceBaseService.UpdateOrderCache(item.Result,item.Data.OrderNo, item.ResultMessage);
+                    ECommerceBaseService.UpdateOrderCache(item.Result, item.Data.OrderNo, item.ResultMessage);
                     Console.WriteLine($"OrderNo:{item.Data.OrderNo},Result:{item.Result}");
                 }
             }
@@ -148,63 +168,23 @@ namespace Test
         //    //Console.WriteLine(x.SuccessRecord);
         //}
 
-        public static void ImportDWClaimOrders()
+        public void ImportDWClaimOrders()
         {
-            TumiAPI objTumiAPI = new TumiAPI();
             string path = @"D:\Test\China\Lipault-DW\order_partial_request\KUA_Partial_Request_20170314143122207.xml";
             try
             {
-                //List<ClaimInfoDto> objDWClaimInfoDto_List = objTumiAPI.GetClaims();
-                ////保存取消订单
-                //var cancelOrders = objDWClaimInfoDto_List.Where(o => o.ClaimType == ClaimType.Cancel).ToList();
-                //var _result_dw_changeorder = CommonBaseService.SaveClaims(cancelOrders, ClaimType.Cancel);
-                ////记录结果
-                //Console.WriteLine(string.Format($"Demandware Cancel Order:Total Record:{_result_dw_changeorder.TotalRecord},Success Record:{_result_dw_changeorder.SuccessRecord},Fail Record:{_result_dw_changeorder.FailRecord}."));
-                //保存退货订单
-                //var returnOrders = objDWClaimInfoDto_List.Where(o => o.ClaimType == ClaimType.Return).ToList();
-                //Console.WriteLine(returnOrders.Count);
-                //var _result_dw_changeorder = CommonBaseService.SaveClaims(returnOrders, ClaimType.Return);
+                List<ClaimInfoDto> objDWClaimInfoDto_List = tumiAPIClient.GetClaims();
+                //保存取消订单
+                var cancelOrders = objDWClaimInfoDto_List.Where(o => o.ClaimType == ClaimType.Cancel).ToList();
+                var _result_cancel_order = ECommerceBaseService.SaveClaims(cancelOrders, ClaimType.Cancel);
                 //记录结果
-                //Console.WriteLine(string.Format($"Demandware Cancel Order:Total Record:{_result_dw_changeorder.TotalRecord},Success Record:{_result_dw_changeorder.SuccessRecord},Fail Record:{_result_dw_changeorder.FailRecord}."));
-
-
-                //List<ClaimInfoDto> objDWClaimInfoDto_List = objTumiAPI.GetClaims();
-                //var cancelOrders = objDWClaimInfoDto_List.Where(o => o.ClaimType == ClaimType.Cancel).ToList();
-
-                //List<ClaimInfoDto> yy = objTumiAPI.ParseXmlToOrderPartialRequest(path);
-                //List<ClaimInfoDto> _cancel = yy.Where(p=>p.ClaimType== ClaimType.Cancel).ToList();
-                //BaseService.SaveCancelOrder(_cancel);
-                //Console.WriteLine("CANCEL");
-                //List<ClaimInfoDto> _return = yy.Where(p => p.ClaimType == ClaimType.Return).ToList();
-                //ECommerceBaseService.SaveClaims(_return,ClaimType.Return);
-                //List<ClaimInfoDto> _exchange = yy.Where(p => p.ClaimType == ClaimType.Exchange).ToList();
-                //ECommerceBaseService.SaveClaims(_exchange,ClaimType.Exchange);
-                //Console.WriteLine("EXCHANGE");
-                //Console.WriteLine("over");
-                //Console.WriteLine(yy.Count);
-                //foreach (var z in yy)
-                //{
-                //    Console.WriteLine(z.RequestID);
-                //    Console.WriteLine(z.SubOrderId);
-                //    Console.WriteLine(z.OrderId);
-                //    Console.WriteLine(z.MallName);
-                //    Console.WriteLine("Quantity" + z.Quantity);
-                //    Console.WriteLine(z.OrderPrice);
-                //    Console.WriteLine(z.SKU);
-                //    Console.WriteLine(z.ClaimStatus);
-                //    Console.WriteLine(z.ClaimMemo);
-                //    Console.WriteLine(z.ClaimDate);
-                //    Console.WriteLine(z.PlantformID);
-                //    Console.WriteLine("CollectType" + z.CollectType);
-                //    Console.WriteLine(z.VBankName);
-                //    Console.WriteLine(z.VBankOwner);
-                //    Console.WriteLine(z.VBankNumber);
-                //    Console.WriteLine(z.CollectName);
-                //    Console.WriteLine(z.CollectPhone);
-                //    Console.WriteLine(z.CollectAddress);
-                //    Console.WriteLine("MallCodeId"+z.MallCodeId);
-                //    Console.WriteLine("------------");
-                //}
+                Console.WriteLine(string.Format($"Demandware Cancel Order:Total Record:{_result_cancel_order.ResultData.Count()},Success Record:{_result_cancel_order.ResultData.Where(p=>p.Result).Count()},Fail Record:{_result_cancel_order.ResultData.Where(p => !p.Result).Count()}."));
+                //保存退货订单
+                var returnOrders = objDWClaimInfoDto_List.Where(o => o.ClaimType == ClaimType.Return).ToList();
+                Console.WriteLine(returnOrders.Count);
+                var _result_returnorder = ECommerceBaseService.SaveClaims(returnOrders, ClaimType.Return);
+                //记录结果
+                Console.WriteLine(string.Format($"Demandware Return Order:Total Record:{_result_returnorder.ResultData.Count()},Success Record:{_result_returnorder.ResultData.Where(p => p.Result).Count()},Fail Record:{_result_returnorder.ResultData.Where(p => !p.Result).Count()}."));
             }
             catch (Exception ex)
             {
@@ -212,10 +192,8 @@ namespace Test
             }
         }
 
-        public static void ImportDWProducts()
+        public void ImportDWProducts()
         {
-            TumiAPI objTumiAPI = TumiAPIClient();
-
             List<string> paths = new List<string>()
             {
                 @"D:\Test\Thailand\DW\products\product_assortment.xml",
@@ -259,20 +237,19 @@ namespace Test
             //Console.WriteLine(x.SuccessRecord);
         }
 
-        public static void GeneratePosLog()
+        public void GeneratePosLog()
         {
             string[] mallCodes = new[] { "1170918" };
             //SapService.GeneratePosLogs(DateTime.Now.AddDays(-30),DateTime.Now.AddDays(-10), "", mallCodes);
         }
 
-        public static void PushDWPrices()
+        public void PushDWPrices()
         {
-            TumiAPI objTumiAPI = TumiAPIClient();
-            var x = objTumiAPI.PushPrices();
+            var x = tumiAPIClient.PushPrices();
             Console.WriteLine(x.ResultData.Count);
         }
 
-        public static void PushOrderDetail()
+        public void PushOrderDetail()
         {
             /****************** TumiAPI  Order  OrderDetail**************************/
             TumiAPI objTumiAPI = new TumiAPI();
@@ -337,14 +314,13 @@ namespace Test
             }
         }
 
-        public static void SetReadyToShip()
+        public void SetReadyToShip()
         {
-            TumiAPI TumiAPI = TumiAPIClient();
-            var result = TumiAPI.SetReadyToShip();
+            var result = tumiAPIClient.SetReadyToShip();
             Console.WriteLine("ok");
         }
 
-        public static void ExpressPickUp()
+        public void ExpressPickUp()
         {
             using (var db = new ebEntities())
             {
@@ -361,12 +337,11 @@ namespace Test
             }
         }
 
-        public static void GetExpressFromPlatform()
+        public void GetExpressFromPlatform()
         {
             using (var db = new ebEntities())
             {
-                TumiAPI objTumiAPI = TumiAPIClient();
-                objTumiAPI.GetExpressFromPlatform();
+                tumiAPIClient.GetExpressFromPlatform();
 
                 //string _OrderNo = "TUSG00010608A";
                 //List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();
@@ -381,26 +356,24 @@ namespace Test
             }
         }
 
-        public static void PosLog()
+        public void PosLog()
         {
             PoslogByTime();
 
             //PoslogBySingle();
         }
 
-        private static void PoslogByTime()
+        private void PoslogByTime()
         {
-            TumiAPI TumiAPI = TumiAPIClient();
-            var _result = PoslogService.UploadPosLogs(DateTime.Now.AddDays(-3), DateTime.Now.AddDays(1), TumiAPI.MallSapCode);
+            var _result = PoslogService.UploadPosLogs(DateTime.Now.AddDays(-3), DateTime.Now.AddDays(1), tumiAPIClient.MallSapCode);
             Console.WriteLine($"KE,Total Record:{_result.Where(p => p.LogType == (int)SapLogType.KE).Count()},Success Record:{_result.Where(p => p.LogType == (int)SapLogType.KE && p.Status == (int)SapState.ToSap).Count()},Fail Record:{_result.Where(p => p.LogType == (int)SapLogType.KE && p.Status == (int)SapState.Error).Count()}.");
             Console.WriteLine($"KR,Total Record:{_result.Where(p => p.LogType == (int)SapLogType.KR).Count()},Success Record:{_result.Where(p => p.LogType == (int)SapLogType.KR && p.Status == (int)SapState.ToSap).Count()},Fail Record:{_result.Where(p => p.LogType == (int)SapLogType.KR && p.Status == (int)SapState.Error).Count()}.");
             //Console.WriteLine($"ZKA,Total Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKA).Count()},Success Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKA && p.Status == (int)SapState.ToSap).Count()},Fail Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKA && p.Status == (int)SapState.Error).Count()}.");
             //Console.WriteLine($"ZKB,Total Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKB).Count()},Success Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKB && p.Status == (int)SapState.ToSap).Count()},Fail Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKB && p.Status == (int)SapState.Error).Count()}.");
         }
 
-        private static void PoslogBySingle()
+        private void PoslogBySingle()
         {
-            TumiAPI TumiAPI = TumiAPIClient();
             string orderNo = "DEVSG00019210 ";
             using (var db = new ebEntities())
             {
@@ -411,7 +384,7 @@ namespace Test
                 {
                     //删除poslog记录表
                     db.Database.ExecuteSqlCommand("delete from SapUploadLogDetail where orderno={0}", orderNo);
-                    var _result = PoslogService.UploadPosLogs(startTime.Value, endTime.Value, TumiAPI.MallSapCode);
+                    var _result = PoslogService.UploadPosLogs(startTime.Value, endTime.Value, tumiAPIClient.MallSapCode);
                     Console.WriteLine($"KE,Total Record:{_result.Where(p => p.LogType == (int)SapLogType.KE).Count()},Success Record:{_result.Where(p => p.LogType == (int)SapLogType.KE && p.Status == (int)SapState.ToSap).Count()},Fail Record:{_result.Where(p => p.LogType == (int)SapLogType.KE && p.Status == (int)SapState.Error).Count()}.");
                     Console.WriteLine($"KR,Total Record:{_result.Where(p => p.LogType == (int)SapLogType.KR).Count()},Success Record:{_result.Where(p => p.LogType == (int)SapLogType.KR && p.Status == (int)SapState.ToSap).Count()},Fail Record:{_result.Where(p => p.LogType == (int)SapLogType.KR && p.Status == (int)SapState.Error).Count()}.");
                     //Console.WriteLine($"ZKA,Total Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKA).Count()},Success Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKA && p.Status == (int)SapState.ToSap).Count()},Fail Record:{_result.Where(p => p.LogType == (int)SapLogType.ZKA && p.Status == (int)SapState.Error).Count()}.");

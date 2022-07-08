@@ -2,9 +2,9 @@
 using System.Linq;
 
 using Samsonite.OMS.DTO;
+using Samsonite.OMS.ECommerce.Models;
 using Samsonite.OMS.Service.Sap.Poslog;
-using Samsonite.OMS.ECommerce.Result;
-using Samsonite.OMS.DTO.Sap;
+using Samsonite.OMS.Service.Sap.Poslog.Models;
 
 namespace Samsonite.OMS.ECommerce.Japan
 {

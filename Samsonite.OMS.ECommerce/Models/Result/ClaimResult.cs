@@ -2,7 +2,7 @@
 
 using Samsonite.OMS.DTO;
 
-namespace Samsonite.OMS.ECommerce.Result
+namespace Samsonite.OMS.ECommerce.Models
 {
     public class ClaimResult
     {

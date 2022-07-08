@@ -7,8 +7,8 @@ using Samsonite.Utility.Common;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Service;
-using Samsonite.OMS.ECommerce.Result;
 using Samsonite.OMS.Service.AppConfig;
+using Samsonite.OMS.ECommerce.Models;
 
 namespace Samsonite.OMS.ECommerce
 {
@@ -181,7 +181,8 @@ namespace Samsonite.OMS.ECommerce
                                 if (!string.IsNullOrEmpty(detail.SKU))
                                 {
                                     //判断sku是否存在,标为错误订单
-                                    Product objProduct = db.Database.SqlQuery<Product>("select top 1 * from Product where (SKU={0} or EAN={0} or ProductID={0})", ProductService.FormatSku(detail.SKU)).SingleOrDefault();
+                                    var _formatSKU = ProductService.FormatSku(detail.SKU);
+                                    var objProduct = db.Product.Where(p => p.SKU == _formatSKU || p.EAN == _formatSKU || p.ProductId == _formatSKU).FirstOrDefault();
                                     if (objProduct != null)
                                     {
                                         detail.SKU = objProduct.SKU;
@@ -640,7 +641,7 @@ namespace Samsonite.OMS.ECommerce
                         if (!string.IsNullOrEmpty(item.Sku))
                         {
                             item.Sku = item.Sku.Trim();
-                            Product objProduct = db.Product.Where(p => p.SKU == item.Sku || p.EAN == item.Sku || p.ProductId == item.Sku).SingleOrDefault();
+                            var objProduct = db.Product.Where(p => p.SKU == item.Sku || p.EAN == item.Sku || p.ProductId == item.Sku).SingleOrDefault();
                             if (objProduct != null)
                             {
                                 item.Sku = objProduct.SKU;

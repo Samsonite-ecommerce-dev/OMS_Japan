@@ -50,11 +50,15 @@
     <Compile Include="API\InterfaceDto.cs" />
     <Compile Include="AppLanguagePack.cs" />
     <Compile Include="Attribute\CustomPropertyAttribute.cs" />
+    <Compile Include="ECommerce\ClaimInfoDto.cs" />
+    <Compile Include="ECommerce\DwInventoryDto.cs" />
     <Compile Include="ECommerce\DwOrderDetailDto.cs" />
+    <Compile Include="ECommerce\DwPriceDto.cs" />
+    <Compile Include="ECommerce\ItemDto.cs" />
     <Compile Include="ECommerce\PlatformServicePowerDto.cs" />
+    <Compile Include="ECommerce\ServiceResultDto.cs" />
     <Compile Include="ECommerce\TradeDto.cs" />
     <Compile Include="EmailDto.cs" />
-    <Compile Include="ECommerce\ItemDto.cs" />
     <Compile Include="EmployeeImportDto.cs" />
     <Compile Include="Enum\CompanyType.cs" />
     <Compile Include="Enum\ECommerceType.cs" />
@@ -65,7 +69,6 @@
     <Compile Include="ExpressDto.cs" />
     <Compile Include="InvoiceDto.cs" />
     <Compile Include="AreaDto.cs" />
-    <Compile Include="ECommerce\ClaimInfoDto.cs" />
     <Compile Include="ApplicationConfigDto.cs" />
     <Compile Include="Enum\ApprovalType.cs" />
     <Compile Include="Enum\ErrorType.cs" />
@@ -77,10 +80,7 @@
     <Compile Include="ValueAddedServicesDto.cs" />
     <Compile Include="OrderQuery.cs" />
     <Compile Include="DefinedDto.cs" />
-    <Compile Include="ECommerce\ServiceResultDto.cs" />
     <Compile Include="DeliveryDto.cs" />
-    <Compile Include="ECommerce\DwInventoryDto.cs" />
-    <Compile Include="ECommerce\DwPriceDto.cs" />
     <Compile Include="Enum\ClaimType.cs" />
     <Compile Include="Enum\LogLevel.cs" />
     <Compile Include="Enum\OrderChangeType.cs" />
@@ -96,8 +96,6 @@
     <Compile Include="ReceiveDto .cs" />
     <Compile Include="ReportDto.cs" />
     <Compile Include="SapDto.cs" />
-    <Compile Include="Sap\SapLogEnum.cs" />
-    <Compile Include="Sap\SapLogDto.cs" />
     <Compile Include="ServiceDto.cs" />
     <Compile Include="UserSessionDto.cs" />
   </ItemGroup>

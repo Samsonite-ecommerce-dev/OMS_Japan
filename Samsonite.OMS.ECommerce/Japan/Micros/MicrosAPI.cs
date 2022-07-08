@@ -5,12 +5,11 @@ using System.Linq;
 
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
-using Samsonite.Utility.Common;
 using Samsonite.OMS.Service;
-using Samsonite.Utility.FTP;
 using Samsonite.OMS.Service.AppConfig;
-
-using Samsonite.OMS.ECommerce.Result;
+using Samsonite.OMS.ECommerce.Models;
+using Samsonite.Utility.Common;
+using Samsonite.Utility.FTP;
 
 namespace Samsonite.OMS.ECommerce.Japan.Micros
 {

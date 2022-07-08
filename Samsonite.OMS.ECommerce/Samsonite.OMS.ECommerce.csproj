@@ -64,7 +64,7 @@
     <Compile Include="Japan\Micros\MicrosConfig.cs" />
     <Compile Include="Japan\Micros\MicrosControl.cs" />
     <Compile Include="Models\Result\ClaimResult.cs" />
-    <Compile Include="Models\Dto\OrderDto.cs" />
+    <Compile Include="Models\Request\OrderDto.cs" />
     <Compile Include="Models\Result\PoslogResult.cs" />
     <Compile Include="Models\Result\OrderResult.cs" />
     <Compile Include="Models\Result\ProductResult.cs" />

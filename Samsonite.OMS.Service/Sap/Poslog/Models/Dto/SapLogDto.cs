@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Samsonite.OMS.Database;
 
-namespace Samsonite.OMS.DTO.Sap
+namespace Samsonite.OMS.Service.Sap.Poslog.Models
 {
     #region Transaction
     public class TransactionPosLogItem

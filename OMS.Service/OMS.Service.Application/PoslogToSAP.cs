@@ -4,11 +4,11 @@ using System.Threading;
 using System.Linq;
 
 using Samsonite.OMS.DTO;
-using Samsonite.OMS.DTO.Sap;
 using Samsonite.OMS.Service;
-using Samsonite.Utility.Common;
 using Samsonite.OMS.ECommerce;
-using Samsonite.OMS.ECommerce.Result;
+using Samsonite.OMS.ECommerce.Models;
+using Samsonite.OMS.Service.Sap.Poslog.Models;
+using Samsonite.Utility.Common;
 
 using OMS.Service.Base;
 using OMS.Service.Base.Model;

@@ -63,6 +63,8 @@
     <Compile Include="AppConfig\ConfigCache.cs" />
     <Compile Include="AppGlobalService.cs" />
     <Compile Include="AnalysisService.cs" />
+    <Compile Include="Sap\Poslog\Models\Enum\SapLogEnum.cs" />
+    <Compile Include="Sap\Poslog\Models\Dto\SapLogDto.cs" />
     <Compile Include="Sap\Poslog\TransferPoslogService.cs" />
     <Compile Include="StorageService.cs" />
     <Compile Include="Sap\Poslog\TransactionPoslogService.cs" />
@@ -115,6 +117,9 @@
     <Compile Include="WebAPILogService.cs" />
     <Compile Include="Reserve\ReserveConfig.cs" />
     <Compile Include="Reserve\ReserveService.cs" />
+    <Compile Include="WebHook\Models\Request\WebHookPushOrder.cs" />
+    <Compile Include="WebHook\Models\Enum\WebHookType.cs" />
+    <Compile Include="WebHook\WebHookPushOrderService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Samsonite.Utility\Samsonite.Utility.csproj">

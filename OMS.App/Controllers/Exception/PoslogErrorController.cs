@@ -8,9 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 
-using Samsonite.OMS.DTO.Sap;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.Service;
+using Samsonite.OMS.Service.Sap.Poslog.Models;
 using Samsonite.Utility.Common;
 
 using OMS.App.Helper;

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.ECommerce.Interface;
-using Samsonite.OMS.ECommerce.Result;
+using Samsonite.OMS.ECommerce.Models;
 
 namespace Samsonite.OMS.ECommerce.Japan.Micros
 {

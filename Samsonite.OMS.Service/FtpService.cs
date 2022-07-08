@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
-using System.Collections.Generic;
-using System.IO;
 using Samsonite.Utility.FTP;
 
 namespace Samsonite.OMS.Service

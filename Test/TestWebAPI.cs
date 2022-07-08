@@ -16,8 +16,7 @@ using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Samsonite.OMS.ECommerce.Dto;
-using Samsonite.OMS.ECommerce.Result;
+using Samsonite.OMS.ECommerce.Models;
 using Samsonite.OMS.ECommerce.Japan;
 using SagawaSdk.Domain;
 

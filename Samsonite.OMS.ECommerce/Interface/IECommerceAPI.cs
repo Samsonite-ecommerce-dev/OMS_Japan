@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
-using Samsonite.OMS.ECommerce.Result;
+using Samsonite.OMS.ECommerce.Models;
 
 namespace Samsonite.OMS.ECommerce.Interface
 {

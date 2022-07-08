@@ -8,7 +8,7 @@ using System.Threading;
 
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
-using Samsonite.OMS.DTO.Sap;
+using Samsonite.OMS.Service.Sap.Poslog.Models;
 using Samsonite.Utility.FTP;
 using Samsonite.Utility.Common;
 

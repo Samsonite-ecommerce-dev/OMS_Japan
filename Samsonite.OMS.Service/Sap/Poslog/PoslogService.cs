@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Samsonite.OMS.Database;
-using Samsonite.OMS.DTO.Sap;
+using Samsonite.OMS.Service.Sap.Poslog.Models;
 
 namespace Samsonite.OMS.Service.Sap.Poslog
 {

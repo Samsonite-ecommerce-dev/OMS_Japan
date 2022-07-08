@@ -12,7 +12,7 @@ namespace Samsonite.OMS.Database
     using System;
     using System.Collections.Generic;
     
-    public partial class WebApiOrderPushed
+    public partial class WebHookOrderPushed
     {
         public long ID { get; set; }
         public string MallSapCode { get; set; }

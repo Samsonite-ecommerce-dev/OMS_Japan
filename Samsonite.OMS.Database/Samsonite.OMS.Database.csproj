@@ -388,12 +388,6 @@
     <Compile Include="WebApiLog.cs">
       <DependentUpon>logModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="WebApiOrderPush.cs">
-      <DependentUpon>appModel.tt</DependentUpon>
-    </Compile>
-    <Compile Include="WebApiOrderPushed.cs">
-      <DependentUpon>appModel.tt</DependentUpon>
-    </Compile>
     <Compile Include="WebApiRoles.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
@@ -408,6 +402,12 @@
     </Compile>
     <Compile Include="WebAppPasswordLog.cs">
       <DependentUpon>logModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebHookOrderPush.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="WebHookOrderPushed.cs">
+      <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>

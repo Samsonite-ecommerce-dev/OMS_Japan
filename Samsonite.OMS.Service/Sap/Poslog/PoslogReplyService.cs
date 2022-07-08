@@ -2,11 +2,11 @@
 using System.IO;
 
 using Samsonite.OMS.DTO;
-using Samsonite.OMS.DTO.Sap;
-using Samsonite.Utility.FTP;
 using Samsonite.OMS.Database;
-using Samsonite.Utility.Common;
 using Samsonite.OMS.Service.AppConfig;
+using Samsonite.OMS.Service.Sap.Poslog.Models;
+using Samsonite.Utility.Common;
+using Samsonite.Utility.FTP;
 
 namespace Samsonite.OMS.Service.Sap.Poslog
 {

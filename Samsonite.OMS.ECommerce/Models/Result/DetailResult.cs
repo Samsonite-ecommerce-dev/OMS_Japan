@@ -1,7 +1,7 @@
 ﻿using System;
 
 
-namespace Samsonite.OMS.ECommerce.Result
+namespace Samsonite.OMS.ECommerce.Models
 {
     public class DetailResult
     {

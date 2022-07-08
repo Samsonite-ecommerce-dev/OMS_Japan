@@ -5,7 +5,7 @@ using System.Linq;
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Database;
 using Samsonite.OMS.ECommerce.Japan.Tumi;
-using Samsonite.OMS.ECommerce.Result;
+using Samsonite.OMS.ECommerce.Models;
 using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
 

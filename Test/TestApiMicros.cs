@@ -11,7 +11,7 @@ using System.Text;
 using System.Xml;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.OMS.Service.Sap;
-using Samsonite.OMS.ECommerce.Dto;
+using Samsonite.OMS.ECommerce.Models;
 using Samsonite.OMS.ECommerce.Japan;
 using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service.Sap.Poslog;

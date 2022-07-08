@@ -1,21 +1,20 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Data.Entity.SqlServer;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using Samsonite.Utility.Common;
-using Samsonite.Utility.FTP;
 
 using Samsonite.OMS.Database;
 using Samsonite.OMS.DTO;
 using Samsonite.OMS.Service.AppConfig;
 using Samsonite.OMS.Service;
-using Samsonite.OMS.ECommerce.Dto;
-using Samsonite.OMS.ECommerce.Result;
+using Samsonite.OMS.ECommerce.Models;
 using Samsonite.OMS.Encryption;
+using Samsonite.Utility.Common;
+using Samsonite.Utility.FTP;
 using Newtonsoft.Json;
-using System.Data.Entity.SqlServer;
 
 namespace Samsonite.OMS.ECommerce.Japan.Tumi
 {

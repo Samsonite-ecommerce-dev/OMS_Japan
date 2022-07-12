@@ -12,16 +12,19 @@ namespace Samsonite.OMS.Database
     using System;
     using System.Collections.Generic;
     
-    public partial class WebHookOrderPushed
+    public partial class WebHookOrderStatusPushLog
     {
         public long ID { get; set; }
         public string MallSapCode { get; set; }
         public string OrderNo { get; set; }
+        public long DetailId { get; set; }
         public string SubOrderNo { get; set; }
         public int PushTarget { get; set; }
         public int PushType { get; set; }
         public int PushStatus { get; set; }
+        public int PushCount { get; set; }
+        public string PushMessage { get; set; }
         public System.DateTime CreateTime { get; set; }
-        public System.DateTime PushTime { get; set; }
+        public Nullable<System.DateTime> CompleteTime { get; set; }
     }
 }

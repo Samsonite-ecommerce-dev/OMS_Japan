@@ -11,10 +11,11 @@ using System.Reflection;
 using SagawaSdk.Request;
 using SagawaSdk.Domain;
 using Samsonite.OMS.ECommerce.Japan;
-using static Samsonite.OMS.Database.EntityRepository;
 using Samsonite.OMS.Service;
 using Samsonite.OMS.Service.WebHook;
 using Samsonite.OMS.Service.WebHook.Models;
+using CRM.Api;
+using CRM.Api.Request;
 
 namespace Test
 {
@@ -22,7 +23,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            (new TestApiTumi()).Test();
+            //(new TestApiTumi()).Test();
             //(new TestApiMicros()).Test();
 
             //---api---
@@ -37,6 +38,7 @@ namespace Test
             //WebHookTest();
 
             //SagawaSdkTest();
+            CRMSdkTest();
 
             Console.ReadKey();
         }
@@ -113,50 +115,7 @@ namespace Test
         private static void WebHookTest()
         {
             WebHookPushOrderService webHookPushOrderService = new WebHookPushOrderService();
-            //var orders = new List<WebHookPushOrderRequest>()
-            //{
-            //    new WebHookPushOrderRequest()
-            //    {
-            //        OrderNo="001",
-            //        MallSapCode="1234567"
-            //    },
-            //    new WebHookPushOrderRequest()
-            //    {
-            //        OrderNo="002",
-            //        MallSapCode="1234567"
-            //    },
-            //    new WebHookPushOrderRequest()
-            //    {
-            //        OrderNo="003",
-            //        MallSapCode="1234567"
-            //    },
-            //};
-            //webHookPushOrderService.PushNewOrder(orders, WebHookPushTarget.CRM);
-            var orderStatus = new List<WebHookPushOrderStatusRequest>()
-            {
-                new WebHookPushOrderStatusRequest()
-                {
-                    OrderNo="002",
-                    SubOrderNo="001-01",
-                    MallSapCode="1234567",
-                    PushType=(int)WebHookPushType.Complete
-                },
-                new WebHookPushOrderStatusRequest()
-                {
-                    OrderNo="001",
-                    SubOrderNo="001-02",
-                    MallSapCode="1234567",
-                    PushType=(int)WebHookPushType.Exchange
-                },
-                new WebHookPushOrderStatusRequest()
-                {
-                    OrderNo="001",
-                    SubOrderNo="001-03",
-                    MallSapCode="1234567",
-                    PushType=(int)WebHookPushType.Cancel
-                },
-            };
-            webHookPushOrderService.PushOrderStatus(orderStatus, WebHookPushTarget.CRM);
+            webHookPushOrderService.PushNewOrders(WebHookPushTarget.CRM);
 
             Console.WriteLine("ok");
         }
@@ -225,6 +184,42 @@ namespace Test
             else
             {
                 Console.WriteLine($"{req.ErrorInfo.Code}:{req.ErrorInfo.Message}");
+            }
+        }
+
+        private static void CRMSdkTest()
+        {
+            string url = "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/03477816-b7ba-49e9-a23a-9f18354359d3/oms-experience-api/1.0.4/m";
+            string userName = "larrycao";
+            string password = "Samsonite1!";
+            DefaultCRMClient defaultClient = new DefaultCRMClient(url, userName, password);
+            var _req = new PostOrderRequest()
+            {
+                PostBody = new List<CRM.Api.Domain.PostOrder>()
+                {
+                    new CRM.Api.Domain.PostOrder()
+                    {
+                           OrderID="ST001_0000000001_Sale",
+                           OrderNumber="0000000001",
+                           OriginalOrderID="TU0000000001",
+                           SellerID="123456789",
+                           PurchaseOrderNumber="123456",
+                           PurchaseOrderDate=Convert.ToDateTime("2022-06-16 00:00:00"),
+                           IsAnonymous=false,
+                           SalesChannel="Online",
+                           SalesOrderType="Sale",
+                           SalesStoreID="ST001"
+                    }
+                }
+            };
+            var req = defaultClient.Execute(_req);
+            if (req.ResponseStatus.Equals("SUCCESS"))
+            {
+                Console.WriteLine("SUCCESS!");
+            }
+            else
+            {
+                Console.WriteLine($"{req.ResultCode}:{req.ResponseMsg}");
             }
         }
 

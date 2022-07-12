@@ -9,8 +9,6 @@ using Samsonite.Utility.Common;
 using Samsonite.OMS.ECommerce;
 using Samsonite.OMS.ECommerce.Interface;
 using Samsonite.OMS.ECommerce.Models;
-using Samsonite.OMS.Service.WebHook;
-using Samsonite.OMS.Service.WebHook.Models;
 
 using OMS.Service.Base;
 using OMS.Service.Base.Model;
@@ -36,13 +34,10 @@ namespace OMS.Service.Application
         ApplicationBLL OAB = new ApplicationBLL();
         //订单查询时间记录
         Dictionary<string, DateTime> objMallRecords = new Dictionary<string, DateTime>();
-        //WebHook
-        private WebHookPushOrderService webHookPushOrderService;
 
         public DataOrderFromAPI()
         {
             baseModel = OAB.InitBase<DataOrderFromAPI>();
-            webHookPushOrderService = new WebHookPushOrderService();
         }
 
         #region 获取初始化状态
@@ -257,14 +252,6 @@ namespace OMS.Service.Application
                         //结果为NULL表示该店铺不执行该操作
                         if (_result != null)
                         {
-                            //插入订单待推送表
-                            var webHookPushOrders = _result.ResultData.Where(p => p.Result).Select(o => new WebHookPushOrderRequest()
-                            {
-                                OrderNo = o.Data.OrderNo,
-                                MallSapCode = o.Data.MallSapCode
-                            }).ToList();
-                            webHookPushOrderService.PushNewOrder(webHookPushOrders, WebHookPushTarget.CRM);
-
                             //返回信息
                             _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: { _BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},Total Record:{_result.ResultData.Count},Success Record:{_result.ResultData.Where(p => p.Result).Count()},Fail Record:{_result.ResultData.Where(p => !p.Result).Count()}.");
                         }
@@ -290,14 +277,6 @@ namespace OMS.Service.Application
                         //结果为NULL表示该店铺不执行该操作
                         if (_result != null)
                         {
-                            //插入订单待推送表
-                            var webHookPushOrders = _result.ResultData.Where(p => p.Result).Select(o => new WebHookPushOrderRequest()
-                            {
-                                OrderNo = o.Data.OrderNo,
-                                MallSapCode = o.Data.MallSapCode
-                            }).ToList();
-                            webHookPushOrderService.PushNewOrder(webHookPushOrders, WebHookPushTarget.CRM);
-
                             //返回信息
                             _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: { _BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},Total Record:{_result.ResultData.Count},Success Record:{_result.ResultData.Where(p => p.Result).Count()},Fail Record:{_result.ResultData.Where(p => !p.Result).Count()}.");
                         }

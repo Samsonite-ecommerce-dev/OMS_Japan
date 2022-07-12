@@ -119,6 +119,7 @@
     <Compile Include="Reserve\ReserveService.cs" />
     <Compile Include="WebHook\Models\Request\WebHookPushOrder.cs" />
     <Compile Include="WebHook\Models\Enum\WebHookType.cs" />
+    <Compile Include="WebHook\WebHookConfig.cs" />
     <Compile Include="WebHook\WebHookPushOrderService.cs" />
   </ItemGroup>
   <ItemGroup>

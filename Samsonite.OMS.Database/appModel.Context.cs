@@ -102,8 +102,8 @@ namespace Samsonite.OMS.Database
         public virtual DbSet<WarehouseInfo> WarehouseInfo { get; set; }
         public virtual DbSet<WebApiAccount> WebApiAccount { get; set; }
         public virtual DbSet<WebApiRoles> WebApiRoles { get; set; }
-        public virtual DbSet<WebHookOrderPush> WebHookOrderPush { get; set; }
-        public virtual DbSet<WebHookOrderPushed> WebHookOrderPushed { get; set; }
+        public virtual DbSet<WebHookOrderPushLog> WebHookOrderPushLog { get; set; }
+        public virtual DbSet<WebHookOrderStatusPushLog> WebHookOrderStatusPushLog { get; set; }
         public virtual DbSet<View_Brand> View_Brand { get; set; }
         public virtual DbSet<View_DeliverysNote> View_DeliverysNote { get; set; }
         public virtual DbSet<View_Mall_Platform> View_Mall_Platform { get; set; }

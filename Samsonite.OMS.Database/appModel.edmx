@@ -1343,13 +1343,29 @@
           <Property Name="AccountID" Type="int" Nullable="false" />
           <Property Name="InterfaceID" Type="int" Nullable="false" />
         </EntityType>
-        <EntityType Name="WebHookOrderPush">
+        <EntityType Name="WebHookOrderPushLog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MallSapCode" Type="varchar" MaxLength="32" Nullable="false" />
+          <Property Name="OrderId" Type="bigint" Nullable="false" />
+          <Property Name="OrderNo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="PushTarget" Type="int" Nullable="false" />
+          <Property Name="PushStatus" Type="int" Nullable="false" />
+          <Property Name="PushCount" Type="int" Nullable="false" />
+          <Property Name="PushMessage" Type="nvarchar(max)" />
+          <Property Name="CreateTime" Type="datetime" Nullable="false" />
+          <Property Name="CompleteTime" Type="datetime" />
+        </EntityType>
+        <EntityType Name="WebHookOrderStatusPushLog">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="MallSapCode" Type="varchar" MaxLength="32" Nullable="false" />
           <Property Name="OrderNo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="DetailId" Type="bigint" Nullable="false" />
           <Property Name="SubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="PushTarget" Type="int" Nullable="false" />
           <Property Name="PushType" Type="int" Nullable="false" />
@@ -1357,20 +1373,7 @@
           <Property Name="PushCount" Type="int" Nullable="false" />
           <Property Name="PushMessage" Type="nvarchar(max)" />
           <Property Name="CreateTime" Type="datetime" Nullable="false" />
-        </EntityType>
-        <EntityType Name="WebHookOrderPushed">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="MallSapCode" Type="varchar" MaxLength="32" Nullable="false" />
-          <Property Name="OrderNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="SubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="PushTarget" Type="int" Nullable="false" />
-          <Property Name="PushType" Type="int" Nullable="false" />
-          <Property Name="PushStatus" Type="int" Nullable="false" />
-          <Property Name="CreateTime" Type="datetime" Nullable="false" />
-          <Property Name="PushTime" Type="datetime" Nullable="false" />
+          <Property Name="CompleteTime" Type="datetime" />
         </EntityType>
         <!--生成过程中发现错误:
 警告 6002: 表/视图“OMS_Japan.dbo.View_Brand”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
@@ -2544,8 +2547,8 @@
           <EntitySet Name="WarehouseInfo" EntityType="Self.WarehouseInfo" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WebApiAccount" EntityType="Self.WebApiAccount" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WebApiRoles" EntityType="Self.WebApiRoles" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="WebHookOrderPush" EntityType="Self.WebHookOrderPush" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="WebHookOrderPushed" EntityType="Self.WebHookOrderPushed" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WebHookOrderPushLog" EntityType="Self.WebHookOrderPushLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WebHookOrderStatusPushLog" EntityType="Self.WebHookOrderStatusPushLog" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="View_Brand" EntityType="Self.View_Brand" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
     [View_Brand].[ID] AS [ID], 
@@ -3294,8 +3297,8 @@
           <EntitySet Name="WarehouseInfo" EntityType="Samsonite.OMS.Database.WarehouseInfo" />
           <EntitySet Name="WebApiAccount" EntityType="Samsonite.OMS.Database.WebApiAccount" />
           <EntitySet Name="WebApiRoles" EntityType="Samsonite.OMS.Database.WebApiRoles" />
-          <EntitySet Name="WebHookOrderPush" EntityType="Samsonite.OMS.Database.WebHookOrderPush" />
-          <EntitySet Name="WebHookOrderPushed" EntityType="Samsonite.OMS.Database.WebHookOrderPushed" />
+          <EntitySet Name="WebHookOrderPushLog" EntityType="Samsonite.OMS.Database.WebHookOrderPushLog" />
+          <EntitySet Name="WebHookOrderStatusPushLog" EntityType="Samsonite.OMS.Database.WebHookOrderStatusPushLog" />
           <EntitySet Name="View_Brand" EntityType="Samsonite.OMS.Database.View_Brand" />
           <EntitySet Name="View_DeliverysNote" EntityType="Samsonite.OMS.Database.View_DeliverysNote" />
           <EntitySet Name="View_Mall_Platform" EntityType="Samsonite.OMS.Database.View_Mall_Platform" />
@@ -4653,13 +4656,29 @@
           <Property Name="AccountID" Type="Int32" Nullable="false" />
           <Property Name="InterfaceID" Type="Int32" Nullable="false" />
         </EntityType>
-        <EntityType Name="WebHookOrderPush">
+        <EntityType Name="WebHookOrderPushLog">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MallSapCode" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
+          <Property Name="OrderId" Type="Int64" Nullable="false" />
+          <Property Name="OrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="PushTarget" Type="Int32" Nullable="false" />
+          <Property Name="PushStatus" Type="Int32" Nullable="false" />
+          <Property Name="PushCount" Type="Int32" Nullable="false" />
+          <Property Name="PushMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CreateTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CompleteTime" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="WebHookOrderStatusPushLog">
           <Key>
             <PropertyRef Name="ID" />
           </Key>
           <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="MallSapCode" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
           <Property Name="OrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DetailId" Type="Int64" Nullable="false" />
           <Property Name="SubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="PushTarget" Type="Int32" Nullable="false" />
           <Property Name="PushType" Type="Int32" Nullable="false" />
@@ -4667,20 +4686,7 @@
           <Property Name="PushCount" Type="Int32" Nullable="false" />
           <Property Name="PushMessage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="CreateTime" Type="DateTime" Nullable="false" Precision="3" />
-        </EntityType>
-        <EntityType Name="WebHookOrderPushed">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="MallSapCode" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="false" />
-          <Property Name="OrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="SubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="PushTarget" Type="Int32" Nullable="false" />
-          <Property Name="PushType" Type="Int32" Nullable="false" />
-          <Property Name="PushStatus" Type="Int32" Nullable="false" />
-          <Property Name="CreateTime" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="PushTime" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CompleteTime" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="View_Brand">
           <Key>
@@ -7161,9 +7167,26 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="WebHookOrderPush">
-            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebHookOrderPush">
-              <MappingFragment StoreEntitySet="WebHookOrderPush">
+          <EntitySetMapping Name="WebHookOrderPushLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebHookOrderPushLog">
+              <MappingFragment StoreEntitySet="WebHookOrderPushLog">
+                <ScalarProperty Name="CompleteTime" ColumnName="CompleteTime" />
+                <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
+                <ScalarProperty Name="PushMessage" ColumnName="PushMessage" />
+                <ScalarProperty Name="PushCount" ColumnName="PushCount" />
+                <ScalarProperty Name="PushStatus" ColumnName="PushStatus" />
+                <ScalarProperty Name="PushTarget" ColumnName="PushTarget" />
+                <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
+                <ScalarProperty Name="MallSapCode" ColumnName="MallSapCode" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WebHookOrderStatusPushLog">
+            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebHookOrderStatusPushLog">
+              <MappingFragment StoreEntitySet="WebHookOrderStatusPushLog">
+                <ScalarProperty Name="CompleteTime" ColumnName="CompleteTime" />
                 <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
                 <ScalarProperty Name="PushMessage" ColumnName="PushMessage" />
                 <ScalarProperty Name="PushCount" ColumnName="PushCount" />
@@ -7171,21 +7194,7 @@
                 <ScalarProperty Name="PushType" ColumnName="PushType" />
                 <ScalarProperty Name="PushTarget" ColumnName="PushTarget" />
                 <ScalarProperty Name="SubOrderNo" ColumnName="SubOrderNo" />
-                <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
-                <ScalarProperty Name="MallSapCode" ColumnName="MallSapCode" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="WebHookOrderPushed">
-            <EntityTypeMapping TypeName="Samsonite.OMS.Database.WebHookOrderPushed">
-              <MappingFragment StoreEntitySet="WebHookOrderPushed">
-                <ScalarProperty Name="PushTime" ColumnName="PushTime" />
-                <ScalarProperty Name="CreateTime" ColumnName="CreateTime" />
-                <ScalarProperty Name="PushStatus" ColumnName="PushStatus" />
-                <ScalarProperty Name="PushType" ColumnName="PushType" />
-                <ScalarProperty Name="PushTarget" ColumnName="PushTarget" />
-                <ScalarProperty Name="SubOrderNo" ColumnName="SubOrderNo" />
+                <ScalarProperty Name="DetailId" ColumnName="DetailId" />
                 <ScalarProperty Name="OrderNo" ColumnName="OrderNo" />
                 <ScalarProperty Name="MallSapCode" ColumnName="MallSapCode" />
                 <ScalarProperty Name="ID" ColumnName="ID" />

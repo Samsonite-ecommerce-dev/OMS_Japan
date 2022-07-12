@@ -16,7 +16,6 @@ using Samsonite.OMS.ECommerce.Japan;
 using Samsonite.OMS.Encryption;
 using Samsonite.OMS.Service.Sap.Poslog;
 using Samsonite.OMS.ECommerce.Japan.Micros;
-using Samsonite.OMS.Service.WebHook;
 using Samsonite.OMS.Service.WebHook.Models;
 
 namespace Test
@@ -24,11 +23,8 @@ namespace Test
     public class TestApiMicros : ECommerceBaseService
     {
         private MicrosAPI microsAPIClient;
-        private WebHookPushOrderService webHookPushOrderService;
         public TestApiMicros()
         {
-            //WebHook
-            webHookPushOrderService = new WebHookPushOrderService();
             //店铺配置信息
             using (var db = new ebEntities())
             {
@@ -118,13 +114,6 @@ namespace Test
                 //}
                 Console.WriteLine(trades.Count);
                 var result=ECommerceBaseService.SaveTrades(trades);
-                //插入订单待推送表
-                var webHookPushOrders = result.ResultData.Where(p => p.Result).Select(o => new WebHookPushOrderRequest()
-                {
-                    OrderNo = o.Data.OrderNo,
-                    MallSapCode = o.Data.MallSapCode
-                }).ToList();
-                webHookPushOrderService.PushNewOrder(webHookPushOrders, WebHookPushTarget.CRM);
                 Console.WriteLine("ok");
 
                 //var x = objMicrosAPI.ParseXmlToOrder(path);

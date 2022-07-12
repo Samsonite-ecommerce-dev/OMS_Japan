@@ -16,19 +16,14 @@ using Samsonite.OMS.Service.Sap.Poslog;
 using Samsonite.OMS.ECommerce.Japan.Tumi;
 using Samsonite.Utility.Common;
 using Samsonite.OMS.Service.Sap.Poslog.Models;
-using Samsonite.OMS.Service.WebHook;
-using Samsonite.OMS.Service.WebHook.Models;
 
 namespace Test
 {
     public class TestApiTumi : ECommerceBaseService
     {
         private TumiAPI tumiAPIClient;
-        private WebHookPushOrderService webHookPushOrderService;
         public TestApiTumi()
         {
-            //WebHook
-            webHookPushOrderService = new WebHookPushOrderService();
             //店铺配置信息
             using (var db = new ebEntities())
             {
@@ -89,14 +84,6 @@ namespace Test
             if (trades.Count > 0)
             {
                 var result = ECommerceBaseService.SaveTrades(trades);
-
-                //插入订单待推送表
-                var webHookPushOrders = result.ResultData.Where(p => p.Result).Select(o => new WebHookPushOrderRequest()
-                {
-                    OrderNo = o.Data.OrderNo,
-                    MallSapCode = o.Data.MallSapCode
-                }).ToList();
-                webHookPushOrderService.PushNewOrder(webHookPushOrders, WebHookPushTarget.CRM);
 
                 //保存结果信息
                 var orderNos = result.ResultData.Select(p => p.Data.OrderNo).ToList();

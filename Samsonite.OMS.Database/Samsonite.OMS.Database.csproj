@@ -403,10 +403,10 @@
     <Compile Include="WebAppPasswordLog.cs">
       <DependentUpon>logModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="WebHookOrderPush.cs">
+    <Compile Include="WebHookOrderPushLog.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="WebHookOrderPushed.cs">
+    <Compile Include="WebHookOrderStatusPushLog.cs">
       <DependentUpon>appModel.tt</DependentUpon>
     </Compile>
   </ItemGroup>

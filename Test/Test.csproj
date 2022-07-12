@@ -121,6 +121,10 @@
       <Project>{8f6f5a76-973a-4a30-ad39-0a75a0067c68}</Project>
       <Name>Samsonite.Utility</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SDK\CRM\CRMSdk\CRMSdk.csproj">
+      <Project>{0155b835-4968-4f2b-b62d-eb6bb83f6769}</Project>
+      <Name>CRMSdk</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SDK\Express\Japan\SagawaSdk\SagawaSdk.csproj">
       <Project>{77e6f474-4d9f-40ac-8f79-efa12d32489d}</Project>
       <Name>SagawaSdk</Name>

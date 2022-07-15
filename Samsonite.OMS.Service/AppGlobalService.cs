@@ -93,6 +93,14 @@ namespace Samsonite.OMS.Service
         /// </summary>
         public const string SHIPPING_METHOD_CODE = "2542675";
         /// <summary>
+        /// SAM组织架构编号
+        /// </summary>
+        public const string SAM_SALES_ORGANIZATION = "5710";
+        /// <summary>
+        /// Tumi组织架构编号
+        /// </summary>
+        public const string TUMI_SALES_ORGANIZATION = "5010";
+        /// <summary>
         /// 仓库自取快递号
         /// </summary>
         public const string ExpressTakenByCustomer = "Collected by Customer";

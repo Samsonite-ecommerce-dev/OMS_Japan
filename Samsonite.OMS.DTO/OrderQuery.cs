@@ -494,6 +494,51 @@ namespace Samsonite.OMS.DTO
         public string ReceiveAddr { get; set; }
     }
 
+    public class OrderDetailInfo
+    {
+        public string OrderNo { get; set; }
+
+        public string MallName { get; set; }
+
+        public int OrderType { get; set; }
+
+        public int PlatformType { get; set; }
+
+        public int PaymentType { get; set; }
+
+        public decimal OrderAmount { get; set; }
+
+        public decimal PaymentAmount { get; set; }
+
+        public decimal DiscountAmount { get; set; }
+
+        public DateTime? PaymentDate { get; set; }
+
+        public decimal BalanceAmount { get; set; }
+
+        public decimal PointAmount { get; set; }
+
+        public int Point { get; set; }
+
+        public int Status { get; set; }
+
+        public string EBStatus { get; set; }
+
+        public decimal DeliveryFee { get; set; }
+
+        public string LoyaltyCardNo { get; set; }
+
+        public int ShippingMethod { get; set; }
+
+        public DateTime CreateDate { get; set; }
+
+        public string Remark { get; set; }
+
+        public string PlatformUserName { get; set; }
+
+        public string CustomerName { get; set; }
+    }
+
     public class WHOrderDetailQuery
     {
         /// <summary>

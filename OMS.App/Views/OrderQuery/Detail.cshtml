@@ -34,6 +34,16 @@
                             <td>@OMS.App.Helper.OrderHelper.GetShippingMethodDisplay(_Order.ShippingMethod)</td>
                         </tr>
                         <tr>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_customer"]</th>
+                            <td>@_Order.PlatformUserName</td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_loyalty_no"]</th>
+                            <td>@_Order.LoyaltyCardNo</td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_platformstatus"]</th>
+                            <td>@_Order.EBStatus</td>
+                            <th>@ViewBag.LanguagePack["orderquery_detail_order_status"]</th>
+                            <td>@Html.Raw(OMS.App.Helper.OrderHelper.GetOrderStatusDisplay(_Order.Status, true))</td>
+                        </tr>
+                        <tr>
                             <th>@ViewBag.LanguagePack["orderquery_detail_order_createtime"]</th>
                             <td>@Samsonite.Utility.Common.VariableHelper.SaferequestTime(_Order.CreateDate).ToString("yyyy-MM-dd HH:mm:ss")</td>
                             <th>@ViewBag.LanguagePack["orderquery_detail_pay"]</th>
@@ -43,14 +53,6 @@
                             </td>
                             <th>@ViewBag.LanguagePack["orderquery_detail_paytime"]</th>
                             <td colspan="3">@((_Order.PaymentDate != null) ? _Order.PaymentDate.ToString("yyyy-MM-dd HH:mm:ss") : "")</td>
-                        </tr>
-                        <tr>
-                            <th>@ViewBag.LanguagePack["orderquery_detail_order_customer"]</th>
-                            <td>@_Order.PlatformUserName</td>
-                            <th>@ViewBag.LanguagePack["orderquery_detail_platformstatus"]</th>
-                            <td>@_Order.EBStatus</td>
-                            <th>@ViewBag.LanguagePack["orderquery_detail_order_status"]</th>
-                            <td colspan="3">@Html.Raw(OMS.App.Helper.OrderHelper.GetOrderStatusDisplay(_Order.Status, true))</td>
                         </tr>
                         <tr>
                             <th>@ViewBag.LanguagePack["orderquery_detail_order_remark"]</th>

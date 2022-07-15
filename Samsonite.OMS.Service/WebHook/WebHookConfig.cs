@@ -3,11 +3,20 @@
 namespace Samsonite.OMS.Service.WebHook
 {
     /// <summary>
-    /// Poslog相关设置
+    /// 
     /// </summary>
     public class WebHookConfig
     {
         //读取最近90天的数据
-        public const int timeAgo = -90;
+        public const int timeAgo = -190;
+    }
+
+    public class CRMApiConfig
+    {
+        public const string ApiUrl = "";
+
+        public const string UserName = "";
+
+        public const string Password = "";
     }
 }

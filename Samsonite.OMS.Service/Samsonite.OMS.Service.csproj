@@ -117,6 +117,7 @@
     <Compile Include="WebAPILogService.cs" />
     <Compile Include="Reserve\ReserveConfig.cs" />
     <Compile Include="Reserve\ReserveService.cs" />
+    <Compile Include="WebHook\Models\Enum\CRMType.cs" />
     <Compile Include="WebHook\Models\Request\WebHookPushOrder.cs" />
     <Compile Include="WebHook\Models\Enum\WebHookType.cs" />
     <Compile Include="WebHook\WebHookConfig.cs" />
@@ -126,6 +127,10 @@
     <ProjectReference Include="..\..\Samsonite.Utility\Samsonite.Utility.csproj">
       <Project>{8f6f5a76-973a-4a30-ad39-0a75a0067c68}</Project>
       <Name>Samsonite.Utility</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SDK\CRM\CRMSdk\CRMSdk.csproj">
+      <Project>{0155b835-4968-4f2b-b62d-eb6bb83f6769}</Project>
+      <Name>CRMSdk</Name>
     </ProjectReference>
     <ProjectReference Include="..\Samsonite.OMS.Database\Samsonite.OMS.Database.csproj">
       <Project>{9c8b3e3d-f34c-4303-b630-347a4a1d1191}</Project>

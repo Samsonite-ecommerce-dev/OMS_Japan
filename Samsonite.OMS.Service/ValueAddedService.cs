@@ -54,7 +54,7 @@ namespace Samsonite.OMS.Service
                     _result.Monograms.Add(monogramTmp);
                 }
 
-                //GiftBox
+                //Gift Box
                 var giftBoxInfo = objOrderValueAddedServices.Where(p => p.Type == (int)ValueAddedServicesType.GiftBox).SingleOrDefault();
                 if (giftBoxInfo != null)
                 {

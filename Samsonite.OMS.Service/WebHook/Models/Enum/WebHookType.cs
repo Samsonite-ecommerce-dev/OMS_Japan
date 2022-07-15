@@ -14,8 +14,8 @@ namespace Samsonite.OMS.Service.WebHook.Models
     {
         New = 0,
         Cancel = 1,
-        Return = 2,
-        Exchange = 3,
+        Exchange = 2,
+        Return = 3,
         Complete = 99
     }
 }

@@ -29,7 +29,7 @@ namespace Test
             //---api---
             //(new TestWebAPI()).TestWarehouse();
             //(new TestWebAPI()).TestClickCollect();
-            //(new TestWebAPI()).TestPlatform();
+            (new TestWebAPI()).TestPlatform();
             //(new TestWebAPI()).TestSagawaGoBack();
 
             //DeBug();
@@ -38,7 +38,7 @@ namespace Test
             //WebHookTest();
 
             //SagawaSdkTest();
-            CRMSdkTest();
+            //CRMSdkTest();
 
             Console.ReadKey();
         }
@@ -83,13 +83,17 @@ namespace Test
             //var y=DateTime.ParseExact(xx, "yyyyMMddHHmm", System.Globalization.CultureInfo.InvariantCulture).ToString("yyyy-MM-dd HH:mm");
             //Console.WriteLine(y);
 
-            AnalysisService analysisService = new AnalysisService();
-            for (var t = DateTime.Now.AddDays(-60); t >= DateTime.Now.AddDays(-150); t = t.AddDays(-1))
-            {
-                Console.WriteLine(t.ToString("yyyy-MM-dd"));
-                analysisService.OrderDailyStatistics(t);
-            }
-            Console.WriteLine("ok");
+            //AnalysisService analysisService = new AnalysisService();
+            //for (var t = DateTime.Now.AddDays(-60); t >= DateTime.Now.AddDays(-150); t = t.AddDays(-1))
+            //{
+            //    Console.WriteLine(t.ToString("yyyy-MM-dd"));
+            //    analysisService.OrderDailyStatistics(t);
+            //}
+            //Console.WriteLine("ok");
+
+            long xx = 1;
+            Console.WriteLine(xx.ToString("D10"));
+
         }
 
         private static void ServicetTest()
@@ -115,7 +119,8 @@ namespace Test
         private static void WebHookTest()
         {
             WebHookPushOrderService webHookPushOrderService = new WebHookPushOrderService();
-            webHookPushOrderService.PushNewOrders(WebHookPushTarget.CRM);
+            //webHookPushOrderService.PushNewOrdersToCRM();
+            webHookPushOrderService.PushOrderStatusToCRM();
 
             Console.WriteLine("ok");
         }
@@ -204,7 +209,7 @@ namespace Test
                            OriginalOrderID="TU0000000001",
                            SellerID="123456789",
                            PurchaseOrderNumber="123456",
-                           PurchaseOrderDate=Convert.ToDateTime("2022-06-16 00:00:00"),
+                           PurchaseOrderDate="2022-06-16 00:00:00",
                            IsAnonymous=false,
                            SalesChannel="Online",
                            SalesOrderType="Sale",

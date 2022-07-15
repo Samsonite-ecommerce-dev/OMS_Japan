@@ -579,40 +579,39 @@ namespace OMS.App.Controllers
             string _OrderID = VariableHelper.SaferequestStr(Request.QueryString["ID"]);
             using (var db = new ebEntities())
             {
-                var _OrderInfo_ = (from o in db.Order.Where(p => p.OrderNo == _OrderID)
-                                   join c in db.Customer on o.CustomerNo equals c.CustomerNo
-                                   into tmp
-                                   from c in tmp.DefaultIfEmpty()
-                                   select new
-                                   {
-                                       OrderNo = o.OrderNo,
-                                       MallName = o.MallName,
-                                       OrderType = o.OrderType,
-                                       PlatformType = o.PlatformType,
-                                       PaymentType = o.PaymentType,
-                                       OrderAmount = o.OrderAmount,
-                                       PaymentAmount = o.PaymentAmount,
-                                       DiscountAmount = o.DiscountAmount,
-                                       PaymentDate = o.PaymentDate,
-                                       BalanceAmount = o.BalanceAmount,
-                                       PointAmount = o.PointAmount,
-                                       Point = o.Point,
-                                       Status = o.Status,
-                                       EBStatus = o.EBStatus,
-                                       DeliveryFee = o.DeliveryFee,
-                                       ShippingMethod = o.ShippingMethod,
-                                       CreateDate = o.CreateDate,
-                                       Remark = o.Remark,
-                                       InvoiceMessage = o.InvoiceMessage,
-                                       PlatformUserName = c.PlatformUserName ?? "",
-                                       CustomerName = c.Name ?? ""
-                                   }).SingleOrDefault();
-                if (_OrderInfo_ != null)
+                var _orderInfo = (from o in db.Order.Where(p => p.OrderNo == _OrderID)
+                                  join c in db.Customer on o.CustomerNo equals c.CustomerNo
+                                  into tmp
+                                  from c in tmp.DefaultIfEmpty()
+                                  select new OrderDetailInfo()
+                                  {
+                                      OrderNo = o.OrderNo,
+                                      MallName = o.MallName,
+                                      OrderType = o.OrderType,
+                                      PlatformType = o.PlatformType,
+                                      PaymentType = o.PaymentType,
+                                      OrderAmount = o.OrderAmount,
+                                      PaymentAmount = o.PaymentAmount,
+                                      DiscountAmount = o.DiscountAmount,
+                                      PaymentDate = o.PaymentDate,
+                                      BalanceAmount = o.BalanceAmount,
+                                      PointAmount = o.PointAmount,
+                                      Point = o.Point,
+                                      Status = o.Status,
+                                      EBStatus = o.EBStatus,
+                                      DeliveryFee = o.DeliveryFee,
+                                      LoyaltyCardNo = o.LoyaltyCardNo,
+                                      ShippingMethod = o.ShippingMethod,
+                                      CreateDate = o.CreateDate,
+                                      Remark = o.Remark,
+                                      PlatformUserName = c.PlatformUserName ?? "",
+                                      CustomerName = c.Name ?? ""
+                                  }).SingleOrDefault();
+                if (_orderInfo != null)
                 {
-                    dynamic _OrderInfo = GenericHelper.ConvertToDynamic(_OrderInfo_);
-                    string _orderNo = _OrderInfo.OrderNo;
+                    string _orderNo = _orderInfo.OrderNo;
                     //数据解密
-                    EncryptionFactory.Create(_OrderInfo, new string[] { "PlatformUserName", "CustomerName" }).Decrypt();
+                    EncryptionFactory.Create(_orderInfo, new string[] { "PlatformUserName", "CustomerName" }).Decrypt();
                     List<OrderReceive> objOrderReceive_List = db.OrderReceive.Where(p => p.OrderNo == _orderNo).ToList();
                     foreach (var objOrderReceive in objOrderReceive_List)
                     {
@@ -674,7 +673,7 @@ namespace OMS.App.Controllers
                     //混合支付
                     ViewData["payment_detail_list"] = db.OrderPaymentDetail.Where(p => p.OrderNo == _orderNo).ToList();
 
-                    return View(_OrderInfo);
+                    return View(_orderInfo);
                 }
                 else
                 {

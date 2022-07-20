@@ -180,7 +180,7 @@ namespace Samsonite.OMS.Service.WebHook
                             }
                         };
                         var req = defaultClient.Execute(_req);
-                        if (req.ResponseStatus.Equals("SUCCESS"))
+                        if (req.ResponseStatus.Equals("SUCCESS") && !req.IsError)
                         {
                             //添加成功记录
                             var tmpWebHookOrderPushLog = webHookOrderPushLogs.Where(p => p.OrderId == item.OrderInfo.Id).FirstOrDefault();
@@ -212,7 +212,7 @@ namespace Samsonite.OMS.Service.WebHook
                             if (tmpWebHookOrderPushLog != null)
                             {
                                 tmpWebHookOrderPushLog.PushCount += 1;
-                                tmpWebHookOrderPushLog.PushMessage = $"{req.ResultCode}:{req.ResponseMsg}";
+                                tmpWebHookOrderPushLog.PushMessage = req.ErrorMessage;
                             }
                             else
                             {
@@ -224,7 +224,7 @@ namespace Samsonite.OMS.Service.WebHook
                                     PushTarget = (int)WebHookPushTarget.CRM,
                                     PushStatus = 0,
                                     PushCount = 1,
-                                    PushMessage = $"{req.ResultCode}:{req.ResponseMsg}",
+                                    PushMessage = req.ErrorMessage,
                                     CreateTime = DateTime.Now,
                                     CompleteTime = null
                                 });
@@ -295,7 +295,7 @@ namespace Samsonite.OMS.Service.WebHook
                              }
                         };
                         var req = defaultClient.Execute(_req);
-                        if (req.ResponseStatus.Equals("SUCCESS"))
+                        if (req.ResponseStatus.Equals("SUCCESS") && !req.IsError)
                         {
                             //添加成功记录
                             var tmpWebHookOrderStatusPushLog = webHookOrderStatusPushLogs.Where(p => p.DetailId == item.OrderDetailInfo.DetailID && p.PushStatus == tmpPushStatus).FirstOrDefault();
@@ -327,7 +327,7 @@ namespace Samsonite.OMS.Service.WebHook
                             if (tmpWebHookOrderStatusPushLog != null)
                             {
                                 tmpWebHookOrderStatusPushLog.PushCount += 1;
-                                tmpWebHookOrderStatusPushLog.PushMessage = $"{req.ResultCode}:{req.ResponseMsg}";
+                                tmpWebHookOrderStatusPushLog.PushMessage = req.ErrorMessage;
                             }
                             else
                             {
@@ -339,7 +339,7 @@ namespace Samsonite.OMS.Service.WebHook
                                     PushTarget = (int)WebHookPushTarget.CRM,
                                     PushStatus = 0,
                                     PushCount = tmpPushStatus,
-                                    PushMessage = $"{req.ResultCode}:{req.ResponseMsg}",
+                                    PushMessage = req.ErrorMessage,
                                     CreateTime = DateTime.Now,
                                     CompleteTime = null
                                 });

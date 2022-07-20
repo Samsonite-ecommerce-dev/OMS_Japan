@@ -23,13 +23,13 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            //(new TestApiTumi()).Test();
+            (new TestApiTumi()).Test();
             //(new TestApiMicros()).Test();
 
             //---api---
             //(new TestWebAPI()).TestWarehouse();
             //(new TestWebAPI()).TestClickCollect();
-            (new TestWebAPI()).TestPlatform();
+            //(new TestWebAPI()).TestPlatform();
             //(new TestWebAPI()).TestSagawaGoBack();
 
             //DeBug();
@@ -194,9 +194,9 @@ namespace Test
 
         private static void CRMSdkTest()
         {
-            string url = "https://anypoint.mulesoft.com/mocking/api/v1/sources/exchange/assets/03477816-b7ba-49e9-a23a-9f18354359d3/oms-experience-api/1.0.4/m";
-            string userName = "larrycao";
-            string password = "Samsonite1!";
+            string url = "http://oms-exp-api-tumi-apac.us-e2.cloudhub.io/";
+            string userName = "tomsapi";
+            string password = "0msapi@220720";
             DefaultCRMClient defaultClient = new DefaultCRMClient(url, userName, password);
             var _req = new PostOrderRequest()
             {
@@ -218,13 +218,13 @@ namespace Test
                 }
             };
             var req = defaultClient.Execute(_req);
-            if (req.ResponseStatus.Equals("SUCCESS"))
+            if (req.ResponseStatus.Equals("SUCCESS") && !req.IsError)
             {
                 Console.WriteLine("SUCCESS!");
             }
             else
             {
-                Console.WriteLine($"{req.ResultCode}:{req.ResponseMsg}");
+                Console.WriteLine(req.ErrorMessage);
             }
         }
 

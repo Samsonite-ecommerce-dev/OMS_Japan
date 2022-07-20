@@ -58,13 +58,13 @@ namespace Test
         public void Test()
         {
             //ImportDWOrders();
-            ImportDWOrdersByJson();
+            //ImportDWOrdersByJson();
             //ImportDWClaimOrders();
             //ImportDWProducts();
             //PushDWPrices();
             //PushOrderDetail();
             //SendInventory();
-            //SendPrice();
+            SendPrice();
             //SetReadyToShip();
             //ExpressPickUp();
             //GetExpressFromPlatform();
@@ -287,6 +287,25 @@ namespace Test
             using (var db = new ebEntities())
             {
                 tumiAPIClient.GetExpressFromPlatform();
+
+                //string _OrderNo = "TUSG00010608A";
+                //List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();
+                //foreach (var _o in objView_OrderDetail_List)
+                //{
+                //    if (_o.ProductStatus == (int)ProductStatus.InDelivery)
+                //    {
+                //        OrderService.OrderStatus_InDeliveryToDelivered(_o, "The customer had receive the goods!", db);
+                //    }
+                //}
+                Console.WriteLine("ok");
+            }
+        }
+
+        public void SendPrice()
+        {
+            using (var db = new ebEntities())
+            {
+                tumiAPIClient.PushPrices();
 
                 //string _OrderNo = "TUSG00010608A";
                 //List<View_OrderDetail> objView_OrderDetail_List = db.View_OrderDetail.Where(p => p.OrderNo == _OrderNo).ToList();

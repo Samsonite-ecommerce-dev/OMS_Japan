@@ -963,12 +963,6 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
 
                         foreach (var detail in dto.Details)
                         {
-                            ////套装信息
-                            //List<dynamic> objSet_List = new List<dynamic>();
-                            //if (detail.IsSet)
-                            //{
-                            //    objSet_List = db.Fetch<dynamic>("select od.SKU,od.Quantity,p.MallProductId,p.GroupDesc from OrderDetail as od inner join Product as p on  od.SKU = p.SKU where OrderNo = @0 and od.IsSet = 1 and od.IsSetOrigin = 0", detail.OrderNo);
-                            //}
                             //快递号
                             string _trackingNumber = string.Empty;
                             string _delivery_date = string.Empty;
@@ -1284,9 +1278,9 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
             objBuilder.AppendLine("<inventory xmlns=\"http://www.demandware.com/xml/impex/inventory/2007-05-31\">");
             objBuilder.AppendLine("<inventory-list>");
             //head
-            objBuilder.AppendLine("<header list-id=\"SG-Tumi-inventory\">");
+            objBuilder.AppendLine("<header list-id=\"JP-Tumi-inventory\">");
             objBuilder.AppendLine("<default-instock>false</default-instock>");
-            objBuilder.AppendLine("<description>SG-inventory Inventory ( 5710 )</description>");
+            objBuilder.AppendLine("<description>JP-inventory Inventory ( 5830 )</description>");
             objBuilder.AppendLine("<use-bundle-inventory-only>false</use-bundle-inventory-only>");
             objBuilder.AppendLine("</header>");
             //record
@@ -1325,10 +1319,10 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
             objBuilder.AppendLine("<pricebooks xmlns=\"http://www.demandware.com/xml/impex/pricebook/2006-10-31\">");
             //读取销售价
             objBuilder.AppendLine("<pricebook>");
-            objBuilder.AppendLine($"<header pricebook-id=\"SG-sales-price\">");
-            objBuilder.AppendLine("<currency>SGD</currency>");
+            objBuilder.AppendLine($"<header pricebook-id=\"JP-sales-price\">");
+            objBuilder.AppendLine("<currency>JPY</currency>");
             objBuilder.AppendLine("<online-flag>true</online-flag>");
-            //objBuilder.AppendLine("<parent>SG-list-prices</parent>");  
+            //objBuilder.AppendLine("<parent>JP-list-prices</parent>");  
             objBuilder.AppendLine("</header>");
             objBuilder.AppendLine("<price-tables>");
             foreach (var dto in salesDtos)

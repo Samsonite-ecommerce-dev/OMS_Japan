@@ -23,7 +23,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            (new TestApiTumi()).Test();
+            //(new TestApiTumi()).Test();
             //(new TestApiMicros()).Test();
 
             //---api---
@@ -35,7 +35,7 @@ namespace Test
             //DeBug();
             //ServicetTest();
 
-            //WebHookTest();
+            WebHookTest();
 
             //SagawaSdkTest();
             //CRMSdkTest();
@@ -119,8 +119,8 @@ namespace Test
         private static void WebHookTest()
         {
             WebHookPushOrderService webHookPushOrderService = new WebHookPushOrderService();
-            //webHookPushOrderService.PushNewOrdersToCRM();
-            webHookPushOrderService.PushOrderStatusToCRM();
+            webHookPushOrderService.PushNewOrdersToCRM();
+            //webHookPushOrderService.PushOrderStatusToCRM();
 
             Console.WriteLine("ok");
         }
@@ -198,6 +198,7 @@ namespace Test
             string userName = "tomsapi";
             string password = "0msapi@220720";
             DefaultCRMClient defaultClient = new DefaultCRMClient(url, userName, password);
+            //---Post Order-- -
             var _req = new PostOrderRequest()
             {
                 PostBody = new List<CRM.Api.Domain.PostOrder>()
@@ -226,6 +227,32 @@ namespace Test
             {
                 Console.WriteLine(req.ErrorMessage);
             }
+
+            ////---Post Order Status---
+            //var _req = new PostOrderStatusRequest()
+            //{
+            //    PostBody = new List<CRM.Api.Domain.PostOrderStatus>()
+            //    {
+            //        new CRM.Api.Domain.PostOrderStatus()
+            //        {
+            //               OrderID="ST001_0000000001_Sale",
+            //               OriginalOrderID="TU0000000001",
+            //               OrderProductID="0000000001-1",
+            //               StatusType="Order",
+            //               StatusDescription="Completed",
+            //               StatusDate="2021-01-03T08:19:10Z"
+            //        }
+            //    }
+            //};
+            //var req = defaultClient.Execute(_req);
+            //if (req.ResponseStatus.Equals("SUCCESS") && !req.IsError)
+            //{
+            //    Console.WriteLine("SUCCESS!");
+            //}
+            //else
+            //{
+            //    Console.WriteLine(req.ErrorMessage);
+            //}
         }
 
         private static bool RemoteIsExist(string url)

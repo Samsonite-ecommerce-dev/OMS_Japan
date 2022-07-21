@@ -64,7 +64,7 @@ namespace Test
             //PushDWPrices();
             //PushOrderDetail();
             //SendInventory();
-            SendPrice();
+            //SendPrice();
             //SetReadyToShip();
             //ExpressPickUp();
             //GetExpressFromPlatform();

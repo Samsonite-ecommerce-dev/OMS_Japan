@@ -49,13 +49,73 @@ namespace OMS.API.Implments.Platform
                             {
                                 if (string.IsNullOrEmpty(item.OrderNo))
                                 {
-                                    throw new Exception("Please input a Order No.!");
+                                    throw new Exception("Required key [order_no] not found!");
                                 }
 
-                                var mall = malls.Where(p => p.SapCode == item.MallSapCode).SingleOrDefault();
-                                if (mall == null)
+                                if (string.IsNullOrEmpty(item.MallSapCode))
                                 {
-                                    throw new Exception("The mall dose not exists!");
+                                    throw new Exception("Required key [store_id] not found!");
+                                }
+                                else
+                                {
+                                    var mall = malls.Where(p => p.SapCode == item.MallSapCode).SingleOrDefault();
+                                    if (mall == null)
+                                    {
+                                        throw new Exception("The mall dose not exists!");
+                                    }
+                                }
+
+                                if (string.IsNullOrEmpty(item.OrderDate))
+                                {
+                                    throw new Exception("Required key [order_date] not found!");
+                                }
+
+                                if (item.CustomerInfo == null)
+                                {
+                                    throw new Exception("Required key [customer] not found!");
+                                }
+                                else
+                                {
+                                    if (item.CustomerInfo.BillingAddressInfo == null)
+                                    {
+                                        throw new Exception("Required key [billing_address] not found!");
+                                    }
+                                }
+
+                                if (item.Products == null)
+                                {
+                                    throw new Exception("Required key [products] not found!");
+                                }
+                                else
+                                {
+                                    if (!item.Products.Any())
+                                    {
+                                        throw new Exception("Require at least one [product]");
+                                    }
+                                }
+
+                                if (item.Shipments == null)
+                                {
+                                    throw new Exception("Required key [shipments] not found!");
+                                }
+                                else
+                                {
+                                    if (!item.Shipments.Any())
+                                    {
+                                        throw new Exception("Require at least one [shipment]");
+                                    }
+                                    else
+                                    {
+                                        if (item.Shipments.FirstOrDefault().ShipmentAddressInfo == null)
+                                        {
+                                            throw new Exception("Required key [shipping_address] not found!");
+                                        }
+                                    }
+                                }
+
+                                if (item.TotalsInfo == null)
+                                {
+                                    throw new Exception("Required key [totals] not found!");
                                 }
 
                                 string dateString = JsonHelper.JsonSerialize(item);

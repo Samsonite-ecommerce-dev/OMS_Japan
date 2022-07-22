@@ -519,216 +519,216 @@ namespace Test
                 //传递参数
                 objParams.Add("sign", UtilsHelper.CreateSign(objParams, this.token, this.method));
                 //订单信息
-                ////TUSG00010608X
-                //List<PostOrdersRequest> postData = new List<PostOrdersRequest>() {
-                //    new PostOrdersRequest()
-                //    {
-                //        OrderNo = "TUSG00010608X",
-                //        MallSapCode="1197417",
-                //        OrderDate="2022-03-02T03:37:03.000Z",
-                //        CreateBy="storefront",
-                //        Currency="SGD",
-                //        Taxation="gross",
-                //        LoyaltyCardNo="5957116960724977",
-                //        OrderChanel="PC",
-                //        Remark="test...",
-                //        CustomerInfo=new Customer()
-                //        {
-                //            CustomerNo="0000479096",
-                //            CustomerName="James Pham",
-                //            CustomerEmail="james.pham@globee.hk",
-                //            BillingAddressInfo=new BillingAddress()
-                //            {
-                //                    FirstName="James",
-                //                    LastName="Pham",
-                //                    Address1="123",
-                //                    Province="Hokkaido",
-                //                    City="三笠市",
-                //                    District="",
-                //                    PostalCode="123456",
-                //                    StateCode="SG",
-                //                    CountryCode="SG",
-                //                    Phone="99999987",
-                //                    Email="james.pham@globee.hk"
-                //            }
-                //        },
-                //        StatusInfo=new Status()
-                //        {
-                //             OrderStatus="NEW",
-                //             ShippingStatus="NOT_SHIPPED",
-                //             ConfirmationStatus="CONFIRMED",
-                //             PaymentStatus="PAID"
-                //        },
-                //        Products=new List<Product>()
-                //        {
-                //            new Product()
-                //            {
-                //                 NetPrice=1196.26M,
-                //                 Tax=83.74M,
-                //                 GrossPrice=1280.00M,
-                //                 BasePrice=1280.00M,
-                //                 LineitemText="19 DEGREE EXT TRIP EXP 4 WHL P/C",
-                //                 TaxBasis=1280.00M,
-                //                 Position=1,
-                //                 ProductId="tu-139686-1041",
-                //                 ProductName="19 DEGREE EXT TRIP EXP 4 WHL P/C",
-                //                 Quantity=1,
-                //                 Unit="",
-                //                 TaxRate=0.07F,
-                //                 ShipmentId="TUSG00049507",
-                //                 Gift=false,
-                //                 Sku="0228774D2",
-                //                 ProductStandardPrice=1280M,
-                //                 MonogramPatch="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
-                //                 MonogramTag="(5) A A;metallicpink;Times New Roman Bold, serif; ;"
-                //            },
-                //            new Product()
-                //            {
-                //                 NetPrice=915.89M,
-                //                 Tax=64.11M,
-                //                 GrossPrice=980.00M,
-                //                 BasePrice=980.00M,
-                //                 LineitemText="ALPHA BRAVO SEARCH BACKPACK",
-                //                 TaxBasis=980.00M,
-                //                 Position=2,
-                //                 ProductId="tu-142480-1596",
-                //                 ProductName="ALPHA BRAVO SEARCH BACKPACK",
-                //                 Quantity=1,
-                //                 Unit="",
-                //                 TaxRate=0.07F,
-                //                 ShipmentId="TUSG00049507",
-                //                 Gift=false,
-                //                 Sku="0232789NVY",
-                //                 PreOrderDeliveryDate="2022-11-12",
-                //                 BonusProductPromotionIDs="tu-144983-1041,tu-144983-1042",
-                //                 MonogramPatch="(6) R (6);blind;Times New Roman Bold, serif; ;",
-                //                 GiftCard="test;test;thanh;ProximaNova;tu-1234-5678",
-                //                 ProductStandardPrice=980M
-                //            },
-                //            new Product()
-                //            {
-                //                 NetPrice=126.17M,
-                //                 Tax=8.83M,
-                //                 GrossPrice=135.00M,
-                //                 BasePrice=135.00M,
-                //                 LineitemText="GWP ALPHA BRAVO MULTI TOOL",
-                //                 TaxBasis=135.00M,
-                //                 Position=3,
-                //                 ProductId="tu-144983-1041",
-                //                 ProductName="GWP ALPHA BRAVO MULTI TOOL",
-                //                 Quantity=1,
-                //                 Unit="",
-                //                 TaxRate=0.07F,
-                //                 ShipmentId="TUSG00049507",
-                //                 Gift=false,
-                //                 Sku="0111D",
-                //                 PriceAdjustments=new List<PriceAdjustment>()
-                //                 {
-                //                     new PriceAdjustment()
-                //                     {
-                //                         NetPrice=-126.17M,
-                //                         Tax=-8.83M,
-                //                         GrossPrice=-135.00M,
-                //                         BasePrice=-135.00M,
-                //                         LineitemText="sg-prod-GWP-cardcase",
-                //                         TaxBasis=-135.00M,
-                //                         PromotionId="sg-prod-GWP-cardcase",
-                //                         CampaignId="sg-prod-GWP-cardcase"
-                //                     }
-                //                 }
-                //            }
-                //        },
-                //        Shippings=new List<Shipping>()
-                //        {
-                //            new Shipping()
-                //            {
-                //                NetPrice=0.00M,
-                //                Tax=0.00M,
-                //                GrossPrice=0.00M,
-                //                BasePrice=0.00M,
-                //                LineitemText="Shipping",
-                //                TaxBasis=0.00M,
-                //                ItemId="STANDARD_SHIPPING",
-                //                ShipmentId="TUSG00049507",
-                //                TaxRate=0.07F
-                //            }
-                //        },
-                //        Shipments=new List<Shipment>()
-                //        {
-                //            new Shipment()
-                //            {
-                //                ShipmentId="TUSG00049507",
-                //                ShippingStatus="NOT_SHIPPED",
-                //                ShippingMethod="2552834",
-                //                ShipmentAddressInfo=new ShipmentAddress()
-                //                {
-                //                    FirstName="thanh",
-                //                    LastName="pham",
-                //                    Address1="Globee",
-                //                    Province="Hokkaido",
-                //                    City="三笠市",
-                //                    District="",
-                //                    PostalCode="321321",
-                //                    StateCode="SG",
-                //                    CountryCode="SG",
-                //                    Phone="89787667",
-                //                    Email="test_globee_thanh2@yopmail.com"
-                //                }
-                //            }
-                //        },
-                //        TotalsInfo = new  Totals
-                //        {
-                //            MerchandizeTotal=new TotalChildAdjustment()
-                //            {
-                //                NetPrice=2238.32M,
-                //                Tax=156.68M,
-                //                GrossPrice=2395.00M
-                //            },
-                //            AdjustedMerchandizeTotal=new TotalChild()
-                //            {
-                //                NetPrice=2112.15M,
-                //                Tax=147.85M,
-                //                GrossPrice=2260.00M
-                //            },
-                //            ShippingTotal=new TotalChild()
-                //            {
-                //                NetPrice=0.00M,
-                //                Tax=0.00M,
-                //                GrossPrice=0.00M
-                //            },
-                //            AdjustedShippingTotal=new TotalChild()
-                //            {
-                //                NetPrice=0.00M,
-                //                Tax=0.00M,
-                //                GrossPrice=0.00M
-                //            },
-                //            OrderTotal=new TotalChild()
-                //            {
-                //                NetPrice=2112.15M,
-                //                Tax=147.85M,
-                //                GrossPrice=2260.00M
-                //            }
-                //        },
-                //        Payments=new List<Payment>()
-                //        {
-                //            new Payment()
-                //            {
-                //                 CreditCardInfo=new CreditCard()
-                //                 {
-                //                      CardType="MasterCard",
-                //                      CardNumber="XXXX-XXXX-XXXX-4444",
-                //                      CardHolder="thanh pham",
-                //                      ExpirationMonth=3,
-                //                      ExpirationYear=2025
-                //                 },
-                //                 Amount=2260.00M,
-                //                 ProcessorId="CYBERSOURCE_CREDIT",
-                //                 TransactionId="6463588721256685603012"
-                //            }
-                //        },
-                //        RemoteHost="118.69.64.234"
-                //    }
-                //};
+                //TUSG00010608X
+                List<PostOrdersRequest> postData = new List<PostOrdersRequest>() {
+                    new PostOrdersRequest()
+                    {
+                        OrderNo = "TUSG00010608X",
+                        MallSapCode="1197417",
+                        OrderDate="2022-03-02T03:37:03.000Z",
+                        CreateBy="storefront",
+                        Currency="SGD",
+                        Taxation="gross",
+                        LoyaltyCardNo="5957116960724977",
+                        OrderChanel="PC",
+                        Remark="test...",
+                        CustomerInfo=new Customer()
+                        {
+                            CustomerNo="0000479096",
+                            CustomerName="James Pham",
+                            CustomerEmail="james.pham@globee.hk",
+                            BillingAddressInfo=new BillingAddress()
+                            {
+                                    FirstName="James",
+                                    LastName="Pham",
+                                    Address1="123",
+                                    Province="Hokkaido",
+                                    City="三笠市",
+                                    District="",
+                                    PostalCode="123456",
+                                    StateCode="SG",
+                                    CountryCode="SG",
+                                    Phone="99999987",
+                                    Email="james.pham@globee.hk"
+                            }
+                        },
+                        StatusInfo=new Status()
+                        {
+                             OrderStatus="NEW",
+                             ShippingStatus="NOT_SHIPPED",
+                             ConfirmationStatus="CONFIRMED",
+                             PaymentStatus="PAID"
+                        },
+                        Products=new List<Product>()
+                        {
+                            new Product()
+                            {
+                                 NetPrice=1196.26M,
+                                 Tax=83.74M,
+                                 GrossPrice=1280.00M,
+                                 BasePrice=1280.00M,
+                                 LineitemText="19 DEGREE EXT TRIP EXP 4 WHL P/C",
+                                 TaxBasis=1280.00M,
+                                 Position=1,
+                                 ProductId="tu-139686-1041",
+                                 ProductName="19 DEGREE EXT TRIP EXP 4 WHL P/C",
+                                 Quantity=1,
+                                 Unit="",
+                                 TaxRate=0.07F,
+                                 ShipmentId="TUSG00049507",
+                                 Gift=false,
+                                 Sku="0228774D2",
+                                 ProductStandardPrice=1280M,
+                                 MonogramPatch="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
+                                 MonogramTag="(5) A A;metallicpink;Times New Roman Bold, serif; ;"
+                            },
+                            new Product()
+                            {
+                                 NetPrice=915.89M,
+                                 Tax=64.11M,
+                                 GrossPrice=980.00M,
+                                 BasePrice=980.00M,
+                                 LineitemText="ALPHA BRAVO SEARCH BACKPACK",
+                                 TaxBasis=980.00M,
+                                 Position=2,
+                                 ProductId="tu-142480-1596",
+                                 ProductName="ALPHA BRAVO SEARCH BACKPACK",
+                                 Quantity=1,
+                                 Unit="",
+                                 TaxRate=0.07F,
+                                 ShipmentId="TUSG00049507",
+                                 Gift=false,
+                                 Sku="0232789NVY",
+                                 PreOrderDeliveryDate="2022-11-12",
+                                 BonusProductPromotionIDs="tu-144983-1041,tu-144983-1042",
+                                 MonogramPatch="(6) R (6);blind;Times New Roman Bold, serif; ;",
+                                 GiftCard="test;test;thanh;ProximaNova;tu-1234-5678",
+                                 ProductStandardPrice=980M
+                            },
+                            new Product()
+                            {
+                                 NetPrice=126.17M,
+                                 Tax=8.83M,
+                                 GrossPrice=135.00M,
+                                 BasePrice=135.00M,
+                                 LineitemText="GWP ALPHA BRAVO MULTI TOOL",
+                                 TaxBasis=135.00M,
+                                 Position=3,
+                                 ProductId="tu-144983-1041",
+                                 ProductName="GWP ALPHA BRAVO MULTI TOOL",
+                                 Quantity=1,
+                                 Unit="",
+                                 TaxRate=0.07F,
+                                 ShipmentId="TUSG00049507",
+                                 Gift=false,
+                                 Sku="0111D",
+                                 PriceAdjustments=new List<PriceAdjustment>()
+                                 {
+                                     new PriceAdjustment()
+                                     {
+                                         NetPrice=-126.17M,
+                                         Tax=-8.83M,
+                                         GrossPrice=-135.00M,
+                                         BasePrice=-135.00M,
+                                         LineitemText="sg-prod-GWP-cardcase",
+                                         TaxBasis=-135.00M,
+                                         PromotionId="sg-prod-GWP-cardcase",
+                                         CampaignId="sg-prod-GWP-cardcase"
+                                     }
+                                 }
+                            }
+                        },
+                        Shippings=new List<Shipping>()
+                        {
+                            new Shipping()
+                            {
+                                NetPrice=0.00M,
+                                Tax=0.00M,
+                                GrossPrice=0.00M,
+                                BasePrice=0.00M,
+                                LineitemText="Shipping",
+                                TaxBasis=0.00M,
+                                ItemId="STANDARD_SHIPPING",
+                                ShipmentId="TUSG00049507",
+                                TaxRate=0.07F
+                            }
+                        },
+                        Shipments=new List<Shipment>()
+                        {
+                            new Shipment()
+                            {
+                                ShipmentId="TUSG00049507",
+                                ShippingStatus="NOT_SHIPPED",
+                                ShippingMethod="2552834",
+                                ShipmentAddressInfo=new ShipmentAddress()
+                                {
+                                    FirstName="thanh",
+                                    LastName="pham",
+                                    Address1="Globee",
+                                    Province="Hokkaido",
+                                    City="三笠市",
+                                    District="",
+                                    PostalCode="321321",
+                                    StateCode="SG",
+                                    CountryCode="SG",
+                                    Phone="89787667",
+                                    Email="test_globee_thanh2@yopmail.com"
+                                }
+                            }
+                        },
+                        TotalsInfo = new  Totals
+                        {
+                            MerchandizeTotal=new TotalChildAdjustment()
+                            {
+                                NetPrice=2238.32M,
+                                Tax=156.68M,
+                                GrossPrice=2395.00M
+                            },
+                            AdjustedMerchandizeTotal=new TotalChild()
+                            {
+                                NetPrice=2112.15M,
+                                Tax=147.85M,
+                                GrossPrice=2260.00M
+                            },
+                            ShippingTotal=new TotalChild()
+                            {
+                                NetPrice=0.00M,
+                                Tax=0.00M,
+                                GrossPrice=0.00M
+                            },
+                            AdjustedShippingTotal=new TotalChild()
+                            {
+                                NetPrice=0.00M,
+                                Tax=0.00M,
+                                GrossPrice=0.00M
+                            },
+                            OrderTotal=new TotalChild()
+                            {
+                                NetPrice=2112.15M,
+                                Tax=147.85M,
+                                GrossPrice=2260.00M
+                            }
+                        },
+                        Payments=new List<Payment>()
+                        {
+                            new Payment()
+                            {
+                                 CreditCardInfo=new CreditCard()
+                                 {
+                                      CardType="MasterCard",
+                                      CardNumber="XXXX-XXXX-XXXX-4444",
+                                      CardHolder="thanh pham",
+                                      ExpirationMonth=3,
+                                      ExpirationYear=2025
+                                 },
+                                 Amount=2260.00M,
+                                 ProcessorId="CYBERSOURCE_CREDIT",
+                                 TransactionId="6463588721256685603012"
+                            }
+                        },
+                        RemoteHost="118.69.64.234"
+                    }
+                };
 
                 ////TUSG00010908Z
                 //List<PostOrdersRequest> postData = new List<PostOrdersRequest>() {
@@ -1067,170 +1067,170 @@ namespace Test
                 ////    }
                 //};
 
-                //TUSG00010608X
-                List<PostOrdersRequest> postData = new List<PostOrdersRequest>() {
-                    new PostOrdersRequest()
-                    {
-                        OrderNo = "TU00001201",
-                        MallSapCode="1197417",
-                        OrderDate="2022-07-13T17:13:06.000Z",
-                        CreateBy="storefront",
-                        Currency="JPY",
-                        //Taxation="",
-                        //LoyaltyCardNo="5957116960724977",
-                        //OrderChanel="PC",
-                        //Remark="test...",
-                        CustomerInfo=new Customer()
-                        {
-                            CustomerNo="0000479096",
-                            CustomerName="- 東京太郎",
-                            CustomerEmail="jp-amazonpay-tester@amazon.co.jp",
-                            //BillingAddressInfo=new BillingAddress()
-                            //{
-                            //        FirstName="James",
-                            //        LastName="Pham",
-                            //        Address1="123",
-                            //        Province="Hokkaido",
-                            //        City="三笠市",
-                            //        District="",
-                            //        PostalCode="123456",
-                            //        StateCode="SG",
-                            //        CountryCode="SG",
-                            //        Phone="99999987",
-                            //        Email="james.pham@globee.hk"
-                            //}
-                        },
-                        StatusInfo=new Status()
-                        {
-                             OrderStatus="OPEN",
-                             ShippingStatus="NOT_SHIPPED",
-                             ConfirmationStatus="CONFIRMED",
-                             PaymentStatus="PAID"
-                        },
-                        Products=new List<Product>()
-                        {
-                            new Product()
-                            {
-                                 NetPrice=5162M,
-                                 Tax=516M,
-                                 GrossPrice=5678M,
-                                 BasePrice=5678M,
-                                 LineitemText="ALPHA ST EXP 4 WHL P/C",
-                                 TaxBasis=5678M,
-                                 Position=1,
-                                 ProductId="tu-117165-1041",
-                                 ProductName="ALPHA ST EXP 4 WHL P/C",
-                                 Quantity=1,
-                                 Unit="",
-                                 TaxRate=0.1F,
-                                 ShipmentId="00006001",
-                                 Gift=false,
-                                 Sku="02203064D3",
-                                 //ProductStandardPrice=1280M,
-                                 //MonogramPatch="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
-                                 //MonogramTag="(5) A A;metallicpink;Times New Roman Bold, serif; ;"
-                            }
-                        },
-                        Shippings=new List<Shipping>()
-                        {
-                            new Shipping()
-                            {
-                                NetPrice=0.00M,
-                                Tax=0.00M,
-                                GrossPrice=0.00M,
-                                BasePrice=0.00M,
-                                LineitemText="Shipping",
-                                TaxBasis=0.00M,
-                                ItemId="STANDARD_SHIPPING",
-                                ShipmentId="00006001",
-                                TaxRate=0.1F
-                            }
-                        },
-                        Shipments=new List<Shipment>()
-                        {
-                            new Shipment()
-                            {
-                                ShipmentId="00006001",
-                                ShippingStatus="NOT_SHIPPED",
-                                ShippingMethod="2552834",
-                                ShipmentAddressInfo=new ShipmentAddress()
-                                {
-                                    FirstName="名",
-                                    LastName="七姓",
-                                    Address1="Globee",
-                                    Address2="-",
-                                    Province="東京都",
-                                    City="目黒区下目黒1－8－1　メゾン・コート　101号",
-                                    District="目黒区下目黒1－8－1　メゾン・コート　101号",
-                                    PostalCode="1530064",
-                                    StateCode="JP",
-                                    CountryCode="JP",
-                                    Phone="09011112222",
-                                    Email="james.pham@globee.hk"
-                                }
-                            }
-                        },
-                        TotalsInfo = new  Totals
-                        {
-                            MerchandizeTotal=new TotalChildAdjustment()
-                            {
-                                NetPrice=5162M,
-                                Tax=516M,
-                                GrossPrice=5678M,
-                                 PriceAdjustments=new List<PriceAdjustment>()
-                                 {
-                                     new PriceAdjustment()
-                                     {
-                                          NetPrice=-775M,
-                                          Tax=-77M,
-                                          GrossPrice=-852M,
-                                          BasePrice=-852M,
-                                          LineitemText="Test",
-                                          TaxBasis=-852M,
-                                          PromotionId="manual_test",
-                                          CampaignId="New Campaign - 7/14/22 2:09:19 am",
-                                          Coupon_Id="test_coupon"
-                                     }
-                                 }
-                            },
-                            AdjustedMerchandizeTotal=new TotalChild()
-                            {
-                                NetPrice=4387M,
-                                Tax=439M,
-                                GrossPrice=4826M
-                            },
-                            ShippingTotal=new TotalChild()
-                            {
-                                NetPrice=0.00M,
-                                Tax=0.00M,
-                                GrossPrice=0.00M
-                            },
-                            AdjustedShippingTotal=new TotalChild()
-                            {
-                                NetPrice=0.00M,
-                                Tax=0.00M,
-                                GrossPrice=0.00M
-                            },
-                            OrderTotal=new TotalChild()
-                            {
-                                NetPrice=4387M,
-                                Tax=439M,
-                                GrossPrice=4826M
-                            }
-                        },
-                        Payments=new List<Payment>()
-                        {
-                            new Payment()
-                            {
-                                 MethodName="AMAZON_PAY",
-                                 Amount=4826M,
-                                 ProcessorId="AMAZON_PAY",
-                                 TransactionId="TU00001201"
-                            }
-                        },
-                        RemoteHost="118.69.64.234"
-                    }
-                };
+                ////TUSG00010608X
+                //List<PostOrdersRequest> postData = new List<PostOrdersRequest>() {
+                //    new PostOrdersRequest()
+                //    {
+                //        OrderNo = "TU00001201",
+                //        MallSapCode="1197417",
+                //        OrderDate="2022-07-13T17:13:06.000Z",
+                //        CreateBy="storefront",
+                //        Currency="JPY",
+                //        Taxation="",
+                //        LoyaltyCardNo="5957116960724977",
+                //        OrderChanel="PC",
+                //        Remark="test...",
+                //        CustomerInfo=new Customer()
+                //        {
+                //            CustomerNo="0000479096",
+                //            CustomerName="- 東京太郎",
+                //            CustomerEmail="jp-amazonpay-tester@amazon.co.jp",
+                //            BillingAddressInfo=new BillingAddress()
+                //            {
+                //                    FirstName="James",
+                //                    LastName="Pham",
+                //                    Address1="123",
+                //                    Province="Hokkaido",
+                //                    City="三笠市",
+                //                    District="",
+                //                    PostalCode="123456",
+                //                    StateCode="SG",
+                //                    CountryCode="SG",
+                //                    Phone="99999987",
+                //                    Email="james.pham@globee.hk"
+                //            }
+                //        },
+                //        StatusInfo=new Status()
+                //        {
+                //             OrderStatus="OPEN",
+                //             ShippingStatus="NOT_SHIPPED",
+                //             ConfirmationStatus="CONFIRMED",
+                //             PaymentStatus="PAID"
+                //        },
+                //        Products=new List<Product>()
+                //        {
+                //            new Product()
+                //            {
+                //                 NetPrice=5162M,
+                //                 Tax=516M,
+                //                 GrossPrice=5678M,
+                //                 BasePrice=5678M,
+                //                 LineitemText="ALPHA ST EXP 4 WHL P/C",
+                //                 TaxBasis=5678M,
+                //                 Position=1,
+                //                 ProductId="tu-117165-1041",
+                //                 ProductName="ALPHA ST EXP 4 WHL P/C",
+                //                 Quantity=1,
+                //                 Unit="",
+                //                 TaxRate=0.1F,
+                //                 ShipmentId="00006001",
+                //                 Gift=false,
+                //                 Sku="02203064D3",
+                //                 ProductStandardPrice=1280M,
+                //                 MonogramPatch="(5) A A;metallicpink;Times New Roman Bold, serif; ;",
+                //                 MonogramTag="(5) A A;metallicpink;Times New Roman Bold, serif; ;"
+                //            }
+                //        },
+                //        Shippings=new List<Shipping>()
+                //        {
+                //            new Shipping()
+                //            {
+                //                NetPrice=0.00M,
+                //                Tax=0.00M,
+                //                GrossPrice=0.00M,
+                //                BasePrice=0.00M,
+                //                LineitemText="Shipping",
+                //                TaxBasis=0.00M,
+                //                ItemId="STANDARD_SHIPPING",
+                //                ShipmentId="00006001",
+                //                TaxRate=0.1F
+                //            }
+                //        },
+                //        Shipments=new List<Shipment>()
+                //        {
+                //            new Shipment()
+                //            {
+                //                ShipmentId="00006001",
+                //                ShippingStatus="NOT_SHIPPED",
+                //                ShippingMethod="2552834",
+                //                ShipmentAddressInfo=new ShipmentAddress()
+                //                {
+                //                    FirstName="名",
+                //                    LastName="七姓",
+                //                    Address1="Globee",
+                //                    Address2="-",
+                //                    Province="東京都",
+                //                    City="目黒区下目黒1－8－1　メゾン・コート　101号",
+                //                    District="目黒区下目黒1－8－1　メゾン・コート　101号",
+                //                    PostalCode="1530064",
+                //                    StateCode="JP",
+                //                    CountryCode="JP",
+                //                    Phone="09011112222",
+                //                    Email="james.pham@globee.hk"
+                //                }
+                //            }
+                //        },
+                //        TotalsInfo = new  Totals
+                //        {
+                //            MerchandizeTotal=new TotalChildAdjustment()
+                //            {
+                //                NetPrice=5162M,
+                //                Tax=516M,
+                //                GrossPrice=5678M,
+                //                 PriceAdjustments=new List<PriceAdjustment>()
+                //                 {
+                //                     new PriceAdjustment()
+                //                     {
+                //                          NetPrice=-775M,
+                //                          Tax=-77M,
+                //                          GrossPrice=-852M,
+                //                          BasePrice=-852M,
+                //                          LineitemText="Test",
+                //                          TaxBasis=-852M,
+                //                          PromotionId="manual_test",
+                //                          CampaignId="New Campaign - 7/14/22 2:09:19 am",
+                //                          Coupon_Id="test_coupon"
+                //                     }
+                //                 }
+                //            },
+                //            AdjustedMerchandizeTotal=new TotalChild()
+                //            {
+                //                NetPrice=4387M,
+                //                Tax=439M,
+                //                GrossPrice=4826M
+                //            },
+                //            ShippingTotal=new TotalChild()
+                //            {
+                //                NetPrice=0.00M,
+                //                Tax=0.00M,
+                //                GrossPrice=0.00M
+                //            },
+                //            AdjustedShippingTotal=new TotalChild()
+                //            {
+                //                NetPrice=0.00M,
+                //                Tax=0.00M,
+                //                GrossPrice=0.00M
+                //            },
+                //            OrderTotal=new TotalChild()
+                //            {
+                //                NetPrice=4387M,
+                //                Tax=439M,
+                //                GrossPrice=4826M
+                //            }
+                //        },
+                //        Payments=new List<Payment>()
+                //        {
+                //            new Payment()
+                //            {
+                //                 MethodName="AMAZON_PAY",
+                //                 Amount=4826M,
+                //                 ProcessorId="AMAZON_PAY",
+                //                 TransactionId="TU00001201"
+                //            }
+                //        },
+                //        RemoteHost="118.69.64.234"
+                //    }
+                //};
 
                 //执行请求
                 this.DoPost($"{this.localSite}/api/platform/order/post", objParams, postData);
@@ -1414,7 +1414,6 @@ namespace Test
             req.Method = WebRequestMethods.Http.Post;
             req.ContentType = "application/json";
             var _data = JsonHelper.JsonSerialize(objPostData, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
-            _data = "22";
             using (var sw = new StreamWriter(req.GetRequestStream()))
             {
                 sw.Write(_data);

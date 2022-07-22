@@ -16,6 +16,8 @@ using Samsonite.OMS.Service.WebHook;
 using Samsonite.OMS.Service.WebHook.Models;
 using CRM.Api;
 using CRM.Api.Request;
+using Samsonite.Utility.Common;
+using OMS.API.Models.Platform;
 
 namespace Test
 {
@@ -29,13 +31,13 @@ namespace Test
             //---api---
             //(new TestWebAPI()).TestWarehouse();
             //(new TestWebAPI()).TestClickCollect();
-            //(new TestWebAPI()).TestPlatform();
+            (new TestWebAPI()).TestPlatform();
             //(new TestWebAPI()).TestSagawaGoBack();
 
             //DeBug();
             //ServicetTest();
 
-            WebHookTest();
+            //WebHookTest();
 
             //SagawaSdkTest();
             //CRMSdkTest();
@@ -91,8 +93,15 @@ namespace Test
             //}
             //Console.WriteLine("ok");
 
-            long xx = 1;
-            Console.WriteLine(xx.ToString("D10"));
+            //long xx = 1;
+            //Console.WriteLine(xx.ToString("D10"));
+
+            string request = "[{\"order_no\":\"TUSG00010608X\",\"order_date\":\"2022-03-02T03:37:03.000Z\",\"created_by\":\"storefront\",\"currency\":\"SGD\",\"taxation\":\"gross\",\"loyalty_card_no\":\"5957116960724977\",\"order_chanel\":\"PC\",\"remark\":\"test...\"}]";
+            var datas = JsonHelper.JsonDeserialize<List<PostOrdersRequest>>(request);
+            foreach(var item in datas)
+            {
+                Console.WriteLine(item.OrderNo);
+            }
 
         }
 

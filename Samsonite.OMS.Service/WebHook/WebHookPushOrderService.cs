@@ -126,13 +126,14 @@ namespace Samsonite.OMS.Service.WebHook
                                                          IsBonusProduct=od.IsGift,
                                                          IsBundleRoot=od.IsSet,
                                                          IsGift=false,
-                                                         ProductDiscounts= (from oda in item.OrderDetailAdjustments.Where(p=>p.SubOrderNo==od.SubOrderNo)
+                                                         //如果没有信息,需要设置为NULL,如果传递[],CRM接口会报错500错误
+                                                         ProductDiscounts=item.OrderDetailAdjustments.Where(p=>p.SubOrderNo==od.SubOrderNo).Any()? (from oda in item.OrderDetailAdjustments.Where(p=>p.SubOrderNo==od.SubOrderNo)
                                                                            select new ProductDiscount()
                                                                            {
                                                                                 DiscountAmount=Math.Abs(oda.GrossPrice),
                                                                                 PromotionID=oda.PromotionId,
                                                                                 CouponRedemption=oda.CouponId
-                                                                           }).ToList(),
+                                                                           }).ToList():null,
                                                          TotalLineAmount=od.ActualPaymentAmount,
                                                          TotalUnitPriceAmount=od.RRPPrice*od.Quantity,
                                                          UnitPriceAmount=od.RRPPrice,
@@ -142,7 +143,8 @@ namespace Samsonite.OMS.Service.WebHook
                                                               StatusDescription="New",
                                                               StatusDate=TimeHelper.ParseToUTCTime(od.EditDate.Value)
                                                          },
-                                                         OrderCustomAttributes=this.GetValueAddedServices(item.OrderValueAddedServices.Where(p=>p.SubOrderNo==od.SubOrderNo).ToList()),
+                                                         //如果没有信息,需要设置为NULL,如果传递[],CRM接口会报错500错误
+                                                         OrderCustomAttributes=item.OrderValueAddedServices.Where(p=>p.SubOrderNo==od.SubOrderNo).Any()?this.GetValueAddedServices(item.OrderValueAddedServices.Where(p=>p.SubOrderNo==od.SubOrderNo).ToList()):null,
 
                                                      }).ToList(),
                                         OrderPayments=(from op in item.OrderPayments
@@ -182,7 +184,8 @@ namespace Samsonite.OMS.Service.WebHook
                                 }
                             };
                             var req = defaultClient.Execute(_req);
-                            if (req.ResponseStatus.Equals("SUCCESS") && !req.IsError)
+                            //此处接口有问题,没有返回responseStatus信息,仅以Status=202表示成功
+                            if (req.ResponseStatus.Equals("") && !req.IsError)
                             {
                                 //添加成功记录
                                 var tmpWebHookOrderPushLog = webHookOrderPushLogs.Where(p => p.OrderId == item.OrderInfo.Id).FirstOrDefault();

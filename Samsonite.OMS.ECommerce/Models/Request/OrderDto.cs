@@ -28,6 +28,12 @@ namespace Samsonite.OMS.ECommerce.Models
         [JsonProperty(PropertyName = "loyalty_card_no")]
         public string LoyaltyCardNo { get; set; }
 
+        [JsonProperty(PropertyName = "delivery_date")]
+        public string DeliveryDate { get; set; }
+
+        [JsonProperty(PropertyName = "delivery_time")]
+        public string DeliveryTime { get; set; }
+
         [JsonProperty(PropertyName = "order_chanel")]
         public string OrderChanel { get; set; }
 

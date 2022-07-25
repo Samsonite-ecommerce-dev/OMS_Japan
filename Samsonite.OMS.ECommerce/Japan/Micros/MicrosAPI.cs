@@ -448,6 +448,8 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
                                         ReceiveAddr = _addr,
                                         ReceiveZipcode = XmlHelper.GetSingleNodeText(delivery, $"{nsPrefix}Address/{nsPrefix}PostalCode", nsmgr),
                                         AddDate = DateTime.Now,
+                                        DeliveryDate = string.Empty,
+                                        DeliveryTime = string.Empty,
                                         ShipmentID = string.Empty,
                                         ShippingType = string.Empty,
                                         Address1 = XmlHelper.GetSingleNodeText(delivery, $"{nsPrefix}Address/{nsPrefix}AddressLine1", nsmgr),

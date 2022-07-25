@@ -59,7 +59,7 @@ namespace Test
 
             //访问接口
             Console.WriteLine("Begin to run Warehouse interface...");
-            //WHGetOrders();
+            WHGetOrders();
             //WHGetChangedOrders();
             //WHPostInventory();
             //WHPostDelivery();
@@ -82,8 +82,10 @@ namespace Test
                 objParams.Add("method", this.method);
                 objParams.Add("timestamp", TimeHelper.DateTimeToUnixTimestamp(DateTime.Now).ToString());
                 //传递参数
-                objParams.Add("startdate", "20220301000000");
-                objParams.Add("enddate", "20220330000000");
+                objParams.Add("startdate", "20220428000000");
+                objParams.Add("enddate", "20220428235959");
+                //objParams.Add("startupdatedate", "20220708000000");
+                //objParams.Add("endupdatedate", "20220708235959");
                 objParams.Add("pageindex", "1");
                 objParams.Add("pagesize", "50");
                 objParams.Add("orderby", "asc");

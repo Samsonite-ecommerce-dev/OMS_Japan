@@ -75,5 +75,7 @@ namespace Samsonite.OMS.Database
         public bool IsDelete { get; set; }
         public int RejectQuantity { get; set; }
         public string ParentSubOrderNo { get; set; }
+        public string DeliveryDate { get; set; }
+        public string DeliveryTime { get; set; }
     }
 }

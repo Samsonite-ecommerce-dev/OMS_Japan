@@ -33,6 +33,8 @@ namespace Samsonite.OMS.Database
         public string Town { get; set; }
         public string ShipmentID { get; set; }
         public string ShippingType { get; set; }
+        public string DeliveryDate { get; set; }
+        public string DeliveryTime { get; set; }
         public string Address1 { get; set; }
         public string Address2 { get; set; }
     }

@@ -27,8 +27,9 @@ namespace Samsonite.OMS.Service.WebHook
         /// <summary>
         /// 推送新订单到CRM
         /// </summary>
-        public void PushNewOrdersToCRM()
+        public CommonResult PushNewOrdersToCRM()
         {
+            CommonResult _result = new CommonResult();
             using (var db = new ebEntities())
             {
                 //读取最近90天内的订单信息
@@ -210,6 +211,8 @@ namespace Samsonite.OMS.Service.WebHook
                                     });
                                 }
                                 db.SaveChanges();
+
+                                _result.SuccessRecord++;
                             }
                             else
                             {
@@ -242,17 +245,23 @@ namespace Samsonite.OMS.Service.WebHook
                                 });
                             }
                             db.SaveChanges();
+
+                            _result.FailRecord++;
                         }
+
+                        _result.TotalRecord++;
                     }
                 }
             }
+            return _result;
         }
 
         /// <summary>
         /// 推送订单状态到CRM
         /// </summary>
-        public void PushOrderStatusToCRM()
+        public CommonResult PushOrderStatusToCRM()
         {
+            CommonResult _result = new CommonResult();
             using (var db = new ebEntities())
             {
                 //读取最近90天内的订单信息
@@ -334,6 +343,8 @@ namespace Samsonite.OMS.Service.WebHook
                                     });
                                 }
                                 db.SaveChanges();
+
+                                _result.SuccessRecord++;
                             }
                             else
                             {
@@ -366,10 +377,15 @@ namespace Samsonite.OMS.Service.WebHook
                                 });
                             }
                             db.SaveChanges();
+
+                            _result.FailRecord++;
                         }
+
+                        _result.TotalRecord++;
                     }
                 }
             }
+            return _result;
         }
 
         /// <summary>

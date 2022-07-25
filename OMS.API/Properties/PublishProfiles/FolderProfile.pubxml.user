@@ -100,10 +100,10 @@
       <publishTime>05/07/2018 11:39:33</publishTime>
     </File>
     <File Include="bin/OMS.API.dll">
-      <publishTime>07/22/2022 15:31:39</publishTime>
+      <publishTime>07/25/2022 15:52:34</publishTime>
     </File>
     <File Include="bin/OMS.API.pdb">
-      <publishTime>07/22/2022 15:31:39</publishTime>
+      <publishTime>07/25/2022 15:52:34</publishTime>
     </File>
     <File Include="bin/Org.Mentalis.Security.dll">
       <publishTime>09/07/2015 09:08:51</publishTime>
@@ -160,37 +160,37 @@
       <publishTime>07/05/2022 16:40:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Database.dll">
-      <publishTime>07/22/2022 14:48:06</publishTime>
+      <publishTime>07/25/2022 15:52:27</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Database.dll.config">
       <publishTime>03/14/2022 11:37:01</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Database.pdb">
-      <publishTime>07/22/2022 14:48:06</publishTime>
+      <publishTime>07/25/2022 15:52:27</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.DTO.dll">
-      <publishTime>07/22/2022 14:48:06</publishTime>
+      <publishTime>07/25/2022 15:52:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.DTO.pdb">
-      <publishTime>07/22/2022 14:48:06</publishTime>
+      <publishTime>07/25/2022 15:52:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.ECommerce.dll">
-      <publishTime>07/22/2022 14:48:07</publishTime>
+      <publishTime>07/25/2022 15:52:29</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.ECommerce.pdb">
-      <publishTime>07/22/2022 14:48:07</publishTime>
+      <publishTime>07/25/2022 15:52:29</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Encryption.dll">
-      <publishTime>07/22/2022 14:48:07</publishTime>
+      <publishTime>07/25/2022 15:52:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Encryption.pdb">
-      <publishTime>07/22/2022 14:48:07</publishTime>
+      <publishTime>07/25/2022 15:52:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Service.dll">
-      <publishTime>07/22/2022 14:48:07</publishTime>
+      <publishTime>07/25/2022 15:52:28</publishTime>
     </File>
     <File Include="bin/Samsonite.OMS.Service.pdb">
-      <publishTime>07/22/2022 14:48:07</publishTime>
+      <publishTime>07/25/2022 15:52:28</publishTime>
     </File>
     <File Include="bin/Samsonite.Utility.dll">
       <publishTime>07/04/2022 16:26:31</publishTime>

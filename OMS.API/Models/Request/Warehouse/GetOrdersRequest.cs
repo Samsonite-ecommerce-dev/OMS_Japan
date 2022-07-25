@@ -8,6 +8,10 @@ namespace OMS.API.Models.Warehouse
 
         public string EndDate { get; set; }
 
+        public string StartUpdateDate { get; set; }
+
+        public string EndUpdateDate { get; set; }
+
         public int PageIndex { get; set; }
 
         public int PageSize { get; set; }

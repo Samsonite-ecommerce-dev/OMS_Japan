@@ -31,24 +31,43 @@ namespace OMS.API.Implments.Warehouse
         {
             GetOrdersResponse _result = new GetOrdersResponse();
             List<GetOrdersItem> _datas = new List<GetOrdersItem>();
-            DateTime startDate = UtilsHelper.parseDate(request.StartDate);
-            DateTime endDate = UtilsHelper.parseDate(request.EndDate);
             //默认倒序
             if (string.IsNullOrEmpty(request.OrderBy)) request.OrderBy = "DESC";
             bool _isASC = (request.OrderBy.ToUpper() == "ASC");
             using (var db = new ebEntities())
             {
                 /***订单过滤条件
-                1.只传递订单状态为Received的普通订单
-                2.过滤订单类型:已关闭,未付款,已取消,换货新订单,错误订单,已删除订单,原始套装主订单
-                3.通过IsStop为0来过滤预售订单
-                4.仓库已经回复的订单
-                5.如果该订单下属存在错误的子订单,则整个订单均不发送
-                注:订单查询时间时根据订单创建时间和预售时间
-                ***/
-                var _list = from o in db.Order
-                            join od in db.OrderDetail.Where(p => ((p.CreateDate >= startDate && p.CreateDate <= endDate) || (p.ReservationDate >= startDate && p.ReservationDate <= endDate)) && p.Status == (int)ProductStatus.Received && !p.IsStop && !p.IsSystemCancel && !p.IsExchangeNew && !p.IsSetOrigin && !p.IsError && !p.IsDelete && !(db.OrderWMSReply.Where(o => o.Status && o.SubOrderNo == p.SubOrderNo).Any())) on o.Id equals od.OrderId
-                            join r in db.OrderReceive on od.SubOrderNo equals r.SubOrderNo
+               1.只传递订单状态为Received的普通订单
+               2.过滤订单类型:已关闭,未付款,已取消,换货新订单,错误订单,已删除订单,原始套装主订单
+               3.通过IsStop为0来过滤预售订单
+               4.仓库已经回复的订单
+               5.如果该订单下属存在错误的子订单,则整个订单均不发送
+               注:订单查询时间时根据订单创建时间和预售时间
+               ***/
+                var _lambda1 = db.Order.AsQueryable();
+                var _lambda2 = db.OrderDetail.AsQueryable();
+                var _lambda3 = db.OrderReceive.AsQueryable();
+
+
+                if (!string.IsNullOrEmpty(request.StartDate) && !string.IsNullOrEmpty(request.EndDate))
+                {
+                    var startDate = UtilsHelper.parseDate(request.StartDate);
+                    var endDate = UtilsHelper.parseDate(request.EndDate);
+                    _lambda2 = _lambda2.Where(p => ((p.CreateDate >= startDate && p.CreateDate <= endDate) || (p.ReservationDate >= startDate && p.ReservationDate <= endDate)));
+                }
+
+                if (!string.IsNullOrEmpty(request.StartUpdateDate) && !string.IsNullOrEmpty(request.EndUpdateDate))
+                {
+                    var startUpdateDate = UtilsHelper.parseDate(request.StartUpdateDate);
+                    var endUpdateDate = UtilsHelper.parseDate(request.EndUpdateDate);
+                    _lambda2 = _lambda2.Where(p => p.EditDate >= startUpdateDate && p.EditDate <= endUpdateDate);
+                }
+
+                _lambda2 = _lambda2.Where(p => p.Status == (int)ProductStatus.Received && !p.IsStop && !p.IsSystemCancel && !p.IsExchangeNew && !p.IsSetOrigin && !p.IsError && !p.IsDelete && !(db.OrderWMSReply.Where(o => o.Status && o.SubOrderNo == p.SubOrderNo).Any()));
+                //查询
+                var _list = from o in _lambda1
+                            join od in _lambda2 on o.Id equals od.OrderId
+                            join r in _lambda3 on od.SubOrderNo equals r.SubOrderNo
                             select new OrderQueryModel()
                             {
                                 MallSapCode = o.MallSapCode,
@@ -70,6 +89,8 @@ namespace OMS.API.Implments.Warehouse
                                 ActualPaymentAmount = od.ActualPaymentAmount,
                                 Quantity = od.Quantity,
                                 Status = od.Status,
+                                DeliveryDate = r.DeliveryDate,
+                                DeliveryTime = r.DeliveryTime,
                                 IsReservation = od.IsReservation,
                                 ReservationDate = od.ReservationDate,
                                 IsSet = od.IsSet,
@@ -210,6 +231,8 @@ namespace OMS.API.Implments.Warehouse
                         productStatus = item.Status,
                         deliveryNo = string.Empty,
                         deliveryDoc = string.Empty,
+                        deliveryDate = item.DeliveryDate,
+                        deliveryTime = item.DeliveryTime,
                         isReservation = item.IsReservation,
                         reservationDate = (item.ReservationDate == null) ? "" : item.ReservationDate.Value.ToString("yyyyMMddHHmm"),
                         monograms = monograms,

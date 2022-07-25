@@ -730,6 +730,8 @@
           <Property Name="Town" Type="nvarchar" MaxLength="128" />
           <Property Name="ShipmentID" Type="nvarchar" MaxLength="50" />
           <Property Name="ShippingType" Type="nvarchar" MaxLength="50" />
+          <Property Name="DeliveryDate" Type="varchar" MaxLength="100" />
+          <Property Name="DeliveryTime" Type="varchar" MaxLength="100" />
           <Property Name="Address1" Type="nvarchar" MaxLength="2000" />
           <Property Name="Address2" Type="nvarchar" MaxLength="2000" />
         </EntityType>
@@ -2038,6 +2040,8 @@
           <Property Name="IsDelete" Type="bit" Nullable="false" />
           <Property Name="RejectQuantity" Type="int" Nullable="false" />
           <Property Name="ParentSubOrderNo" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="DeliveryDate" Type="varchar" MaxLength="100" />
+          <Property Name="DeliveryTime" Type="varchar" MaxLength="100" />
         </EntityType>
         <!--生成过程中发现错误:
 警告 6002: 表/视图“OMS_Japan.dbo.View_OrderExchange”未定义主键。已推断出该键，并将定义创建为只读的表/视图。-->
@@ -2949,7 +2953,9 @@
     [View_OrderDetail_Receive].[Address2] AS [Address2], 
     [View_OrderDetail_Receive].[IsDelete] AS [IsDelete], 
     [View_OrderDetail_Receive].[RejectQuantity] AS [RejectQuantity], 
-    [View_OrderDetail_Receive].[ParentSubOrderNo] AS [ParentSubOrderNo]
+    [View_OrderDetail_Receive].[ParentSubOrderNo] AS [ParentSubOrderNo], 
+    [View_OrderDetail_Receive].[DeliveryDate] AS [DeliveryDate], 
+    [View_OrderDetail_Receive].[DeliveryTime] AS [DeliveryTime]
     FROM [dbo].[View_OrderDetail_Receive] AS [View_OrderDetail_Receive]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="View_OrderExchange" EntityType="Self.View_OrderExchange" store:Type="Views" store:Schema="dbo">
@@ -4043,6 +4049,8 @@
           <Property Name="Town" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
           <Property Name="ShipmentID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="ShippingType" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="DeliveryDate" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DeliveryTime" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Address1" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
           <Property Name="Address2" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
         </EntityType>
@@ -5333,6 +5341,8 @@
           <Property Name="IsDelete" Type="Boolean" Nullable="false" />
           <Property Name="RejectQuantity" Type="Int32" Nullable="false" />
           <Property Name="ParentSubOrderNo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DeliveryDate" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DeliveryTime" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="View_OrderExchange">
           <Key>
@@ -6494,6 +6504,8 @@
               <MappingFragment StoreEntitySet="OrderReceive">
                 <ScalarProperty Name="Address2" ColumnName="Address2" />
                 <ScalarProperty Name="Address1" ColumnName="Address1" />
+                <ScalarProperty Name="DeliveryTime" ColumnName="DeliveryTime" />
+                <ScalarProperty Name="DeliveryDate" ColumnName="DeliveryDate" />
                 <ScalarProperty Name="ShippingType" ColumnName="ShippingType" />
                 <ScalarProperty Name="ShipmentID" ColumnName="ShipmentID" />
                 <ScalarProperty Name="Town" ColumnName="Town" />
@@ -7558,6 +7570,8 @@
           <EntitySetMapping Name="View_OrderDetail_Receive">
             <EntityTypeMapping TypeName="Samsonite.OMS.Database.View_OrderDetail_Receive">
               <MappingFragment StoreEntitySet="View_OrderDetail_Receive">
+                <ScalarProperty Name="DeliveryTime" ColumnName="DeliveryTime" />
+                <ScalarProperty Name="DeliveryDate" ColumnName="DeliveryDate" />
                 <ScalarProperty Name="ParentSubOrderNo" ColumnName="ParentSubOrderNo" />
                 <ScalarProperty Name="RejectQuantity" ColumnName="RejectQuantity" />
                 <ScalarProperty Name="IsDelete" ColumnName="IsDelete" />

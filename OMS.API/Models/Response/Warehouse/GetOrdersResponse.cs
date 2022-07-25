@@ -91,14 +91,24 @@ namespace OMS.API.Models.Warehouse
         //public string shippingType { get; set; }
 
         /// <summary>
-        /// 预购订单时间
+        /// 客户期望发货日期
         /// </summary>
-        public string reservationDate { get; set; }
+        public string deliveryDate { get; set; }
+
+        /// <summary>
+        /// 客户期望发货时间
+        /// </summary>
+        public string deliveryTime { get; set; }
 
         /// <summary>
         /// 是否是预购订单
         /// </summary>
         public bool isReservation { get; set; }
+
+        /// <summary>
+        /// 预购订单时间
+        /// </summary>
+        public string reservationDate { get; set; }
 
         /// <summary>
         /// Monogram属性

@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WebHook.cs" />
     <Compile Include="DeleteHistoryData.cs" />
     <Compile Include="AnalysisReport.cs" />
     <Compile Include="DataClaimFromAPI.cs" />

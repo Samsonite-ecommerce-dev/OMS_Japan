@@ -100,6 +100,16 @@ namespace OMS.API.Models.Warehouse
         public int Quantity { get; set; }
 
         /// <summary>
+        /// 客户期望发货日期
+        /// </summary>
+        public string DeliveryDate { get; set; }
+
+        /// <summary>
+        /// 客户期望发货时间
+        /// </summary>
+        public string DeliveryTime { get; set; }
+
+        /// <summary>
         /// 是否是预购订单
         /// </summary>
         public bool IsReservation { get; set; }

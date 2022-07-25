@@ -177,6 +177,8 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                     ReceiveAddr = string.Empty,
                     ReceiveZipcode = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.PostalCode),
                     AddDate = DateTime.Now,
+                    DeliveryDate = item.DeliveryDate,
+                    DeliveryTime = item.DeliveryTime,
                     ShipmentID = string.Empty,
                     ShippingType = string.Empty,
                     Address1 = VariableHelper.SaferequestNull(_shipment.ShipmentAddressInfo.Address1),

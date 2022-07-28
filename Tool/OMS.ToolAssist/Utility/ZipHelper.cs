@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using ICSharpCode.SharpZipLib.Checksum;
@@ -10,7 +9,7 @@ namespace OMS.ToolAssist.Utility
     public class ZipHelper
     {
         //默认密钥
-        private string ZIPPASSWORD = "zd1%^!*%$(OIJU80iu*(!23";
+        private string ZIPPASSWORD = "za1%^!*%$(OIIL80iu*(!86";
 
         public ZipHelper()
         {

@@ -185,38 +185,44 @@ namespace Samsonite.OMS.Service.WebHook
                                 }
                             };
                             var req = defaultClient.Execute(_req);
-                            //此处接口有问题,没有返回responseStatus信息,仅以Status=202表示成功
-                            if (req.ResponseStatus.Equals("") && !req.IsError)
+                            if (!req.IsError)
                             {
-                                //添加成功记录
-                                var tmpWebHookOrderPushLog = webHookOrderPushLogs.Where(p => p.OrderId == item.OrderInfo.Id).FirstOrDefault();
-                                if (tmpWebHookOrderPushLog != null)
+                                if (req.ResponseStatus.Equals("SUCCESS"))
                                 {
-                                    tmpWebHookOrderPushLog.PushStatus = 2;
-                                    tmpWebHookOrderPushLog.CompleteTime = DateTime.Now;
+                                    //添加成功记录
+                                    var tmpWebHookOrderPushLog = webHookOrderPushLogs.Where(p => p.OrderId == item.OrderInfo.Id).FirstOrDefault();
+                                    if (tmpWebHookOrderPushLog != null)
+                                    {
+                                        tmpWebHookOrderPushLog.PushStatus = 2;
+                                        tmpWebHookOrderPushLog.CompleteTime = DateTime.Now;
+                                    }
+                                    else
+                                    {
+                                        db.WebHookOrderPushLog.Add(new WebHookOrderPushLog()
+                                        {
+                                            MallSapCode = item.OrderInfo.MallSapCode,
+                                            OrderId = item.OrderInfo.Id,
+                                            OrderNo = item.OrderInfo.OrderNo,
+                                            PushTarget = (int)WebHookPushTarget.CRM,
+                                            PushStatus = 2,
+                                            PushCount = 0,
+                                            PushMessage = string.Empty,
+                                            CreateTime = DateTime.Now,
+                                            CompleteTime = null
+                                        });
+                                    }
+                                    db.SaveChanges();
+
+                                    _result.SuccessRecord++;
                                 }
                                 else
                                 {
-                                    db.WebHookOrderPushLog.Add(new WebHookOrderPushLog()
-                                    {
-                                        MallSapCode = item.OrderInfo.MallSapCode,
-                                        OrderId = item.OrderInfo.Id,
-                                        OrderNo = item.OrderInfo.OrderNo,
-                                        PushTarget = (int)WebHookPushTarget.CRM,
-                                        PushStatus = 2,
-                                        PushCount = 0,
-                                        PushMessage = string.Empty,
-                                        CreateTime = DateTime.Now,
-                                        CompleteTime = null
-                                    });
+                                    throw new Exception($"Post fail!");
                                 }
-                                db.SaveChanges();
-
-                                _result.SuccessRecord++;
                             }
                             else
                             {
-                                throw new Exception(req.ErrorMessage);
+                                throw new Exception($"{req.ErrorCode}:{req.ErrorMessage}");
                             }
 
                         }
@@ -317,44 +323,51 @@ namespace Samsonite.OMS.Service.WebHook
                              }
                             };
                             var req = defaultClient.Execute(_req);
-                            if (req.ResponseStatus.Equals("SUCCESS") && !req.IsError)
+                            if (!req.IsError)
                             {
-                                //添加成功记录
-                                var tmpWebHookOrderStatusPushLog = webHookOrderStatusPushLogs.Where(p => p.DetailId == item.OrderDetailInfo.DetailID && p.PushStatus == tmpPushStatus).FirstOrDefault();
-                                if (tmpWebHookOrderStatusPushLog != null)
+                                if (req.ResponseStatus.Equals("SUCCESS"))
                                 {
-                                    tmpWebHookOrderStatusPushLog.PushStatus = 2;
-                                    tmpWebHookOrderStatusPushLog.CompleteTime = DateTime.Now;
+                                    //添加成功记录
+                                    var tmpWebHookOrderStatusPushLog = webHookOrderStatusPushLogs.Where(p => p.DetailId == item.OrderDetailInfo.DetailID).FirstOrDefault();
+                                    if (tmpWebHookOrderStatusPushLog != null)
+                                    {
+                                        tmpWebHookOrderStatusPushLog.PushStatus = 2;
+                                        tmpWebHookOrderStatusPushLog.CompleteTime = DateTime.Now;
+                                    }
+                                    else
+                                    {
+                                        db.WebHookOrderStatusPushLog.Add(new WebHookOrderStatusPushLog()
+                                        {
+                                            MallSapCode = item.OrderDetailInfo.MallSapCode,
+                                            OrderNo = item.OrderDetailInfo.OrderNo,
+                                            DetailId = item.OrderDetailInfo.DetailID,
+                                            SubOrderNo = item.OrderDetailInfo.SubOrderNo,
+                                            PushTarget = (int)WebHookPushTarget.CRM,
+                                            PushStatus = 2,
+                                            PushCount = tmpPushStatus,
+                                            PushMessage = string.Empty,
+                                            CreateTime = DateTime.Now,
+                                            CompleteTime = null
+                                        });
+                                    }
+                                    db.SaveChanges();
+
+                                    _result.SuccessRecord++;
                                 }
                                 else
                                 {
-                                    db.WebHookOrderStatusPushLog.Add(new WebHookOrderStatusPushLog()
-                                    {
-                                        MallSapCode = item.OrderDetailInfo.MallSapCode,
-                                        OrderNo = item.OrderDetailInfo.OrderNo,
-                                        DetailId = item.OrderDetailInfo.DetailID,
-                                        SubOrderNo = item.OrderDetailInfo.SubOrderNo,
-                                        PushTarget = (int)WebHookPushTarget.CRM,
-                                        PushStatus = 2,
-                                        PushCount = tmpPushStatus,
-                                        PushMessage = string.Empty,
-                                        CreateTime = DateTime.Now,
-                                        CompleteTime = null
-                                    });
+                                    throw new Exception($"Post fail!");
                                 }
-                                db.SaveChanges();
-
-                                _result.SuccessRecord++;
                             }
                             else
                             {
-                                throw new Exception(req.ErrorMessage);
+                                throw new Exception($"{req.ErrorCode}:{req.ErrorMessage}");
                             }
                         }
                         catch (Exception ex)
                         {
                             //添加成功记录
-                            var tmpWebHookOrderStatusPushLog = webHookOrderStatusPushLogs.Where(p => p.DetailId == item.OrderDetailInfo.DetailID && p.PushStatus == tmpPushStatus).FirstOrDefault();
+                            var tmpWebHookOrderStatusPushLog = webHookOrderStatusPushLogs.Where(p => p.DetailId == item.OrderDetailInfo.DetailID).FirstOrDefault();
                             if (tmpWebHookOrderStatusPushLog != null)
                             {
                                 tmpWebHookOrderStatusPushLog.PushCount += 1;

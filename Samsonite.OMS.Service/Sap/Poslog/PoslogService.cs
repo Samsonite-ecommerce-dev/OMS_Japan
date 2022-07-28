@@ -46,7 +46,7 @@ namespace Samsonite.OMS.Service.Sap.Poslog
         /// <param name="end"></param>
         /// <param name="mallSapCode"></param>
         /// <returns></returns>
-        private static List<PoslogUploadResult> UploadTransactionPosLogs(DateTime begin, DateTime end, string mallSapCode)
+        public static List<PoslogUploadResult> UploadTransactionPosLogs(DateTime begin, DateTime end, string mallSapCode)
         {
             List<PoslogUploadResult> result = new List<PoslogUploadResult>();
             List<TransactionPosLog> logs = new List<TransactionPosLog>();
@@ -73,7 +73,7 @@ namespace Samsonite.OMS.Service.Sap.Poslog
         ///// </summary>
         ///// <param name="mallSapCode"></param>
         ///// <returns></returns>
-        //private static List<PoslogUploadResult> UploadTransferPosLogs(string mallSapCode)
+        //public static List<PoslogUploadResult> UploadTransferPosLogs(string mallSapCode)
         //{
         //    List<PoslogUploadResult> result = new List<PoslogUploadResult>();
         //    List<TransferPosLog> logs = new List<TransferPosLog>();

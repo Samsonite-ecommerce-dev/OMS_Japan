@@ -1445,9 +1445,34 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// </summary>
         /// <param name="objDelivery_List"></param>
         /// <returns></returns>
-        public CommonResult<DeliveryResult> SetReadyToShip(List<View_OrderDetail_Deliverys> objDelivery_List = null)
+        public CommonResult<DeliveryResult> SetReadyToShip()
+        {
+            CommonResult<DeliveryResult> _result = new CommonResult<DeliveryResult>();
+            //普通订单
+            _result.ResultData.AddRange(this.SetReadyToShip_Common().ResultData);
+            //换货订单
+            _result.ResultData.AddRange(this.SetReadyToShip_Exchange().ResultData);
+            return _result;
+        }
+
+        /// <summary>
+        /// 推送ReadyToShip状态到平台(普通订单)
+        /// </summary>
+        /// <param name="objDelivery_List"></param>
+        /// <returns></returns>
+        public CommonResult<DeliveryResult> SetReadyToShip_Common(List<View_OrderDetail_Deliverys> objDelivery_List = null)
         {
             return _sagawaExtend.RegDeliverys(this.MallSapCode, objDelivery_List);
+        }
+
+        /// <summary>
+        /// 推送ReadyToShip状态到平台(换货订单)
+        /// </summary>
+        /// <param name="objOrderExchange_List"></param>
+        /// <returns></returns>
+        public CommonResult<DeliveryResult> SetReadyToShip_Exchange(List<OrderExchange> objOrderExchange_List = null)
+        {
+            return _sagawaExtend.RegDeliverys_Exchange(this.MallSapCode, objOrderExchange_List);
         }
         #endregion
 

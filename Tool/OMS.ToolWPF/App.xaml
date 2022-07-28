@@ -1,0 +1,14 @@
+﻿<Application x:Class="OMS.ToolWPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:OMS.ToolWPF"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!--sourceDictionary里面的Source链接需要合并的资源字典名称，每个 sourceDictionary标签只能连接一个资源字典，可以定义多个sourceDictionary 来连接多个资源字典-->
+                <ResourceDictionary Source="/Resource/Dictionary/ControlDictionary.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

@@ -275,7 +275,14 @@
                                         </tr>
                                         <tr>
                                             <th>@ViewBag.LanguagePack["orderquery_detail_shipping_method"]</th>
-                                            <td colspan="5">@OMS.App.Helper.OrderHelper.GetShippingMethodDisplay(_Order.ShippingMethod)</td>
+                                            <td>@OMS.App.Helper.OrderHelper.GetShippingMethodDisplay(_Order.ShippingMethod)</td>
+                                            <th>@ViewBag.LanguagePack["orderquery_detail_expected_delivery_time"]</th>
+                                            <td colspan="3">
+                                                @if (!string.IsNullOrEmpty(_OrderReceive.DeliveryDate))
+                                                {
+                                                    @(string.Format("{0} {1}", _OrderReceive.DeliveryDate, _OrderReceive.DeliveryTime));
+                                                }
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>

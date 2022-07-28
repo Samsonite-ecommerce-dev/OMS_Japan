@@ -1,0 +1,44 @@
+﻿<Window x:Class="OMS.ToolWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OMS.ToolWPF"
+        mc:Ignorable="d"
+        Title="OMS Tool" Height="768" Width="1024" MinHeight="600" MinWidth="1024" Icon="/Resource/Images/favicon.ico">
+    <Grid>
+        <Menu x:Name="menu" HorizontalAlignment="Stretch" Height="35" Margin="0,0,0,0" VerticalAlignment="Top">
+            <MenuItem Header="Product Library"  Height="35" Padding="10,0,10,0" HorizontalAlignment="Center">
+                <MenuItem Header="Down from SAP/PIM" Click="Menu_Click1" />
+            </MenuItem>
+            <MenuItem Header="Ecommerce Product" Height="35" Padding="10,0,10,0" HorizontalAlignment="Center">
+                <MenuItem Header="Down Mall Product" Click="Menu_Click2" />
+            </MenuItem>
+            <MenuItem Header="Order/Claim" Height="35" Padding="10,0,10,0" HorizontalAlignment="Center">
+                <MenuItem Header="Down Order" Click="Menu_Click3" />
+                <Separator />
+                <MenuItem Header="Down Claim" Click="Menu_Click4" />
+            </MenuItem>
+            <MenuItem Header="Inventory/Price" Height="35" Padding="10,0,10,0" HorizontalAlignment="Center">
+                <MenuItem Header="Send Invenroty" Click="Menu_Click5" />
+                <Separator />
+                <MenuItem Header="Send Price" Click="Menu_Click6" />
+                <Separator />
+                <MenuItem Header="Send OrderDetail" Click="Menu_Click7" />
+            </MenuItem>
+            <MenuItem Header="Poslog" Height="35" Padding="10,0,10,0" HorizontalAlignment="Center">
+                <MenuItem Header="Send Poslog" Click="Menu_Click8" />
+                <MenuItem Header="Accept Poslog Reply" Click="Menu_Click9" />
+            </MenuItem>
+            <!--<MenuItem Header="Email/SMS" Height="35" Padding="10,0,10,0" HorizontalAlignment="Center">
+                <MenuItem Header="Send Email" Click="Menu_Click10" />
+                <Separator />
+                <MenuItem Header="Send SMS" Click="Menu_Click11" />
+            </MenuItem>-->
+        </Menu>
+        <Frame x:Name="mainFrame" HorizontalAlignment="Stretch" NavigationUIVisibility="Hidden"  Margin="0,35,-0.4,0.4"/>
+        <Canvas x:Name="canvasLoading" HorizontalAlignment="Stretch" Background="Silver" Visibility="Hidden" Margin="0,35,-0.4,0.4" Opacity="0.6">
+            <Label x:Name="labelLoading" Content="Loading..." Width="134"  Foreground="#31B0D5" Canvas.Left="445" Canvas.Top="288" FontSize="24" FontStyle="Italic" FontWeight="Bold" />
+        </Canvas>
+    </Grid>
+</Window>

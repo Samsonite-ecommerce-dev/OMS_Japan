@@ -231,7 +231,7 @@ namespace OMS.App.Controllers
                                         AppSecret = objView_Mall_Platform.AppSecret,
                                     };
                                     //获取快递号
-                                    var result = api_TumiAPI.SetReadyToShip(new List<View_OrderDetail_Deliverys>() { objView_OrderDetail_Deliverys.Delivery });
+                                    var result = api_TumiAPI.SetReadyToShip_Common(new List<View_OrderDetail_Deliverys>() { objView_OrderDetail_Deliverys.Delivery });
                                     if (result.ResultData[0].Result)
                                     {
                                         //写入成功日志
@@ -286,7 +286,7 @@ namespace OMS.App.Controllers
                                         AppSecret = objView_Mall_Platform.AppSecret,
                                     };
                                     //获取快递号
-                                    var result = api_MicrosAPI.SetReadyToShip(new List<View_OrderDetail_Deliverys>() { objView_OrderDetail_Deliverys.Delivery });
+                                    var result = api_MicrosAPI.SetReadyToShip_Common(new List<View_OrderDetail_Deliverys>() { objView_OrderDetail_Deliverys.Delivery });
                                     if (result.ResultData[0].Result)
                                     {
                                         //写入成功日志

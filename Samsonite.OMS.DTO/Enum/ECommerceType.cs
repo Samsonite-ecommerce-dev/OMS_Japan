@@ -39,6 +39,10 @@ namespace Samsonite.OMS.DTO
         /// <summary>
         /// 推送价格
         /// </summary>
-        PushPrice = 5
+        PushPrice = 5,
+        /// <summary>
+        /// 推送换货快递号
+        /// </summary>
+        PushExchangeTrackingCode = 6
     }
 }

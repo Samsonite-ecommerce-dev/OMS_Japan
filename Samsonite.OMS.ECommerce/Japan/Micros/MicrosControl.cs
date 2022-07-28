@@ -146,7 +146,14 @@ namespace Samsonite.OMS.ECommerce.Japan.Micros
         /// <returns></returns>
         public CommonResult<DeliveryResult> SendDeliverys()
         {
-            return null;
+            if (this.ServicePowers.IsSendDelivery)
+            {
+                return this.SetReadyToShip();
+            }
+            else
+            {
+                return null;
+            }
         }
         #endregion
 

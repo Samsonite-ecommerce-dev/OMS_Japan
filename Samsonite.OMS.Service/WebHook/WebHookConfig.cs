@@ -13,7 +13,7 @@ namespace Samsonite.OMS.Service.WebHook
 
     public class CRMApiConfig
     {
-        public const string ApiUrl = "http://oms-exp-api-tumi-apac.us-e2.cloudhub.io";
+        public const string ApiUrl = "http://oms-exp-api-mule-application-template.us-e2.cloudhub.io/api";
 
         public const string UserName = "tomsapi";
 

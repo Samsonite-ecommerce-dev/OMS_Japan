@@ -1,0 +1,38 @@
+﻿<Page x:Class="OMS.ToolWPF.View.ECommerce.SendPrice"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:OMS.ToolWPF.View.ECommerce"
+      mc:Ignorable="d" 
+      d:DesignHeight="733" d:DesignWidth="1024"
+      Title="SendPrice">
+
+    <Grid>
+        <Image x:Name="image_title" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,13,0,0" Style="{StaticResource MenuImageTitle}"/>
+        <Label x:Name="label_title" Content="" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Style="{StaticResource MenuLabelTitle}" />
+        <Border HorizontalAlignment="Stretch" Height="75"  VerticalAlignment="Top" Width="Auto" Margin="10,45,10,10" Style="{StaticResource SilverBorder}">
+            <Grid>
+                <ComboBox x:Name="comboBoxList" Width="175" Height="30" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="25,0,0,0"/>
+                <Button x:Name="submitButton" Content="Run" HorizontalAlignment="Right" Margin="0,0,20,0" Height="30" Style="{StaticResource PrimaryButton}" Click="submitButton_Click"/>
+            </Grid>
+        </Border>
+        <Border HorizontalAlignment="Stretch"  VerticalAlignment="Stretch" Margin="10,125,10,10" Style="{StaticResource SilverBorder}">
+            <Grid>
+                <Label x:Name="labelProgress" Content=""  HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Top"/>
+                <DataGrid x:Name="dataGridList" Width="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,30,20,10">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="" Width="50"  Binding="{Binding RowID}"/>
+                        <DataGridTextColumn Header="Mall Sap Code" Binding="{Binding MallSapCode}"/>
+                        <DataGridTextColumn Header="SKU" Binding="{Binding SKU}"/>
+                        <DataGridTextColumn Header="ProductID" Binding="{Binding ProductID}"/>
+                        <DataGridTextColumn Header="Market Price" Binding="{Binding MarketPrice}"/>
+                        <DataGridTextColumn Header="Sales Price" Binding="{Binding SalesPrice}"/>
+                        <DataGridTextColumn Header="Result" Binding="{Binding Result}"/>
+                        <DataGridTextColumn Header="Result Message" Binding="{Binding ResultMessage}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

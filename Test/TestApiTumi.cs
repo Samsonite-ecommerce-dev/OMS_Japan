@@ -261,8 +261,18 @@ namespace Test
 
         public void SetReadyToShip()
         {
-            var result = tumiAPIClient.SetReadyToShip();
-            Console.WriteLine("ok");
+            using (var db = new ebEntities())
+            {
+                //var result = tumiAPIClient.SetReadyToShip();
+                
+                //换货订单
+                List<OrderExchange> objOrderExchange_List = db.OrderExchange.Where(p => p.OrderNo == "TUSG00010608A" && p.SubOrderNo== "TUSG00010608A_3" && p.Status != (int)ProcessStatus.Delete && !string.IsNullOrEmpty(p.ShippingNo)).ToList();
+                foreach (var _o in objOrderExchange_List)
+                {
+                    tumiAPIClient.SetReadyToShip_Exchange(objOrderExchange_List);
+                }
+                Console.WriteLine("ok");
+            }
         }
 
         public void ExpressPickUp()

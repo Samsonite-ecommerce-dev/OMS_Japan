@@ -25,7 +25,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            //(new TestApiTumi()).Test();
+            (new TestApiTumi()).Test();
             //(new TestApiMicros()).Test();
 
             //---api---
@@ -98,7 +98,7 @@ namespace Test
 
             string request = "[{\"order_no\":\"TUSG00010608X\",\"order_date\":\"2022-03-02T03:37:03.000Z\",\"created_by\":\"storefront\",\"currency\":\"SGD\",\"taxation\":\"gross\",\"loyalty_card_no\":\"5957116960724977\",\"order_chanel\":\"PC\",\"remark\":\"test...\"}]";
             var datas = JsonHelper.JsonDeserialize<List<PostOrdersRequest>>(request);
-            foreach(var item in datas)
+            foreach (var item in datas)
             {
                 Console.WriteLine(item.OrderNo);
             }
@@ -110,7 +110,7 @@ namespace Test
 
             using (var db = new ebEntities())
             {
-                string _Mark = "M104";
+                string _Mark = "M902";
                 ServiceModuleInfo objServiceModuleInfo = db.ServiceModuleInfo.Where(p => p.ModuleMark == _Mark).SingleOrDefault();
                 if (objServiceModuleInfo != null)
                 {
@@ -129,7 +129,7 @@ namespace Test
         {
             WebHookPushOrderService webHookPushOrderService = new WebHookPushOrderService();
             webHookPushOrderService.PushNewOrdersToCRM();
-            //webHookPushOrderService.PushOrderStatusToCRM();
+            webHookPushOrderService.PushOrderStatusToCRM();
 
             Console.WriteLine("ok");
         }
@@ -203,7 +203,7 @@ namespace Test
 
         private static void CRMSdkTest()
         {
-            string url = "http://oms-exp-api-tumi-apac.us-e2.cloudhub.io/";
+            string url = "http://oms-exp-api-mule-application-template.us-e2.cloudhub.io/api";
             string userName = "tomsapi";
             string password = "0msapi@220720";
             DefaultCRMClient defaultClient = new DefaultCRMClient(url, userName, password);
@@ -228,13 +228,20 @@ namespace Test
                 }
             };
             var req = defaultClient.Execute(_req);
-            if (req.ResponseStatus.Equals("SUCCESS") && !req.IsError)
+            if (!req.IsError)
             {
-                Console.WriteLine("SUCCESS!");
+                if (req.ResponseStatus.Equals("SUCCESS"))
+                {
+                    Console.WriteLine("SUCCESS!");
+                }
+                else
+                {
+                    Console.WriteLine("Fail!");
+                }
             }
             else
             {
-                Console.WriteLine(req.ErrorMessage);
+                Console.WriteLine(req.ErrorCode + ":" + req.ErrorMessage);
             }
 
             ////---Post Order Status---

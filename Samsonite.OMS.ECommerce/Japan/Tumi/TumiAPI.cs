@@ -309,7 +309,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                         PaymentDeadline = string.Empty,
                         Tid = string.Empty
                     };
-                    order.PaymentType = GetPaymentType(orderPayment.Method, orderPayment.ProcessorId);
+                    order.PaymentType = GetPaymentType(orderPayment.ProcessorId);
                     if (order.PaymentType == (int)PayType.CashOnDelivery)
                     {
                         order.PaymentDate = null;
@@ -352,7 +352,7 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
                         {
                             OrderNo = order.OrderNo,
                             PaymentAmount = orderPayments.Where(p => p.ProcessorId == pid).Sum(p => p.Amount),
-                            PaymentType = GetPaymentType(method, pid),
+                            PaymentType = GetPaymentType(pid),
                             PaymentAttribute = JsonHelper.JsonSerialize(new PayAttribute()
                             {
                                 CardType = "",
@@ -2102,47 +2102,34 @@ namespace Samsonite.OMS.ECommerce.Japan.Tumi
         /// <summary>
         /// 获取支付方式
         /// </summary>
-        /// <param name="objValue"></param>
         /// <param name="objProcessorId"></param>
         /// <returns></returns>
-        public int GetPaymentType(string objValue, string objProcessorId)
+        public int GetPaymentType(string objProcessorId)
         {
             int _result = 0;
-            //如果ProcessorId是CYBERSOURCE_CREDIT,则表示为Cybersource类型的支付方式,但是仍然归属于CYBERSOURCE_CREDIT
-            if (objProcessorId.ToUpper() == "CYBERSOURCE_CREDIT")
+            if (objProcessorId.ToUpper() == "AMAZON_PAY")
+            {
+                _result = (int)PayType.AmazonPay;
+            }
+            else if (objProcessorId.ToUpper() == "COD")
+            {
+                _result = (int)PayType.CashOnDelivery;
+            }
+            else if (objProcessorId.ToUpper() == "GMO_PAYMENT")
             {
                 _result = (int)PayType.CreditCard;
             }
+            else if (objProcessorId.ToUpper() == "GMO_DOCOMO")
+            {
+                _result = (int)PayType.DocomoPay;
+            }
+            else if (objProcessorId.ToUpper() == "GMO_RAKUTENID")
+            {
+                _result = (int)PayType.RakutenPay;
+            }
             else
             {
-                if (objValue.ToUpper() == "COD")
-                {
-                    _result = (int)PayType.CashOnDelivery;
-                }
-                else if (objValue.ToUpper() == "2C2P")
-                {
-                    _result = (int)PayType.CreditCard;
-                }
-                else if (objValue.ToUpper() == "OVER THE COUNTER")
-                {
-                    _result = (int)PayType.OTCPayment;
-                }
-                else if (objValue.ToUpper() == "PAYPAL")
-                {
-                    _result = (int)PayType.PayPal;
-                }
-                else if (objValue.ToUpper() == "CASH")
-                {
-                    _result = (int)PayType.Cash;
-                }
-                else if (objValue.ToUpper() == "ATOME_PAYMENT")
-                {
-                    _result = (int)PayType.Atome;
-                }
-                else
-                {
-                    _result = (int)PayType.OtherPay;
-                }
+                _result = (int)PayType.OtherPay;
             }
             return _result;
         }

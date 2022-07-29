@@ -145,6 +145,7 @@ namespace OMS.App.Controllers
             int _is_bundle = VariableHelper.SaferequestInt(Request.Form["is_bundle"]);
             int _is_gift = VariableHelper.SaferequestInt(Request.Form["is_gift"]);
             int _is_monogram = VariableHelper.SaferequestInt(Request.Form["is_monogram"]);
+            int _is_giftcard = VariableHelper.SaferequestInt(Request.Form["is_giftcard"]);
             string _promotion_name = VariableHelper.SaferequestStr(Request.Form["promotion_name"]);
             string _coupon_code = VariableHelper.SaferequestStr(Request.Form["coupon_code"]);
             //int _point_amount = VariableHelper.SaferequestInt(Request.Form["point_amount"]);
@@ -374,6 +375,11 @@ namespace OMS.App.Controllers
                     _SqlWhere.Add("(select count(*) from OrderValueAddedService where [order].OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.Monogram + ")>0");
                 }
 
+                if (_is_giftcard > 0)
+                {
+                    _SqlWhere.Add("(select count(*) from OrderValueAddedService where [order].OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.GiftCard + ")>0");
+                }
+
                 if (!string.IsNullOrEmpty(_promotion_name))
                 {
                     _SqlWhere.Add("(select count(*) from OrderDetailAdjustment where [order].OrderNo=OrderDetailAdjustment.OrderNo and OrderDetailAdjustment.LineitemText like '%" + _promotion_name + "%')>0");
@@ -488,7 +494,7 @@ namespace OMS.App.Controllers
             {
                 //不显示套装原订单和已删除的订单
                 StringBuilder objStr = new StringBuilder();
-                var _list = db.Database.SqlQuery<OrderQueryDetail>("select d.Id, d.OrderNo, d.SubOrderNo, d.SKU, d.ProductName, d.RRPPrice, d.SellingPrice, d.PaymentAmount, d.ActualPaymentAmount, d.Status, d.Quantity, d.CancelQuantity, d.ReturnQuantity, d.ExchangeQuantity, d.RejectQuantity, d.ShippingStatus, d.IsReservation, d.ReservationDate, d.CreateDate, d.IsError, d.IsSet, d.IsSetOrigin, d.IsPre, d.IsUrgent, d.IsExchangeNew, d.IsDelete, isnull(ds.InvoiceNo, '')As InvoiceNo, isnull((select GroupDesc from Product as p where p.sku = d.sku), '') as [collection], isnull((select count(*) from OrderValueAddedService as vas where vas.SubOrderNo = d.SubOrderNo and vas.Type = " + (int)ValueAddedServicesType.Monogram + "),0) as IsMonogram from OrderDetail as d inner join[Order] as o on d.OrderNo = o.OrderNo left join Deliverys as ds on ds.SubOrderNo = d.SubOrderNo where d.OrderId ={0} and d.IsSetOrigin = 0 and d.IsDelete = 0 order by d.SetCode asc, d.Id asc", _ID);
+                var _list = db.Database.SqlQuery<OrderQueryDetail>("select d.Id, d.OrderNo, d.SubOrderNo, d.SKU, d.ProductName, d.RRPPrice, d.SellingPrice, d.PaymentAmount, d.ActualPaymentAmount, d.Status, d.Quantity, d.CancelQuantity, d.ReturnQuantity, d.ExchangeQuantity, d.RejectQuantity, d.ShippingStatus, d.IsReservation, d.ReservationDate, d.CreateDate, d.IsError, d.IsSet, d.IsSetOrigin, d.IsPre, d.IsUrgent, d.IsExchangeNew, d.IsDelete, isnull(ds.InvoiceNo, '')As InvoiceNo, isnull((select GroupDesc from Product as p where p.sku = d.sku), '') as [collection], isnull((select count(*) from OrderValueAddedService as vas where vas.SubOrderNo = d.SubOrderNo and vas.Type = " + (int)ValueAddedServicesType.Monogram + "),0) as IsMonogram,isnull((select count(*) from OrderValueAddedService as vas where vas.SubOrderNo=d.SubOrderNo and vas.Type=" + (int)ValueAddedServicesType.GiftCard + "),0) as IsGiftCard from OrderDetail as d inner join[Order] as o on d.OrderNo = o.OrderNo left join Deliverys as ds on ds.SubOrderNo = d.SubOrderNo where d.OrderId ={0} and d.IsSetOrigin = 0 and d.IsDelete = 0 order by d.SetCode asc, d.Id asc", _ID);
                 string _orderNo = _list.FirstOrDefault().OrderNo;
                 //获取赠品信息
                 List<OrderGift> orderGifts = db.OrderGift.Where(p => p.OrderNo == _orderNo).ToList();
@@ -523,7 +529,7 @@ namespace OMS.App.Controllers
                     {
                         objStr.Append("<tr>");
                     }
-                    objStr.AppendFormat("<td class=\"textalign_left\">{0}{1}</td>", dy.SubOrderNo, OrderHelper.GetOrderNatureLabel(new OrderHelper.OrderNature() { IsReservation = dy.IsReservation, IsPre = dy.IsPre, IsUrgent = dy.IsUrgent, IsSet = dy.IsSet, IsSetOrigin = dy.IsSetOrigin, IsExchangeNew = dy.IsExchangeNew, IsMonogram = (dy.IsMonogram > 0), IsError = dy.IsError }));
+                    objStr.AppendFormat("<td class=\"textalign_left\">{0}{1}</td>", dy.SubOrderNo, OrderHelper.GetOrderNatureLabel(new OrderHelper.OrderNature() { IsReservation = dy.IsReservation, IsPre = dy.IsPre, IsUrgent = dy.IsUrgent, IsSet = dy.IsSet, IsSetOrigin = dy.IsSetOrigin, IsExchangeNew = dy.IsExchangeNew, IsMonogram = (dy.IsMonogram > 0), IsGiftCard = (dy.IsGiftCard > 0), IsError = dy.IsError }));
                     objStr.AppendFormat("<td>{0}</td>", dy.SKU);
                     objStr.AppendFormat("<td class=\"textalign_left\" style=\"width:20%;\"><label class=\"font-bold\">{0}</label><br/>{1}</td>", dy.Collection, dy.ProductName);
                     objStr.AppendFormat("<td>{0}</td>", VariableHelper.FormateMoney(dy.RRPPrice));
@@ -861,6 +867,7 @@ namespace OMS.App.Controllers
             int _is_bundle = VariableHelper.SaferequestInt(Request.Form["IsBundle"]);
             int _is_gift = VariableHelper.SaferequestInt(Request.Form["IsGift"]);
             int _is_monogram = VariableHelper.SaferequestInt(Request.Form["IsMonogram"]);
+            int _is_giftcard = VariableHelper.SaferequestInt(Request.Form["IsGiftCard"]);
             string _promotion_name = VariableHelper.SaferequestStr(Request.Form["PromotionName"]);
             string _coupon_code = VariableHelper.SaferequestStr(Request.Form["CouponCode"]);
 
@@ -1096,6 +1103,11 @@ namespace OMS.App.Controllers
                 if (_is_monogram > 0)
                 {
                     _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(select count(*) from OrderValueAddedService where o.OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.Monogram + ")>0", Param = null });
+                }
+
+                if (_is_giftcard > 0)
+                {
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(select count(*) from OrderValueAddedService where o.OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.GiftCard + ")>0", Param = null });
                 }
 
                 if (!string.IsNullOrEmpty(_promotion_name))

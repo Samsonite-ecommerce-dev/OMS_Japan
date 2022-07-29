@@ -192,6 +192,8 @@
                             <label for="IsGift">@ViewBag.LanguagePack["employeeorder_index_search_order_gift"]</label>
                             <input id="IsMonogram" name="IsMonogram" type="checkbox" value="1" />
                             <label for="IsMonogram">@ViewBag.LanguagePack["employeeorder_index_search_order_monogram"]</label>
+                            <input id="IsGiftCard" name="IsGiftCard" type="checkbox" value="1" />
+                            <label for="IsGiftCard">@ViewBag.LanguagePack["employeeorder_index_search_order_giftcard"]</label>
                         </td>
                         <th>
                             @ViewBag.LanguagePack["employeeorder_index_search_promotion_name"]
@@ -414,6 +416,7 @@
                 is_bundle: ($('#IsBundle').prop("checked")) ? 1 : 0,
                 is_gift: ($('#IsGift').prop("checked")) ? 1 : 0,
                 is_monogram: ($('#IsMonogram').prop("checked")) ? 1 : 0,
+                is_giftcard: ($('#IsGiftCard').prop("checked")) ? 1 : 0,
                 promotion_name: $('#PromotionName').val(),
                 coupon_code: $('#CouponCode').val()
             });

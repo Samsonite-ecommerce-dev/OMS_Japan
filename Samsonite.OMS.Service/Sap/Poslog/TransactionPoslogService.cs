@@ -992,51 +992,30 @@ namespace Samsonite.OMS.Service.Sap.Poslog
             }
             else
             {
-                if (string.IsNullOrEmpty(cardType))
+                //if (string.IsNullOrEmpty(cardType))
+                //{
+                switch (payType)
                 {
-                    switch (payType)
-                    {
-                        case (int)PayType.CreditCard:
-                            _result = "Credit Card";
-                            break;
-                        case (int)PayType.CashOnDelivery:
-                            _result = "Cash On Delivery";
-                            break;
-                        case (int)PayType.PayPal:
-                            _result = "Paypal";
-                            break;
-                        case (int)PayType.Cash:
-                            _result = "Cash";
-                            break;
-                        case (int)PayType.Atome:
-                            _result = "ATOME";
-                            break;
-                        case (int)PayType.Installment:
-                            _result = "Other Payment Type";
-                            break;
-                        case (int)PayType.BankPayment:
-                            _result = "Other Payment Type";
-                            break;
-                        default:
-                            _result = "Other Payment Type";
-                            break;
-                    }
+                    case (int)PayType.AmazonPay:
+                        _result = "AMAZON_PAY";
+                        break;
+                    case (int)PayType.CashOnDelivery:
+                        _result = "COD";
+                        break;
+                    case (int)PayType.CreditCard:
+                        _result = "CREDIT_CARD";
+                        break;
+                    case (int)PayType.DocomoPay:
+                        _result = "DOCOMO";
+                        break;
+                    case (int)PayType.RakutenPay:
+                        _result = "RAKUTEN";
+                        break;
+                    default:
+                        _result = "Other Payment Type";
+                        break;
                 }
-                else
-                {
-                    switch (cardType.ToUpper())
-                    {
-                        case "VISA":
-                            _result = "CYBS_VISA";
-                            break;
-                        case "MASTERCARD":
-                            _result = "CYBS_MASTERCARD";
-                            break;
-                        default:
-                            _result = "Other Payment Type";
-                            break;
-                    }
-                }
+                //}
             }
             return _result;
         }

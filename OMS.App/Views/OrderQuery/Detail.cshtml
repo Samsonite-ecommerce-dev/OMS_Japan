@@ -84,7 +84,7 @@
                             <tr>
                                 <td>
                                     @Html.Raw(!string.IsNullOrEmpty(_o.ParentSubOrderNo) ? "<i class=\"fa fa-minus color_info\"></i>" + _o.SubOrderNo : _o.SubOrderNo)
-                                    @Html.Raw(OMS.App.Helper.OrderHelper.GetOrderNatureLabel(new OMS.App.Helper.OrderHelper.OrderNature() { IsReservation = _o.IsReservation, IsPre = _o.IsPre, IsUrgent = _o.IsUrgent, IsSet = _o.IsSet, IsSetOrigin = _o.IsSetOrigin, IsExchangeNew = _o.IsExchangeNew, IsMonogram = (_VASList.Where(p => p.SubOrderNo == _o.SubOrderNo && p.Type == (int)Samsonite.OMS.DTO.ValueAddedServicesType.Monogram).Count() > 0), IsError = _o.IsError }))
+                                    @Html.Raw(OMS.App.Helper.OrderHelper.GetOrderNatureLabel(new OMS.App.Helper.OrderHelper.OrderNature() { IsReservation = _o.IsReservation, IsPre = _o.IsPre, IsUrgent = _o.IsUrgent, IsSet = _o.IsSet, IsSetOrigin = _o.IsSetOrigin, IsExchangeNew = _o.IsExchangeNew, IsMonogram = (_VASList.Where(p => p.SubOrderNo == _o.SubOrderNo && p.Type == (int)Samsonite.OMS.DTO.ValueAddedServicesType.Monogram).Count() > 0), IsGiftCard = (_VASList.Where(p => p.SubOrderNo == _o.SubOrderNo && p.Type == (int)Samsonite.OMS.DTO.ValueAddedServicesType.GiftCard).Count() > 0), IsError = _o.IsError }))
                                 </td>
                                 <td>
                                     <div class="product_info">

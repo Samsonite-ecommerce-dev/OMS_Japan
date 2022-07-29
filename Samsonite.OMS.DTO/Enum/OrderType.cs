@@ -104,7 +104,19 @@ namespace Samsonite.OMS.DTO
         /// <summary>
         /// 新加坡移动支付平台
         /// </summary>
-        Atome=23
+        Atome = 23,
+        /// <summary>
+        /// 亚马逊支付
+        /// </summary>
+        AmazonPay = 24,
+        /// <summary>
+        /// 
+        /// </summary>
+        DocomoPay = 25,
+        /// <summary>
+        /// 乐天支付
+        /// </summary>
+        RakutenPay = 26
     }
 
     public class PayAttribute

@@ -1279,6 +1279,7 @@
     <Folder Include="Areas\Mobile\Content\js\locale\" />
     <Folder Include="Content\js-library\bootstrap\fileinput\fonts\" />
     <Folder Include="Document\Template\Shipping\" />
+    <Folder Include="Views\ExternalInterface\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -1501,7 +1502,6 @@
     <Content Include="Views\Logistics\Add.cshtml" />
     <Content Include="Views\Logistics\Edit.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
-    <Content Include="Views\ExternalInterface\GetLazadaAuthorizationCode.cshtml" />
     <Content Include="Views\OrderQuery\DocumentDetail.cshtml" />
     <Content Include="Views\PriceError\Index.cshtml" />
     <Content Include="Views\DeliveryPushError\RePush.cshtml" />
@@ -1528,7 +1528,6 @@
     <Content Include="Content\js-library\jquery-easyui\1.9.5\themes\material-teal\images\Thumbs.db" />
     <Content Include="Content\js-library\jquery-easyui\1.9.5\themes\material\images\Thumbs.db" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
-    <Content Include="Views\ExternalInterface\GetShopeeAuthorizationCode.cshtml" />
     <Content Include="Views\RetailStore\Add.cshtml" />
     <Content Include="Views\RetailStore\Edit.cshtml" />
     <Content Include="Views\RetailStore\Index.cshtml" />

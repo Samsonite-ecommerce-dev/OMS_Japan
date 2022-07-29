@@ -189,6 +189,7 @@ namespace OMS.Service.Application
         {
             /***********下载订单***************/
             List<string> _msgList = new List<string>();
+            //List<CommonResultData<OrderResult>> _errorOrderList = new List<CommonResultData<OrderResult>>();
             FileLogHelper.WriteLog($"Start to down the Electronic Commerce Orders.", baseModel.ThreadName);
             //下载计划
             //每隔15分钟用增量订单接口下载前次最后获取时间到当前时间的数据
@@ -252,14 +253,16 @@ namespace OMS.Service.Application
                         //结果为NULL表示该店铺不执行该操作
                         if (_result != null)
                         {
+                            ////保存错误订单集合
+                            //_errorOrderList.AddRange(_result.ResultData.Where(p => !p.Result));
                             //返回信息
-                            _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: { _BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},Total Record:{_result.ResultData.Count},Success Record:{_result.ResultData.Where(p => p.Result).Count()},Fail Record:{_result.ResultData.Where(p => !p.Result).Count()}.");
+                            _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: {_BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},Total Record:{_result.ResultData.Count},Success Record:{_result.ResultData.Where(p => p.Result).Count()},Fail Record:{_result.ResultData.Where(p => !p.Result).Count()}.");
                         }
                     }
                     catch (Exception ex)
                     {
                         //返回信息
-                        _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: { _BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},ErrorMessage:{ex.ToString()}.");
+                        _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: {_BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},ErrorMessage:{ex.ToString()}.");
                     }
                     //间隔5秒,防止fpt占用问题
                     Thread.Sleep(5000);
@@ -277,14 +280,16 @@ namespace OMS.Service.Application
                         //结果为NULL表示该店铺不执行该操作
                         if (_result != null)
                         {
+                            ////保存错误订单集合
+                            //_errorOrderList.AddRange(_result.ResultData.Where(p => !p.Result));
                             //返回信息
-                            _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: { _BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},Total Record:{_result.ResultData.Count},Success Record:{_result.ResultData.Where(p => p.Result).Count()},Fail Record:{_result.ResultData.Where(p => !p.Result).Count()}.");
+                            _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: {_BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},Total Record:{_result.ResultData.Count},Success Record:{_result.ResultData.Where(p => p.Result).Count()},Fail Record:{_result.ResultData.Where(p => !p.Result).Count()}.");
                         }
                     }
                     catch (Exception ex)
                     {
                         //返回信息
-                        _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: { _BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},ErrorMessage:{ex.ToString()}.");
+                        _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: {_BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},ErrorMessage:{ex.ToString()}.");
                     }
                     //间隔5秒,防止fpt占用问题
                     Thread.Sleep(5000);

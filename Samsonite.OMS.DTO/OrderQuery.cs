@@ -114,6 +114,8 @@ namespace Samsonite.OMS.DTO
         public string Collection { get; set; }
 
         public int IsMonogram { get; set; }
+
+        public int IsGiftCard { get; set; }
     }
 
     public class OrderQueryExport

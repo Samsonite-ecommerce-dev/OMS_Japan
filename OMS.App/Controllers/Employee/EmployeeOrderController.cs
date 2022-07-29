@@ -95,6 +95,7 @@ namespace OMS.App.Controllers
             int _is_bundle = VariableHelper.SaferequestInt(Request.Form["is_bundle"]);
             int _is_gift = VariableHelper.SaferequestInt(Request.Form["is_gift"]);
             int _is_monogram = VariableHelper.SaferequestInt(Request.Form["is_monogram"]);
+            int _is_giftcard = VariableHelper.SaferequestInt(Request.Form["is_giftcard"]);
             string _promotion_name = VariableHelper.SaferequestStr(Request.Form["promotion_name"]);
             string _coupon_code = VariableHelper.SaferequestStr(Request.Form["coupon_code"]);
 
@@ -295,6 +296,11 @@ namespace OMS.App.Controllers
                     _SqlWhere.Add("(select count(*) from OrderValueAddedService where [order].OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.Monogram + ")>0");
                 }
 
+                if (_is_giftcard > 0)
+                {
+                    _SqlWhere.Add("(select count(*) from OrderValueAddedService where [order].OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.GiftCard + ")>0");
+                }
+
                 if (!string.IsNullOrEmpty(_promotion_name))
                 {
                     _SqlWhere.Add("(select count(*) from OrderDetailAdjustment where [order].OrderNo=OrderDetailAdjustment.OrderNo and OrderDetailAdjustment.LineitemText like '%" + _promotion_name + "%')>0");
@@ -439,6 +445,7 @@ namespace OMS.App.Controllers
             int _is_bundle = VariableHelper.SaferequestInt(Request.Form["IsBundle"]);
             int _is_gift = VariableHelper.SaferequestInt(Request.Form["IsGift"]);
             int _is_monogram = VariableHelper.SaferequestInt(Request.Form["isMonogram"]);
+            int _is_giftcard = VariableHelper.SaferequestInt(Request.Form["IsGiftCard"]);
             string _promotion_name = VariableHelper.SaferequestStr(Request.Form["PromotionName"]);
             string _coupon_code = VariableHelper.SaferequestStr(Request.Form["CouponCode"]);
 
@@ -645,6 +652,11 @@ namespace OMS.App.Controllers
                 if (_is_monogram > 0)
                 {
                     _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(select count(*) from OrderValueAddedService where o.OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.Monogram + ")>0", Param = null });
+                }
+
+                if (_is_giftcard > 0)
+                {
+                    _sqlWhere.Add(new EntityRepository.SqlQueryCondition() { Condition = "(select count(*) from OrderValueAddedService where o.OrderNo=OrderValueAddedService.OrderNo and OrderValueAddedService.Type=" + (int)ValueAddedServicesType.GiftCard + ")>0", Param = null });
                 }
 
                 if (!string.IsNullOrEmpty(_promotion_name))

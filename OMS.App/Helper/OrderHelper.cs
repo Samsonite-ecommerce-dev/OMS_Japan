@@ -46,6 +46,9 @@ namespace OMS.App.Helper
             _result.Add(new DefineEnum() { ID = (int)PayType.Nets, Display = _LanguagePack["orderquery_index_search_payment_type_21"] });
             _result.Add(new DefineEnum() { ID = (int)PayType.Mixed, Display = _LanguagePack["orderquery_index_search_payment_type_22"] });
             _result.Add(new DefineEnum() { ID = (int)PayType.Atome, Display = _LanguagePack["orderquery_index_search_payment_type_23"] });
+            _result.Add(new DefineEnum() { ID = (int)PayType.AmazonPay, Display = _LanguagePack["orderquery_index_search_payment_type_24"] });
+            _result.Add(new DefineEnum() { ID = (int)PayType.DocomoPay, Display = _LanguagePack["orderquery_index_search_payment_type_25"] });
+            _result.Add(new DefineEnum() { ID = (int)PayType.RakutenPay, Display = _LanguagePack["orderquery_index_search_payment_type_26"] });
             _result.Add(new DefineEnum() { ID = (int)PayType.OtherPay, Display = _LanguagePack["orderquery_index_search_payment_type_0"] });
             return _result;
         }
@@ -911,6 +914,16 @@ namespace OMS.App.Helper
             }
 
             /// <summary>
+            /// 是否贺卡
+            /// </summary>
+            private bool _isGiftCard = false;
+            public bool IsGiftCard
+            {
+                get { return _isGiftCard; }
+                set { _isGiftCard = value; }
+            }
+
+            /// <summary>
             /// 是否错误
             /// </summary>
             private bool _isError = false;
@@ -971,6 +984,10 @@ namespace OMS.App.Helper
             if (objOrderNatureLabel.IsMonogram)
             {
                 _result += string.Format("<br/><label class=\"label-info\">{0}</label>", _LanguagePack["ordertype_is_monogram"]);
+            }
+            if (objOrderNatureLabel.IsGiftCard)
+            {
+                _result += string.Format("<br/><label class=\"label-info\">{0}</label>", _LanguagePack["ordertype_is_giftcard"]);
             }
             if (objOrderNatureLabel.IsError)
             {

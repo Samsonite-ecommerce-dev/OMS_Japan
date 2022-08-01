@@ -9,10 +9,12 @@ using Samsonite.Utility.Common;
 using Samsonite.OMS.ECommerce;
 using Samsonite.OMS.ECommerce.Interface;
 using Samsonite.OMS.ECommerce.Models;
+using Samsonite.OMS.Service.AppNotification;
 
 using OMS.Service.Base;
 using OMS.Service.Base.Model;
 using OMS.Service.Base.BLL;
+using System.Data;
 
 namespace OMS.Service.Application
 {
@@ -168,7 +170,26 @@ namespace OMS.Service.Application
         private void DoWork()
         {
             //******下载电商订单信息******//
-            string _msg = DownElectronicCommerceOrder();
+            var _result = DownElectronicCommerceOrder();
+            if (_result.ErrorDatas.Any())
+            {
+                //发送邮件提醒
+                DataTable _dt = new DataTable();
+                _dt.Columns.Add("Order No.");
+                _dt.Columns.Add("Mall sap code");
+                _dt.Columns.Add("Order time");
+                _dt.Columns.Add("Message");
+                DataRow _dr = _dt.NewRow();
+                foreach (var item in _result.ErrorDatas)
+                {
+                    _dr[0] = item.Data.OrderNo;
+                    _dr[1] = item.Data.MallSapCode;
+                    _dr[2] = item.Data.CreateTime;
+                    _dr[3] = item.ResultMessage;
+                    _dt.Rows.Add(_dr);
+                }
+                NotificationService.SendServiceModuleNotification("Order download warning alerts", new DataTable[] { _dt }, "");
+            }
             //****************************//
 
             //重置错误时间
@@ -176,7 +197,7 @@ namespace OMS.Service.Application
             //计算下次执行时间
             OAB.CalculationNextTime(serviceConfig);
             //保存结果
-            ServiceLogService.Info(serviceConfig.ServiceID, $"{_msg}</br>Next Time:{serviceConfig.NextRunTime.ToString("yyyy-MM-dd HH:mm:ss")}.");
+            ServiceLogService.Info(serviceConfig.ServiceID, $"{_result.LoggerMsg}</br>Next Time:{serviceConfig.NextRunTime.ToString("yyyy-MM-dd HH:mm:ss")}.");
         }
 
         /// <summary>
@@ -185,11 +206,11 @@ namespace OMS.Service.Application
         /// <param name="objMallAPI"></param>
         /// <param name="objMsgList"></param>
         /// <returns></returns>
-        private string DownElectronicCommerceOrder()
+        private ServiceResult<OrderResult> DownElectronicCommerceOrder()
         {
             /***********下载订单***************/
+            var _serviceResult = new ServiceResult<OrderResult>();
             List<string> _msgList = new List<string>();
-            //List<CommonResultData<OrderResult>> _errorOrderList = new List<CommonResultData<OrderResult>>();
             FileLogHelper.WriteLog($"Start to down the Electronic Commerce Orders.", baseModel.ThreadName);
             //下载计划
             //每隔15分钟用增量订单接口下载前次最后获取时间到当前时间的数据
@@ -253,8 +274,8 @@ namespace OMS.Service.Application
                         //结果为NULL表示该店铺不执行该操作
                         if (_result != null)
                         {
-                            ////保存错误订单集合
-                            //_errorOrderList.AddRange(_result.ResultData.Where(p => !p.Result));
+                            //保存错误订单集合
+                            _serviceResult.ErrorDatas.AddRange(_result.ResultData.Where(p => !p.Result));
                             //返回信息
                             _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: {_BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},Total Record:{_result.ResultData.Count},Success Record:{_result.ResultData.Where(p => p.Result).Count()},Fail Record:{_result.ResultData.Where(p => !p.Result).Count()}.");
                         }
@@ -280,8 +301,8 @@ namespace OMS.Service.Application
                         //结果为NULL表示该店铺不执行该操作
                         if (_result != null)
                         {
-                            ////保存错误订单集合
-                            //_errorOrderList.AddRange(_result.ResultData.Where(p => !p.Result));
+                            //保存错误订单集合
+                            _serviceResult.ErrorDatas.AddRange(_result.ResultData.Where(p => !p.Result));
                             //返回信息
                             _msgList.Add($"{api.StoreName()}:<br/>->Orders Time: {_BeginTime.ToString("yyyy-MM-dd HH:mm:ss")}-{ _EndTime.ToString("yyyy-MM-dd HH:mm:ss")},Total Record:{_result.ResultData.Count},Success Record:{_result.ResultData.Where(p => p.Result).Count()},Fail Record:{_result.ResultData.Where(p => !p.Result).Count()}.");
                         }
@@ -295,7 +316,8 @@ namespace OMS.Service.Application
                     Thread.Sleep(5000);
                 }
             }
-            return string.Join("<br/>", _msgList);
+            _serviceResult.LoggerMsg = string.Join("<br/>", _msgList);
+            return _serviceResult;
         }
 
         /// <summary>
@@ -325,7 +347,13 @@ namespace OMS.Service.Application
                 //结果为NULL表示该店铺不执行该操作
                 if (objTradeDto_List != null)
                 {
-                    return ECommerceBaseService.SaveTrades(objTradeDto_List);
+                    var _result = ECommerceBaseService.SaveTrades(objTradeDto_List);
+                    //从OrderCache池中拿去的订单需要保存结果信息
+                    foreach (var item in _result.ResultData)
+                    {
+                        ECommerceBaseService.UpdateOrderCache(item.Result, item.Data.OrderNo, item.ResultMessage);
+                    }
+                    return _result;
                 }
                 else
                 {

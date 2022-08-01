@@ -69,7 +69,7 @@ namespace Samsonite.OMS.Service.AppNotification
         {
             StringBuilder _result = new StringBuilder();
             _result.AppendLine("<div class=\"bottom\">");
-            _result.AppendLine("OMS Singapore");
+            _result.AppendLine("OMS Japan");
             _result.AppendLine("</div>");
             return _result;
         }

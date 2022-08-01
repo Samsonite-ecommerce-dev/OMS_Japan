@@ -25,7 +25,7 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            (new TestApiTumi()).Test();
+            //(new TestApiTumi()).Test();
             //(new TestApiMicros()).Test();
 
             //---api---
@@ -35,7 +35,7 @@ namespace Test
             //(new TestWebAPI()).TestSagawaGoBack();
 
             //DeBug();
-            //ServicetTest();
+            ServicetTest();
 
             //WebHookTest();
 
@@ -110,7 +110,7 @@ namespace Test
 
             using (var db = new ebEntities())
             {
-                string _Mark = "M902";
+                string _Mark = "M102";
                 ServiceModuleInfo objServiceModuleInfo = db.ServiceModuleInfo.Where(p => p.ModuleMark == _Mark).SingleOrDefault();
                 if (objServiceModuleInfo != null)
                 {

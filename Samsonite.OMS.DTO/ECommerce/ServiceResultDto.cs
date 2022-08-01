@@ -110,4 +110,11 @@ namespace Samsonite.OMS.DTO
         /// </summary>
         public List<string> FailFile { get; set; }
     }
+
+    public class ServiceResult<T>
+    {
+        public string LoggerMsg { get; set; }
+
+        public List<CommonResultData<T>> ErrorDatas { get; set; } = new List<CommonResultData<T>>();
+    }
 }

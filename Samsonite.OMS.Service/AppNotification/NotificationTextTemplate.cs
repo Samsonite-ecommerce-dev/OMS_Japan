@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Text;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 using Samsonite.OMS.Database;
-using Samsonite.OMS.Service;
 using Samsonite.Utility.Common;
 
 namespace Samsonite.OMS.Service.AppNotification
@@ -86,7 +83,7 @@ namespace Samsonite.OMS.Service.AppNotification
             _result.AppendLine("<body>");
             _result.AppendLine("<div class=\"main\">");
             /***************************标题*************************************/
-            _result.AppendLine($"<div class=\"title\">An error occurred in the workflow with ID <span class=\"color_primary\">\"{this.WorkflowID}\"</span> on Site Singapore OMS.</div>");
+            _result.AppendLine($"<div class=\"title\">An error occurred in the workflow with ID <span class=\"color_primary\">\"{this.WorkflowID}\"</span> on Site Japan OMS.</div>");
             /********************************************************************/
             /***************************信息*************************************/
             _result.AppendLine("<div class=\"message\">");

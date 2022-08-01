@@ -1,13 +1,12 @@
-﻿using System;
-using System.Text;
+﻿using Samsonite.OMS.DTO;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
 namespace Samsonite.OMS.Service.AppNotification
 {
     public class NotificationService
     {
+        #region 系统邮件
         /// <summary>
         /// 发送服务警告邮件
         /// </summary>
@@ -31,6 +30,31 @@ namespace Samsonite.OMS.Service.AppNotification
         }
 
         /// <summary>
+        /// /发送信息保存失败警告邮件(订单/产品)
+        /// </summary>
+        /// <param name="objTitle"></param>
+        /// <param name="objTableData"></param>
+        /// <param name="objMessage"></param>
+        public static void SendServiceModuleNotification(string objTitle, DataTable[] objTableData, string objMessage)
+        {
+            //默认发送邮件组ID
+            int _EmailGroupID = 1;
+
+            NotificationTableTemplate objEmail = new NotificationTableTemplate()
+            {
+                Level = AppNotificationLevel.Warning,
+                Title = objTitle,
+                TableData = objTableData,
+                Message = objMessage,
+                EmailTitle = "System Alert",
+                EmailGroupID = _EmailGroupID
+            };
+            objEmail.Send();
+        }
+        #endregion
+
+        #region 库存警报
+        /// <summary>
         /// 发送低库存警报
         /// </summary>
         /// <param name="objTitle"></param>
@@ -52,7 +76,9 @@ namespace Samsonite.OMS.Service.AppNotification
             };
             objEmail.Send();
         }
+        #endregion
 
+        #region 退款审核通知
         /// <summary>
         /// 发送退款审批邮件
         /// </summary>
@@ -73,6 +99,7 @@ namespace Samsonite.OMS.Service.AppNotification
             };
             objEmail.Send();
         }
+        #endregion
     }
 
     public enum AppNotificationLevel

@@ -497,7 +497,7 @@
           <Property Name="CreateDate" Type="datetime" Nullable="false" />
           <Property Name="MallProductId" Type="nvarchar" MaxLength="100" />
           <Property Name="MallSkuId" Type="nvarchar" MaxLength="100" />
-          <Property Name="ProductName" Type="nvarchar(max)" />
+          <Property Name="ProductName" Type="nvarchar" MaxLength="100" Nullable="false" />
           <Property Name="ProductPic" Type="nvarchar" MaxLength="512" />
           <Property Name="ProductId" Type="nvarchar" MaxLength="50" />
           <Property Name="SetCode" Type="nvarchar" MaxLength="100" />
@@ -3816,7 +3816,7 @@
           <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="MallProductId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="MallSkuId" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="ProductName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ProductName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="ProductPic" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
           <Property Name="ProductId" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="SetCode" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />

@@ -7,6 +7,6 @@ namespace Samsonite.OMS.Service.AppNotification
         /// <summary>
         /// 通知邮件标题
         /// </summary>
-        public const string EMAILTITLE = "SG OMS Notification";
+        public const string EMAILTITLE = "Japan OMS Notification";
     }
 }
